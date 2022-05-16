@@ -1,7 +1,6 @@
 ![FlagAI](logo.png)
-
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052) 
 [English](README.md)
-[简体中文](README_zh.md)
 
 -------------------------------------------------------------------------------- 
 
