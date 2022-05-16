@@ -40,7 +40,12 @@ FlagAI 旨在帮助研究人员和开发人员自由地训练和测试用于 NLP
 * Python version >= 3.8
 * 使用GPUs进行训练和测试, 你需要安装CUDA 和 NCCL
 
-下载源码安装:
+通过`pip`安装:
+```shell
+pip install -U flagai
+```
+
+- [可选]下载源码安装:
 
 ```shell
 git clone https://github.com/BAAI-WuDao/Sailing.git
