@@ -42,7 +42,12 @@ The code is partially based on [Transformers](https://github.com/huggingface/tra
 * Python version >= 3.8
 * For training/testing models on GPUs, you'll also need install CUDA and NCCL
 
-To install FlagAI and develop locally:
+To install FlagAI with pip:
+```shell
+pip install -U flagai
+```
+
+- [Optional]To install FlagAI and develop locally:
 
 ```shell
 git clone https://github.com/BAAI-WuDao/Sailing.git
