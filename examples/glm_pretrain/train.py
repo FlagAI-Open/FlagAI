@@ -1,0 +1,103 @@
+from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.model.glm_model import GLMForSeq2Seq
+from flagai.trainer import Trainer
+from flagai.data.dataset import ConstructBlockStrategy
+from flagai.data.dataset import BlockDataset
+from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
+from flagai.data.dataset.superglue.control import DEFAULT_METRICS
+
+
+class DatasetArguments:
+
+    def __init__(self):
+        self.task_mask = True  # Distinguished the generation and gap-sentence mask
+        self.block_mask_prob = 0.1
+        self.block_lm = True  # Whether do masking
+        self.masked_lm = False  # Whether do simple masking (same symbol among masks)
+
+        self.pre_tokenize = True
+        self.no_lazy_loader = True
+        self.half_lazy_loader = False
+        self.sentinel_token = False
+
+
+if __name__ == '__main__':
+
+    trainer = Trainer(env_type='pytorch',
+                      epochs=1,
+                      batch_size=1,
+                      eval_interval=100,
+                      log_interval=50,
+                      experiment_name='glm_large',
+                      pytorch_device='cuda',
+                      load_dir=None,
+                      lr=1e-4,
+                      save_epoch=10)
+
+    model = GLMForSeq2Seq.from_pretrain(model_name='glm_large_ch')
+    tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
+                                    add_task_mask=False,
+                                    add_decoder_mask=False,
+                                    fix_command_token=True)
+
+    ds_args = DatasetArguments()
+
+    tokenizer = GLMLargeChTokenizer(fix_command_token=True,
+                                    add_block_symbols=True,
+                                    add_task_mask=True,
+                                    add_decoder_mask=False)
+
+    ds_args = add_args(ds_args, tokenizer)
+
+    def create_dataset(tokenizer, should_split):
+        dataset = get_dataset_lazy("./examples/glm_pretrain/data",
+                                   tokenizer=tokenizer,
+                                   pre_tokenize=True,
+                                   num_processes=10,
+                                   no_lazy_loader=True)
+        if should_split:
+            datasets = split_ds(dataset, split=[.8, .2, .0], shuffle=True)
+        else:
+            datasets = [dataset]
+
+        datasets = [
+            BlockDataset(ds,
+                         tokenizer,
+                         max_seq_len=512,
+                         sample_across_doc=True,
+                         non_sentence_start=0.0) if ds is not None else None
+            for ds in datasets
+        ]
+        return datasets
+
+    datasets = create_dataset(tokenizer, should_split=True)
+
+    collate_fn = None
+    if ds_args.block_lm:
+        collate_fn = ConstructBlockStrategy(
+            tokenizer, 512, eod_token=tokenizer.get_command('eos').Id)
+    metric_methods = DEFAULT_METRICS['pretrain']
+    trainer.train(model,
+                  collate_fn=collate_fn,
+                  train_dataset=datasets[0],
+                  valid_dataset=datasets[1],
+                  metric_methods=metric_methods)
+
+    # for dataset in datasets:
+    #     # dataset = BlockDataset
+    #     sampler = torch.utils.data.SequentialSampler(dataset)
+    #     batch_sampler = torch.utils.data.BatchSampler(sampler,
+    #                                                   batch_size=16,
+    #                                                   drop_last=False)
+    #
+    #     dataloader = torch.utils.data.DataLoader(dataset,
+    #                                              batch_sampler=batch_sampler,
+    #                                              num_workers=1,
+    #                                              pin_memory=True,
+    #                                              collate_fn=collate_fn)
+    #
+    #     data_iterator = iter(dataloader)
+    #
+    #     data = next(data_iterator) if data_iterator else None
+    #     print(data)
+    #     break
