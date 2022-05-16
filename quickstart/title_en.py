@@ -7,7 +7,7 @@ maxlen = 512
 
 auto_loader = AutoLoader(
     task_name="seq2seq",
-    model_name="bert_title_generation_en"
+    model_name="BERT-base-en-title-generation"
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()

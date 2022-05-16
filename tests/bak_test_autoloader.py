@@ -13,8 +13,8 @@ class AutoLoaderTestCase(unittest.TestCase):
             "sequence_labeling_crf", "sequence_labeling_gp", "embedding"
         ]
         self.model_name = [
-            "gpt2_base_chinese", "t5_base_ch", "RoBERTa-wwm-ext",
-            "glm_large_ch"
+            "GPT2_base_ch", "T5_base_ch", "RoBERTa-wwm-ext",
+            "GLM_large_ch"
         ]
 
         print("loading bert model successfully!")

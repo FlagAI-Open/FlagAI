@@ -7,7 +7,7 @@ maxlen = 256
 
 auto_loader = AutoLoader(
     task_name="seq2seq",
-    model_name="RoBERTa-wwm-ext-title-generation"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_name="RoBERTa-base-ch-title-generation"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
