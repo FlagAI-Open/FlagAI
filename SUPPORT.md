@@ -3,7 +3,7 @@ _Use this file to detail how to make get support forthe project. The structure b
 # Getting Help
 
 There are a few ways to connect with the PROJECT NAME project:
-* https://github.com/BAAI-WuDao/Sailing/issues 
+* https://github.com/BAAI-WuDao/Sailing/issues
 
 ## How to Ask for Help
 

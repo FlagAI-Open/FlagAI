@@ -76,7 +76,6 @@ def my_collate(batch):
 
 
 class ConstructSuperglueStrategy:
-
     def __init__(self, args, tokenizer, task_name):
         # pattern_id, seq_length, num_prompt_tokens, multi_token, segment_length, fast_decode, dataset_type, cloze_val=True
         self.tokenizer = tokenizer
@@ -108,7 +107,6 @@ class ConstructSuperglueStrategy:
 
 
 class ConstructSeq2seqStrategy:
-
     def __init__(self, args, tokenizer, task_name):
         # pattern_id, seq_length, num_prompt_tokens, multi_token, segment_length, fast_decode, dataset_type, cloze_val=True
         self.tokenizer = tokenizer
@@ -129,14 +127,10 @@ class ConstructSeq2seqStrategy:
 
     def __call__(self, examples):
         samples = []
-        for example in examples:
-            source_text = example.texta + ' ' + example.textb
-            target_text = example['meta']['answer']['text']
         return my_collate(samples)
 
 
 class ConstructBlockStrategy:
-
     def __init__(self,
                  tokenizer,
                  max_seq_length,
@@ -614,8 +608,7 @@ class ConstructBlockStrategy:
                 multiple_doc = index_in_list(
                     sample['input_ids'],
                     self.tokenizer.get_command('eos').Id) not in [
-                        -1, len(sample['input_ids']) - 1
-                    ]
+                        -1, len(sample['input_ids']) - 1]
                 if multiple_doc or rng.random() < self.infill_prob:
                     division = len(sample['input_ids']) - generation_length
                     tokens, loss_masks = sample['input_ids'], sample[

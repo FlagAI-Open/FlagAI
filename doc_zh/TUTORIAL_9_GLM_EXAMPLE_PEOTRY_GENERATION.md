@@ -36,7 +36,7 @@ def read_file():
     ## src = ["春晓：五言绝句", "标题：五言律诗",......]
     ## tgt = ["春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。", "诗句...", ......]
     ## no matter what data you use, you need to construct the right src and tgt.
-    
+  
     return src,tgt
 ```
 2）定义数据迭代器（DataLoader）：
@@ -52,7 +52,7 @@ class BertSeq2seqDataset(Dataset):
         target_text = self.sents_tgt[i]
         data=tokenizer.encode_plus(source_text,
             target_text=target_text)
-        return data 
+        return data
 
     def __len__(self):
         return len(self.sents_src)
@@ -115,9 +115,9 @@ train_dataset = BertSeq2seqDataset(train_src,
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt, 
+# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
 # or we will download these files from the model hub to this dir.
-model_dir = "./state_dict/glm/" 
+model_dir = "./state_dict/glm/"
 # Autoloader can build the model and tokenizer automatically.
 # 'seq2seq' is the task_name.
 AutoLoader("seq2seq",model_name="glm_large_ch",model_dir=model_dir)
@@ -138,7 +138,7 @@ trainer = Trainer(
     lr=2e-4,#2e-4
     weight_decay=2e-8,#1e-3
     epochs=100,
-    log_interval=10,    
+    log_interval=10,  
     tensorboard_dir="tbsummary",
     eval_interval=2000000,
     load_dir="",
@@ -159,7 +159,7 @@ trainer = Trainer(
 trainer.train(model,
               train_dataset=train_dataset,
               collate_fn=my_collate_fn)
-```              
+```            
 
 
 

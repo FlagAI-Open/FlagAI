@@ -12,16 +12,14 @@ def padding(indice, max_length, pad_idx=0):
 
 def bert_sequence_label_gp_collate_fn(batch):
     """
-    动态padding， batch为一部分sample
+    Dynamic padding
     """
-
     def sequence_padding(inputs,
                          length=None,
                          value=0,
                          seq_dims=1,
                          mode='post'):
-        """Numpy函数，将序列padding到同一长度
-        """
+        """ padding sequence to the same lenght"""
         if length is None:
             length = np.max([np.shape(x)[:seq_dims] for x in inputs], axis=0)
         elif not hasattr(length, '__getitem__'):
@@ -96,7 +94,7 @@ def bert_cls_collate_fn(batch):
 
 def bert_sequence_label_collate_fn(batch):
     """
-    动态padding， batch为一部分sample
+    dynamical padding
     """
 
     token_ids = [data["input_ids"] for data in batch]

@@ -46,18 +46,18 @@ def read_file(data_path):
     return src,tgt
 ```
 
-### 2.Load model and tokenizer 
+### 2.Load model and tokenizer
 
 ```python
 from flash_tran.auto_model.auto_loader import AutoLoader
 
-# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt, 
+# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
 # or we will download these files from the model hub to this dir.
-model_dir = "./state_dict/" 
+model_dir = "./state_dict/"
 # Autoloader can build the model and tokenizer automatically.
 # 'cls' is the task_name.
-auto_loader = AutoLoader("cls", 
-                         model_dir, 
+auto_loader = AutoLoader("cls",
+                         model_dir,
                          model_name="RoBERTa-wwm-ext")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
@@ -71,7 +71,7 @@ python ./train.py
 Modify the training configuration by this code:
 ```python
 from flagai.trainer import Trainer
-import torch 
+import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(env_type="pytorch",
                   experiment_name="roberta_semantic_matching",

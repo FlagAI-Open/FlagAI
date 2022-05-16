@@ -73,7 +73,6 @@ def whitespace_tokenize(text):
 
 class BertTokenizer(object):
     """Runs end-to-end tokenization: punctuation splitting + wordpiece"""
-
     def __init__(self,
                  vocab_file,
                  do_lower_case=True,
@@ -190,7 +189,6 @@ class BertTokenizer(object):
             if cache_dir is None:
                 cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs')
             # TODO: the logic of file cache is not clear
-            #resolved_vocab_file = cached_path(vocab_file, cache_dir=cache_dir)
             resolved_vocab_file = os.path.join(cache_dir, vocab_file)
         except EnvironmentError:
             logger.error(
@@ -279,7 +277,6 @@ class BertTokenizer(object):
         truncation=True,
         max_length=None,
     ):
-
         def get_input_ids(text):
             tokens = self.tokenize(text)
             return self.convert_tokens_to_ids(tokens)
@@ -420,7 +417,6 @@ class BertTokenizer(object):
 
 class BasicTokenizer(object):
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
-
     def __init__(self,
                  do_lower_case=True,
                  never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]")):
@@ -554,7 +550,6 @@ class BasicTokenizer(object):
 
 class WordpieceTokenizer(object):
     """Runs WordPiece tokenization."""
-
     def __init__(self, vocab, unk_token="[UNK]", max_input_chars_per_word=100):
         self.vocab = vocab
         self.unk_token = unk_token

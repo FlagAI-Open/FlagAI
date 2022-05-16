@@ -8,7 +8,7 @@ from transformers import T5ForConditionalGeneration, T5Tokenizer
 from torch.utils.data import Dataset
 import torch
 
-## Inheriant the Trainer 
+## Inheriant the Trainer
 ## overload the forward_step function
 class MyTrainer(Trainer):
 
@@ -116,7 +116,7 @@ def seq2seq_collate_fn(batch):
 
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
-train_size = int(data_len * 0.8) 
+train_size = int(data_len * 0.8)
 train_src = sents_src[:train_size]
 train_tgt = sents_tgt[:train_size]
 
@@ -141,7 +141,7 @@ trainer.train(model,
 ## 加速训练的技巧
 我们可能不会在V100 32G上运行t5-3b。所以，我们需要一些技巧来减少GPU内存的使用。
 ### 第一步：fp16
-把模型参数变为 `fp16` 
+把模型参数变为 `fp16`
 ```python
 trainer = MyTrainer(
     env_type='pytorch',
@@ -154,7 +154,7 @@ trainer = MyTrainer(
     load_dir=None,
     lr=1e-4,
     fp16=True) # change to `True`
-```    
+```  
 ### 第二步：梯度重计算（checkpoint）
 在forward阶段不将中间结果保存。我们可以运行`batch size`=1的t5-3b。
 现在，我们可以用 `gradient_accumulation_steps` train/finetune 一个 t5-3b。
@@ -171,9 +171,9 @@ trainer = MyTrainer(
     lr=1e-4,
     fp16=True
     checkpoint_activations = True) # setting as `True`
-```    
+```  
 ### 第三步：数据并行(DDP)
-为了增加batch size，我们可以在多个GPU上使用数据并行。 
+为了增加batch size，我们可以在多个GPU上使用数据并行。
 ```python
 trainer = Trainer(
     env_type="pytorchDDP",
@@ -184,7 +184,7 @@ trainer = Trainer(
     experiment_name='t5-3b',
     load_dir=None,
     lr=1e-4,
-    fp16=True 
+    fp16=True
     checkpoint_activations=False,
     # The following six options is for pytorchDDP
     master_ip='127.0.0.1',
@@ -200,7 +200,7 @@ trainer = Trainer(
 
 ```python
 trainer = Trainer(
-    env_type="deepspeed", # env_type 
+    env_type="deepspeed", # env_type
     epochs=1,
     batch_size=1,
     eval_interval=10,
@@ -208,7 +208,7 @@ trainer = Trainer(
     experiment_name='t5-3b',
     load_dir=None,
     lr=1e-4,
-    fp16=True 
+    fp16=True
     checkpoint_activations=False,
     # parallel settings
     master_ip='127.0.0.1',
@@ -218,14 +218,14 @@ trainer = Trainer(
     hostfile='hostfile',
     training_script=__file__,
     # deepspeed
-    deepspeed_config='deepspeed.json' 
+    deepspeed_config='deepspeed.json'
 )
 ```
 ### 第五步：模型并行（deepspeed + megatron-lm）
 
 ```python
 trainer = Trainer(
-    env_type="deepspeed", # env_type 
+    env_type="deepspeed", # env_type
     epochs=1,
     batch_size=1,
     eval_interval=10,
@@ -233,7 +233,7 @@ trainer = Trainer(
     experiment_name='t5-3b',
     load_dir=None,
     lr=1e-4,
-    fp16=True 
+    fp16=True
     checkpoint_activations=False,
     # parallel settings
     master_ip='127.0.0.1',

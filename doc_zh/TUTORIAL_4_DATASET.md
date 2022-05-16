@@ -2,14 +2,14 @@
 
 ## 支持的下游数据集列表
 
-| 数据集名称                                     | 数据集简称    | 语言  | 所属评测基准   |  
+| 数据集名称                                     | 数据集简称    | 语言  | 所属评测基准   |
 |----------------------------------------------|----------|-----|----------|
 | Broadcoverage Diagnostics                    | BoolQ    | 英文  | SuperGLUE |
 | CommitmentBank                               | CB       | 英文  | SuperGLUE |
-| Choice of Plausible Alternatives             | COPA     | 英文  | SuperGLUE | 
+| Choice of Plausible Alternatives             | COPA     | 英文  | SuperGLUE |
 | Multi-Sentence Reading Comprehension         | MultiRC  | 英文  | SuperGLUE |
-| Recognizing Textual Entailment               | RTE      | 英文  | SuperGLUE | 
-| Words in Context                             | WiC      | 英文  | SuperGLUE |                                                     
+| Recognizing Textual Entailment               | RTE      | 英文  | SuperGLUE |
+| Words in Context                             | WiC      | 英文  | SuperGLUE |                                                   
 | The Winograd Schema Challenge                | WSC      | 英文  | SuperGLUE |
 | Ant Financial Question Matching Corpus       | AFQMC    | 中文  | CLUE     |
 | Short Text Classificaiton for News           | TNEWS    | 中文  | CLUE     |

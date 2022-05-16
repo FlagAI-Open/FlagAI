@@ -30,11 +30,11 @@ tokenizer = auto_loader.get_tokenizer()
 所有支持的模型都可以在 **model hub** 中找到。
 不同的模型适应不同的任务。
 
-#### Transfomrer编码器: 
+#### Transfomrer编码器:
 
 例如 model_name="bert-base-chinese" or "RoBERTa-wwm-ext"时， 这些模型支持上一节中提到的所有任务
 
-#### Transformer解码器: 
+#### Transformer解码器:
 
 例如 model_name="gpt2-chinese"时, 模型支持 "seq2seq" 任务.
 

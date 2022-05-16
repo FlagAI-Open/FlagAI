@@ -5,7 +5,7 @@ Transformer可以从输入中提取更好的特征，这点使得基于Transform
 Transformer的另一个特点是它与并行计算的兼容性，这是其与RNN等时序模型相比起来的优点。
 
 Transformer的结构如下图所示
-<div align=center><img src="img/transformer.png" width="400px"></div>  
+<div align=center><img src="img/transformer.png" width="400px"></div>
 
 在编码器步骤中，首先将输入编码与位置编码相加，
 然后将相加的结果传递给多头注意力机制，该机制能够考虑不同位置token之间的相关性信息。

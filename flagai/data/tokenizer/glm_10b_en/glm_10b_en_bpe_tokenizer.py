@@ -20,7 +20,6 @@ from ..tokenizer import GLMTokenizer, CommandToken, TypeToken
 
 
 class GLM10bENBPETokenizer(GLMTokenizer):
-
     def __init__(self,
                  tokenizer_model_type="gpt2",
                  add_block_symbols=False,

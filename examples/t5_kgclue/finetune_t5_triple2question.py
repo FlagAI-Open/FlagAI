@@ -67,7 +67,6 @@ class DataSet(Dataset):
         input_ids = source["input_ids"].squeeze()
         attention_mask = source["attention_mask"].squeeze()
         target_ids = target["input_ids"].squeeze()
-        target_mask = target["attention_mask"].squeeze()
         decoder_input_ids = target_ids[:-1]
         labels = target_ids[1:].clone().detach()
         labels[target_ids[1:] == tokenizer.pad_token_id]

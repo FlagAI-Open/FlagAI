@@ -1,5 +1,5 @@
 ![FlagAI](logo.png)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052) 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
 [简体中文](README_zh.md)
 
 --------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ Host 127.0.0.1
 
 ## Quick Start
 We provide many models which are trained to perform different tasks. You can load these models by AutoLoader to make prediction.
-## Load model and tokenizer 
+## Load model and tokenizer
 We provide the AutoLoad class to load the model and tokenizer quickly, for example:
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -93,7 +93,7 @@ tokenizer = auto_loader.get_tokenizer()
 This example is for the `title_generation` task, and you can also model other tasks by modifying the `task_name`.
 Then you can use the model and tokenizer to finetune or test.
 
-## Predictor 
+## Predictor
 We provide the `Predictor` class to predict for different tasks, for example:
 
 ```python

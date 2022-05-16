@@ -42,7 +42,6 @@ class SplitDataset(Dataset):
         ds (Dataset or array-like): List of datasets to be subindexed
         split_inds (1D array-like): List of indices part of subset
     """
-
     def __init__(self, ds, split_inds, **kwargs):
         self.split_inds = list(split_inds)
         self.wrapped_data = ds

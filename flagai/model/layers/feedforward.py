@@ -4,11 +4,9 @@ import torch
 import torch.nn as nn
 from torch.nn.parameter import Parameter
 from torch.nn import init
-from .layer_norm import T5LayerNorm, BertLayerNorm
+from .layer_norm import T5LayerNorm
 from .activations import gelu_impl, relu, gelu_new, ACT2FN
-from ..utils import normal_init_method
 import torch.nn.functional as F
-
 from flagai.mpu.initialize import get_model_parallel_rank
 from flagai.mpu.initialize import get_model_parallel_world_size
 from flagai.mpu.mappings import copy_to_model_parallel_region
@@ -16,9 +14,6 @@ from flagai.mpu.mappings import gather_from_model_parallel_region
 from flagai.mpu.mappings import reduce_from_model_parallel_region
 from flagai.mpu.mappings import scatter_to_model_parallel_region
 from flagai.mpu.utils import divide
-from flagai.mpu.utils import VocabUtility
-from flagai.model.utils import normal_init_method
-from .activations import ACT2FN
 
 
 def _initialize_affine_weight(weight,
@@ -67,7 +62,6 @@ def _initialize_affine_weight(weight,
 
 
 class GPT2MLP(nn.Module):
-
     def __init__(self,
                  n_state,
                  config,
@@ -101,7 +95,6 @@ class GPT2MLP(nn.Module):
 
 
 class T5DenseReluDense(nn.Module):
-
     def __init__(self, config):
         super().__init__()
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
@@ -128,7 +121,6 @@ class T5DenseReluDense(nn.Module):
 
 
 class T5DenseGatedGeluDense(nn.Module):
-
     def __init__(self, config):
         super().__init__()
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
@@ -167,7 +159,6 @@ class T5DenseGatedGeluDense(nn.Module):
 
 
 class T5LayerFF(nn.Module):
-
     def __init__(self, config):
         super().__init__()
         if config['feed_forward_proj'] == "relu":
@@ -191,7 +182,6 @@ class T5LayerFF(nn.Module):
 
 
 class MLPForward(torch.nn.Module):
-
     def __init__(
         self,
         hidden_size,
@@ -236,7 +226,6 @@ class MLPForward(torch.nn.Module):
 
 
 class BertPooler(nn.Module):
-
     def __init__(self, hidden_size):
         super(BertPooler, self).__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
@@ -271,7 +260,6 @@ class ColumnParallelLinear(torch.nn.Module):
                                      set to False. It returns the master weights
                                      used for initialization.
     """
-
     def __init__(self,
                  input_size,
                  output_size,
@@ -355,7 +343,6 @@ class RowParallelLinear(torch.nn.Module):
                                      set to False. It returns the master weights
                                      used for initialization.
     """
-
     def __init__(self,
                  input_size,
                  output_size,

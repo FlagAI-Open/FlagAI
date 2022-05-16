@@ -1,6 +1,6 @@
 # 预训练分布式环境搭建
 
-# 一.  Docker 
+# 一.  Docker
 
 ## 1.安装docker
 
@@ -117,7 +117,7 @@ systemctl restart docker
 
 ```dockerfile
 #pull base image
-FROM nvidia/cuda:10.2-devel-ubuntu18.04   
+FROM nvidia/cuda:10.2-devel-ubuntu18.04 
 #maintainer
 MAINTAINER deepspeed <gqwang@baai.ac.cn>
 
@@ -135,7 +135,7 @@ RUN mkdir -p ${STAGE_DIR}
 #Installation/Basic Utilities
 ##############################################################################
 RUN  sed -i s@/archive.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list
-RUN  sed -i s@/security.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list 
+RUN  sed -i s@/security.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends \
         software-properties-common build-essential autotools-dev \
@@ -149,8 +149,8 @@ RUN apt-get update && \
         libjpeg-dev \
         libpng-dev \
         screen jq psmisc dnsutils lsof musl-dev systemd
-```        
-        
+```      
+      
 ### c.  安装最新版git(创建镜像clone 安装包)
 
 ```dockerfile
@@ -178,7 +178,7 @@ RUN cd ${STAGE_DIR} && \
     PATH=/usr/bin:$PATH ./mlnxofedinstall --user-space-only --without-fw-update --umad-dev-rw --all -q && \
     cd ${STAGE_DIR} && \
     rm -rf ${STAGE_DIR}/MLNX_OFED_LINUX-${MLNX_OFED_VERSION}-ubuntu18.04-x86_64*
-```    
+```  
 
 ### e. 安装 nv_peer_mem
 
@@ -200,7 +200,7 @@ RUN cd ${STAGE_DIR}/nv_peer_memory && \
     apt-get update && \
     apt-get install -y dkms && \
     dpkg-buildpackage -us -uc && \
-    dpkg -i ${STAGE_DIR}/nvidia-peer-memory_${NV_PEER_MEM_TAG}_all.deb   
+    dpkg -i ${STAGE_DIR}/nvidia-peer-memory_${NV_PEER_MEM_TAG}_all.deb 
 ```
 
 ### f. 安装openmpi, 需先安装libevent 依赖包
@@ -237,7 +237,7 @@ RUN mv /usr/local/mpi/bin/mpirun /usr/local/mpi/bin/mpirun.real && \
     echo 'mpirun.real --allow-run-as-root --prefix /usr/local/mpi "$@"' >> /usr/local/mpi/bin/mpirun && \
     chmod a+x /usr/local/mpi/bin/mpirun
 ```
-    
+  
 ### g.安装 python
 
 ```dockerfile
@@ -249,24 +249,24 @@ RUN curl -o ~/miniconda.sh https://mirrors.tuna.tsinghua.edu.cn/anaconda/minicon
      chmod +x ~/miniconda.sh && \
      ~/miniconda.sh -b -p /opt/conda && \
      rm ~/miniconda.sh && \
-     /opt/conda/bin/conda install -y python=$PYTHON_VERSION numpy pyyaml scipy ipython mkl mkl-include ninja cython typing 
+     /opt/conda/bin/conda install -y python=$PYTHON_VERSION numpy pyyaml scipy ipython mkl mkl-include ninja cython typing
 ```
-    
+  
 ### h.安装 magma-cuda
 
 ```dockerfile
 ###########################################################################
 #Install magma-cuda
 ##############################################################################
-COPY magma-cuda102-2.5.2-1.tar.bz2   ${STAGE_DIR}   
+COPY magma-cuda102-2.5.2-1.tar.bz2   ${STAGE_DIR} 
 RUN  cd ${STAGE_DIR} && \
      /opt/conda/bin/conda install -y -c pytorch --use-local magma-cuda102-2.5.2-1.tar.bz2  && \
      /opt/conda/bin/conda clean -ya
 ####optional#####
 #RUN  /opt/conda/bin/conda install -y -c pytorch  magma-cuda102  && \
-#/opt/conda/bin/conda clean -ya 
+#/opt/conda/bin/conda clean -ya
 ```
-    
+  
 ### i.配置路径
 
 ```dockerfile
@@ -278,7 +278,7 @@ RUN echo "export PATH=/opt/conda/bin:\$PATH" >> /root/.bashrc
 RUN pip install --upgrade pip setuptools
 RUN wget https://tuna.moe/oh-my-tuna/oh-my-tuna.py && python oh-my-tuna.py
 ```
-    
+  
 ### j.安装一些pip 包
 
 ```dockerfile
@@ -314,8 +314,8 @@ RUN pip install psutil \
                 rouge_score \
                 cupy-cuda102\
                 setuptools==60.0.3
-```  
-    
+```
+  
 ### k.安装mpi4py （需下载到本地安装，pip 安装可能因为版本兼容问题报错）
 
 ```dockerfile
@@ -327,7 +327,7 @@ RUN apt-get update && \
 COPY mpi4py-3.1.3.tar.gz ${STAGE_DIR}
 RUN cd ${STAGE_DIR} && tar zxvf mpi4py-3.1.3.tar.gz && \
  cd mpi4py-3.1.3 &&\
- python setup.py build && python setup.py install 
+ python setup.py build && python setup.py install
 ```
 
 ### l.安装pytorch, 版本可替换， 需先下载项目到本地，国内安装容易因为网速原因，造成终止, pytorch git clone 过程中可能有些子包下载过程中会终止。可以多 git clone 几次
@@ -347,8 +347,8 @@ ENV NCCL_LIBRARY=/usr/lib/x86_64-linux-gnu
 ENV NCCL_INCLUDE_DIR=/usr/include
 RUN cd /opt/pytorch && TORCH_NVCC_FLAGS="-Xfatbin -compress-all" \
     CMAKE_PREFIX_PATH="$(dirname $(which conda))/../" USE_SYSTEM_NCCL=1 \
-    pip install -v . && rm -rf /opt/pytorch 
- 
+    pip install -v . && rm -rf /opt/pytorch
+
 
 
 ##############################################################################
@@ -380,7 +380,7 @@ RUN cd ${STAGE_DIR}/apex && pip install -v --no-cache-dir --global-option="--cpp
 #Install deepSpeed
 #############################################################################
 RUN pip install  py-cpuinfo
-RUN apt-get install -y libaio-dev 
+RUN apt-get install -y libaio-dev
 ENV TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0+PTX"
 RUN git clone https://github.com/microsoft/DeepSpeed.git ${STAGE_DIR}/DeepSpeed
 #COPY DeepSpeed ${STAGE_DIR}/DeepSpeed
@@ -406,7 +406,7 @@ RUN python -c "import deepspeed; print(deepspeed.__version__)"
 #ENV NCCL_VERSION=2.9.6
 ```
 
-### p.配置网络端口、公钥和ssh 
+### p.配置网络端口、公钥和ssh
 
 ```dockerfile
 #############################################################################
@@ -447,7 +447,7 @@ docker load --input deepspeed-cuda102.tar.gz
 ```shell
 docker build -f cuda102.dockerfile  -t deepspeed/cuda102:1221 .
 #cuda102.dockerfile 参考 dockerfile 文件制作流程
-```     
+```   
 # 二. 在每个机器节点构建容器
 
 ```shell
@@ -501,9 +501,9 @@ docker rm 容器名/容器id
 
 ## 2.将各节点容器生成的公钥文件
 
-~/.ssh/id_rsa.pub 
+~/.ssh/id_rsa.pub
 中的内容收集，并同步到各机器的文件
-~/.ssh/authorized_keys 
+~/.ssh/authorized_keys
 
 ## 3.免密登陆
 

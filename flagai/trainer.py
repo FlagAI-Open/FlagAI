@@ -6,7 +6,7 @@ except:
     pass
 try:
     from flagai import mpu
-except Exception as e:
+except Exception:
     pass
 from re import I
 import torch
@@ -45,7 +45,7 @@ class Trainer():
                         deepspeed: single-/multi- node gpu <data/pipline parallel>
                         deepspeed+mpu: single-/multi- node gpu <data parallel + model parallel>
         train_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
-            The dataset to use for training. 
+            The dataset to use for training.
             If it is an `Dataset`, we will create a `DataLoader` with the provided `Dataset` and `collate_fn' for the selected `env_type`.
             `Dataset` is prefred to iterally return a sample as followings,
             >>> {'text': 'I like big model.', 'label': 'positive'}
@@ -73,37 +73,36 @@ class Trainer():
         Example settings for `pyrochDDP`:
             >>> trainer = Trainer(env_type='pytorchDDP',
             >>>                        master_ip='127.0.0.1',
-            >>>                        master_port=17750, 
+            >>>                        master_port=17750,
             >>>                        num_nodes=1,   # nodes
             >>>                        num_gpus=2,    # gpus for each nodes
-            >>>                        hostfile='./hostfile', 
-            >>>                        training_script=__file__) 
-            >>> cat ./hostfile 
+            >>>                        hostfile='./hostfile',
+            >>>                        training_script=__file__)
+            >>> cat ./hostfile
             >>> 127.0.0.1 slots=2
         Example settings for `deepspeed`:
             >>> trainer = Trainer(env_type='pytorchDDP',
             >>>                        master_ip='127.0.0.1',
-            >>>                        master_port=17750, 
+            >>>                        master_port=17750,
             >>>                        num_nodes=1,   # nodes
             >>>                        num_gpus=2,    # gpus for each nodes
-            >>>                        hostfile='./hostfile', 
-            >>>                        deepspeed_config='./deepspeed.json', 
-            >>>                        training_script=__file__) 
+            >>>                        hostfile='./hostfile',
+            >>>                        deepspeed_config='./deepspeed.json',
+            >>>                        training_script=__file__)
             The detail settings for deepspeed.json refer to https://www.deepspeed.ai/docs/config-json/
         Example settins for `deepspeed+mpu`:
             The model must be build by megatron-lm!!!
             >>> trainer = Trainer(env_type='pytorchDDP',
             >>>                        master_ip='127.0.0.1',
-            >>>                        master_port=17750, 
+            >>>                        master_port=17750,
             >>>                        num_nodes=1,   # nodes
             >>>                        num_gpus=2,    # gpus for each nodes
-            >>>                        hostfile='./hostfile', 
-            >>>                        deepspeed_config='./deepspeed.json', 
-            >>>                        model_parallel_size=2, # mp_size ==1 
-            >>>                        training_script=__file__) 
+            >>>                        hostfile='./hostfile',
+            >>>                        deepspeed_config='./deepspeed.json',
+            >>>                        model_parallel_size=2, # mp_size ==1
+            >>>                        training_script=__file__)
 
     """
-
     def __init__(
         self,
         timers=None,
@@ -151,8 +150,7 @@ class Trainer():
         else:
             self.timers = Timers()
         self.env_type = env_type
-        if env_type not in set(
-            ["deepspeed", 'pytorch', 'pytorchDDP', 'deepspeed+mpu']):
+        if env_type not in set(["deepspeed", 'pytorch', 'pytorchDDP', 'deepspeed+mpu']):
             raise Exception("Not supported env_type!!!!")
         os.environ["ENV_TYPE"] = env_type
         self.experiment_name = experiment_name
@@ -284,7 +282,7 @@ class Trainer():
 
     def get_dataloader(self, dataset, collate_fn, shuffle=False):
         """ initilize the dataloader"""
-        if dataset == None:
+        if dataset is None:
             return None
         if self.env_type == 'pytorch':
             return torch.utils.data.DataLoader(dataset,
@@ -332,7 +330,7 @@ class Trainer():
                            deepspeed: single-/multi- node gpu <data/pipline parallel>
                            deepspeed+mpu: single-/multi- node gpu <data parallel + model parallel>
            train_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
-               The dataset to use for training. 
+               The dataset to use for training.
                If it is an `Dataset`, we will create a `DataLoader` with the provided `Dataset` and `collate_fn' for the selected `env_type`.
                `Dataset` is prefred to iterally return a sample as followings,
                >>> {'text': 'I like big model.', 'label': 'positive'}
@@ -349,7 +347,6 @@ class Trainer():
                 [`AdamW`] on your model.
            lr_scheduler (`torch.optim.lr_scheduler`,  *optional*): A lr_scheduler to use. Will default to an instance of
                 [`AnnealingLR`].
-           
            """
         if not isinstance(train_dataset, torch.utils.data.DataLoader):
             train_dataloader = self.get_dataloader(train_dataset, collate_fn,
@@ -385,7 +382,7 @@ class Trainer():
             # for T5 Model
             param_groups = param_groups[0]['params']
 
-        if optimizer == None:
+        if optimizer is None:
             optimizer = get_optimizer(param_groups=param_groups,
                                       lr=self.lr,
                                       weight_decay=self.weight_decay,
@@ -416,7 +413,7 @@ class Trainer():
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
-        best_score, best_iteration = 0, None
+        best_iteration = 0
         # For each remaining epoch
         self.timers('interval time').start()
         # self.eval_metrics = eval_metrics
@@ -444,9 +441,6 @@ class Trainer():
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
                 # Train for one step.
-
-                meta = batch.get('meta', None)
-
                 if 'deepspeed' in self.env_type or self.env_type == 'pytorchDDP':
                     batch = {
                         x: batch[x].to(torch.device('cuda', self.local_rank))
@@ -468,7 +462,7 @@ class Trainer():
 
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
-                    if optimizer != None:
+                    if optimizer is not None:
                         learning_rate = optimizer.param_groups[0]['lr']
                     else:
                         learning_rate = model.optimizer.param_groups[0]['lr']

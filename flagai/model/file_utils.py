@@ -17,12 +17,12 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
     """
     try:
         requests.get(url, stream=True, verify=True)
-    except Exception as e:
+    except Exception:
         raise ValueError('please check the download file names')
     total_size = size
     if to_path is None:
         to_path = './checkpoints/'
-    if file_pname == None:
+    if file_pname is None:
         file_path = os.path.join(to_path, url.split('/')[-1])
     else:
         file_path = os.path.join(to_path, file_pname)

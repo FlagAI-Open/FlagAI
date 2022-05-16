@@ -6,5 +6,5 @@ python -m launch --launcher distributed_deepspeed \
        --num_nodes 1 \
        ./train_t5.py \
        --deepspeed_config ./deepspeed.json \
-       --model_parallel_size 1 
+       --model_parallel_size 1
 

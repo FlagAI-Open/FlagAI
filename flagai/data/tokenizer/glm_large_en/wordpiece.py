@@ -53,7 +53,6 @@ def whitespace_tokenize(text):
 
 class GLMLargeEnTokenizer(object):
     """Runs end-to-end tokenization: punctuation splitting + wordpiece"""
-
     def __init__(self,
                  vocab_file,
                  do_lower_case=True,
@@ -130,7 +129,7 @@ class GLMLargeEnTokenizer(object):
         Download and cache the pre-trained model file if needed.
         """
         vocab_file = 'vocab.txt'
-        if cache_dir == None:
+        if cache_dir is None:
             cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs')
 
         model_id = _get_model_id(pretrained_model_name_or_path)
@@ -147,7 +146,6 @@ class GLMLargeEnTokenizer(object):
 
 class BasicTokenizer(object):
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
-
     def __init__(self,
                  do_lower_case=True,
                  never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]")):
@@ -263,7 +261,6 @@ class BasicTokenizer(object):
 
 class WordpieceTokenizer(object):
     """Runs WordPiece tokenization."""
-
     def __init__(self, vocab, unk_token="[UNK]", max_input_chars_per_word=100):
         self.vocab = vocab
         self.unk_token = unk_token

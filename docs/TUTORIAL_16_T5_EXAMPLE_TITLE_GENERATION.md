@@ -47,7 +47,7 @@ def read_file():
     return src,tgt
 ```
 
-### 2.Load model and tokenizer 
+### 2.Load model and tokenizer
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -66,7 +66,7 @@ The configuration support multi-gpus training.
 Modify the training configuration by this code:
 ```python
 from flagai.trainer import Trainer
-import torch 
+import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(
     env_type="deepspeed+mpu",

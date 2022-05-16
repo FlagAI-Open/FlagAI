@@ -103,7 +103,7 @@ for text_pair in test_data:
     print(predictor.predict_cls_classifier(text_pair))
 
 ```
-## Load model and tokenizer 
+## Load model and tokenizer
 We provide the AutoLoad class to load the model and tokenizer quickly, for example:
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -117,7 +117,7 @@ tokenizer = auto_loader.get_tokenizer()
 This example is for the Classification task, and you can also model other tasks by modifying the task_name.
 Target_size is the number of categories for a classification task. Then you can use the model and tokenizer to finetune or test.
 
-## Predictor 
+## Predictor
 We provide the Predictor class to predict for different tasks, for example:
 ```python
 predictor = Predictor(model, tokenizer)

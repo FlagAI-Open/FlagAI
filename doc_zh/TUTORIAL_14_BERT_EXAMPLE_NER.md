@@ -83,7 +83,7 @@ python ./train.py
 调整训练参数：
 ```python
 from flagai.trainer import Trainer
-import torch 
+import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(env_type="pytorch",
                   experiment_name="roberta_ner",

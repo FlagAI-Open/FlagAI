@@ -8,7 +8,7 @@ from transformers import T5ForConditionalGeneration, T5Tokenizer
 from torch.utils.data import Dataset
 import torch
 
-## Inheriant the Trainer 
+## Inheriant the Trainer
 ## overload the forward_step function
 class MyTrainer(Trainer):
 
@@ -116,7 +116,7 @@ def seq2seq_collate_fn(batch):
 
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
-train_size = int(data_len * 0.8) 
+train_size = int(data_len * 0.8)
 train_src = sents_src[:train_size]
 train_tgt = sents_tgt[:train_size]
 
@@ -141,7 +141,7 @@ trainer.train(model,
 ## Tricks for speedup training
 We may not run a t5-3b on a V100 32G. So, we need some tricks to cut down the GPU memory usage.
 ### step1.fp16
-Model parameters turned to `fp16` 
+Model parameters turned to `fp16`
 ```python
 trainer = MyTrainer(
     env_type='pytorch',
@@ -154,7 +154,7 @@ trainer = MyTrainer(
     load_dir=None,
     lr=1e-4,
     fp16=True) # change to `True`
-```    
+```  
 ### step2.gradient recomputation(checkpoints)
 Do not save the itermedia results in forward stage. Now you may run t5-3b with `batch size`=1.
 Now, we can train/finetune a t5-3b with `gradient_accumulation_steps`.
@@ -171,9 +171,9 @@ trainer = MyTrainer(
     lr=1e-4,
     fp16=True
     checkpoint_activations = True) # setting as `True`
-```    
+```  
 ### step3. data parallel (DDP)
-To multiply your batch size, we can use data paralle on multiple GPUs. 
+To multiply your batch size, we can use data paralle on multiple GPUs.
 ```python
 trainer = Trainer(
     env_type="pytorchDDP",
@@ -184,7 +184,7 @@ trainer = Trainer(
     experiment_name='t5-3b',
     load_dir=None,
     lr=1e-4,
-    fp16=True 
+    fp16=True
     checkpoint_activations=False,
     # The following six options is for pytorchDDP
     master_ip='127.0.0.1',
@@ -199,7 +199,7 @@ trainer = Trainer(
 With `cpuoffload` and `stage2`, increase the `batch size` on single gpu to `4`.
 ```python
 trainer = Trainer(
-    env_type="deepspeed", # env_type 
+    env_type="deepspeed", # env_type
     epochs=1,
     batch_size=1,
     eval_interval=10,
@@ -207,7 +207,7 @@ trainer = Trainer(
     experiment_name='t5-3b',
     load_dir=None,
     lr=1e-4,
-    fp16=True 
+    fp16=True
     checkpoint_activations=False,
     # parallel settings
     master_ip='127.0.0.1',
@@ -217,7 +217,7 @@ trainer = Trainer(
     hostfile='hostfile',
     training_script=__file__,
     # deepspeed
-    deepspeed_config='deepspeed.json' 
+    deepspeed_config='deepspeed.json'
 )
 ```
 
@@ -225,7 +225,7 @@ trainer = Trainer(
 Open your imagenation.
 ```python
 trainer = Trainer(
-    env_type="deepspeed", # env_type 
+    env_type="deepspeed", # env_type
     epochs=1,
     batch_size=1,
     eval_interval=10,
@@ -233,7 +233,7 @@ trainer = Trainer(
     experiment_name='t5-3b',
     load_dir=None,
     lr=1e-4,
-    fp16=True 
+    fp16=True
     checkpoint_activations=False,
     # parallel settings
     master_ip='127.0.0.1',

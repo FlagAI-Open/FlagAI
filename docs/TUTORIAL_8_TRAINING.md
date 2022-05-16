@@ -6,7 +6,7 @@ Let's run finetuning over SuperGlue Dataset, as following `train.py`:
 ```python
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMModel,GLMForSequenceClassification
-from flagai.data.tokenizer import GLMBertWordPieceTokenizer 
+from flagai.data.tokenizer import GLMBertWordPieceTokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
@@ -39,7 +39,7 @@ valid_dataset = SuperGlueDataset(task_name="boolq", data_dir='/mnt/datasets/yan/
 
 
 trainer.train(model, collate_fn=collate_fn,
-                train_dataset=train_dataset, valid_dataset=valid_dataset, 
+                train_dataset=train_dataset, valid_dataset=valid_dataset,
                 eval_metrics=accuracy_metric)
 ```
 
@@ -51,7 +51,7 @@ Done! The  results may be around 80%
 
 ## Finetunine with deepspeed
 
-we only change some settings in Trainer & run 
+we only change some settings in Trainer & run
 
 ```python
  trainer = Trainer(env_type='deepspeed', # change env_type
@@ -61,7 +61,7 @@ we only change some settings in Trainer & run
                     log_interval=50,
                     experiment_name='glm_large',
                     load_dir=None
-                    
+                  
                     # parallel settings
                     master_ip='127.0.0.1',
                     master_port=17750,

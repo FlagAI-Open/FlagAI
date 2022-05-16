@@ -69,7 +69,7 @@ print(f"test_data is {len(test_data)}")
 print(f"target is {target}")
 
 
-## 自定义dataset
+# custom dataset
 class NERDataset(Dataset):
 
     def __init__(self, data):

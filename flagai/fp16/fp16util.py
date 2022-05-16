@@ -26,7 +26,6 @@ class tofp16(nn.Module):
         def forward(self, input):
             return input.half()
     """
-
     def __init__(self):
         super(tofp16, self).__init__()
 
@@ -90,7 +89,6 @@ class FP16Model(nn.Module):
     """
     Convert model to half precision in a batchnorm-safe way.
     """
-
     def __init__(self, network):
         super(FP16Model, self).__init__()
         self.network = convert_network(network, dtype=torch.half)
@@ -162,7 +160,7 @@ def model_grads_to_master_grads(model_params,
                                 master_params,
                                 flat_master=False):
     """
-    Copy model gradients to master gradients.  
+    Copy model gradients to master gradients.
 
     Args:
         model_params:  List of model parameters created by :func:`prep_param_lists`.
@@ -222,7 +220,3 @@ else:
     import torch.nn.utils as mpu
 
 clip_grad_norm = mpu.clip_grad_norm
-#elif TORCH_MAJOR == 0 and TORCH_MINOR <= 4:
-#    clip_grad_norm = torch.nn.utils.clip_grad_norm
-#else:
-#    clip_grad_norm = torch.nn.utils.clip_grad_norm_
