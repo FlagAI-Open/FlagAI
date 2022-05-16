@@ -1,5 +1,6 @@
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
+[![Python package](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-package.yml/badge.svg)](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-package.yml)
 [简体中文](README_zh.md)
 
 --------------------------------------------------------------------------------
