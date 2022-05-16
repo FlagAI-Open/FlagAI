@@ -8,7 +8,7 @@
 FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP tasks.
 <br><br>
 
-* Now it supports GLM, Bert, RoBerta, GPT2, T5 models and models from Huggingface Transformers.
+* Now it supports GLM, Bert, RoBerta, GPT2, T5 and models from Huggingface Transformers.
 
 * It provides APIs to quickly download and use those pretrained models on a given text, fine-tune them on your own datasets and then share them with the community on our model hub.
 
