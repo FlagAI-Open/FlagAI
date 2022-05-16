@@ -21,7 +21,6 @@ import os
 
 
 class ROBERTATokenizer(Tokenizer):
-
     def __init__(self, tokenizer_model_type="roberta-base", cache_dir=None):
         self.text_tokenizer = RobertaTokenizer.from_pretrained(
             tokenizer_model_type, cache_dir=cache_dir)

@@ -8,7 +8,7 @@ Take semantic matching tasks as an example:
 ## Target contains all target categories
 ## 0 means that two sentences have the same meaning
 ## 1 means that two sentences have different meanings
-target = [0, 1] 
+target = [0, 1]
 auto_loader = AutoLoader(task_name="cls", ## The task name
                          model_name="RoBERTa-wwm-ext", ## The model name.
                          model_dir=model_dir, ## Model download folder
@@ -29,11 +29,11 @@ The **task_name** parameter supports:
 All supported models is can be found in **model hub**.
 Different models adapt to different tasks.
 
-#### Transfomrer encoder: 
+#### Transfomrer encoder:
 
 For example, model_name="bert-base-chinese" or "RoBERTa-wwm-ext" These models support all of the tasks mentioned in the previous section
 
-#### Transformer decoder: 
+#### Transformer decoder:
 
 For example, model_name="gpt2-chinese", the model support "seq2seq" task.
 

@@ -60,7 +60,6 @@ def exists_scatter(path, scatter_num=64, data_type='data'):
 
 
 class LazyWriter:
-
     def __init__(self,
                  path,
                  data_type,
@@ -93,11 +92,7 @@ class LazyWriter:
             encoded = s.encode('utf-8')
             self.output.write(encoded)
             self.lengths.append(len(encoded))
-        # print(self.datapath)
-        # with open(self.datapath, 'rb') as f:
-        #     file = f.read()
-        # file = np.ndarray(shape=(len(file) // data_type_size,), dtype=array_data_type, buffer=self.file,
-        #                        order='C')
+
     def close(self):
         self.output.close()
         with open(self.lenpath, 'wb') as f:
@@ -119,7 +114,6 @@ class ProcessorTokenizer:
     callable class that runs a preprocessing, as well as tokenization step,
     on input text.
     """
-
     def __init__(self, tokenizer, process_fn=None):
         self.tokenizer = tokenizer
         self.process_fn = process_fn
@@ -150,7 +144,6 @@ class LazyLoader(object):
         data_type2
         data_type2.len.pkl
     """
-
     def __init__(self,
                  path,
                  data_type='data',

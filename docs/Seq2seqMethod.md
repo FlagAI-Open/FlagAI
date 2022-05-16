@@ -1,4 +1,4 @@
-# Seq2seq Method 
+# Seq2seq Method
 
 ## Encoder model
 We provide the encoder model to perform the seq2seq task, for example, Bert, Roberta, GLM, and so on.
@@ -12,7 +12,7 @@ The inputs to this model are two sentences: [cls] sentence_1 [sep] sentence_2 [s
 Where, sentence_1 does not use mask, and sentence_2 uses autoregressive mask.
 
 
-## Decoder model 
+## Decoder model
 
 We also provide the decoder model for seq2seq task, such as gpt-2 models.
 
@@ -20,7 +20,7 @@ We also provide the decoder model for seq2seq task, such as gpt-2 models.
 
 Giving a start text, this model can be a good continuation of the text.
 
-## Encoder-Decoder model 
+## Encoder-Decoder model
 We also provide the encoder-decoder model for seq2seq task, such as T5 models.
 
 ![encoder_decoder_mask](./img/encoder_decoder_mask.png)

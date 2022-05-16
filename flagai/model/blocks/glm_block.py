@@ -54,7 +54,6 @@ class GLMBlock(torch.nn.Module):
                                   mlp output) initialization. If None,
                                   use `init_method`.
     """
-
     def __init__(self,
                  hidden_size,
                  num_attention_heads,
@@ -154,7 +153,6 @@ class GLMDecoderBlock(torch.nn.Module):
                                   mlp output) initialization. If None,
                                   use `init_method`.
     """
-
     def __init__(self,
                  hidden_size,
                  num_attention_heads,

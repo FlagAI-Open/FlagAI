@@ -118,7 +118,6 @@ CH_TASKS = ['afqmc', 'tnews', 'cmrc', 'wanke']
 
 
 class SuperGlueProcessor:
-
     def __init__(self):
         self.processdict = PROCESSOR_DICT
 
@@ -142,13 +141,13 @@ class SuperGlueProcessor:
                 os.makedirs(dirname)
             with open(zip_file, "wb") as code:
                 code.write(r.content)
-        except Exception as e:
+        except Exception:
             raise ConnectionError('Dataset downloading failure!')
 
         try:
             self._unzip_file(zip_file, dirname)
             os.remove(zip_file)
-        except Exception as e:
+        except Exception:
             raise ValueError('file unzip failure!')
         files = [f for f in os.listdir(dirname)]
 
@@ -178,7 +177,6 @@ class SuperGlueProcessor:
 
 
 class ExampleProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         # Assign the filename of train set
         return self._create_examples(os.path.join(data_dir, "train.tsv"),

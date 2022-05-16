@@ -3,7 +3,7 @@
 ## Background
 The task of named entity recognition is to judge whether there are different entities in the input sentences and mark them.
 
-The BERT model supports three ways to complete NER tasks: 
+The BERT model supports three ways to complete NER tasks:
 1. Sequence labeling
 2. Sequence labeling + CRF
 3. GlobalPointer
@@ -83,7 +83,7 @@ python ./train.py
 Adjust training parameters:
 ```python
 from flagai.trainer import Trainer
-import torch 
+import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(env_type="pytorch",
                   experiment_name="roberta_ner",

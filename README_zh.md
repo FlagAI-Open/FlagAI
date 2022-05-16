@@ -1,8 +1,8 @@
 ![FlagAI](logo.png)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052) 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
 [English](README.md)
 
--------------------------------------------------------------------------------- 
+--------------------------------------------------------------------------------
 
 FlagAI 旨在帮助研究人员和开发人员自由地训练和测试用于 NLP 任务的大规模模型。
 <br><br>
@@ -34,7 +34,7 @@ FlagAI 旨在帮助研究人员和开发人员自由地训练和测试用于 NLP
 - [许可证](#许可证)
 
 <!-- tocstop -->
-# 安装 
+# 安装
 * PyTorch version >= 1.8.0
 * Python version >= 3.8
 * 使用GPUs进行训练和测试, 你需要安装CUDA 和 NCCL
@@ -248,7 +248,7 @@ for text in test_data:
 * [所有支持的任务](docs/AllSupportedTasks.md)
 
 
-本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。 
+本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。
 
 
 # 教程

@@ -25,7 +25,6 @@ from flagai.model.utils import normal_init_method
 
 
 class BertOutput(torch.nn.Module):
-
     def __init__(self, intermediate_size, hidden_size, layernorm_epsilon,
                  hidden_dropout_prob, initializer_range):
         super(BertOutput, self).__init__()
@@ -57,7 +56,6 @@ class BertOutput(torch.nn.Module):
 
 
 class BertIntermediate(torch.nn.Module):
-
     def __init__(self, hidden_size, intermediate_size, initializer_range,
                  hidden_act):
         super(BertIntermediate, self).__init__()
@@ -85,7 +83,6 @@ class BertIntermediate(torch.nn.Module):
 
 
 class BertBlock(torch.nn.Module):
-
     def __init__(self, hidden_size, num_attention_heads,
                  attention_probs_dropout_prob, initializer_range,
                  layernorm_epsilon, hidden_dropout_prob, intermediate_size,

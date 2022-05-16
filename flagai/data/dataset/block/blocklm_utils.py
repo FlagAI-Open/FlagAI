@@ -28,7 +28,6 @@ def index_in_list(lst, val, start=None):
 
 
 class ConstructBlockStrategy:
-
     def __init__(self,
                  tokenizer,
                  max_seq_length,
@@ -505,8 +504,7 @@ class ConstructBlockStrategy:
                 multiple_doc = index_in_list(
                     sample['text'],
                     self.tokenizer.get_command('eos').Id) not in [
-                        -1, len(sample['text']) - 1
-                    ]
+                        -1, len(sample['text']) - 1]
                 if multiple_doc or rng.random() < self.infill_prob:
                     division = len(sample['text']) - generation_length
                     tokens, loss_masks = sample['text'], sample['loss_mask']

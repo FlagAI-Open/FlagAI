@@ -1,8 +1,9 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
-from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_beamsearch, t5_random_sample, gpt_random_sample, \
-    t5_beamsearch, gpt_beamsearch, bert_random_sample,glm_beamsearch,glm_random_sample
+from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_beamsearch,\
+    t5_random_sample, gpt_random_sample, \
+    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.bert_model import BertModel, BertForMaskLM, BertForSeq2seq, BertForSequenceLabeling, \
     BertForSequenceLabelingGP, BertForSequenceLabelingCRF, BertForClsClassifier
@@ -14,7 +15,6 @@ from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeCh
 
 
 class Predictor:
-
     def __init__(self,
                  model: Union[BertModel, GPT2Model, BertForSequenceLabelingGP,
                               BertForSequenceLabelingCRF, BertForClsClassifier,
@@ -142,7 +142,7 @@ class Predictor:
 
         trans = model.state_dict().get("crf_layer.trans", None)
         if trans is not None:
-            ## crf
+            # crf
             trans = trans.cpu()
             with torch.no_grad():
                 out = model(**{"input_ids": token_ids})["logits"][0].cpu()
@@ -156,13 +156,13 @@ class Predictor:
             with torch.no_grad():
                 scores = model(
                     **{"input_ids": token_ids})["logits"].cpu().numpy()[0]
-            ## global pointer
+            # global pointer
             scores[:, [0, -1]] -= np.inf
             scores[:, :, [0, -1]] -= np.inf
-            for l, start, end in zip(*np.where(scores > 0)):
+            for pos_t, start, end in zip(*np.where(scores > 0)):
                 if mapping[start] and mapping[end]:
                     entities.append(
-                        (mapping[start][0], mapping[end][-1], target[l]))
+                        (mapping[start][0], mapping[end][-1], target[pos_t]))
             return entities
         else:
             with torch.no_grad():

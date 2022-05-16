@@ -14,7 +14,6 @@ if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
 
 
 class GPT2Stack(nn.Module):
-
     def __init__(self, config):
         self.config = config
         super().__init__()
@@ -115,7 +114,6 @@ class GPT2Stack(nn.Module):
 
 
 class GPT2Model(BaseModel):
-
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
         self.config = config
@@ -180,7 +178,7 @@ class GPT2Model(BaseModel):
         checkpoint = torch.load(checkpoint_path,
                                 map_location=torch.device("cpu"))
         if "module" in checkpoint:
-            ## ddp
+            # ddp
             checkpoint = checkpoint["module"]
 
         checkpoint = self.transpose_weight(checkpoint)

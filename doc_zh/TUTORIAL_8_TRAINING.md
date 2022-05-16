@@ -73,7 +73,7 @@ for task_name in ['afqmc', 'tnews']:
                     log_interval=50,
                     experiment_name='glm_large',
                     load_dir=None
-                    
+                  
                     # parallel settings
                     master_ip='127.0.0.1',
                     master_port=17750,

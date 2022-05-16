@@ -31,7 +31,6 @@ class DataProcessor(ABC):
     Abstract class that provides methods for loading training, testing, development and unlabeled examples for a given
     task
     """
-
     def __init__(self, few_superglue):
         self.num_truncated = 0
 
@@ -120,7 +119,6 @@ class DataProcessor(ABC):
 
 
 class SuperGLUEProcessor(DataProcessor):
-
     def __init__(self, few_superglue):
         super(SuperGLUEProcessor, self).__init__(few_superglue)
         self.few_superglue = few_superglue
@@ -155,7 +153,6 @@ class SuperGLUEProcessor(DataProcessor):
 
 class RteProcessor(SuperGLUEProcessor):
     """Processor for the RTE data set."""
-
     def get_labels(self):
         return ["entailment", "not_entailment"]
 
@@ -195,7 +192,6 @@ class RteProcessor(SuperGLUEProcessor):
 
 class AxGProcessor(RteProcessor):
     """Processor for the AX-G diagnostic data set."""
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "AX-g.jsonl"),
                                      "train")
@@ -207,7 +203,6 @@ class AxGProcessor(RteProcessor):
 
 class AxBProcessor(RteProcessor):
     """Processor for the AX-B diagnostic data set."""
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "AX-b.jsonl"),
                                      "train")
@@ -227,14 +222,12 @@ class AxBProcessor(RteProcessor):
 
 class CbProcessor(RteProcessor):
     """Processor for the CB data set."""
-
     def get_labels(self):
         return ["entailment", "contradiction", "neutral"]
 
 
 class WicProcessor(SuperGLUEProcessor):
     """Processor for the WiC data set."""
-
     def get_labels(self):
         return ["false", "true"]
 
@@ -319,7 +312,7 @@ class WscProcessor(SuperGLUEProcessor):
                     # candidates = list(set(candidates))
                     filtered = []
                     for i, cand in enumerate(candidates):
-                        if not cand in candidates[:i]:
+                        if cand not in candidates[:i]:
                             filtered.append(cand)
                     candidates = filtered
 
@@ -394,7 +387,6 @@ class WscProcessor(SuperGLUEProcessor):
 
 class BoolQProcessor(SuperGLUEProcessor):
     """Processor for the BoolQ data set."""
-
     def get_labels(self):
         return ["false", "true"]
 
@@ -423,7 +415,6 @@ class BoolQProcessor(SuperGLUEProcessor):
 
 class CopaProcessor(SuperGLUEProcessor):
     """Processor for the COPA data set."""
-
     def get_labels(self):
         return [0, 1]
 
@@ -530,7 +521,6 @@ class CopaProcessor(SuperGLUEProcessor):
 
 class MultiRcProcessor(SuperGLUEProcessor):
     """Processor for the MultiRC data set."""
-
     def get_labels(self):
         return [0, 1]
 
@@ -620,7 +610,6 @@ class MultiRcProcessor(SuperGLUEProcessor):
 
 
 class RaceProcessor(DataProcessor):
-
     @property
     def variable_num_choices(self):
         return True
@@ -690,7 +679,6 @@ class RaceProcessor(DataProcessor):
 
 class RecordProcessor(SuperGLUEProcessor):
     """Processor for the ReCoRD data set."""
-
     def get_dev_examples(self, data_dir, for_train=False):
         return self._create_examples(os.path.join(data_dir, "val.jsonl"),
                                      "dev",
@@ -869,7 +857,6 @@ class RecordProcessor(SuperGLUEProcessor):
 
 class MnliProcessor(DataProcessor):
     """Processor for the MultiNLI data set (GLUE version)."""
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.tsv"),
                                      "train")
@@ -908,7 +895,6 @@ class MnliProcessor(DataProcessor):
 
 
 class CLUEProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.json"),
                                      "train")
@@ -971,7 +957,6 @@ class CLUEProcessor(DataProcessor):
 
 class TNewsProcessor(CLUEProcessor):
     """Processor for the TNews data set (CLUE version)."""
-
     def get_labels(self):
         return [
             "100", "101", "102", "103", "104", "106", "107", "108", "109",
@@ -1001,7 +986,6 @@ class TNewsProcessor(CLUEProcessor):
 
 class AFQMCProcessor(CLUEProcessor):
     """Processor for the AFQMC data set (CLUE version)."""
-
     def get_labels(self):
         return ["0", "1"]
 
@@ -1028,7 +1012,6 @@ class AFQMCProcessor(CLUEProcessor):
 
 class MnliMismatchedProcessor(MnliProcessor):
     """Processor for the MultiNLI mismatched data set (GLUE version)."""
-
     def get_dev_examples(self, data_dir, for_train=False):
         return self._create_examples(
             os.path.join(data_dir, "dev_mismatched.tsv"), "dev_mismatched")
@@ -1040,7 +1023,6 @@ class MnliMismatchedProcessor(MnliProcessor):
 
 class AgnewsProcessor(DataProcessor):
     """Processor for the AG news data set."""
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.csv"),
                                      "train")
@@ -1081,7 +1063,6 @@ class AgnewsProcessor(DataProcessor):
 
 class YahooAnswersProcessor(DataProcessor):
     """Processor for the Yahoo Answers data set."""
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.csv"),
                                      "train")
@@ -1126,7 +1107,6 @@ class YahooAnswersProcessor(DataProcessor):
 
 class YelpPolarityProcessor(DataProcessor):
     """Processor for the YELP binary classification set."""
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.csv"),
                                      "train")
@@ -1163,7 +1143,6 @@ class YelpPolarityProcessor(DataProcessor):
 
 class YelpFullProcessor(YelpPolarityProcessor):
     """Processor for the YELP full classification set."""
-
     def get_test_examples(self, data_dir) -> List[InputExample]:
         raise NotImplementedError()
 
@@ -1173,7 +1152,6 @@ class YelpFullProcessor(YelpPolarityProcessor):
 
 class XStanceProcessor(DataProcessor):
     """Processor for the X-Stance data set."""
-
     def __init__(self, args, language: str = None):
         super().__init__(args)
         if language is not None:
@@ -1220,7 +1198,6 @@ class XStanceProcessor(DataProcessor):
 
 
 class Sst2Processor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.tsv"),
                                      "train")
@@ -1251,7 +1228,6 @@ class Sst2Processor(DataProcessor):
 
 
 class ColaProcessor(Sst2Processor):
-
     def get_labels(self):
         return ["0", "1"]
 
@@ -1278,7 +1254,6 @@ class ColaProcessor(Sst2Processor):
 
 
 class MrpcProcessor(Sst2Processor):
-
     def get_labels(self):
         return ["0", "1"]
 
@@ -1302,7 +1277,6 @@ class MrpcProcessor(Sst2Processor):
 
 
 class QqpProcessor(Sst2Processor):
-
     def get_labels(self):
         return ["0", "1"]
 
@@ -1326,7 +1300,6 @@ class QqpProcessor(Sst2Processor):
 
 
 class QnliProcessor(Sst2Processor):
-
     def get_labels(self):
         return ["entailment", "not_entailment"]
 
@@ -1350,7 +1323,6 @@ class QnliProcessor(Sst2Processor):
 
 
 class SquadProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train-v2.0.json"),
                                      "train")
@@ -1386,7 +1358,6 @@ class SquadProcessor(DataProcessor):
 
 
 class CLUEWSCProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.json"),
                                      "train")
@@ -1438,7 +1409,6 @@ class CLUEWSCProcessor(DataProcessor):
 
 
 class CMRCProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.json"),
                                      "train")
@@ -1487,7 +1457,6 @@ class CMRCProcessor(DataProcessor):
 
 class WankeProcessor(CLUEProcessor):
     """Processor for the TNews data set (CLUE version)."""
-
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.tsv"),
                                      "train")
@@ -1514,9 +1483,7 @@ class WankeProcessor(CLUEProcessor):
                 if idx == 0:
                     continue
                 guid = f"{set_type}-{idx}"
-                heads = fin.readline().split('\t')
                 items = [e.strip() for e in line.split('\t')]
-                # data = json.loads(line)
                 text_a = items[0]
                 label = items[1]
                 example = InputExample(guid=guid,
@@ -1529,7 +1496,6 @@ class WankeProcessor(CLUEProcessor):
 
 class CRMC2018Processor(SuperGLUEProcessor):
     """Processor for the MultiRC data set."""
-
     def get_labels(self):
         return [0, 1]
 

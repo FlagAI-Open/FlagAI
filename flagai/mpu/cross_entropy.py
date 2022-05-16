@@ -22,7 +22,6 @@ from .utils import VocabUtility
 
 
 class _VocabParallelCrossEntropy(torch.autograd.Function):
-
     @staticmethod
     def forward(ctx, vocab_parallel_logits, target):
 

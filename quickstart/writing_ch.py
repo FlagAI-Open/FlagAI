@@ -12,6 +12,6 @@ if __name__ == '__main__':
     text = "今天天气不错"
 
     output = predictor.predict_generate_randomsample(text, input_max_length=512, out_max_length=100,
-                                                    repetition_penalty=1.5, top_k=20, top_p=0.8)
+                                                        repetition_penalty=1.5, top_k=20, top_p=0.8)
 
     print(f"out is {output}")

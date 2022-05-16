@@ -7,7 +7,7 @@ Three steps：
 Most of the process in `parallel` are taken from `Megatron-LM`，and is put in `mpu`module
 
 ## 1.Turn MLP layer into column/rowParallel版本
-Location：`flagai/model/layers/embeddings_mpu.py` 
+Location：`flagai/model/layers/embeddings_mpu.py`
 
 Key idea:
 split the two forward1 layers in 1linear1 layer, following the column-fist principle

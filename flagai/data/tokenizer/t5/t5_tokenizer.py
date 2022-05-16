@@ -25,7 +25,6 @@ from typing import List
 
 
 class T5BPETokenizer(Tokenizer):
-
     def __init__(self, tokenizer_model_type="t5-base", cache_dir=None):
 
         self.text_tokenizer = T5Tokenizer.from_pretrained(tokenizer_model_type,
@@ -47,8 +46,7 @@ class T5BPETokenizer(Tokenizer):
         return ids
 
 
-class T5BPETokenizer(Tokenizer):
-
+class T5KGBPETokenizer(Tokenizer):
     def __init__(self, tokenizer_model_type="t5-base", cache_dir=None):
         """初始化
         """
@@ -186,7 +184,6 @@ class T5BPETokenizer(Tokenizer):
 
 
 class T5JiebaTokenizer(T5BPETokenizer):
-
     def __init__(self,
                  token_dict,
                  pre_tokenizer=lambda x: jieba.cut(x, HMM=False)):
@@ -203,9 +200,7 @@ class T5JiebaTokenizer(T5BPETokenizer):
                 setattr(self, "_token_" + str(token) + "_id", _token_id)
                 self.token_start_id = self._token_cls_id
                 self.token_end_id = self._token_sep_id
-            except Exception as e:
-                # print(e)
-                # print("err")
+            except Exception:
                 pass
         self._vocab_size = len(token_dict)
 
@@ -251,7 +246,7 @@ class T5JiebaTokenizer(T5BPETokenizer):
         tokens = tokens or self.ids_to_tokens(ids)
         tokens = [token for token in tokens if not self._is_special(token)]
 
-        text, flag = '', False
+        text = ''
         for i, token in enumerate(tokens):
             if token[:2] == '##':
                 text += token[2:]

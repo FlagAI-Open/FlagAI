@@ -27,10 +27,8 @@ trainer = Trainer(
     master_port=17750,
     num_nodes=1,
     num_gpus=2,
-    hostfile=
-    '/data/liuguang/test_Sailing/Sailing/examples/bert_title_generation/hostfile',
-    deepspeed_config=
-    '/data/liuguang/test_Sailing/Sailing/examples/bert_title_generation/deepspeed.json',
+    hostfile='./hostfile',
+    deepspeed_config='./deepspeed.json',
     training_script=__file__,
 )
 src_dir = './examples/glm_title_generation/data/train.src'
@@ -102,7 +100,6 @@ class BertSeq2seqDataset(Dataset):
         target_tokens = target_tokens + [eop_id]
         if len(target_tokens) > self.max_tgt_length:
             target_tokens = target_tokens[:self.max_tgt_length]
-            target_truncated = True
         loss_mask = [1] * len(target_tokens)
         if len(target_tokens) < self.max_tgt_length:
             loss_mask += [0] * (self.max_tgt_length - len(target_tokens))

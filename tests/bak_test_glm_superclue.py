@@ -79,7 +79,7 @@ class TrainerTestCase(unittest.TestCase):
                 target_ids torch.Size([16, 2, 256])
                 logit_mask torch.Size([16, 2, 256])
                 loss_mask torch.Size([16, 2])
-    
+  
                 '''
                 for key, value in dct.items():
                     try:

@@ -7,7 +7,7 @@ The task consists of two steps: 1. construct database 2. index by the faiss pack
 
 faiss package is : https://github.com/facebookresearch/faiss
 
-## Construct database 
+## Construct database
 
 In "1_construct_data.py", you need to set some parameters, such as "faq_data_path", "answer_save_path", "embedding_save_path".
 
