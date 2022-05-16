@@ -17,4 +17,4 @@ test_data = [["后悔了吗", "你有没有后悔"], ["打开自动横屏", "开
              ["我觉得你很聪明", "你聪明我是这么觉得"]]
 
 for text_pair in test_data:
-    print(text_pair, "相似" if predictor.predict_cls_classifier(text_pair) ==1 else "不相似")
+    print(text_pair, "相似" if predictor.predict_cls_classifier(text_pair) == 1 else "不相似")

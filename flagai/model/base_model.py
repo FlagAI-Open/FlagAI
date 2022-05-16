@@ -10,7 +10,6 @@ import os
 
 # The base model for models
 class BaseModel(Module):
-
     def __init__(self, config, **kwargs):
         super().__init__()
         self.config = config
@@ -51,11 +50,11 @@ class BaseModel(Module):
         config_path = None
         download_path = os.path.join(download_path, model_name)
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
-        ## prepare the download path
-        ## downloading the files
+        # prepare the download path
+        # downloading the files
         model: Union[Module, None]
         if model_id != "null":
-            vocab_path = _get_vocab_path(download_path, "vocab.txt", model_id)
+            _get_vocab_path(download_path, "vocab.txt", model_id)
             if not only_download_config:
                 checkpoint_path = _get_checkpoint_path(download_path,
                                                        'pytorch_model.bin',

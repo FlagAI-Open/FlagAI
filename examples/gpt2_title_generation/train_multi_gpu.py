@@ -31,10 +31,8 @@ trainer = Trainer(
     num_gpus=2,
     checkpoint_activations=False,
     model_parallel_size=1,
-    hostfile=
-    '/data/liuguang/test_Sailing/Sailing/examples/bert_title_generation/hostfile',
-    deepspeed_config=
-    '/data/liuguang/test_Sailing/Sailing/examples/bert_title_generation/deepspeed.json',
+    hostfile='./hostfile',
+    deepspeed_config='./deepspeed.json',
     training_script=__file__,
 )
 src_dir = '/data/auto_title/train.src'

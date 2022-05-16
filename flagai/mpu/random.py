@@ -26,8 +26,6 @@ from torch import _C
 from torch.cuda import _lazy_call, device as device_ctx_manager
 #from torch.utils.checkpoint import detach_variable
 
-import torch.distributed as dist
-
 PARTITION_ACTIVATIONS = False
 PA_CORRECTNESS_TEST = False
 
@@ -134,7 +132,6 @@ class CudaRNGStatesTracker:
     rng state, we can perform operations and return to our starting
     cuda state.
     """
-
     def __init__(self):
         # Map from a string name to the cuda rng state.
         self.states_ = {}
@@ -293,7 +290,6 @@ class CheckpointFunction(torch.autograd.Function):
            2) the states in the model parallel tracker are also properly
               tracked/set/reset.
     """
-
     @staticmethod
     def forward(ctx, run_function, *args):
         ctx.run_function = run_function

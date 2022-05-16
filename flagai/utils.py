@@ -14,7 +14,7 @@
 # limitations under the License.
 """Utilities for logging and serialization"""
 
-from cmath import log
+
 from distutils.command.config import config
 import os
 import random
@@ -112,10 +112,8 @@ def print_params_min_max_norm(optimizer, iteration):
 
 class Timers:
     """Group of timers."""
-
     class Timer:
         """Timer."""
-
         def __init__(self, name):
             self.name_ = name
             self.elapsed_ = 0.0

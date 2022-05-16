@@ -15,28 +15,18 @@
 """ PyTorch T5 model. """
 
 import copy
-import os
 import warnings
-
 import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss
-
+from torch import Tensor, device
+from typing import Tuple, Optional
 from flagai.model.base_model import BaseModel
 from flagai.model.blocks.t5_block import T5Block
 from flagai.model.layers.layer_norm import T5LayerNorm
-from flagai.model.layers.attentions import T5Attention, T5LayerSelfAttention, T5LayerCrossAttention
-from flagai.model.layers.feedforward import T5DenseReluDense, T5DenseGatedGeluDense, T5LayerFF
-from flagai.model.file_utils import _get_vocab_path
-from torch import Tensor, device
-from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path
-from typing import Tuple, Optional
-import copy
-import json
-import numpy as np
-from collections import defaultdict
+from flagai.model.layers.attentions import T5Attention
+from flagai.model.layers.feedforward import T5DenseReluDense, T5DenseGatedGeluDense
 from flagai.data.tokenizer.t5.t5_tokenizer import T5JiebaTokenizer
-from flagai.model.layers.activations import ACT2FN
 
 # Warning message for FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
 __HEAD_MASK_WARNING_MSG = """
@@ -52,7 +42,6 @@ class T5PreTrainedModel(BaseModel):
     An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
     models.
     """
-
     def __init__(self, config, **kwargs):
         super(T5PreTrainedModel, self).__init__(config, **kwargs)
 
@@ -142,7 +131,6 @@ class T5PreTrainedModel(BaseModel):
 
 
 class T5Stack(nn.Module):
-
     def __init__(self, config, embed_tokens=None):
         super().__init__()
         self.config = config
@@ -263,7 +251,6 @@ class T5Stack(nn.Module):
             if checkpoint is not None:
 
                 def create_custom_forward(module):
-
                     def custom_forward(*inputs):
                         return module(*inputs)
 
@@ -718,7 +705,7 @@ class T5Model(BaseModel):
         checkpoint = torch.load(checkpoint_path,
                                 map_location=torch.device("cpu"))
         if "module" in checkpoint:
-            ## ddp
+            # ddp
             checkpoint = checkpoint["module"]
         self.load_state_dict(checkpoint, strict=True)
         return checkpoint
@@ -1098,7 +1085,6 @@ class T5Config():
         use_cache (`bool`, *optional*, defaults to `True`):
             Whether or not the model should return the last key/values attentions (not used by all models).
     """
-
     def __init__(self,
                  vocab_size=32128,
                  d_model=512,
@@ -1281,7 +1267,6 @@ class T5SmallUERConfig:
 
 
 class T5UERModel(nn.Module):
-
     def __init__(self, word2idx, size="base"):
         super().__init__()
         self.device = torch.device("cpu")

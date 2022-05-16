@@ -1,11 +1,11 @@
 #  Pre-training distributed environment setup
 
-# 一.  Docker 
+# 一.  Docker
 
 ## 1.install docker
 
 ```shell
-# Since the docker version in the apt official library in Ubuntu may be relatively low, 
+# Since the docker version in the apt official library in Ubuntu may be relatively low,
 # uninstall the old version with the following command line
 apt-get remove docker docker-engine docker-ce docker.io
 
@@ -30,7 +30,7 @@ apt-get install -y docker-ce
 
 ## 2.Docker source change
 
-### (https://xxxx.mirror.aliyuncs.com) is your own docker source 
+### (https://xxxx.mirror.aliyuncs.com) is your own docker source
 
 ```shell
 mkdir -p /etc/docker
@@ -91,7 +91,7 @@ apt-get install -y nvidia-docker2
    }
 }
 ```
-### final content of /etc/docker/daemon.json 
+### final content of /etc/docker/daemon.json
 
 ```json
 {
@@ -118,7 +118,7 @@ systemctl restart docker
 
 ```dockerfile
 #pull base image
-FROM nvidia/cuda:10.2-devel-ubuntu18.04   
+FROM nvidia/cuda:10.2-devel-ubuntu18.04 
 #maintainer
 MAINTAINER deepspeed <gqwang@baai.ac.cn>
 
@@ -136,7 +136,7 @@ RUN mkdir -p ${STAGE_DIR}
 #Installation/Basic Utilities
 ##############################################################################
 RUN  sed -i s@/archive.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list
-RUN  sed -i s@/security.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list 
+RUN  sed -i s@/security.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends \
         software-properties-common build-essential autotools-dev \
@@ -150,8 +150,8 @@ RUN apt-get update && \
         libjpeg-dev \
         libpng-dev \
         screen jq psmisc dnsutils lsof musl-dev systemd
-```        
-        
+```      
+      
 ### c. Install the latest version of GIT (create an image clone installation package)
 
 ```dockerfile
@@ -180,7 +180,7 @@ RUN cd ${STAGE_DIR} && \
     PATH=/usr/bin:$PATH ./mlnxofedinstall --user-space-only --without-fw-update --umad-dev-rw --all -q && \
     cd ${STAGE_DIR} && \
     rm -rf ${STAGE_DIR}/MLNX_OFED_LINUX-${MLNX_OFED_VERSION}-ubuntu18.04-x86_64*
-```    
+```  
 
 ### e. Install nv_peer_mem
 
@@ -202,7 +202,7 @@ RUN cd ${STAGE_DIR}/nv_peer_memory && \
     apt-get update && \
     apt-get install -y dkms && \
     dpkg-buildpackage -us -uc && \
-    dpkg -i ${STAGE_DIR}/nvidia-peer-memory_${NV_PEER_MEM_TAG}_all.deb   
+    dpkg -i ${STAGE_DIR}/nvidia-peer-memory_${NV_PEER_MEM_TAG}_all.deb 
 ```
 
 ### f. Install openmpi, You need to install the libevent dependency package first
@@ -239,7 +239,7 @@ RUN mv /usr/local/mpi/bin/mpirun /usr/local/mpi/bin/mpirun.real && \
     echo 'mpirun.real --allow-run-as-root --prefix /usr/local/mpi "$@"' >> /usr/local/mpi/bin/mpirun && \
     chmod a+x /usr/local/mpi/bin/mpirun
 ```
-    
+  
 ### g.Install python
 
 ```dockerfile
@@ -251,24 +251,24 @@ RUN curl -o ~/miniconda.sh https://mirrors.tuna.tsinghua.edu.cn/anaconda/minicon
      chmod +x ~/miniconda.sh && \
      ~/miniconda.sh -b -p /opt/conda && \
      rm ~/miniconda.sh && \
-     /opt/conda/bin/conda install -y python=$PYTHON_VERSION numpy pyyaml scipy ipython mkl mkl-include ninja cython typing 
+     /opt/conda/bin/conda install -y python=$PYTHON_VERSION numpy pyyaml scipy ipython mkl mkl-include ninja cython typing
 ```
-    
+  
 ### h.Install magma-cuda
 
 ```dockerfile
 ###########################################################################
 #Install magma-cuda
 ##############################################################################
-COPY magma-cuda102-2.5.2-1.tar.bz2   ${STAGE_DIR}   
+COPY magma-cuda102-2.5.2-1.tar.bz2   ${STAGE_DIR} 
 RUN  cd ${STAGE_DIR} && \
      /opt/conda/bin/conda install -y -c pytorch --use-local magma-cuda102-2.5.2-1.tar.bz2  && \
      /opt/conda/bin/conda clean -ya
 ####optional#####
 #RUN  /opt/conda/bin/conda install -y -c pytorch  magma-cuda102  && \
-#/opt/conda/bin/conda clean -ya 
+#/opt/conda/bin/conda clean -ya
 ```
-    
+  
 ### i.Configuration path
 
 ```dockerfile
@@ -280,7 +280,7 @@ RUN echo "export PATH=/opt/conda/bin:\$PATH" >> /root/.bashrc
 RUN pip install --upgrade pip setuptools
 RUN wget https://tuna.moe/oh-my-tuna/oh-my-tuna.py && python oh-my-tuna.py
 ```
-    
+  
 ### j.Install some packages
 
 ```dockerfile
@@ -316,8 +316,8 @@ RUN pip install psutil \
                 rouge_score \
                 cupy-cuda102\
                 setuptools==60.0.3
-```  
-    
+```
+  
 ### k.Install mpi4py (need to download to local installation, pip installation may report an error due to version compatibility)
 
 ```dockerfile
@@ -329,7 +329,7 @@ RUN apt-get update && \
 COPY mpi4py-3.1.3.tar.gz ${STAGE_DIR}
 RUN cd ${STAGE_DIR} && tar zxvf mpi4py-3.1.3.tar.gz && \
  cd mpi4py-3.1.3 &&\
- python setup.py build && python setup.py install 
+ python setup.py build && python setup.py install
 ```
 
 ### l.Install pytorch, the version can be replaced, need to download locally first. Installation is easy to be terminated due to network speed. Some sub packages may be terminated during the download process of pytorch git clone. You can try few more times.
@@ -349,8 +349,8 @@ ENV NCCL_LIBRARY=/usr/lib/x86_64-linux-gnu
 ENV NCCL_INCLUDE_DIR=/usr/include
 RUN cd /opt/pytorch && TORCH_NVCC_FLAGS="-Xfatbin -compress-all" \
     CMAKE_PREFIX_PATH="$(dirname $(which conda))/../" USE_SYSTEM_NCCL=1 \
-    pip install -v . && rm -rf /opt/pytorch 
- 
+    pip install -v . && rm -rf /opt/pytorch
+
 
 
 ##############################################################################
@@ -382,7 +382,7 @@ RUN cd ${STAGE_DIR}/apex && pip install -v --no-cache-dir --global-option="--cpp
 #Install deepSpeed
 #############################################################################
 RUN pip install  py-cpuinfo
-RUN apt-get install -y libaio-dev 
+RUN apt-get install -y libaio-dev
 ENV TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0+PTX"
 RUN git clone https://github.com/microsoft/DeepSpeed.git ${STAGE_DIR}/DeepSpeed
 #COPY DeepSpeed ${STAGE_DIR}/DeepSpeed
@@ -449,16 +449,16 @@ docker load --input deepspeed-cuda102.tar.gz
 ```shell
 docker build -f cuda102.dockerfile  -t deepspeed/cuda102:1221 .
 # cuda102.dockerfile Refer to the production process of dockerfile file
-```     
+```   
 # 二. Build containers at each machine node
 
 ```shell
-# Create a container (NVIDIA-docker), 
+# Create a container (NVIDIA-docker),
 # hostname=the host name inside the container
 # network = host share with the several machine
-# ipc = host  This is required for cluster training. 
-# shm_size shared memory, name container external name, 
-# --gpus specifies GPU, multi data volume: 
+# ipc = host  This is required for cluster training.
+# shm_size shared memory, name container external name,
+# --gpus specifies GPU, multi data volume:
 # -v local folder: folder in container -v local folder: folder in container -v local folder: folder in container deepspeed / cuda102:1221 image name: tag
 nvidia-docker run -id  --hostname=glm_dist16  --network=host --ipc=host --shm-size=16gb --name=glm_dist16   --gpus '"device=0,1,2,3"' -v /data1/docker/containers:/data  deepspeed/cuda102:1221
 ```
@@ -506,7 +506,7 @@ docker rm container_name/container_id
 
 ~/.ssh/id_rsa.pub
 The contents in are collected and synchronized to the files of each machine
-~/.ssh/authorized_keys 
+~/.ssh/authorized_keys
 
 ## 3.login without password
 

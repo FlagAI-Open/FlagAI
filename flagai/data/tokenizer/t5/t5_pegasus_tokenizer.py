@@ -4,7 +4,6 @@ import jieba
 
 
 class T5PegasusTokenizer(Tokenizer):
-
     def __init__(self,
                  vocab_path,
                  pre_tokenizer=lambda x: jieba.cut(x, HMM=False),
@@ -34,9 +33,8 @@ class T5PegasusTokenizer(Tokenizer):
                                    truncation, max_length)
 
 
-## TODO T5BatchPegasusTokenizer could be mereged into T5PegasusTokenizer
+# TODO T5BatchPegasusTokenizer could be mereged into T5PegasusTokenizer
 class T5BatchPegasusTokenizer(BertTokenizer):
-
     def __init__(self, pre_tokenizer=lambda x: jieba.cut(x), *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pre_tokenizer = pre_tokenizer

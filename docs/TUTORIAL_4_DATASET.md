@@ -3,20 +3,20 @@
 ## Supported downstream datasets
 Our project now supports 12 datasets as listed below:
 
-| Dataset Name           | Identifier | Language | Source Benchmark |  
+| Dataset Name           | Identifier | Language | Source Benchmark |
 |------------------------|------------|----------|------------------|
 | Broadcoverage Diagnostics                  | BoolQ      | English  | SuperGLUE        |
 | CommitmentBank                     | CB         | English  | SuperGLUE        |
-| Choice of Plausible Alternatives                 | COPA       | English  | SuperGLUE        | 
+| Choice of Plausible Alternatives                 | COPA       | English  | SuperGLUE        |
 | Multi-Sentence Reading Comprehension              | MultiRC    | English  | SuperGLUE        |
-| Recognizing Textual Entailment                  | RTE        | English  | SuperGLUE        | 
-| Words in Context | WiC        | English  | SuperGLUE        |                                                     
+| Recognizing Textual Entailment                  | RTE        | English  | SuperGLUE        |
+| Words in Context | WiC        | English  | SuperGLUE        |                                                   
 | The Winograd Schema Challenge                 | WSC        | English  | SuperGLUE        |
 | Ant Financial Question Matching Corpus            | AFQMC      | Chinese  | CLUE             |
 | Short Text Classificaiton for News             | TNEWS      | Chinese  | CLUE             |
 | Reading Comprehension for Simplified Chinese      | CMRC2018   | Chinese  | CLUE             |
 
-## Introduction to prompt learning 
+## Introduction to prompt learning
 
 ## Load datasets
 
@@ -51,7 +51,7 @@ loader = torch.utils.data.DataLoader(dataset,
                                           pin_memory=False,
                                           collate_fn=collate_fn)
 
-# Iterating loader 
+# Iterating loader
 it = iter(loader)
 next(it)
 batch = next(it)

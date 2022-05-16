@@ -1,5 +1,5 @@
-## construct data
-## data from https://github.com/murufeng/ChineseNlpCorpus
+# construct data
+# data from https://github.com/murufeng/ChineseNlpCorpus
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor

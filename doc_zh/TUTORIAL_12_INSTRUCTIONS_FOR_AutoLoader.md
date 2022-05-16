@@ -10,11 +10,11 @@ Autoloader会根据**model_name**从ModelHub中自动搜索预训练模型和Tok
 ## target包含所有目标分类
 ## 0 代表两句话的意思相似
 ## 1 代表两句话有着不同的意思
-target = [0, 1] 
+target = [0, 1]
 auto_loader = AutoLoader(task_name="cls", ## 任务名
                          model_name="RoBERTa-wwm-ext", ## 模型名字
                          model_dir=model_dir, ## 模型下载的目录
-                         load_pretrain_params=True, ## 是否要加载已有的预训练模型参数. 
+                         load_pretrain_params=True, ## 是否要加载已有的预训练模型参数.
                          target_size=len(target) ## 最终输出的维度，用来进行分类任务.
                          )
 ```
@@ -31,11 +31,11 @@ auto_loader = AutoLoader(task_name="cls", ## 任务名
 所有支持的模型都可以在 **model hub** 中找到。
 不同的模型适应不同的任务。
 
-#### Transfomrer编码器: 
+#### Transfomrer编码器:
 
 例如 model_name="bert-base-chinese" or "RoBERTa-wwm-ext"时， 这些模型支持上一节中提到的所有任务
 
-#### Transformer解码器: 
+#### Transformer解码器:
 
 例如 model_name="gpt2-chinese"时, 模型支持 "seq2seq" 任务.
 

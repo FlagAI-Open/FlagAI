@@ -17,7 +17,6 @@ def load_config(config_path):
 
 class LogitsProcessor:
     """Abstract base class for all logit processors that can be applied during generation."""
-
     def __call__(self, input_ids: torch.LongTensor,
                  scores: torch.FloatTensor) -> torch.FloatTensor:
         """Torch method for processing logits."""
@@ -34,7 +33,6 @@ class RepetitionPenaltyLogitsProcessor(LogitsProcessor):
             The parameter for repetition penalty. 1.0 means no penalty. See `this paper
             <https://arxiv.org/pdf/1909.05858.pdf>`__ for more details.
     """
-
     def __init__(self, penalty: float):
         if not isinstance(penalty, float) or not (penalty > 0):
             raise ValueError(
@@ -63,7 +61,6 @@ class TemperatureLogitsProcessor(LogitsProcessor):
         temperature (:obj:`float`):
             The value used to module the logits distribution.
     """
-
     def __init__(self, temperature: float):
         if not isinstance(temperature, float) or not (temperature > 0):
             raise ValueError(
@@ -91,7 +88,6 @@ class TopPLogitsProcessor(LogitsProcessor):
         min_tokens_to_keep (:obj:`int`, `optional`, defaults to 1):
             Minimum number of tokens that cannot be filtered.
     """
-
     def __init__(self,
                  top_p: float,
                  filter_value: float = -float("Inf"),
@@ -139,7 +135,6 @@ class TopKLogitsProcessor(LogitsProcessor):
         min_tokens_to_keep (:obj:`int`, `optional`, defaults to 1):
             Minimum number of tokens that cannot be filtered.
     """
-
     def __init__(self,
                  top_k: int,
                  filter_value: float = -float("Inf"),
@@ -165,7 +160,6 @@ class TopKLogitsProcessor(LogitsProcessor):
 
 
 class ListProcessor(LogitsProcessor):
-
     def __init__(self, list_processor: List[LogitsProcessor]) -> None:
         super().__init__()
         self.list_processor = list_processor
@@ -191,9 +185,9 @@ def viterbi_decode(nodes, trans):
     seq_len = nodes.shape[0]
     labels = torch.arange(0, target_size).view(1, -1)
     path = labels
-    for l in range(1, seq_len):
+    for pos_t in range(1, seq_len):
         scores = scores.view(-1, 1)
-        M = scores + trans + nodes[l].view(1, -1)
+        M = scores + trans + nodes[pos_t].view(1, -1)
         scores, ids = M.max(0)
         path = torch.cat((path[:, ids], labels), dim=0)
 
@@ -259,8 +253,11 @@ def bert_beam_search(model,
         token_type_ids = np.zeros_like(token_ids).astype(np.int64)
 
     output_ids = None
+
     with torch.no_grad():
         output_scores = np.zeros([1])
+        new_token_type_ids = token_type_ids
+        new_input_ids = token_ids
         for step in range(out_max_length):
             if step == 0:
                 scores = bert_predict_generate(model, token_ids,
@@ -332,6 +329,7 @@ def glm_beam_search(model,
     list_processor = ListProcessor(lp)
     with torch.no_grad():
         output_scores = np.zeros([1])
+        new_input_ids = input_ids
         for step in range(out_max_length):
             if step == 0:
                 scores = model(
