@@ -8,8 +8,8 @@ class GLMLargeChTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        self.model = GLMForSeq2Seq.init_from_json("./checkpoints/glm_large_ch/config.json")
-        self.tokenizer = GLMLargeChTokenizer("./checkpoints/glm_large_ch/cog-pretrain.model")
+        self.model = GLMForSeq2Seq.init_from_json("./checkpoints/GLM-large-ch/config.json")
+        self.tokenizer = GLMLargeChTokenizer("./checkpoints/GLM-large-ch/cog-pretrain.model")
         print("loading bert model successfully!")
 
     def test_model_predict(self):

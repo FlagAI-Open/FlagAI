@@ -7,8 +7,8 @@ import os
 class GPT2TestCase(unittest.TestCase):
     def setUp(self) -> None:
 
-        self.model = GPT2Model.init_from_json("./checkpoints/gpt2_base_chinese/config.json")
-        self.tokenizer = BertTokenizer("./checkpoints/gpt2_base_chinese/vocab.txt")
+        self.model = GPT2Model.init_from_json("./checkpoints/GPT2-base-ch/config.json")
+        self.tokenizer = BertTokenizer("./checkpoints/GPT2-base-ch/vocab.txt")
 
         print("loading model successfully!")
 

@@ -6,8 +6,8 @@ import unittest
 class T5TestCase(unittest.TestCase):
        def setUp(self) -> None:
 
-              self.model = T5Model.init_from_json("./checkpoints/t5_base_ch/config.json")
-              self.tokenizer = T5PegasusTokenizer("./checkpoints/t5_base_ch/vocab.txt")
+              self.model = T5Model.init_from_json("./checkpoints/T5-base-ch/config.json")
+              self.tokenizer = T5PegasusTokenizer("./checkpoints/T5-base-ch/vocab.txt")
 
               print("loading model successfully!")
 
