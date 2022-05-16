@@ -1,6 +1,6 @@
 import importlib
 import os
-
+from  flagai.model.file_utils import _get_model_id, _get_vocab_path
 
 class LazyImport(object):
     def __init__(self, name):
@@ -15,54 +15,48 @@ class LazyImport(object):
         return getattr(mod, name)
 
 
-ALL_MODEL = ["bert", "roberta", "gpt2", "glm"]
-ALL_TASK_NAME = [
-    "seq2seq", "masklm", "sequence_labeling", "classification", "embedding"
-]
-
 ALL_TASK = {
     "bert_seq2seq": ["flagai.model.bert_model", "BertForSeq2seq"],
+    "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2Seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
-    "bert_sequence_labeling":
-    ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    "bert_sequence-labeling": ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    "bert_ner": ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    "bert_ner-crf": ["flagai.model.bert_model", "BertForSequenceLabelingCRF"],
+    "bert_ner-gp": ["flagai.model.bert_model", "BertForSequenceLabelingGP"],
     "bert_embedding": ["flagai.model.bert_model", "BertForEmbedding"],
-    "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
     "bert_classification": ["flagai.model.bert_model", "BertForClsClassifier"],
-    "bert_sequence_labeling_crf":
-    ["flagai.model.bert_model", "BertForSequenceLabelingCRF"],
-    "bert_sequence_labeling_gp":
-    ["flagai.model.bert_model", "BertForSequenceLabelingGP"],
+    "bert_semantic-matching": ["flagai.model.bert_model", "BertForClsClassifier"],
+    "gpt2_writing": ("flagai.model.gpt2_model", "GPT2Model"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
-    "glm_classification":
-    ["flagai.model.glm_model", "GLMForSequenceClassification"]
+    "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
+    "glm_classification": ["flagai.model.glm_model", "GLMForSequenceClassification"]
 }
 
 MODEL_DICT = {
-    "bert": ["flagai.model.bert_model", "BertModel"],
-    "t5": ["flagai.model.t5_model", "T5Model"],
-    "glm": ["flagai.model.glm_model", "GLMModel"],
-    "gpt2": ["flagai.model.gpt2_model", "GPT2Model"],
-    "t5_english": None,
+    "BERT-base-en": ["flagai.model.bert_model", "BertModel", "bert"],
+    "RoBERTa-base-ch": ["flagai.model.bert_model", "BertModel", "bert"],
+    "T5-base-en": ["flagai.model.t5_model", "T5Model", "t5"],
+    "T5-base-ch": ["flagai.model.t5_model", "T5Model", "t5"],
+    "GLM-large-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
+    "GLM-large-en": ["flagai.model.glm_model", "GLMModel", "glm"],
+    "GPT2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2"],
 }
 
 TOKENIZER_DICT = {
-    "bert": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "t5":
-    ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "glm": [
+    "BERT-base-en": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "RoBERTa-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "T5-base-en": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
+    "T5-base-ch": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
+    "GLM-large-ch": [
         "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
         "GLMLargeChTokenizer"
     ],
-    "glm_english": [
+    "GLM-large-en": [
         "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
         "GLMLargeEnTokenizer"
     ],
-    "gpt2": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "t5_english":
-    None,
-    "gpt_english":
-    None,
+    "GPT2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
 }
 
 
@@ -99,51 +93,50 @@ class AutoLoader:
                                          class_num=2)
 
         """
-        # Get the brief_model_name by the model_name,
-        # to decide the model to use.
-        brief_model_name = ""
         if model_name not in MODEL_DICT:
-            for k in MODEL_DICT.keys():
-                if k in model_name.lower():
-                    brief_model_name = k
-                    break
-        else:
-            brief_model_name = model_name
-
-        # The dir to save config, vocab and model.
-        download_path = os.path.join(model_dir, model_name)
-        os.makedirs(download_path, exist_ok=True)
-
-        if brief_model_name in MODEL_DICT:
-
-            if "english" in model_name:
-                tokenizer_name = f"{brief_model_name}_english"
-            else:
-                tokenizer_name = brief_model_name
-
-            vocab_file = os.path.join(model_dir, model_name, "vocab.txt")
-            self.model = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
-            if self.model is None:
-                print(
-                    f"For the model_name: {model_name}, task_name: {task_name} \
-                    is not be supported."
-                )
-                os._exit(0)
-            self.model = getattr(LazyImport(self.model[0]),
-                                 self.model[1]).from_pretrain(
-                                     download_path=model_dir,
-                                     model_name=model_name,
-                                     only_download_config=only_download_config,
-                                     **kwargs)
-
-            tokenizer_class = TOKENIZER_DICT[tokenizer_name]
-            tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
-                                      tokenizer_class[1])
-            self.tokenizer = tokenizer_class(vocab_file)
-
-        else:
             print(f"The model_name: {model_name} is not be supported")
-            os._exit(0)
+            return 
+        brief_model_name = MODEL_DICT[model_name][2]
+        # The dir to save config, vocab and model.
+
+        self.model = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
+        if self.model is None:
+            print(
+                f"For the model_name: {model_name}, task_name: {task_name} \
+                is not be supported."
+            )
+            return
+        model_name_ = model_name
+        model_id = _get_model_id(f"{model_name}-{task_name}")
+        if model_id !='null':
+            model_name_ = f"{model_name}-{task_name}"
+        else:
+            model_name_ = model_name
+        download_path = os.path.join(model_dir, model_name_)
+        os.makedirs(download_path, exist_ok=True)
+        self.model = getattr(LazyImport(self.model[0]),
+                                self.model[1]).from_pretrain(
+                                    download_path=model_dir,
+                                    model_name=model_name_,
+                                    only_download_config=only_download_config,
+                                    **kwargs)
+        model_id = _get_model_id(model_name)
+        
+        if model_name == 'GLM-large-ch':
+            vocab_file = os.path.join(download_path,'cog-pretrained.model')
+            if not os.path.exists(vocab_file):
+                vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
+        else:
+            vocab_file = os.path.join(download_path,'vocab.txt')
+            if not os.path.exists(vocab_file):
+                vocab_file = _get_vocab_path(download_path, "vocab.txt", model_id)
+        tokenizer_class = TOKENIZER_DICT[model_name]
+        tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
+                                    tokenizer_class[1])
+        self.tokenizer = tokenizer_class(vocab_file)
+
+
+
 
     def get_tokenizer(self):
         return self.tokenizer

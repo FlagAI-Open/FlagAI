@@ -1,9 +1,7 @@
-from logging import raiseExceptions
 from torch.nn import Module
 import torch
 import json
-from typing import Union, List
-import copy
+from typing import Union 
 from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path
 import os
 
@@ -18,11 +16,6 @@ class BaseModel(Module):
         raise NotImplementedError("base model is not callable!")
 
     def load_weights(self, checkpoint_path):
-        # weights = torch.load(checkpoint_path, map_location=torch.device('cpu'))
-        # if 'module' in weights:
-        #     # for deepspeed checkpoints
-        #     weights = weights['module']
-        # self.load_state_dict(weights)
         raise NotImplementedError("base model is not callable!")
 
     def save_weights(self, chekpoint_path=''):

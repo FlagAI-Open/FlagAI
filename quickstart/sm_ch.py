@@ -6,7 +6,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 maxlen = 256
 
 auto_loader = AutoLoader("classification",
-                         model_name="RoBERTa-wwm-ext-semantic-matching",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+                         model_name="RoBERTa-base-ch-semantic-matching",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
                          class_num=2)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()

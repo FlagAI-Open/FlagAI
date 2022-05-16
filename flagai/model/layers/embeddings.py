@@ -269,7 +269,6 @@ class BertEmbeddings(nn.Module):
             vocab_size,
             hidden_size,
             init_method=normal_init_method(mean=0.0, std=initializer_range))
-        print("bertEmbedding", max_position_embeddings)
         self.position_embeddings = nn.Embedding(max_position_embeddings,
                                                 hidden_size)
         self.token_type_embeddings = nn.Embedding(type_vocab_size, hidden_size)
