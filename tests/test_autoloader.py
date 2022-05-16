@@ -66,18 +66,18 @@ class AutoLoaderTestCase(unittest.TestCase):
                 f"task_name is {t_name}, model_name is {m_name}"
             )
 
-    def test_GPT2_base_ch(self):
-        for t_name  in self.task_name:
-            m_name = 'GPT2-base-ch'
+    # def test_GPT2_base_ch(self):
+    #     for t_name  in self.task_name:
+    #         m_name = 'GPT2-base-ch'
             
-            loader = AutoLoader(task_name=t_name,
-                                model_name=m_name,
-                                class_num=3,
-                                inner_dim=32,
-                                only_download_config=True)
-            print(
-                f"task_name is {t_name}, model_name is {m_name}"
-            )
+    #         loader = AutoLoader(task_name=t_name,
+    #                             model_name=m_name,
+    #                             class_num=3,
+    #                             inner_dim=32,
+    #                             only_download_config=True)
+    #         print(
+    #             f"task_name is {t_name}, model_name is {m_name}"
+    #         )
     def test_T5_base_ch(self):
         for t_name  in self.task_name:
             m_name = 'T5-base-ch'
@@ -97,7 +97,7 @@ def suite():
     suite.addTest(AutoLoaderTestCase('test_BERT_base_en'))
     suite.addTest(AutoLoaderTestCase('test_RoBERTa_base_ch'))
     suite.addTest(AutoLoaderTestCase('test_T5_base_ch'))
-    suite.addTest(AutoLoaderTestCase('test_GPT2_base_ch'))
+    # suite.addTest(AutoLoaderTestCase('test_GPT2_base_ch'))
     return suite
 
 

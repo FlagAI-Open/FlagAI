@@ -18,9 +18,9 @@ class BertTestCase(unittest.TestCase):
                        BertForSequenceLabeling,
                        BertForSequenceLabelingGP,
                        BertForSequenceLabelingCRF]
-        self.model_name = "RoBERTa-wwm-ext"
-        self.bert_path = "./checkpoints/RoBERTa-wwm-ext/config.json"
-        self.tokenizer = BertTokenizer("./checkpoints/RoBERTa-wwm-ext/vocab.txt")
+        self.model_name = "RoBERTa-base-ch"
+        self.bert_path = "./checkpoints/RoBERTa-base-ch/config.json"
+        self.tokenizer = BertTokenizer("./checkpoints/RoBERTa-base-ch/vocab.txt")
 
         print("loading bert model successfully!")
 

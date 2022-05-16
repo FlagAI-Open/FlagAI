@@ -17,7 +17,7 @@ class LazyImport(object):
 
 ALL_TASK = {
     "bert_seq2seq": ["flagai.model.bert_model", "BertForSeq2seq"],
-    "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2Seq"],
+    "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
     "bert_sequence-labeling": ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner": ["flagai.model.bert_model", "BertForSequenceLabeling"],
@@ -26,7 +26,7 @@ ALL_TASK = {
     "bert_embedding": ["flagai.model.bert_model", "BertForEmbedding"],
     "bert_classification": ["flagai.model.bert_model", "BertForClsClassifier"],
     "bert_semantic-matching": ["flagai.model.bert_model", "BertForClsClassifier"],
-    "gpt2_writing": ("flagai.model.gpt2_model", "GPT2Model"),
+    "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
@@ -121,7 +121,7 @@ class AutoLoader:
                                     only_download_config=only_download_config,
                                     **kwargs)
         model_id = _get_model_id(model_name)
-        
+        print("*"*20, task_name, model_id, model_name)
         if model_name == 'GLM-large-ch':
             vocab_file = os.path.join(download_path,'cog-pretrained.model')
             if not os.path.exists(vocab_file):
@@ -130,6 +130,9 @@ class AutoLoader:
             vocab_file = os.path.join(download_path,'vocab.txt')
             if not os.path.exists(vocab_file):
                 vocab_file = _get_vocab_path(download_path, "vocab.txt", model_id)
+        
+        
+
         tokenizer_class = TOKENIZER_DICT[model_name]
         tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
                                     tokenizer_class[1])

@@ -10,7 +10,7 @@ from flagai.data.tokenizer import BertWordPieceTokenizer
 class TokenizerTestCase(unittest.TestCase):
 
     def test_tokenizer_glm_large_ch(self):
-        tokenizer = GLMLargeChTokenizer("./checkpoints/glm_large_ch/cog-pretrain.model",
+        tokenizer = GLMLargeChTokenizer("./checkpoints/GLM-large-ch/cog-pretrain.model",
                                         fix_command_token=True,
                                         add_block_symbols=True,
                                         add_task_mask=False,
