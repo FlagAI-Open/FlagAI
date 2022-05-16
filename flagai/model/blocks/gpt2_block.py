@@ -4,7 +4,6 @@ from torch import nn
 
 
 class GPT2Block(nn.Module):
-
     def __init__(self, n_ctx, config, scale=False):
         super().__init__()
         hidden_size = config['n_embd']

@@ -8,7 +8,6 @@ Copyright by the AllenNLP authors.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
 import json
 import logging
 import os
@@ -133,7 +132,6 @@ def s3_request(func):
     Wrapper function for s3 requests in order to create more helpful error
     messages.
     """
-
     @wraps(func)
     def wrapper(url, *args, **kwargs):
         try:

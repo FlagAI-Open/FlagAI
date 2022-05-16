@@ -41,7 +41,6 @@ def init_bert_weights(module):
 
 
 class BertStack(torch.nn.Module):
-
     def __init__(self, num_hidden_layers, hidden_size, num_attention_heads,
                  attention_probs_dropout_prob, initializer_range,
                  layernorm_epsilon, hidden_dropout_prob, intermediate_size,
@@ -67,7 +66,6 @@ class BertStack(torch.nn.Module):
             if checkpoint_fn is not None:
 
                 def create_custom_forward(module):
-
                     def custom_forward(*inputs):
                         return module(*inputs)
 
@@ -88,7 +86,6 @@ class BertStack(torch.nn.Module):
 
 
 class BertModel(BaseModel):
-
     def __init__(self, config, **kwargs):
 
         super(BertModel, self).__init__(config, **kwargs)
@@ -177,7 +174,7 @@ class BertModel(BaseModel):
         checkpoint = torch.load(checkpoint_path,
                                 map_location=torch.device("cpu"))
         if "module" in checkpoint:
-            ## ddp
+            # ddp
             checkpoint = checkpoint["module"]
         checkpoint_new = self.convert_checkpoint_to_load(checkpoint)
         self.load_state_dict(checkpoint_new, strict=False)
@@ -233,7 +230,6 @@ class BertModel(BaseModel):
 
 
 class Predictions(nn.Module):
-
     def __init__(self, vocab_size, hidden_size, layer_nrom_eps, hidden_act):
         super().__init__()
         self.transform = BertPredictionHeadTransform(hidden_size,
@@ -249,7 +245,6 @@ class Predictions(nn.Module):
 
 
 class CLS(nn.Module):
-
     def __init__(self, vocab_size, hidden_size, layer_norm_eps, hidden_act):
         super().__init__()
         self.predictions = Predictions(vocab_size, hidden_size, layer_norm_eps,
@@ -260,7 +255,6 @@ class CLS(nn.Module):
 
 
 class BertPredictionHeadTransform(nn.Module):
-
     def __init__(self, hidden_size, layer_norm_eps, hidden_act):
         super().__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
@@ -306,7 +300,6 @@ def load_extend_layer_weight(self, checkpoints, extend_layer: List[str]):
 
 
 class BertForSeq2seq(BaseModel):
-
     def __init__(self, config, **kwargs):
         super(BertForSeq2seq, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -377,7 +370,6 @@ class BertForSeq2seq(BaseModel):
 
 
 class BertForMaskLM(BaseModel):
-
     def __init__(self, config, **kwargs):
         super(BertForMaskLM, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -424,7 +416,6 @@ class BertForMaskLM(BaseModel):
 
 
 class BertForClsClassifier(BaseModel):
-
     def __init__(self, config, **kwargs):
         super(BertForClsClassifier, self).__init__(config, **kwargs)
         assert config['class_num'] != -1 and config['class_num'] is not None
@@ -473,7 +464,6 @@ class BertForClsClassifier(BaseModel):
 
 
 class BertForSequenceLabeling(BaseModel):
-
     def __init__(self, config, **kwargs):
         super(BertForSequenceLabeling, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -524,7 +514,6 @@ class BertForSequenceLabeling(BaseModel):
 class BertForSequenceLabelingCRF(BaseModel):
     """
     """
-
     def __init__(self, config, **kwargs):
         super(BertForSequenceLabelingCRF, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -576,7 +565,6 @@ class BertForSequenceLabelingCRF(BaseModel):
 class BertForSequenceLabelingGP(BaseModel):
     """
     """
-
     def __init__(self, config, **kwargs):
         super(BertForSequenceLabelingGP, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -614,7 +602,6 @@ class BertForSequenceLabelingGP(BaseModel):
 
 
 class BertForEmbedding(BaseModel):
-
     def __init__(self, config, **kwargs):
         super(BertForEmbedding, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -638,4 +625,4 @@ class BertForEmbedding(BaseModel):
         return return_data
 
     def load_weights(self, model_path):
-        checkpoints = self.model.load_huggingface_weights(model_path)
+        self.model.load_huggingface_weights(model_path)

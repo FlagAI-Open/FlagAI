@@ -20,7 +20,6 @@ def multilabel_crossentropy(y_pred, y_true):
 
 
 class GlobalPointer(nn.Module):
-
     def __init__(self, hidden_size, ent_type_size, inner_dim, RoPE=True):
         super().__init__()
         self.ent_type_size = ent_type_size

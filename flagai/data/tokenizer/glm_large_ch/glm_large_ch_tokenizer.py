@@ -24,6 +24,7 @@ print_rank_0 = print
 class GLMLargeChTokenizer(GLMTokenizer):
 
     def __init__(self,
+                 vocab_path=None,
                  add_block_symbols=True,
                  add_task_mask=True,
                  add_decoder_mask=True,
@@ -40,7 +41,7 @@ class GLMLargeChTokenizer(GLMTokenizer):
             fix_command_token: (bool)
                 When add_task_mask, setting fix_command
         """
-        self.text_tokenizer = glm_large_ch.from_pretrained()
+        self.text_tokenizer = glm_large_ch.from_pretrained(vocab_path)
         self.num_command_tokens = 0
         self.num_text_tokens = self.text_tokenizer.sp.vocab_size()
         self.num_tokens = self.num_text_tokens
@@ -133,59 +134,58 @@ class GLMLargeChTokenizer(GLMTokenizer):
     def _encode(self, text):
         ids = self.text_tokenizer.encode(text)
         return ids
+    def encode_plus( #for Seq2seq
+        self,
+        source_text, 
+        target_text=None,
+        ):
 
-    def encode_plus(  #for Seq2seq
-            self,
-            source_text,
-            target_text=None,
-    ):
-
-        sop_id = self.get_command('sop').Id  #start of piece
-        eop_id = self.get_command('eop').Id  #end of piece
-        sep_id = self.get_command('sep').Id  #seperation
-
+        sop_id = self.get_command('sop').Id #start of piece
+        eop_id = self.get_command('eop').Id #end of piece
+        sep_id = self.get_command('sep').Id #seperation
+        
         source_tokens = self.EncodeAsIds(source_text)
-        source_tokens = [sop_id] + source_tokens + [sep_id]
-
+        source_tokens = [sop_id] + source_tokens + [sep_id] 
+        
         # no pading for consistency
-        len_source = len(source_tokens)
-        sop_pos = source_tokens.index(sop_id)
-        loss_mask = [0] * len_source
-        block_position_ids = [0] * len_source
+        len_source = len(source_tokens) 
+        sop_pos = source_tokens.index(sop_id) 
+        loss_mask = [0]*len_source
+        block_position_ids = [0]*len_source
         position_ids = list(range(len_source))
 
         if target_text:
             target_tokens = self.EncodeAsIds(target_text)
             target_tokens = target_tokens + [eop_id]
-            loss_mask += [1] * len(target_tokens)
-            block_position_ids += [0] * len(target_tokens)
-            position_ids += [x + len_source for x in range(len(target_tokens))]
+            loss_mask += [1] * len(target_tokens) 
+            block_position_ids += [0]*len(target_tokens)
+            position_ids += [x+len_source for x in range(len(target_tokens))]
             tokens = source_tokens + target_tokens
             position_ids = [position_ids[:-1], block_position_ids[:-1]]
             sample = {
                 'input_ids': tokens[:-1],
                 'target_ids': tokens[1:],
                 'attention_mask': sop_pos,
-                'loss_mask': loss_mask[:-1],
+                'loss_mask': loss_mask[:-1], 
                 "position_ids": position_ids
             }
         else:
             position_ids = [position_ids, block_position_ids]
             sample = {
-                'input_ids': source_tokens,
-                'attention_mask': sop_pos,
-                "position_ids": position_ids,
+                'input_ids': source_tokens, 
+                'attention_mask': sop_pos, 
+                "position_ids": position_ids, 
                 'loss_mask': loss_mask,
             }
-        return sample
+        return sample      
 
-    def MultiWordId(self, exception=None):
+    def MultiWordId(self,exception=None):
         #get multi word tokens' ids
         #return ids list
         #exception token: string list
-        result = []
+        result=[]
         for i in range(self.num_text_tokens):
-            word = self.IdToToken(i)
+            word=self.IdToToken(i)
             if exception:
                 if word not in exception and len(word) > 2:
                     result.append(i)
@@ -193,17 +193,15 @@ class GLMLargeChTokenizer(GLMTokenizer):
                 if len(word) > 2:
                     result.append(i)
         return result
-
-    def CommandTokenIds(self, exception=None):
+    def CommandTokenIds(self,exception=None):
         #get command tokens' ids
         #return ids list
         #exception token: string list
-        result = []
+        result=[]
         for s in self._command_tokens:
             if not exception or (exception and s.name not in exception):
                 result.append(s.Id)
-        return (result)
-
+        return(result)
     def EncodeAsTokens(self, text, process_fn=None):
         processed_text = text
         if process_fn is not None:

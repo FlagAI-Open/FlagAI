@@ -1,18 +1,18 @@
 ## Transformer basics
-Briefly, the Transformer, as proposed in [Attention Is All You Need](https://arxiv.org/abs/1706.03762), 
-can be regarded as an integration of an encoder block and a decoder block. With the use of attention mechanism, 
-Transformer can extract better features from input, and consequently Transformer-based models have achieved state-of-the-art 
-performance in most of the language tasks. Another feature of transformer is its compatibility with parallel computing, which is a major 
-superiority compared with sequential models like RNN. 
+Briefly, the Transformer, as proposed in [Attention Is All You Need](https://arxiv.org/abs/1706.03762),
+can be regarded as an integration of an encoder block and a decoder block. With the use of attention mechanism,
+Transformer can extract better features from input, and consequently Transformer-based models have achieved state-of-the-art
+performance in most of the language tasks. Another feature of transformer is its compatibility with parallel computing, which is a major
+superiority compared with sequential models like RNN.
 
 The Transformer architecture is shown below
 
 <div align=center><img src="img/transformer.png" width="400px"></div>
 
-In the encoder step, firstly the embedding encoded from token positions is added to embeddings encoded from tokens themselves. 
-Then the input embeddings are passed to a multi-head attention mechanism, which is able to take mutual information among tokens into consideration. 
-The computed output will add the original input embeddings, followed by a layer normalization. 
-The rest of the encoder part is a feed-forward layer with addition and a layer normalization. 
+In the encoder step, firstly the embedding encoded from token positions is added to embeddings encoded from tokens themselves.
+Then the input embeddings are passed to a multi-head attention mechanism, which is able to take mutual information among tokens into consideration.
+The computed output will add the original input embeddings, followed by a layer normalization.
+The rest of the encoder part is a feed-forward layer with addition and a layer normalization.
 
 The decoder architecture is similar to the encoder, with the following differences:
 
@@ -26,11 +26,11 @@ Step-by-step details of transformers can be viewed in [this article](https://tow
 
 ## Transformer Applications
 
-Currently, there exist several different pre-training model architectures: autoencoding models that only implement encoder architecture (e.g., BERT), 
+Currently, there exist several different pre-training model architectures: autoencoding models that only implement encoder architecture (e.g., BERT),
 autoregressive models that only implement decoder (e.g., GPT), and encoder-decoder models that implement both encoder and decoder (e.g., T5).
 
-The **GLM model**, proposed in [All NLP Tasks Are Generation Tasks: A General Pretraining Framework](https://arxiv.org/abs/2103.10360), 
-claims to have good performance in classification, unconditional generation, and conditional generation tasks with the use of a new pre-training method. 
+The **GLM model**, proposed in [All NLP Tasks Are Generation Tasks: A General Pretraining Framework](https://arxiv.org/abs/2103.10360),
+claims to have good performance in classification, unconditional generation, and conditional generation tasks with the use of a new pre-training method.
 
 The key features of GLM include:
 
@@ -40,7 +40,7 @@ The key features of GLM include:
   - [Pre-LN](http://proceedings.mlr.press/v119/xiong20b.html)
   - 2D positional encoding: Each token has two positional encodings: the global position in the sentence, and the local position inside the masked span.
   - Feed-forward network is replaced with a linear layer
-  
+
 An example showing the autoencoding and autoregressive of GLM can be viewed [here](APPENDIX_GLM_IO.md).
 
 

@@ -3,7 +3,6 @@ import os
 
 
 class LazyImport(object):
-
     def __init__(self, name):
         self.cache = {}
         self.mod_name = name
@@ -68,7 +67,6 @@ TOKENIZER_DICT = {
 
 
 class AutoLoader:
-
     def __init__(self,
                  task_name: str,
                  model_name: str,
@@ -77,20 +75,32 @@ class AutoLoader:
                  **kwargs):
         """
         Args:
-            task_name: The task name, for example, "cls" for classification, "sequence_labeling" for ner, part-of-speech tagging and so on, "seq2seq" for sequence to sequence task.
-            model_name: The model name, for example, "bert-base-chinese", "RoBERTa-wwm-ext", "gpt2-chinese", "t5-base-chinese" and so on.
+            task_name: The task name, for example, "cls" for classification,
+                      "sequence_labeling" for ner, part-of-speech tagging
+                       and so on, "seq2seq" for sequence to sequence task.
+            model_name: The model name, for example, "bert-base-chinese",
+                        "RoBERTa-wwm-ext", "gpt2-chinese",
+                        "t5-base-chinese" and so on.
             model_dir: The first level of the model download directory.
             load_pretrain_params: Whether to load the downloaded parameters.
             target_size: For the classification task, all labels size.
-            inner_dim: For global pointer ner task, inner_dim is the representation dim of start and end tokens.
+            inner_dim: For global pointer ner task, inner_dim is the
+                       representation dim of start and end tokens.
         Examples::
 
-            # load bert-base-chinese model and tokenizer to do the two classification task of text.
-            # Then the download path of config, model, vocab files is the "./checkpoints/bert-base-chinese"
-            >>> auto_loader = AutoLoader(task_name, model_name="bert-base-chinese", model_dir="checkpoints", load_pretrain_params=True, class_num=2)
+            # load bert-base-chinese model and tokenizer to do the two
+            # classification task of text.
+            # Then the download path of config, model, vocab files is the
+            # "./checkpoints/bert-base-chinese"
+            >>> auto_loader = AutoLoader(task_name,
+                                         model_name="bert-base-chinese",
+                                         model_dir="checkpoints",
+                                         load_pretrain_params=True,
+                                         class_num=2)
 
         """
-        # Get the brief_model_name by the model_name, to decide the model to use.
+        # Get the brief_model_name by the model_name,
+        # to decide the model to use.
         brief_model_name = ""
         if model_name not in MODEL_DICT:
             for k in MODEL_DICT.keys():
@@ -100,7 +110,7 @@ class AutoLoader:
         else:
             brief_model_name = model_name
 
-        ## The dir to save config, vocab and model.
+        # The dir to save config, vocab and model.
         download_path = os.path.join(model_dir, model_name)
         os.makedirs(download_path, exist_ok=True)
 
@@ -112,13 +122,11 @@ class AutoLoader:
                 tokenizer_name = brief_model_name
 
             vocab_file = os.path.join(model_dir, model_name, "vocab.txt")
-            #model_path = os.path.join(model_dir, model_name,
-            #                          "pytorch_model.bin")
-
             self.model = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
             if self.model is None:
                 print(
-                    f"For the model_name: {model_name}, task_name: {task_name} is not be supported."
+                    f"For the model_name: {model_name}, task_name: {task_name} \
+                    is not be supported."
                 )
                 os._exit(0)
             self.model = getattr(LazyImport(self.model[0]),

@@ -1,7 +1,7 @@
 ## Predictor
 
 ### Get prediction result quickly by the Predictor
-By the Predictor, you only need to enter a **text**, and you can get the output of the corresponding task directly. 
+By the Predictor, you only need to enter a **text**, and you can get the output of the corresponding task directly.
 
 Take gpt2 writing tasks as an example:
 ```python

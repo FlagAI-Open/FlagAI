@@ -19,8 +19,4 @@ test_data = [
 ]
 
 for text in test_data:
-    print(
-        predictor.predict_generate_beamsearch(text,
-                                              out_max_length=50,
-                                              beam_size=3))
-                                              
+    print(predictor.predict_generate_beamsearch(text, out_max_length=50, beam_size=3))

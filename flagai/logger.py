@@ -13,7 +13,6 @@ log_levels = {
 
 
 class LoggerFactory:
-
     @staticmethod
     def create_logger(name=None, level=logging.INFO):
         """create a logger
@@ -44,7 +43,7 @@ class LoggerFactory:
 if 'logger' not in dir():
     logger = LoggerFactory.create_logger(name="DeepSpeed", level=logging.INFO)
 while len(logger.handlers) > 1:
-    #Why is this happening?
+    # Why is this happening?
     logger.removeHandler(logger.handlers[-1])
 
 

@@ -98,7 +98,6 @@ def build_input_from_ids(text_a_ids=None,
 
 
 class CollateArguments:
-
     def __init__(self):
         self.cloze_eval = True
         self.pretrained_bert = False

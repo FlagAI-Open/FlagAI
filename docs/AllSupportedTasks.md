@@ -29,11 +29,11 @@ The **task_name** parameter supports:
 All supported models is can be found in **model hub**.
 Different models adapt to different tasks.
 
-#### Transfomrer encoder: 
+#### Transfomrer encoder:
 
 For example, model_name="bert-base-chinese" or "RoBERTa-wwm-ext" These models support all of the tasks mentioned in the previous section, such as NER(sequence labeling), text classification, semantic matching, seq2seq and so on.
 
-#### Transformer decoder: 
+#### Transformer decoder:
 
 For example, model_name="gpt2-chinese", the model support "seq2seq" task. Input a beginning of a sentence, the model can continue writing.
 

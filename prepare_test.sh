@@ -3,5 +3,5 @@ cd checkpoints
 unzip checkpoints.zip
 mv checkpoints/* .
 rm checkpoints -r
-rm checkpoints.zip 
+rm checkpoints.zip
 

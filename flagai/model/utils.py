@@ -40,19 +40,18 @@ def split_tensor_along_last_dim(tensor,
 
 def unscaled_init_method(sigma):
     """Init method based on N(0, sigma)."""
-
     def init_(tensor):
         return torch.nn.init.normal_(tensor, mean=0.0, std=sigma)
 
     return init_
 
 
-def scaled_init_method(sigma, num_layers):
+def scaled_init_method(mean, sigma, num_layers):
     """Init method based on N(0, sigma/sqrt(2*num_layers)."""
     std = sigma / math.sqrt(2.0 * num_layers)
 
     def init_(tensor):
-        return torch.nn.init.normal_(tensor, mean=0.0, std=std)
+        return torch.nn.init.normal_(tensor, mean=mean, std=std)
 
     return init_
 
@@ -62,17 +61,6 @@ def sqrt(x):
 
 
 def normal_init_method(mean=0.0, std=0.02):
-
-    def init_(tensor):
-        return torch.nn.init.normal_(tensor, mean=mean, std=std)
-
-    return init_
-
-
-def scaled_init_method(mean, std, num_layers):
-    """Init method based on N(0, sigma/sqrt(2*num_layers)."""
-    std = std / math.sqrt(2.0 * num_layers)
-
     def init_(tensor):
         return torch.nn.init.normal_(tensor, mean=mean, std=std)
 

@@ -17,18 +17,16 @@ import os
 import torch
 from torch import nn
 import torch.nn.functional as F
-
 from flagai.model.blocks.glm_block import GLMBlock
-from flagai.model.file_utils import _get_config_path, _get_checkpoint_path, _get_model_id
 from flagai.model.utils import scaled_init_method, divide, unscaled_init_method
-
-print_rank_0 = print
 from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.base_model import BaseModel
 from flagai.model.layers.embeddings import PositionalEmbedding
 from flagai.mpu.random import checkpoint
 from flagai.model.utils import normal_init_method
 from torch.nn import LayerNorm
+
+print_rank_0 = print
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import copy_to_model_parallel_region
 
@@ -67,7 +65,6 @@ class GLMStack(torch.nn.Module):
                                             scaling for the output weights (
                                             output of self attention and mlp).
     """
-
     def __init__(
         self,
         num_layers,
@@ -210,9 +207,7 @@ class GLMStack(torch.nn.Module):
                     m = m.masked_fill(mask.unsqueeze(1).expand_as(m), 1)
                 if memory_length > 0:
                     m = m.expand(batch_size, -1, -1)
-                    m = torch.cat((hidden_states.new_ones(
-                        (batch_size, seq_length, memory_length)), m),
-                                  dim=2)
+                    m = torch.cat((hidden_states.new_ones((batch_size, seq_length, memory_length)), m), dim=2)
                 m = m.unsqueeze(1)
                 return m
 
@@ -257,13 +252,10 @@ class GLMStack(torch.nn.Module):
             mem_layers = []
 
         for i, layer in enumerate(self.layers):
-            args = [hidden_states, attention_mask
-                    ] if not self.use_decoder_layer else [
-                        hidden_states, encoder_states, attention_mask
-                    ]
+            args = [hidden_states, attention_mask] if not self.use_decoder_layer else \
+                   [hidden_states, encoder_states, attention_mask]
 
             def create_custom_forward(module):
-
                 def custom_forward(*inputs):
                     # None for past_key_value
                     return module(*inputs)
@@ -321,7 +313,6 @@ class GLMModel(BaseModel):
     The output of the forward method are the logits (parallel or
     serial depending on the `parallel_output` flag.
     """
-
     def __init__(self, config, **kwargs):
 
         super(GLMModel, self).__init__(config, **kwargs)
@@ -448,7 +439,7 @@ class GLMModel(BaseModel):
         checkpoint = torch.load(checkpoint_path,
                                 map_location=torch.device("cpu"))
         if "module" in checkpoint:
-            ## ddp
+            # ddp
             checkpoint = checkpoint["module"]
         checkpoint_load = {}
         for k, v in checkpoint.items():
@@ -464,7 +455,6 @@ class GLMModel(BaseModel):
 
 
 class GLMForMultiTokenCloze(BaseModel):
-
     def __init__(self,
                  config,
                  take_softmax=True,
@@ -506,7 +496,7 @@ class GLMForMultiTokenCloze(BaseModel):
         target_ids
 
         '''
-        if target_ids == None:
+        if target_ids is None:
             return self.model(input_ids, position_ids, attention_mask)
 
         num_choices = 1  # modified from none
@@ -574,7 +564,7 @@ class GLMForMultiTokenCloze(BaseModel):
                                     detach_memory=detach_memory,
                                     prompt_pos=prompt_pos,
                                     **kwargs)
-        assert labels != None, "labels must not None!"
+        assert labels is not None, "labels must not None!"
 
         logits = model_output['logits']
         loss = F.cross_entropy(logits.contiguous().float(), labels.long())
@@ -586,7 +576,6 @@ class GLMForMultiTokenCloze(BaseModel):
 
 
 class GLMForMultiTokenClozeFast(BaseModel):
-
     def __init__(self,
                  config,
                  take_softmax=True,
@@ -680,7 +669,6 @@ class GLMForMultiTokenClozeFast(BaseModel):
 
 
 class GLMForSingleTokenCloze(BaseModel):
-
     def __init__(self, config, take_softmax=False, **kwargs):
         super().__init__(config, **kwargs)
         self.config = config
@@ -775,7 +763,7 @@ class GLMForSingleTokenCloze(BaseModel):
                                     detach_memory=detach_memory,
                                     prompt_pos=prompt_pos,
                                     **kwargs)
-        assert labels != None, "labels must not None!"
+        assert labels is not None, "labels must not None!"
         logits = model_output['logits']
         loss = F.cross_entropy(logits.contiguous().float(), labels.long())
         return {
@@ -786,7 +774,6 @@ class GLMForSingleTokenCloze(BaseModel):
 
 
 class GLMForSequenceClassification(BaseModel):
-
     def __init__(self, config, hidden_dropout=0.1, pool_token='cls', **kwargs):
         super().__init__(config, **kwargs)
         self.config = config
@@ -856,7 +843,7 @@ class GLMForSequenceClassification(BaseModel):
         model_output = self.forward(input_ids=input_ids,
                                     position_ids=position_ids,
                                     attention_mask=attention_mask)
-        assert labels != None, "labels must not None!"
+        assert labels is not None, "labels must not None!"
         logits = model_output['logits']
         loss = F.cross_entropy(logits.contiguous().float(), labels.long())
         return {
@@ -871,7 +858,6 @@ class GLMForSequenceClassification(BaseModel):
 
 
 class GLMForSeq2Seq(BaseModel):
-
     def __init__(self, config, take_softmax=True, **kwargs):
         super().__init__(config, **kwargs)
         self.config = config
