@@ -166,5 +166,4 @@ def from_pretrained(pretrained_model_file=None):
         model_id = _get_model_id("glm_large_ch")
         _get_vocab_path(cache_dir, vocab_file, model_id, rank=0)
         _get_vocab_path(cache_dir, model_file, model_id, rank=0)
-    
     return get_encoder(pretrained_model_file, "")
