@@ -1,7 +1,7 @@
 from flagai.model.predictor.predictor import Predictor
 import torch
 from flagai.model.glm_model import GLMForSeq2Seq
-from flagai.data.tokenizer.GLM-large-ch.GLM-large-ch_tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeChTokenizer
 import unittest
 
 class GLMLargeChTestCase(unittest.TestCase):

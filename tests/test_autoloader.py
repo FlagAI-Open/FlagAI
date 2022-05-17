@@ -17,7 +17,7 @@ class AutoLoaderTestCase(unittest.TestCase):
         ]
 
 
-    def test_GLM-large-en(self):
+    def test_glm_large_en(self):
         for t_name  in self.task_name:
             m_name = 'GLM-large-en'
             
@@ -29,7 +29,7 @@ class AutoLoaderTestCase(unittest.TestCase):
             print(
                 f"task_name is {t_name}, model_name is {m_name}"
             )
-    def test_GLM-large-ch(self):
+    def test_glm_large_ch(self):
         for t_name  in self.task_name:
             m_name = 'GLM-large-ch'
             

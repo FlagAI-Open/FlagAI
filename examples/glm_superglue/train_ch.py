@@ -3,7 +3,7 @@ from torch.optim import Adam
 from flagai.schedulers import AnnealingLR
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMModel, GLMForSingleTokenCloze
-from flagai.data.tokenizer.GLM-large-ch.GLM-large-ch_tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeChTokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments

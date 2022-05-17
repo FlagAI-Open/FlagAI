@@ -11,7 +11,7 @@ from flagai.model.gpt2_model import GPT2Model
 from flagai.model.t5_model import T5Model
 from flagai.data.tokenizer.bert.bert_tokenizer import BertTokenizer
 from flagai.data.tokenizer.t5.t5_pegasus_tokenizer import T5PegasusTokenizer
-from flagai.data.tokenizer.GLM-large-ch.GLM-large-ch_tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeChTokenizer
 
 
 class Predictor:
