@@ -24,7 +24,7 @@ class GLMLargeEnWordPieceTokenizer(GLMTokenizer):
     in BERT training. Default to bert-large-uncased tokenizer.
     """
     def __init__(self,
-                 tokenizer_model_type='glm_large_en',
+                 tokenizer_model_type='GLM-large-en',
                  cache_dir=None,
                  add_block_symbols=True,
                  add_sentinel_token=0,

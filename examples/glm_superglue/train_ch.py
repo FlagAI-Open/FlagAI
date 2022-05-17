@@ -3,7 +3,7 @@ from torch.optim import Adam
 from flagai.schedulers import AnnealingLR
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMModel, GLMForSingleTokenCloze
-from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer.GLM-large-ch.GLM-large-ch_tokenizer import GLMLargeChTokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
@@ -19,7 +19,7 @@ trainer = Trainer(env_type='pytorch',
                   save_dir="./glm_superglue_ch")
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="./state_dict",
-                                             model_name="glm_large_ch")
+                                             model_name="GLM-large-ch")
 
 optimizer = Adam(model.parameters(), lr=1e-5, weight_decay=1e-3)
 

@@ -3,8 +3,8 @@
 ## Supported tokenizers
 | Tokenizer                    | Language | Related model (see https://model.baai.ac.cn/models) |
 |------------------------------|----------|-----------------------------------------------------|
-| GLMLargeEnWordPieceTokenizer | English  | glm_large_en                                        |
-| GLMLargeChTokenizer          | Chinese  | glm_large_ch                                        |
+| GLMLargeEnWordPieceTokenizer | English  | GLM-large-en                                        |
+| GLMLargeChTokenizer          | Chinese  | GLM-large-ch                                        |
 | GLM10bENBPETokenizer         | English  | glm_10b_en                                          |
 | T5BPETokenizer               | Chinese  | t5_base                                             |
 | ROBERTATokenizer             | Chinese  | RoBERTa-wwm-ext                                     |

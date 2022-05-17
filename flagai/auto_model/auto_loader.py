@@ -49,11 +49,11 @@ TOKENIZER_DICT = {
     "T5-base-en": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
     "T5-base-ch": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
     "GLM-large-ch": [
-        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
+        "flagai.data.tokenizer.GLM-large-ch.GLM-large-ch_tokenizer",
         "GLMLargeChTokenizer"
     ],
     "GLM-large-en": [
-        "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
+        "flagai.data.tokenizer.GLM-large-en.GLM-large-en_tokenizer",
         "GLMLargeEnTokenizer"
     ],
     "GPT2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],

@@ -118,7 +118,7 @@ for text in test_data:
 ```
 
 ## Pretrained Models and examples
-* [Poetry generation with glm_large_ch](docs/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [Poetry generation with GLM-large-ch](docs/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
 * [Title Generation with RoBerta-WWM ](/docs/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [Semantic Matching with RoBerta-WWM](/docs/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
 * [NER with RoBerta-WWM](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)

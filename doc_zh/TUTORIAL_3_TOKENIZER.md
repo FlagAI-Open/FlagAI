@@ -3,8 +3,8 @@
 ## 支持的分词器列表
 | 分词器                         | 语言  | 相关模型 (参考 https://model.baai.ac.cn/models) |
 |-----------------------------|-----|-------------------------------------------|
-| GLMLargeEnWordPieceTokenizer | 英文  | glm_large_en                              |
-| GLMLargeChTokenizer         | 中文  | glm_large_ch                              |
+| GLMLargeEnWordPieceTokenizer | 英文  | GLM-large-en                              |
+| GLMLargeChTokenizer         | 中文  | GLM-large-ch                              |
 | GLM10bENBPETokenizer        | 英文  | glm_10b_en                                |
 | T5BPETokenizer              | 中文  | t5_base                                   |
 | ROBERTATokenizer            | 中文  | RoBERTa-wwm-ext                           |

@@ -34,7 +34,7 @@ if __name__ == '__main__':
                       lr=1e-4,
                       save_epoch=10)
 
-    model = GLMForSeq2Seq.from_pretrain(model_name='glm_large_ch')
+    model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
     tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
                                     add_task_mask=False,
                                     add_decoder_mask=False,

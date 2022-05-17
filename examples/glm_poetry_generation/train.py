@@ -36,7 +36,7 @@ auto_loader = AutoLoader("seq2seq",
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 # Custom model and tokenizer:
-# model = GLMForSeq2Seq.from_pretrain(download_path=model_dir,model_name='glm_large_ch')
+# model = GLMForSeq2Seq.from_pretrain(download_path=model_dir,model_name='GLM-large-ch')
 # tokenizer = GLMLargeChTokenizer()
 trainer = Trainer(
     env_type="pytorch",  #pytorch or deepspeed
