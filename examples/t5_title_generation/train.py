@@ -1,18 +1,13 @@
-import sys
-
-sys.path.append('/data/liuguang/Sailing')
-from flagai.trainer import Trainer
-from flagai.auto_model.auto_loader import AutoLoader
 import os
-import numpy as np
 import torch
 from torch.utils.data import Dataset
 from flagai.trainer import Trainer
+from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 trainer = Trainer(
-    env_type="deepspeed+mpu",
+    env_type="pytorch",
     experiment_name="roberta_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
@@ -34,10 +29,11 @@ trainer = Trainer(
     deepspeed_config='./deepspeed.json',
     training_script=__file__,
 )
-src_dir = '/data/auto_title/train.src'
-tgt_dir = '/data/auto_title/train.tgt'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = cur_dir + '/data/train.src'
+tgt_dir = cur_dir + '/data/train.tgt'
 maxlen = 256
-loader = AutoLoader("seq2seq", "t5_base_ch", model_dir="./state_dict/")
+loader = AutoLoader("seq2seq", "T5-base-ch", model_dir="./state_dict/")
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 

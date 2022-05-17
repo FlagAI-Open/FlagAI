@@ -73,7 +73,7 @@ from flash_tran.trainer import Trainer
 import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(env_type="pytorch",
-                  experiment_name="roberta_semantic_matching",
+                  experiment_name="roberta-base-ch-semantic-matching",
                   batch_size=8, gradient_accumulation_steps=1,
                   lr = 1e-5,
                   weight_decay=1e-3,

@@ -4,7 +4,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling_gp"
+task_name = "sequence-labeling-gp"
 model_dir = "./state_dict/"  # download dir
 model_save_path = "./checkpoints_ner_gp/2608/mp_rank_00_model_states.pt"
 

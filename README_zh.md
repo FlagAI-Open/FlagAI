@@ -87,7 +87,7 @@ Host 127.0.0.1
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 auto_loader = AutoLoader(task_name="classification",
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          load_pretrain_params=True,
                          class_num=2)
 model = auto_loader.get_model()
@@ -122,7 +122,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling"
+task_name = "sequence-labeling"
 model_name = "RoBERTa-wwm-ext-ner"
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 maxlen = 256

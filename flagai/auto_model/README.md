@@ -16,7 +16,7 @@ auto_loader = AutoLoader(task_name="cls", ## The task name
                          target_size=len(target) ## The final output size of model. Use for classification.
                          )
 ```
-The AutoLoader will download the roberta-wwm-ext pretrained model, config and vocab from model hub.
+The AutoLoader will download the RoBERT-base-ch pretrained model, config and vocab from model hub.
 The downloaded model, config and vocab will be put into the "./state_dict/RoBERTa-wwm-ext" directory.
 
 

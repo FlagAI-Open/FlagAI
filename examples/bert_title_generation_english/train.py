@@ -7,7 +7,8 @@ from flagai.data.collate_utils import seq2seq_collate_fn
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-train_path = "./data/news.tsv"
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+train_path = cur_dir + "/data/news.tsv"
 # single gpu
 trainer = Trainer(
     env_type="pytorch",
@@ -33,7 +34,7 @@ maxlen = 256
 
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="bert-base-uncased",
+    model_name="bert-base-en",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()

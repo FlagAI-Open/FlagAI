@@ -95,7 +95,8 @@ class AutoLoader:
         """
         if model_name not in MODEL_DICT:
             print(f"The model_name: {model_name} is not be supported")
-            return 
+            return
+
         brief_model_name = MODEL_DICT[model_name][2]
         # The dir to save config, vocab and model.
 
@@ -106,7 +107,7 @@ class AutoLoader:
                 is not be supported."
             )
             return
-        model_name_ = model_name
+
         model_id = _get_model_id(f"{model_name}-{task_name}")
         if model_id !='null':
             model_name_ = f"{model_name}-{task_name}"
@@ -130,9 +131,6 @@ class AutoLoader:
             vocab_file = os.path.join(download_path,'vocab.txt')
             if not os.path.exists(vocab_file):
                 vocab_file = _get_vocab_path(download_path, "vocab.txt", model_id)
-        
-        
-
         tokenizer_class = TOKENIZER_DICT[model_name]
         tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
                                     tokenizer_class[1])

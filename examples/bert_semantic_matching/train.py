@@ -9,7 +9,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 target = [0, 1]
 trainer = Trainer(env_type="pytorch",
-                  experiment_name="roberta_semantic_matching",
+                  experiment_name="roberta-base-ch-semantic-matching",
                   batch_size=8,
                   gradient_accumulation_steps=1,
                   lr=1e-5,
@@ -22,14 +22,15 @@ trainer = Trainer(env_type="pytorch",
                   save_dir="checkpoints_semantic_matching",
                   save_epoch=1)
 
-train_path = "/data/语义匹配/train.tsv"
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+train_path = cur_dir + "/data/train.tsv"
 model_dir = "./state_dict/"
 maxlen = 256
 
 auto_loader = AutoLoader("classification",
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
-                         classification_size=len(target))
+                         class_num=len(target))
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 

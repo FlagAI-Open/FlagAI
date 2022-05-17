@@ -83,21 +83,3 @@ if __name__ == '__main__':
                   valid_dataset=datasets[1],
                   metric_methods=metric_methods)
 
-    # for dataset in datasets:
-    #     # dataset = BlockDataset
-    #     sampler = torch.utils.data.SequentialSampler(dataset)
-    #     batch_sampler = torch.utils.data.BatchSampler(sampler,
-    #                                                   batch_size=16,
-    #                                                   drop_last=False)
-    #
-    #     dataloader = torch.utils.data.DataLoader(dataset,
-    #                                              batch_sampler=batch_sampler,
-    #                                              num_workers=1,
-    #                                              pin_memory=True,
-    #                                              collate_fn=collate_fn)
-    #
-    #     data_iterator = iter(dataloader)
-    #
-    #     data = next(data_iterator) if data_iterator else None
-    #     print(data)
-    #     break
