@@ -31,7 +31,7 @@ def read_file():
 
 
 auto_loader = AutoLoader("seq2seq",
-                         model_name="glm_poetry",
+                         model_name="GLM-large-ch-poetry",
                          model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()

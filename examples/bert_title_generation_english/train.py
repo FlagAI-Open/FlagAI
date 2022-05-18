@@ -33,7 +33,7 @@ maxlen = 256
 
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="bert-base-uncased",
+    model_name="bert-base-en",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()

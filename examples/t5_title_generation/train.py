@@ -37,7 +37,7 @@ trainer = Trainer(
 src_dir = '/data/auto_title/train.src'
 tgt_dir = '/data/auto_title/train.tgt'
 maxlen = 256
-loader = AutoLoader("seq2seq", "t5_base_ch", model_dir="./state_dict/")
+loader = AutoLoader("seq2seq", "T5-base-ch", model_dir="./state_dict/")
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 

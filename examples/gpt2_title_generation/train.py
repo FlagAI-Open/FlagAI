@@ -37,7 +37,7 @@ maxlen = 256
 
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="gpt2_base_chinese",
+    model_name="GPT2-base-ch",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()

@@ -34,7 +34,7 @@ maxlen = 256
 
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="RoBERTa-wwm-ext",
+    model_name="RoBERTa-base-ch",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()
