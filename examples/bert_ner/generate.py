@@ -13,7 +13,7 @@ target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 maxlen = 256
 
 auto_loader = AutoLoader(task_name,
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
                          classification_size=len(target))
 model = auto_loader.get_model()

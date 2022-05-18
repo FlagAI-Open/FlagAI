@@ -15,7 +15,7 @@ train_path = "./data/china-people-daily-ner-corpus/example.train"
 valid_path = './data/china-people-daily-ner-corpus/example.dev'
 test_path = './data/china-people-daily-ner-corpus/example.test'
 
-task_name = "ner"
+task_name = "sequence-labeling"
 
 model_dir = "./state_dict/"  # 模型位置
 maxlen = 256

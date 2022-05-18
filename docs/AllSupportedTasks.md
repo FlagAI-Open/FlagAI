@@ -8,7 +8,7 @@ from flagai.model.predictor.predictor import Predictor
 
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="RoBERTa-wwm-ext",
+    model_name="RoBERTa-base-ch",
     load_pretrain_params=True,
 )
 model = auto_loader.get_model()
@@ -19,7 +19,7 @@ The "task_name" is "seq2seq" in this example. We construct a roberta seq2seq mod
 We will list all currently supported tasks below.
 ### All supported tasks
 The **task_name** parameter supports:
-1. task_name="cls": Supports a variety of classified tasks, for example, text classification, semantic matching, emotion analysis...
+1. task_name="classification": Supports a variety of classified tasks, for example, text classification, semantic matching, emotion analysis...
 2. task_name="seq2seq": Supports seq2seq tasks, for example, auto title generation, auto couplet, auto chat...
 3. task_name="sequence_labeling": Supports sequence labeling tasks, for example, ner, the part of speech tagging, chinese word segmentation...
 4. task_name="sequence_labeling_crf": Add conditional random field layer for sequence labeling model.
@@ -31,12 +31,12 @@ Different models adapt to different tasks.
 
 #### Transfomrer encoder:
 
-For example, model_name="bert-base-chinese" or "RoBERTa-wwm-ext" These models support all of the tasks mentioned in the previous section, such as NER(sequence labeling), text classification, semantic matching, seq2seq and so on.
+For example, model_name="BERT-base-ch" or "RoBERTa-base-ch" These models support all of the tasks mentioned in the previous section, such as NER(sequence labeling), text classification, semantic matching, seq2seq and so on.
 
 #### Transformer decoder:
 
-For example, model_name="gpt2-chinese", the model support "seq2seq" task. Input a beginning of a sentence, the model can continue writing.
+For example, model_name="GPT2-base-ch", the model support "seq2seq" task. Input a beginning of a sentence, the model can continue writing.
 
 #### Transformer encoder + decoder:
 
-For example model_name="t5-base-chinese", the model support "seq2seq" task.
+For example model_name="T5-base-ch", the model support "seq2seq" task.

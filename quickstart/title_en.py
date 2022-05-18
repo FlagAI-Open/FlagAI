@@ -6,8 +6,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 maxlen = 512
 
 auto_loader = AutoLoader(
-    task_name="seq2seq",
-    model_name="BERT-base-en-title-generation"
+    task_name="title-generation",
+    model_name="BERT-base-en"
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()

@@ -86,11 +86,9 @@ We provide the AutoLoad class to load the model and tokenizer quickly, for examp
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 auto_loader = AutoLoader(
-    task_name="seq2seq",
-    model_name="bert_title_generation_en"
+    task_name="title-generation",
+    model_name="bert-base-en"
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
@@ -102,7 +100,6 @@ Then you can use the model and tokenizer to finetune or test.
 We provide the `Predictor` class to predict for different tasks, for example:
 
 ```python
-import torch
 from flagai.model.predictor.predictor import Predictor
 predictor = Predictor(model, tokenizer)
 test_data = [

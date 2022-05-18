@@ -39,7 +39,7 @@ class TrainerTestCase(unittest.TestCase):
                                                 add_task_mask=False,
                                                 add_decoder_mask=False,
                                                 fix_command_token=True)
-                # tokenizer = GLMBertWordPieceTokenizer(tokenizer_model_type='bert-base-chinese')
+                # tokenizer = GLMBertWordPieceTokenizer(tokenizer_model_type='BERT-base-ch')
             else:
                 model_name = 'GLM-large-en'
                 #lm_model = GLMModel.from_pretrain(model_name='GLM-large-en')

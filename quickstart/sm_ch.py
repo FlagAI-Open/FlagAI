@@ -5,8 +5,8 @@ from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 maxlen = 256
 
-auto_loader = AutoLoader("classification",
-                         model_name="RoBERTa-base-ch-semantic-matching",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+auto_loader = AutoLoader("semantic-matching",
+                         model_name="RoBERTa-base-ch",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
                          class_num=2)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()

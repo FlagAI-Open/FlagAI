@@ -17,7 +17,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 auto_loader = AutoLoader(
     task_name=task_name,
-    model_name="RoBERTa-wwm-ext",
+    model_name="RoBERTa-base-ch",
     load_pretrain_params=True,
 )
 model = auto_loader.get_model()
