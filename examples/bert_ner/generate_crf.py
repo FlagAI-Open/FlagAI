@@ -4,7 +4,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling_crf"
+task_name = "sequence-labeling-crf"
 model_dir = "./state_dict/"  # download dir
 model_save_path = "./checkpoints_ner_crf/1304/mp_rank_00_model_states.pt"
 

@@ -64,7 +64,7 @@ def load_data(filename):
 
 ```python
 from flash_tran.auto_model.auto_loader import AutoLoader
-task_name = "sequence_labeling"
+task_name = "sequence-labeling"
 model_dir = "./state_dict/"
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 auto_loader = AutoLoader(task_name,

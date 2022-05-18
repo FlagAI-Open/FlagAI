@@ -314,7 +314,7 @@ class Trainer():
               lr_scheduler=None,
               train_dataset=None,
               valid_dataset=None,
-              metric_methods=None,
+              metric_methods=[],
               collate_fn=None):
         """Training Loops"""
         """

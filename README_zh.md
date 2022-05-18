@@ -87,7 +87,7 @@ Host 127.0.0.1
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 auto_loader = AutoLoader(task_name="classification",
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          load_pretrain_params=True,
                          class_num=2)
 model = auto_loader.get_model()
@@ -122,7 +122,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling"
+task_name = "sequence-labeling"
 model_name = "RoBERTa-wwm-ext-ner"
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 maxlen = 256
@@ -247,7 +247,7 @@ for text in test_data:
 # 预训练模型以及样例
 * [RoBerta-WWM-ext用于标题生成](doc_zh/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [RoBerta-WWM-ext用于语义相似度匹配](doc_zh/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
-* [glm_large_ch用于诗歌生成](doc_zh/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
 * [RoBerta-WWM-ext用于命名实体识别](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)
 * [GPT-2用于文本续写](/docs/TUTORIAL_15_GPT2_WRITING.md)
 * [T5用于标题生成](/docs/TUTORIAL_16_T5_EXAMPLE_TITLE_GENERATION.md)

@@ -22,7 +22,7 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.DecodeIds([3378, 1567, 2613, 20282]),
                          '今天吃饭吃了肯德基', 'DecodeIds Error')
 
-    # def test_tokenizer_glm_large_en(self):
+    # def test_tokenizer_GLM-large-en(self):
     #     tokenizer = GLMLargeEnWordPieceTokenizer()
     #     print(tokenizer.EncodeAsIds("today is a nice day and"))
     #     self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
@@ -67,8 +67,8 @@ class TokenizerTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(TokenizerTestCase('test_tokenizer_glm_large_ch'))
-    #suite.addTest(TokenizerTestCase('test_tokenizer_glm_large_en'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_GLM-large-ch'))
+    #suite.addTest(TokenizerTestCase('test_tokenizer_GLM-large-en'))
     suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
     suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
     suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
