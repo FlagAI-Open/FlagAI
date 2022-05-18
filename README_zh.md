@@ -48,7 +48,7 @@ pip install -U flagai
 - [可选]下载源码安装:
 
 ```shell
-git clone https://github.com/BAAI-WuDao/Sailing.git
+git clone https://github.com/BAAI-Open/FlagAI.git
 python setup.py install
 ```
 

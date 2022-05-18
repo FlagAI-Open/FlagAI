@@ -27,7 +27,7 @@ model_dir = "./state_dict/"
 maxlen = 256
 
 auto_loader = AutoLoader("classification",
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
                          classification_size=len(target))
 model = auto_loader.get_model()
