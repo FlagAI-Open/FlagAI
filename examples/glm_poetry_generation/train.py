@@ -1,10 +1,12 @@
+import os
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 
-src_dir = './glm_poetry_generation/data/src.txt'
-tgt_dir = './glm_poetry_generation/data/tgt.txt'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = cur_dir + '/data/src.txt'
+tgt_dir = cur_dir + '/data/tgt.txt'
 model_dir = "/data/state_dict/glm/"  # ./state_dict/roberta/  # 模型位置
 
 
@@ -31,12 +33,12 @@ def read_file():
 
 
 auto_loader = AutoLoader("seq2seq",
-                         model_name="GLM-large-ch-poetry",
+                         model_name="GLM-large-ch",
                          model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 # Custom model and tokenizer:
-# model = GLMForSeq2Seq.from_pretrain(download_path=model_dir,model_name='glm_large_ch')
+# model = GLMForSeq2Seq.from_pretrain(download_path=model_dir,model_name='GLM-large-ch')
 # tokenizer = GLMLargeChTokenizer()
 trainer = Trainer(
     env_type="pytorch",  #pytorch or deepspeed

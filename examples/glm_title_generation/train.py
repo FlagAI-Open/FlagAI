@@ -31,8 +31,10 @@ trainer = Trainer(
     deepspeed_config='./deepspeed.json',
     training_script=__file__,
 )
-src_dir = './examples/glm_title_generation/data/train.src'
-tgt_dir = './examples/glm_title_generation/data/train.tgt'
+
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = cur_dir + '/data/train.src'
+tgt_dir = cur_dir + '/data/train.tgt'
 model_dir = "./state_dict/roberta/"  # 模型位置
 os.makedirs(model_dir, exist_ok=True)
 model_save_path = "./bert_auto_title_model.bin"

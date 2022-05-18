@@ -1,14 +1,14 @@
 # 分词器
 
 ## 支持的分词器列表
-| 分词器                         | 语言  | 相关模型 (参考 https://model.baai.ac.cn/models) |
-|-----------------------------|-----|-------------------------------------------|
-| GLMLargeEnWordPieceTokenizer | 英文  | glm_large_en                              |
-| GLMLargeChTokenizer         | 中文  | glm_large_ch                              |
-| GLM10bENBPETokenizer        | 英文  | glm_10b_en                                |
-| T5BPETokenizer              | 中文  | t5_base                                   |
-| ROBERTATokenizer            | 中文  | RoBERTa-wwm-ext                           |
-| BertWordPieceTokenizer      | 中文  |                                           |
+| 分词器                         | 语言  | 相关模型(參考 [ModelHub](https://model.baai.ac.cn/models)) |
+|-----------------------------|-----|------------------------------------------------------|
+| GLMLargeEnWordPieceTokenizer | 英文  | GLM-large-en                                         |
+| GLMLargeChTokenizer         | 中文  | GLM-large-ch                                         |
+| GLM10bENBPETokenizer        | 英文  | glm_10b_en                                           |
+| T5BPETokenizer              | 中文  | t5_base                                              |
+| ROBERTATokenizer            | 中文  | RoBERT-base-ch                                       |
+| BertWordPieceTokenizer      | 中文  |                                                      |
 
 ## 介绍
 
@@ -34,11 +34,11 @@
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
 tokenizer = GLMLargeEnWordPieceTokenizer()
 ```
-目前我们有六个分词器: GLMLargeEnWordPieceTokenizer, GLMLargeChTokenizer, GLM10bENBPETokenizer, T5BPETokenizer, ROBERTATokenizer and BertWordPieceTokenizer.
+
 
 ## 创建分词器
 想创建新的分词器的时候, 需要这么做:
-### 1. 在/flagai/tokenizer目录下建立一个新的目录
+### 1. 在`/flagai/tokenizer`目录下建立一个新的目录
 
 ### 2. 在目录下新建一个python文件，在里面添加自定义的分词器
 
@@ -53,7 +53,7 @@ class T5BPETokenizer(Tokenizer):
                                                             cache_dir=cache_dir)
         self.text_tokenizer.max_len = int(1e12)
 ```
-如果model_type_or_path这项参数的值已经指向了一个huggingface transformers里的分词器，那现在已经成功自定义分词器了！
+如果`model_type_or_path`这项参数的值已经指向了一个huggingface transformers里的分词器，那现在已经成功自定义分词器了！
 
 否则，您需要自己在此类下方实现以下功能。
 

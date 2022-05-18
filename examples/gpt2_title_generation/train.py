@@ -29,8 +29,9 @@ trainer = Trainer(
     save_epoch=1,
 )
 
-src_dir = './examples/glm_title_generation/data/train.src'
-tgt_dir = './examples/glm_title_generation/data/train.tgt'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = cur_dir + '/data/train.src'
+tgt_dir = cur_dir + '/data/train.tgt'
 model_dir = "./state_dict/"
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 256

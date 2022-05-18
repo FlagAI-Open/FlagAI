@@ -96,7 +96,6 @@ def _get_config_path(download_path, config_name, model_id, rank=0):
 
 def _get_vocab_path(download_path, vocab_name, model_id, rank=0):
     vocab_path = os.path.join(str(model_id), vocab_name)
-
     dic_download = {'path': vocab_path}
     vocab_requests = requests.post('https://model.baai.ac.cn/api/download',
                                    json=dic_download)

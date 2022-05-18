@@ -10,7 +10,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling"
+task_name = "sequence-labeling"
 model_name = "roberta_ner"
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 maxlen = 256
@@ -88,7 +88,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 maxlen = 256
 
 auto_loader = AutoLoader("cls",
-                         model_name="roberta_semantic_matching",
+                         model_name="roberta-base-ch-semantic-matching",
                          load_pretrain_params=True,
                          target_size=2)
 model = auto_loader.get_model()
