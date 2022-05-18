@@ -10,12 +10,13 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-cur_dir = os.path.dirname(os.path.abspath(__file__))
-train_path = cur_dir + "/data/china-people-daily-ner-corpus/example.train"
-valid_path = cur_dir + '/data/china-people-daily-ner-corpus/example.dev'
-test_path = cur_dir + '/data/china-people-daily-ner-corpus/example.test'
 
-task_name = "sequence-labeling"
+train_path = "./data/china-people-daily-ner-corpus/example.train"
+valid_path = './data/china-people-daily-ner-corpus/example.dev'
+test_path = './data/china-people-daily-ner-corpus/example.test'
+
+task_name = "ner"
+
 model_dir = "./state_dict/"  # 模型位置
 maxlen = 256
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]

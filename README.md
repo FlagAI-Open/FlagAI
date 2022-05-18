@@ -8,13 +8,11 @@
 
 FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
 
-<br><br>
-
 * Now it supports GLM, BERT, RoBERTa, GPT2, T5, and models from Huggingface Transformers.
 
 * It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on your own datasets, and then share them with the community on our model hub.
 
-* These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation, especially in Chinese.
+* These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
 * FlagAI is backed by the three most popular data/model parallel libraries — PyTorch/Deepspeed/Megatron-LM — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
@@ -51,7 +49,7 @@ pip install -U flagai
 - [Optional]To install FlagAI and develop locally:
 
 ```shell
-git clone https://github.com/BAAI-WuDao/Sailing.git
+git clone https://github.com/BAAI-Open/FlagAI.git
 python setup.py install
 ```
 
