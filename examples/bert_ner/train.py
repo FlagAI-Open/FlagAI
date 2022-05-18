@@ -1,3 +1,5 @@
+import os
+
 from tqdm import tqdm
 import torch
 from torch.utils.data import Dataset
@@ -8,20 +10,21 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-train_path = "../data/china-people-daily-ner-corpus/example.train"
-valid_path = '../data/china-people-daily-ner-corpus/example.dev'
-test_path = '../data/china-people-daily-ner-corpus/example.test'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+train_path = cur_dir + "/data/china-people-daily-ner-corpus/example.train"
+valid_path = cur_dir + '/data/china-people-daily-ner-corpus/example.dev'
+test_path = cur_dir + '/data/china-people-daily-ner-corpus/example.test'
 
-task_name = "sequence_labeling"
+task_name = "sequence-labeling"
 model_dir = "./state_dict/"  # 模型位置
 maxlen = 256
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 save_dir = "./checkpoints_ner/"
 
 auto_loader = AutoLoader(task_name,
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
-                         classification_size=len(target))
+                         class_num=len(target))
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
@@ -61,7 +64,6 @@ def load_data(filename):
 
             D.append(d)
     return D
-
 
 train_data = load_data(train_path)
 val_data = load_data(valid_path)

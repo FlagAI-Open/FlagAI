@@ -30,7 +30,7 @@ for task_name in ['afqmc', 'tnews']:
     cl_args = CollateArguments()
     cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
 
-    model_name='glm_large_ch'
+    model_name='GLM-large-ch'
     tokenizer = GLMLargeChTokenizer(add_block_symbols=True, add_task_mask=False,
                                       add_decoder_mask=False, fix_command_token=True)
 

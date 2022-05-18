@@ -6,7 +6,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_save_path = "/mnt/finetune_models/glm_poetry/mp_rank_00_model_states.pt"
 
 auto_loader = AutoLoader("seq2seq",
-                         model_name="glm_large_ch",
+                         model_name="GLM-large-ch",
                          model_dir="/data/state_dict/")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()

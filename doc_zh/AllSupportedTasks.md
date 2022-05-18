@@ -32,7 +32,7 @@ tokenizer = auto_loader.get_tokenizer()
 
 #### Transfomrer编码器:
 
-例如 model_name="bert-base-chinese" or "RoBERTa-wwm-ext"时， 这些模型支持上一节中提到的所有任务
+例如 model_name="bert-base-chinese" or "RoBERTa-base-ch"时， 这些模型支持上一节中提到的所有任务
 
 #### Transformer解码器:
 

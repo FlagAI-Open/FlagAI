@@ -33,11 +33,11 @@ class TrainerTestCase(unittest.TestCase):
                                             add_task_mask=False,
                                             add_decoder_mask=False,
                                             fix_command_token=False)
-            model_name = 'glm_large_ch'
+            model_name = 'GLM-large-ch'
         else:
             tokenizer = GLMLargeEnWordPieceTokenizer(
                 tokenizer_model_type='bert-base-chinese')
-            model_name = 'glm_large_en'
+            model_name = 'GLM-large-en'
 
         train_dataset = Seq2SeqDataset(task_name=task_name,
                                        data_dir='./datasets/',

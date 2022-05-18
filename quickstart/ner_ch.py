@@ -3,7 +3,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling"
+task_name = "sequence-labeling"
 model_name = "RoBERTa-base-ch-ner"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 maxlen = 256

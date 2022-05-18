@@ -120,7 +120,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 model_dir = "./state_dict/glm/"
 # Autoloader can build the model and tokenizer automatically.
 # 'seq2seq' is the task_name.
-AutoLoader("seq2seq",model_name="glm_large_ch",model_dir=model_dir)
+AutoLoader("seq2seq",model_name="GLM-large-ch",model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```

@@ -1,22 +1,25 @@
 # Tokenizer
 
 ## Supported tokenizers
-| Tokenizer                    | Language | Related model (see https://model.baai.ac.cn/models) |
-|------------------------------|----------|-----------------------------------------------------|
-| GLMLargeEnWordPieceTokenizer | English  | glm_large_en                                        |
-| GLMLargeChTokenizer          | Chinese  | glm_large_ch                                        |
-| GLM10bENBPETokenizer         | English  | glm_10b_en                                          |
-| T5BPETokenizer               | Chinese  | t5_base                                             |
-| ROBERTATokenizer             | Chinese  | RoBERTa-wwm-ext                                     |
-| BertWordPieceTokenizer       | Chinese  |                                                     |
+| Tokenizer                    | Language | Related model (see [ModelHub](https://model.baai.ac.cn/models)) |
+|------------------------------|----------|-----------------------------------------------------------------|
+| GLMLargeEnWordPieceTokenizer | English  | GLM-large-en                                                    |
+| GLMLargeChTokenizer          | Chinese  | GLM-large-ch                                                    |
+| GLM10bENBPETokenizer         | English  | glm_10b_en                                                      |
+| T5BPETokenizer               | Chinese  | t5_base                                                         |
+| ROBERTATokenizer             | Chinese  | RoBERT-base-ch                                                  |
+| BertWordPieceTokenizer       | Chinese  |                                                                 |
 
 ## Introduction
 
-自然语言通常以一连串符号的形式表示，我们将每个符号称为字符。
+Natural language is usually expressed in the form of sequential symbols, 
+where we call each of those symbols a **character**. 
 
-在任何文本中，每个语义单元都由几个连续的字符组成，我们将每个语义单元称为一个令牌。例如，“狐狸”，
-一种杂食性的犬科动物，表示为“狐”和“狸”。
-将文本拆分为标记序列的过程被定义为标记化，下面显示了一个示例：
+In any text, each semantic unit is composed of several consecutive characters, 
+and we call each semantic unit a **token**. For example, 'cat', which refers to a 
+kind of small domesticated mammal, is expressed as 'c', 'a' and 't'. The process 
+of splitting texts into a sequence of tokens is defined as **tokenization**, 
+and an example is shown below:
 
 
 Original sentence:                   Jack is walking a dog.
@@ -38,7 +41,7 @@ tokenizer = GLMLargeEnWordPieceTokenizer()
 
 ## Creating tokenizer
 To create a new tokenizer, you need to:
-### 1. Create a package under /flagai/tokenizer
+### 1. Create a package under `/flagai/tokenizer`
 
 ### 2. create a python file to define the tokenizer
 

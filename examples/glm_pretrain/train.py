@@ -34,7 +34,7 @@ if __name__ == '__main__':
                       lr=1e-4,
                       save_epoch=10)
 
-    model = GLMForSeq2Seq.from_pretrain(model_name='glm_large_ch')
+    model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
     tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
                                     add_task_mask=False,
                                     add_decoder_mask=False,
@@ -83,21 +83,3 @@ if __name__ == '__main__':
                   valid_dataset=datasets[1],
                   metric_methods=metric_methods)
 
-    # for dataset in datasets:
-    #     # dataset = BlockDataset
-    #     sampler = torch.utils.data.SequentialSampler(dataset)
-    #     batch_sampler = torch.utils.data.BatchSampler(sampler,
-    #                                                   batch_size=16,
-    #                                                   drop_last=False)
-    #
-    #     dataloader = torch.utils.data.DataLoader(dataset,
-    #                                              batch_sampler=batch_sampler,
-    #                                              num_workers=1,
-    #                                              pin_memory=True,
-    #                                              collate_fn=collate_fn)
-    #
-    #     data_iterator = iter(dataloader)
-    #
-    #     data = next(data_iterator) if data_iterator else None
-    #     print(data)
-    #     break

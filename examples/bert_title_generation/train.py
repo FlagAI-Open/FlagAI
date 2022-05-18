@@ -25,8 +25,9 @@ trainer = Trainer(
     save_epoch=1,
 )
 
-src_dir = '/mnt/datasets/auto_title/train.src'
-tgt_dir = '/mnt/datasets/auto_title/train.tgt'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = cur_dir + '/data/train.src'
+tgt_dir = cur_dir + '/data/train.tgt'
 model_dir = "./state_dict/"  # 模型位置
 
 os.makedirs(model_dir, exist_ok=True)
@@ -34,7 +35,7 @@ maxlen = 256
 
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="RoBERTa-wwm-ext",
+    model_name="RoBERTa-base-ch",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()
