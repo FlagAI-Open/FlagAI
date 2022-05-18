@@ -88,7 +88,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 
 auto_loader = AutoLoader(
     task_name="title-generation",
-    model_name="bert-base-en"
+    model_name="BERT-base-en"
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
