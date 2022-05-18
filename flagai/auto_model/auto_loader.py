@@ -117,8 +117,8 @@ class AutoLoader:
             model_name_ = model_name
         download_path = os.path.join(model_dir, model_name_)
         os.makedirs(download_path, exist_ok=True)
-        self.model = getattr(LazyImport(self.model[0]),
-                                self.model[1]).from_pretrain(
+        self.model = getattr(LazyImport(self.model_name[0]),
+                                self.model_name[1]).from_pretrain(
                                     download_path=model_dir,
                                     model_name=model_name_,
                                     only_download_config=only_download_config,
