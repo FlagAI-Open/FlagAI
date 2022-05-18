@@ -20,6 +20,8 @@ ALL_TASK = {
     "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
     "bert_sequence-labeling": ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    "bert_sequence-labeling-crf": ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    "bert_sequence-labeling-gp": ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner": ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner-crf": ["flagai.model.bert_model", "BertForSequenceLabelingCRF"],
     "bert_ner-gp": ["flagai.model.bert_model", "BertForSequenceLabelingGP"],
@@ -72,9 +74,9 @@ class AutoLoader:
             task_name: The task name, for example, "cls" for classification,
                       "sequence_labeling" for ner, part-of-speech tagging
                        and so on, "seq2seq" for sequence to sequence task.
-            model_name: The model name, for example, "bert-base-chinese",
-                        "RoBERTa-wwm-ext", "gpt2-chinese",
-                        "t5-base-chinese" and so on.
+            model_name: The model name, for example, "BERT-base-ch",
+                        "RoBERTa-base-ch", "GPT2-base-ch",
+                        "T5-base-ch" and so on.
             model_dir: The first level of the model download directory.
             load_pretrain_params: Whether to load the downloaded parameters.
             target_size: For the classification task, all labels size.
@@ -82,12 +84,12 @@ class AutoLoader:
                        representation dim of start and end tokens.
         Examples::
 
-            # load bert-base-chinese model and tokenizer to do the two
+            # load BERT-base-ch model and tokenizer to do the two
             # classification task of text.
             # Then the download path of config, model, vocab files is the
-            # "./checkpoints/bert-base-chinese"
+            # "./checkpoints/BERT-base-ch"
             >>> auto_loader = AutoLoader(task_name,
-                                         model_name="bert-base-chinese",
+                                         model_name="BERT-base-ch",
                                          model_dir="checkpoints",
                                          load_pretrain_params=True,
                                          class_num=2)
@@ -100,8 +102,8 @@ class AutoLoader:
         brief_model_name = MODEL_DICT[model_name][2]
         # The dir to save config, vocab and model.
 
-        self.model = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
-        if self.model is None:
+        self.model_name = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
+        if self.model_name is None:
             print(
                 f"For the model_name: {model_name}, task_name: {task_name} \
                 is not be supported."

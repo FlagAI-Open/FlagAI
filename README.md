@@ -87,8 +87,8 @@ We provide the AutoLoad class to load the model and tokenizer quickly, for examp
 from flagai.auto_model.auto_loader import AutoLoader
 
 auto_loader = AutoLoader(
-    task_name="seq2seq",
-    model_name="bert-base-en-title-generation"
+    task_name="title-generation",
+    model_name="bert-base-en"
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()

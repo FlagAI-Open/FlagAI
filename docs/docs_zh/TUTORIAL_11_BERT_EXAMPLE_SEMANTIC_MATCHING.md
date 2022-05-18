@@ -54,10 +54,10 @@ from flash_tran.auto_model.auto_loader import AutoLoader
 # or we will download these files from the model hub to this dir.
 model_dir = "./state_dict/"
 # Autoloader can build the model and tokenizer automatically.
-# 'cls' is the task_name.
-auto_loader = AutoLoader("cls",
+# 'classification' is the task_name.
+auto_loader = AutoLoader("classification",
                          model_dir,
-                         model_name="RoBERTa-wwm-ext")
+                         model_name="RoBERTa-base-ch")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
