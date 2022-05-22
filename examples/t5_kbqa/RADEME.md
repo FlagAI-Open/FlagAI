@@ -7,3 +7,6 @@ final prediction. To address this challenge, the Corpus Generation - Retrieve
 Method (CGRM)   with Pre-training Language Model (PLM) for the KBQA task  aims to generate natural language QA pairs based on Knowledge Graph triples
 and directly solve the QA by retrieving the synthetic dataset. The new method can extract more
 information about the entities from PLM to improve accuracy and simplify the processes. 
+
+The major procedure of CGRM is to generate QA pairs, in which, it needs to do two tasks: 
+The first task is a [NER](finetune_t5_ner.py) downstream task. The second one is a downstram task for [generating natural language QA pairs based on Knowledge Graph triples](finetune_t5_triple2question.py).
