@@ -183,7 +183,7 @@ class T5KGBPETokenizer(Tokenizer):
         raise NotImplementedError
 
 
-class T5JiebaTokenizer(T5BPETokenizer):
+class T5JiebaTokenizer(T5KGBPETokenizer):
     def __init__(self,
                  token_dict,
                  pre_tokenizer=lambda x: jieba.cut(x, HMM=False)):

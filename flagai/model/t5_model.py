@@ -132,6 +132,9 @@ class T5PreTrainedModel(BaseModel):
 
 class T5Stack(nn.Module):
     def __init__(self, config, embed_tokens=None):
+
+
+
         super().__init__()
         self.config = config
         self.embed_tokens = embed_tokens
@@ -732,13 +735,14 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         encoder_config.is_decoder = False
         encoder_config.use_cache = False
         encoder_config.is_encoder_decoder = False
-        self.encoder = T5Stack(encoder_config, self.shared)
+
+        self.encoder = T5Stack(encoder_config.__dict__, self.shared)
 
         decoder_config = copy.deepcopy(config)
         decoder_config.is_decoder = True
         decoder_config.is_encoder_decoder = False
         decoder_config.num_layers = config.num_decoder_layers
-        self.decoder = T5Stack(decoder_config, self.shared)
+        self.decoder = T5Stack(decoder_config.__dict__, self.shared)
 
         self.lm_head = nn.Linear(config.d_model, config.vocab_size, bias=False)
         self.init_weights()
@@ -1190,6 +1194,7 @@ class T5UERConfig:
         self.only_hidden_states = True
         self.return_logist_only = True
         self.tie_word_embeddings = False
+        self.is_decoder = True
 
     @property
     def hidden_size(self):
@@ -1252,6 +1257,7 @@ class T5SmallUERConfig:
         self.only_hidden_states = True
         self.return_logist_only = True
         self.tie_word_embeddings = False
+        self.is_decoder=True
 
     @property
     def hidden_size(self):
