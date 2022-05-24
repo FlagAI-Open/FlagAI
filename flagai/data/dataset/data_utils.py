@@ -310,9 +310,9 @@ def build_sample(ids,
         sample['segment_id'] = segment_ids
     if meta is not None:
         sample['meta'] = meta
-    #if prompt_ids is not None:
-    #    prompt_ids = np.array(prompt_ids, dtype=np.int64)
-    #    sample['prompt_pos'] = prompt_ids
+    if prompt_ids is not None:
+       prompt_ids = np.array(prompt_ids, dtype=np.int64)
+       sample['prompt_pos'] = prompt_ids
     if unique_id is not None:
         sample['uid'] = unique_id
     return sample
