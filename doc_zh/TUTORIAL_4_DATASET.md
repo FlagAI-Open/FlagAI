@@ -1,65 +1,43 @@
 # Datasets
 
-## 支持的下游数据集列表
+## 数据集处理流程
+构建数据集的过程就是NLP的数据预处理过程，其主要目的是将原始的散乱的文件数据重新整理成统一结构的数据，以便语言模型能够直接使用。构建数据集样例的主要流程如下所示（以CommitmentBank数据集为例）：
 
-| 数据集名称                                     | 数据集简称    | 语言  | 所属评测基准   |
-|----------------------------------------------|----------|-----|----------|
-| Broadcoverage Diagnostics                    | BoolQ    | 英文  | SuperGLUE |
-| CommitmentBank                               | CB       | 英文  | SuperGLUE |
-| Choice of Plausible Alternatives             | COPA     | 英文  | SuperGLUE |
-| Multi-Sentence Reading Comprehension         | MultiRC  | 英文  | SuperGLUE |
-| Recognizing Textual Entailment               | RTE      | 英文  | SuperGLUE |
-| Words in Context                             | WiC      | 英文  | SuperGLUE |                                                   
-| The Winograd Schema Challenge                | WSC      | 英文  | SuperGLUE |
-| Ant Financial Question Matching Corpus       | AFQMC    | 中文  | CLUE     |
-| Short Text Classificaiton for News           | TNEWS    | 中文  | CLUE     |
-| Reading Comprehension for Simplified Chinese | CMRC2018 | 中文  | CLUE     |
+<div align=center><img src="img/dataset_pipeline.png" width="600px"></div>
 
 
-## Load datasets
 
-Let's load a SuperGlue Dataset as following:
-让我们用如下所示的方法来加载CLUE测评基准里的AFQMC任务
-
+## 数据集使用代码
 ```python
 import torch.utils.data
 from flagai.data.dataset import SuperGlueDataset
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
 from tests.test_dataset_new_superglue import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
 # 得到默认参数
 cl_args = CollateArguments()
 
-# 创建GLM中文的tokenizer
-tokenizer = GLMLargeChTokenizer(add_block_symbols=True, add_task_mask=False,
-                                  add_decoder_mask=False, fix_command_token=True)
+# 创建分词器
+tokenizer = GLMLargeEnWordPieceTokenizer()
+            
+# 得到Dataset
+dataset = SuperGlueDataset(task_name='cb',
+                           data_dir='./datasets/',
+                           dataset_type='train',
+                           tokenizer=tokenizer)
 
-# 建立AFQMC的数据集
-dataset = SuperGlueDataset(task_name='afqmc', data_dir='./datasets/', dataset_type='train',
-                            tokenizer=tokenizer)
-
-# 创建数据整理的函数
-collate_fn = ConstructSuperglueStrategy(cl_args, tokenizer, task_name="afqmc")
+# 构建collate function
+collate_fn = ConstructSuperglueStrategy(cl_args, tokenizer, task_name="rte")
 
 # 创建加载器
 loader = torch.utils.data.DataLoader(dataset,
-                                          batch_size=1,
-                                          shuffle=False,
-                                          num_workers=1,
-                                          drop_last=False,
-                                          pin_memory=False,
-                                          collate_fn=collate_fn)
-
-# 对加载器进行迭代
-it = iter(loader)
-next(it)
-batch = next(it)
-
-# 打印结果信息
-print(batch['input_ids'].tolist())
-print(tokenizer.DecodeIds(batch['input_ids'].tolist()[0]))
-print(tokenizer.DecodeIds(batch['target_ids'].tolist()[0]))
+                                    batch_size=1,
+                                    shuffle=False,
+                                    num_workers=1,
+                                    drop_last=False,
+                                    pin_memory=False,
+                                    collate_fn=collate_fn)
 ```
 
 ## 加载数据文件
@@ -168,9 +146,8 @@ FlagAI目前支持自动加载下列数据集：
 
 
 1. 在`flagai/data/dataset/superglue/control.py`文件中, 如下所示创建自定义的processor和pvp函数， 然后把他们与自定义dataset的名字的映射关系添加到control.py里的PROCESSOR_DICT和PVPS两个字典里.
->>>>>>> Stashed changes
 
-在flagai/data/dataset/superglue/control.py文件里, 如下所示创建自定义的processor和pvp函数， 然后把他们与自定义dataset的名字的映射关系添加到control.py里的PROCESSOR_DICT和PVPS两个字典里.
+2. 参考如下的示例，构建新的Processor以及PVP函数。
 ```python
 class ExampleProcessor(DataProcessor):
 

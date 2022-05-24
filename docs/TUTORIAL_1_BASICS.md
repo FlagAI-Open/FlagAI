@@ -24,23 +24,5 @@ N encoders and decoders will be stacked together to form a transformer, where N 
 
 Step-by-step details of transformers can be viewed in [this article](https://towardsdatascience.com/illustrated-guide-to-transformers-step-by-step-explanation-f74876522bc0).
 
-## Transformer Applications
-
-Currently, there exist several different pre-training model architectures: autoencoding models that only implement encoder architecture (e.g., BERT),
-autoregressive models that only implement decoder (e.g., GPT), and encoder-decoder models that implement both encoder and decoder (e.g., T5).
-
-The **GLM model**, proposed in [All NLP Tasks Are Generation Tasks: A General Pretraining Framework](https://arxiv.org/abs/2103.10360),
-claims to have good performance in classification, unconditional generation, and conditional generation tasks with the use of a new pre-training method.
-
-The key features of GLM include:
-
-- First task: Several spans of the text are masked following the idea of autoencoding. Those spans will be randomly rearranged and be predicted in an autoregressive manner. The masked spans covers 15% original tokens.
-- Second task: Similar to the first task, but the span covers 50%-100% original tokens.
-- Other model architecture changes compared with BERT
-  - [Pre-LN](http://proceedings.mlr.press/v119/xiong20b.html)
-  - 2D positional encoding: Each token has two positional encodings: the global position in the sentence, and the local position inside the masked span.
-  - Feed-forward network is replaced with a linear layer
-
-An example showing the autoencoding and autoregressive of GLM can be viewed [here](APPENDIX_GLM_IO.md).
 
 

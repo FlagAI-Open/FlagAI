@@ -1,51 +1,56 @@
 # Tokenizer
 
-## Supported tokenizers
-| Tokenizer                    | Language | Related model (see [ModelHub](https://model.baai.ac.cn/models)) |
-|------------------------------|----------|-----------------------------------------------------------------|
-| GLMLargeEnWordPieceTokenizer | English  | GLM-large-en                                                    |
-| GLMLargeChTokenizer          | Chinese  | GLM-large-ch                                                    |
-| GLM10bENBPETokenizer         | English  | glm_10b_en                                                      |
-| T5BPETokenizer               | Chinese  | t5_base                                                         |
-| ROBERTATokenizer             | Chinese  | RoBERT-base-ch                                                  |
-| BertWordPieceTokenizer       | Chinese  |                                                                 |
+## What is Tokenization?
+**Tokenization** is a fundamental step in the preprocessing stage of NLP projects, 
+and its purpose is to convert unstructured symbolic texts into numeric matrices,
+which are suitable for machine learning systems.
 
-## Introduction
+In the tokenization process, a **tokenizer** is used to split natural language text 
+into a sequence of semantic units called **tokens**, which are then converted into
+ids by looking up the tokens in a vocabulary file. An example of tokenizing 
+input text `Jack is walking a dog.` is shown below:
+<div align=center><img src="img/tokenizer_example_1.png" width="500px"></div>
+It is noticeable that different tokenizers can have different ways to split text,
+and have different vocabulary files. Our projects currently support six tokenizers
+as listed below:
 
-Natural language is usually expressed in the form of sequential symbols, 
-where we call each of those symbols a **character**. 
+| Tokenizer                    | Language |
+|------------------------------|----------|
+| GLMLargeEnWordPieceTokenizer | English  |
+| GLMLargeChTokenizer          | Chinese  |
+| GLM10bENBPETokenizer         | English  |
+| T5BPETokenizer               | Chinese  |
+| ROBERTATokenizer             | Chinese  |
+| BertWordPieceTokenizer       | Chinese  | 
 
-In any text, each semantic unit is composed of several consecutive characters, 
-and we call each semantic unit a **token**. For example, 'cat', which refers to a 
-kind of small domesticated mammal, is expressed as 'c', 'a' and 't'. The process 
-of splitting texts into a sequence of tokens is defined as **tokenization**, 
-and an example is shown below:
+Details about their variations can be viewed 
+[here](https://github.com/BAAI-WuDao/Sailing/blob/old_main/docs/tokenization/tokenization.md).
 
 
-Original sentence:                   Jack is walking a dog.
-
-Tokenized sentence:    [Jack,   is,   walking,   a,   dog,    .]
-
-It is noticeable that token is not equivalent to word. It can also be character, sub-word, sentence piece and so on as long as it holds appropriate amount of semantic information.
-
-Another critical preprocessing step is vectorization,  which turns the raw symbolic sequences into a numeric vector or matrix so that it can be directly fed into our language model. Usually there is achieved by using a vocabulary file to map each token to its corresponding id.
-
-In our project, there are a bunch of tokenizer classes, where each of them can tokenize and vectorize raw texts in different ways, and there are also other important functions.
-
-## Loading tokenizer
-Load an existing tokenizer:
+## Loading a tokenizer
 ```python
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-tokenizer = GLMLargeEnWordPieceTokenizer()
-```
 
-## Creating tokenizer
-To create a new tokenizer, you need to:
+tokenizer = GLMLargeEnWordPieceTokenizer()       # Load tokenizer
+```
+At this step, the vocab files from Modelhub will be automatically downloaded to the path specified in `cache_dir` parameter. It is set to `./vocab` directory under the tokenizer file in default.  
+
+## Applying a tokenizer
+The tokenizer can be used to encode text to a list of token IDs, as well as decoding the token IDs to the original text. 
+```python
+text = "Jack is walking a dog."                  # Input text
+encoded_ids = tokenizer.EncodeAsIds(text)        # Convert text string to a list of token ids
+# Now encoded_ids = [2990, 2003, 3788, 1037, 3899, 1012]
+recoverd_text = tokenizer.DecodeIds(encoded_ids) # Recover text string
+# recovered_text should be the same as text
+```
+## Creating your own tokenizer
+Different tokenizers has different vocabulary and different ways to split text. To suit your project, sometimes it is significant to create a new tokenizer, and how to implement that is given below: 
 ### 1. Create a package under `/flagai/tokenizer`
 
-### 2. create a python file to define the tokenizer
+### 2. Wrap the tokenizer from huggingface
 
-Initialize the tokenizer as below (let's take T5 tokenizer as an example)
+let's take T5 tokenizer as an example
 
 ```python
 from transformers import T5Tokenizer
@@ -56,10 +61,9 @@ class T5BPETokenizer(Tokenizer):
                                                             cache_dir=cache_dir)
         self.text_tokenizer.max_len = int(1e12)
 ```
-If tokenizer model imported from transformers is used as the text tokenizer, it is all done!
 
-Otherwise, you need to implement the following class functions by your own.
-
+### 3. Define Tokenizer APIs (without huggingface)
+If huggingface tokenizers are not used, you need to implement the following class functions by your own.
 
 ```python
 def EncodeAsIds(self, text: str, process_fn=None):

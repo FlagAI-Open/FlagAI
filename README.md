@@ -8,13 +8,13 @@
 
 FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
 
-* Now it supports GLM, BERT, RoBERTa, GPT2, T5, and models from Huggingface Transformers.
+* Now it supports **WuDao GLM** with a maximum of 10 billion parameters (see [GLM details](docs/GLM.md)). It also supports **BERT**, **RoBERTa**, **GPT2**, **T5**, and models from Huggingface Transformers.
 
-* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on your own datasets, and then share them with the community on our model hub.
+* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning]() toolkit for few shot tasks.   
 
 * These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
-* FlagAI is backed by the three most popular data/model parallel libraries — PyTorch/Deepspeed/Megatron-LM — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
+* FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
 
 The code is partially based on [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
@@ -132,8 +132,7 @@ language models, sequence labeling models, and text classification models. Let u
 ## Tutorials
 We provide a set of quick tutorials to get you started with the library:
 
-* [Tutorial 1: Basics](docs/TUTORIAL_1_BASICS.md)
-* [Tutorial 2: Project structure](docs/TUTORIAL_2_PROJECT_STRUCTURE.md)
+* [Tutorial 1: Background: Transformers](docs/TUTORIAL_1_BASICS.md)
 * [Tutorial 3: Supported tokenizers](docs/TUTORIAL_3_TOKENIZER.md)
 * [Tutorial 4: Supported datasets](docs/TUTORIAL_4_DATASET.md)
 * [Tutorial 5: Supported models](https://model.baai.ac.cn/models)
@@ -141,12 +140,11 @@ We provide a set of quick tutorials to get you started with the library:
 * [Tutorial 7: AutoLoader](docs/TUTORIAL_12_INSTRUCTIONS_FOR_AutoLoader.md)
 * [Tutorial 8: Predictor](docs/TUTORIAL_13_INSTRUCTIONS_FOR_PREDICTOR.md)
 
-## Learn More About FlagAI
-* [Datasets: supported datasets & PET integration.](docs/APPENDIX_TASK.md)
-* [Setup enviroments for data/model parallel](docs/EnvironmentSetup.md)
-* [Three types of generation](docs/Seq2seqMethod.md)
-* [Using huggingface's t5-3b & tricks ](docs/Huggingface_t5.md)
-* [Transform a model into Megatron-LM version](docs/ChangeToMegatron.md)
+* [Use Prompt learning to improve performance on SuperGLUE](docs/APPENDIX_TASK.md)
+* [Setup environment for training models with multi-machine](docs/EnvironmentSetup.md)
+* [Text generation with encoder/decoder/encoder-decoder models](docs/Seq2seqMethod.md)
+* [Training a huggingface t5-3b model with FlagAI on single V-100 ](docs/Huggingface_t5.md)
+* [How to transform a customized model into a megatron-LM-style parallel model](docs/ChangeToMegatron.md)
 
 ## Contributing
 
