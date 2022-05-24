@@ -39,8 +39,8 @@ class TrainerTestCase(unittest.TestCase):
             model_name = 'GLM-large-en'
             tokenizer = GLMLargeEnWordPieceTokenizer()
 
-        # model = GLMForSequenceClassification.from_pretrain(model_name=model_name, spell_length=2,
-        #                                                     class_num=3, tune_prefix_layers=1)
+        model = GLMForSequenceClassification.from_pretrain(model_name=model_name, spell_length=2,
+                                                            class_num=3, tune_prefix_layers=1)
 
         train_dataset = SuperGlueDataset(task_name=task_name,
                                          data_dir='./datasets/',
