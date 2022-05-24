@@ -1,7 +1,3 @@
-import sys
-sys.path.append('/data/wang/models/FlagAI')
-
-
 import re
 import torch
 import argparse
@@ -32,12 +28,12 @@ def train_data_process_kgclue(file):
 
 class SeqDataset(Dataset):
     """
-    针对特定数据集，定义一个相关的取数据的方式
+    Dataset function
     """
 
     def __init__(self, sents_src, sents_tgt):
         super(SeqDataset, self).__init__()
-        # 读原始数据
+        
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
 
@@ -60,12 +56,12 @@ class SeqDataset(Dataset):
 
 def collate_fn(batch):
     """
-    动态padding， batch为一部分sample
+    dynamic padding， 
     """
 
     def padding(indice, max_length, pad_idx=0):
         """
-        pad 函数
+        paddiing function
         """
         pad_indice = [
             item + [pad_idx] * max(0, max_length - len(item))
@@ -94,15 +90,15 @@ def collate_fn(batch):
 
 if __name__ == '__main__':
     data_name = 'kgclue'
-    train_path = '/mnt/T5_JIEBA/input/train.csv'
-    test_path = '/mnt/T5_JIEBA//input/dev.csv'
+    train_path = './data/train.csv'
+    test_path = './data/dev.csv'
     model_name = 'T5'
     vocab_path = '/mnt/T5_JIEBA/vocab.txt'
     model_path = '/mnt/T5_JIEBA/pytorch_model.bin'
     logger.add('log/log_' + data_name + '_' + model_name +
-               '_{time}.log')  # 加载日志
-    torch.cuda.empty_cache()  # torch自动回收缓存
-    # 加载模型
+               '_{time}.log')  # 
+    torch.cuda.empty_cache()  
+    # load model
     word2idx = load_chinese_base_vocab(vocab_path)
     tokenizer = T5JiebaTokenizer(token_dict=word2idx)
     model = T5UERModel(word2idx)
