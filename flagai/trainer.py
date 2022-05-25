@@ -447,7 +447,6 @@ class Trainer():
                         for x in batch if x not in ['uid', 'meta', 'mode']
                     }
                 elif 'pytorch' == self.env_type:
-
                     batch = {
                         x: batch[x].to(torch.device(self.pytorch_device))
                         for x in batch if x not in ['uid', 'meta', 'mode']

@@ -1,5 +1,5 @@
 from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze, GLMForMultiTokenClozeFast
+from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze, GLMForMultiTokenClozeFast, GLMForSequenceClassification
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer, GLMLargeChTokenizer
 
 from flagai.data.dataset import SuperGlueDataset
@@ -13,7 +13,7 @@ class TrainerTestCase(unittest.TestCase):
 
     def test_init_trainer_pytorch(self):
         # task_name options: ['boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc', 'tnews']
-        task_name = "afqmc"
+        task_name = "cb"
 
         trainer = Trainer(env_type='pytorch',
                           epochs=10,
@@ -27,19 +27,21 @@ class TrainerTestCase(unittest.TestCase):
         print("downloading...")
 
         cl_args = CollateArguments()
+        cl_args.cloze_eval = False
         cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
 
         if task_name in CH_TASKS:
             model_name = 'GLM-large-ch'
-            tokenizer = GLMLargeChTokenizer()
+            tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
+                                            add_task_mask=False,
+                                            add_decoder_mask=False,
+                                            fix_command_token=True)
         else:
             model_name = 'GLM-large-en'
             tokenizer = GLMLargeEnWordPieceTokenizer()
 
-        if cl_args.multi_token:
-            model = GLMForMultiTokenCloze.from_pretrain(model_name=model_name)
-        else:
-            model = GLMForSingleTokenCloze.from_pretrain(model_name=model_name)
+        model = GLMForSequenceClassification.from_pretrain(model_name=model_name, spell_length=2,
+                                                            class_num=3, tune_prefix_layers=1)
 
         train_dataset = SuperGlueDataset(task_name=task_name,
                                          data_dir='./datasets/',

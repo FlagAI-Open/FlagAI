@@ -120,3 +120,45 @@ class CollateArguments:
 
         self.few_superglue = False
         self.pattern_text = False
+
+
+class Seq2SeqCollateArguments:
+    def __init__(self):
+        self.cloze_eval = True
+        self.pretrained_bert = False
+
+        # these values could be wrong
+        self.task_mask = True
+        self.continuous_prompt = False
+        self.prefix_prompt = 0
+
+        self.max_src_length = 464
+        self.max_tgt_length = 48
+        self.min_tgt_length = 0
+        self.no_block_position = True
+
+        # self.sentinel_token = False
+        # self.max_position_embeddings = 1024
+        # self.no_block_position = False
+        # self.masked_lm = False
+        # self.pattern_id = 0
+        # self.seq_length = 256
+        # self.num_prompt_tokens = 0
+        # self.multi_token = False
+        # self.segment_length = 0
+        # self.fast_decode = False
+        #
+        # self.few_superglue = False
+        # self.pattern_text = False
+class DatasetArguments:
+
+    def __init__(self):
+        self.task_mask = True  # Distinguished the generation and gap-sentence mask
+        self.block_mask_prob = 0.1
+        self.block_lm = True  # Whether do masking
+        self.masked_lm = False  # Whether do simple masking (same symbol among masks)
+
+        self.pre_tokenize = True
+        self.no_lazy_loader = True
+        self.half_lazy_loader = False
+        self.sentinel_token = False
