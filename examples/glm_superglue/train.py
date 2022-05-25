@@ -31,10 +31,7 @@ class TrainerTestCase(unittest.TestCase):
 
         if task_name in CH_TASKS:
             model_name = 'GLM-large-ch'
-            tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
-                                            add_task_mask=False,
-                                            add_decoder_mask=False,
-                                            fix_command_token=True)
+            tokenizer = GLMLargeChTokenizer()
         else:
             model_name = 'GLM-large-en'
             tokenizer = GLMLargeEnWordPieceTokenizer()

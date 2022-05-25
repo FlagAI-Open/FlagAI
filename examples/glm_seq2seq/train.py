@@ -60,7 +60,6 @@ class TrainerTestCase(unittest.TestCase):
                       valid_dataset=valid_dataset,
                       metric_methods=DEFAULT_METRICS[task_name])
 
-
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(TrainerTestCase('test_init_trainer_pytorch'))

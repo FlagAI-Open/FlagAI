@@ -913,9 +913,9 @@ class GLMForSeq2Seq(BaseModel):
         outputs, mems = model_out['logits'], model_out['hidden_states']
         vocab_size = outputs.size()[-1]
         target_ids = target_ids.view(-1)
-        logit_mask = logit_mask.view(-1).float()
+        loss_mask = loss_mask.view(-1).float()
         Loss = nn.CrossEntropyLoss(ignore_index=0, reduction="none")
         logits = outputs.view(-1, vocab_size)
 
-        loss = (Loss(logits, target_ids) * logit_mask).sum() / logit_mask.sum()
+        loss = (Loss(logits, target_ids) * loss_mask).sum() / loss_mask.sum()
         return {"loss": loss, "hidden_states": mems, "logits": logits}

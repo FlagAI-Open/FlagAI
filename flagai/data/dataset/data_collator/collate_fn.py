@@ -225,7 +225,7 @@ class ConstructSeq2seqStrategy:
                                 positions=position_ids,
                                 target=target_ids,
                                 masks=sep,
-                                logit_mask=loss_mask,
+                                loss_mask=loss_mask,
                                 unique_id=example.guid)
         return sample
 

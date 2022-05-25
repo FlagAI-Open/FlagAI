@@ -150,3 +150,15 @@ class Seq2SeqCollateArguments:
         #
         # self.few_superglue = False
         # self.pattern_text = False
+class DatasetArguments:
+
+    def __init__(self):
+        self.task_mask = True  # Distinguished the generation and gap-sentence mask
+        self.block_mask_prob = 0.1
+        self.block_lm = True  # Whether do masking
+        self.masked_lm = False  # Whether do simple masking (same symbol among masks)
+
+        self.pre_tokenize = True
+        self.no_lazy_loader = True
+        self.half_lazy_loader = False
+        self.sentinel_token = False
