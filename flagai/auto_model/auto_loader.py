@@ -139,8 +139,6 @@ class AutoLoader:
         self.tokenizer = tokenizer_class(vocab_file)
 
 
-
-
     def get_tokenizer(self):
         return self.tokenizer
 
