@@ -17,6 +17,7 @@ The key features of GLM include:
   - Feed-forward network is replaced with a linear layer
 
 ## Performance of GLM on CLUE 1.0
+As shown in the chart below, GLM-XXlarge model has achieved an avarage score of 79.297 on the CLUE1.0 benchmark, and outperforms the rest of the models on TNEWs, OCNLI, CLUEWSC, and C3.
 <div align=center><img src="img/glm_performance.png"></div>
 
 ## Supported pre-trained GLM models
