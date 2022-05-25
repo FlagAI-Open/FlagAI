@@ -32,7 +32,8 @@ ALL_TASK = {
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
-    "glm_classification": ["flagai.model.glm_model", "GLMForSequenceClassification"]
+    "glm_classification": ["flagai.model.glm_model", "GLMForSequenceClassification"],
+    "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
 }
 
 MODEL_DICT = {
@@ -137,8 +138,6 @@ class AutoLoader:
         tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
                                     tokenizer_class[1])
         self.tokenizer = tokenizer_class(vocab_file)
-
-
 
 
     def get_tokenizer(self):

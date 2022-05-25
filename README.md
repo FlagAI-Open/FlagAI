@@ -114,8 +114,12 @@ for text in test_data:
 ```
 
 ## Pretrained Models and examples
+
+* [Blank_Filling_QA with GLM ](/docs/TUTORIAL_18_GLM_BLANK_FILLING_QA.md)
+* [Title Generation with GLM ](/docs/TUTORIAL_17_GLM_EXAMPLE_TITLE_GENERATION.md)
 * [Poetry generation with GLM-large-ch](docs/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
-* [Title Generation with RoBerta-WWM ](/docs/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
+* [Using huggingface's t5-3b & tricks ](docs/Huggingface_t5.md)
+* [Title Generation with RoBerta-WWM](/docs/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [Semantic Matching with RoBerta-WWM](/docs/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
 * [NER with RoBerta-WWM](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)
 * [Writing with GPT-2](/docs/TUTORIAL_15_GPT2_WRITING.md)

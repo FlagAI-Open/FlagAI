@@ -27,17 +27,14 @@ if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples')
     # Random seeds for reproducability.
-
+    # Model,
+    model = GLMModel.from_pretrain(model_name='GLM-large-ch', download_path="./state_dict/")
     tokenizer = GLMLargeChTokenizer(vocab_path='./state_dict/GLM-large-ch/cog-pretrain.model',
                                     add_block_symbols=True,
                                     add_task_mask=True,
                                     add_decoder_mask=False,
                                     fix_command_token=False)
 
-    # Model,
-    # model = GLMModel.from_pretrain(model_name='GLM-large-ch', download_path="./state_dict/")
-    model = GLMModel.init_from_json("./state_dict/GLM-large-ch/config.json")
-    model.load_weights("./state_dict/GLM-large-ch/pytorch_model.bin")
     model.cuda(torch.cuda.current_device())
 
     predictor = Predictor(model, tokenizer)
