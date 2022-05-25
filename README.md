@@ -132,19 +132,19 @@ language models, sequence labeling models, and text classification models. Let u
 ## Tutorials
 We provide a set of quick tutorials to get you started with the library:
 
-* [Tutorial 1: Background: Transformers](docs/TUTORIAL_1_BASICS.md)
-* [Tutorial 3: Supported tokenizers](docs/TUTORIAL_3_TOKENIZER.md)
-* [Tutorial 4: Supported datasets](docs/TUTORIAL_4_DATASET.md)
-* [Tutorial 5: Supported models](https://model.baai.ac.cn/models)
-* [Tutorial 6: Training a model](docs/TUTORIAL_8_TRAINING.md)
-* [Tutorial 7: AutoLoader](docs/TUTORIAL_12_INSTRUCTIONS_FOR_AutoLoader.md)
-* [Tutorial 8: Predictor](docs/TUTORIAL_13_INSTRUCTIONS_FOR_PREDICTOR.md)
+[//]: # (* [Tutorial 1: Background: Transformers]&#40;docs/TUTORIAL_1_BASICS.md&#41;)
+* [Tutorial 1: How to construct and use Tokenizer](docs/TUTORIAL_3_TOKENIZER.md)
+* [Tutorial 2: Dataset Preprocessing Pipeline](docs/TUTORIAL_4_DATASET.md)
+* [Tutorial 3: Major Function of Model Module](https://model.baai.ac.cn/models)
+* [Tutorial 4: Customize trainer for model and data-parallel training](docs/TUTORIAL_8_TRAINING.md)
+* [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](docs/TUTORIAL_12_INSTRUCTIONS_FOR_AutoLoader.md)
+* [Tutorial 6: Use off-the-shelf inference Algorithms with Predictor](docs/TUTORIAL_13_INSTRUCTIONS_FOR_PREDICTOR.md)
 
-* [Use Prompt learning to improve performance on SuperGLUE](docs/APPENDIX_TASK.md)
-* [Setup environment for training models with multi-machine](docs/EnvironmentSetup.md)
-* [Text generation with encoder/decoder/encoder-decoder models](docs/Seq2seqMethod.md)
-* [Training a huggingface t5-3b model with FlagAI on single V-100 ](docs/Huggingface_t5.md)
-* [How to transform a customized model into a megatron-LM-style parallel model](docs/ChangeToMegatron.md)
+* [Tutorial 7: Use FlagAI prompt-learning tool-kit to improve performance on SuperGLUE](docs/APPENDIX_TASK.md)
+* [Tutorial 7: Setup environment for training models with multi-machine](docs/EnvironmentSetup.md)
+* [Tutorial 9: Text generation with encoder/decoder/encoder-decoder models](docs/Seq2seqMethod.md)
+* [Tutorial 10: Training a huggingface t5-3b model with FlagAI on single V-100 ](docs/Huggingface_t5.md)
+* [Tutorial 11: How to transform a customized model into a megatron-LM-style parallel model](docs/ChangeToMegatron.md)
 
 ## Contributing
 

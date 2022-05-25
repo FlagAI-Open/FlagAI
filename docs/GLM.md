@@ -16,6 +16,9 @@ The key features of GLM include:
   - 2D positional encoding: Each token has two positional encodings: the global position in the sentence, and the local position inside the masked span.
   - Feed-forward network is replaced with a linear layer
 
+## Performance of GLM on CLUE 1.0
+<div align=center><img src="img/glm_performance.png"></div>
+
 ## Supported pre-trained GLM models
 see [Tutorial 5: Supported models](https://model.baai.ac.cn/models)
 
