@@ -21,6 +21,19 @@ a multi-task pre-training setup, where the model is jointly
 trained to reconstruct masked spans and generate longer
 text.
 
+In GLM, there are three MASK methods, corresponding to three prediction formats respectively.
+1. ```[MASK]```, ```[sMASK]```: Sentence-level. We restrict that the masked
+   spans must be full sentences. Multiple spans
+   (sentences) are sampled to cover 15% of
+   the original tokens. This objective aims for
+   seq2seq tasks whose predictions are often
+   complete sentences or paragraphs. 
+   The ```[MASK]``` is slightly shorter than the text predicted by ```[sMASK]```.
+2. ```[gMASK]```: Document-level. We sample a single span
+   whose length is sampled from a uniform distribution over 50%–100% of the original length.
+   The objective aims for long text generation.
+
+
 As example, GLM finish the question task as an autoregressive blank in-
 filling task
 

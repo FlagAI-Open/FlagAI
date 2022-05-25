@@ -19,13 +19,7 @@ sys.path.append('/data/wang/models/GLMgeneration')
 sys.path.append('/data/wang/models/FlagAI')
 import os
 import torch
-import torch.nn.functional as F
-import time
-from datetime import datetime
-# from arguments import get_args
-import random
-from utils import load_checkpoint
-import numpy as np
+
 from flagai.model.glm_model import GLMModel
 from flagai.data.tokenizer import GLMLargeChTokenizer
 from flagai.model.predictor.predictor import Predictor
@@ -34,14 +28,14 @@ if __name__ == "__main__":
     print('Generate Samples')
     # Random seeds for reproducability.
 
-    tokenizer = GLMLargeChTokenizer(vocab_path='./checkpoints/glm-large-ch/cog-pretrain.model',
+    tokenizer = GLMLargeChTokenizer(vocab_path='./state_dict/GLM-large-ch/cog-pretrain.model',
                                     add_block_symbols=True,
                                     add_task_mask=True,
                                     add_decoder_mask=False,
                                     fix_command_token=False)
 
     # Model,
-    model = GLMModel.from_pretrain(model_name='glm-large-ch', only_download_config=False)
+    model = GLMModel.from_pretrain(model_name='GLM-large-ch', download_path="./state_dict/")
     model.cuda(torch.cuda.current_device())
 
     predictor = Predictor(model, tokenizer)
