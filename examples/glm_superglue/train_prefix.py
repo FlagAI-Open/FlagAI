@@ -27,6 +27,7 @@ class TrainerTestCase(unittest.TestCase):
         print("downloading...")
 
         cl_args = CollateArguments()
+        cl_args.cloze_eval = False
         cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
 
         if task_name in CH_TASKS:
