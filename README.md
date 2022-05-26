@@ -8,9 +8,9 @@
 
 FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
 
-* Now it supports **WuDao GLM** with a maximum of 10 billion parameters (see [GLM details](docs/GLM.md)). It also supports **BERT**, **RoBERTa**, **GPT2**, **T5**, and models from Huggingface Transformers.
+* Now it supports **WuDao GLM** with a maximum of 10 billion parameters (see [GLM details](/docs/GLM.md)). It also supports **BERT**, **RoBERTa**, **GPT2**, **T5**, and models from Huggingface Transformers.
 
-* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning]() toolkit for few shot tasks.   
+* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LERANING.md) toolkit for few shot tasks.   
 
 * These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
@@ -137,18 +137,17 @@ language models, sequence labeling models, and text classification models. Let u
 We provide a set of quick tutorials to get you started with the library:
 
 [//]: # (* [Tutorial 1: Background: Transformers]&#40;docs/TUTORIAL_1_BASICS.md&#41;)
-* [Tutorial 1: How to construct and use Tokenizer](docs/TUTORIAL_1_TOKENIZER.md)
-* [Tutorial 2: Dataset Preprocessing Pipeline](docs/TUTORIAL_2_DATASET.md)
-* [Tutorial 3: Major Function of Model Module](docs/TUTORIAL_3_MODEL.md)
-* [Tutorial 4: Customize trainer for model and data-parallel training](docs/TUTORIAL_4_TRAINER.md)
-* [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](docs/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
-* [Tutorial 6: Use off-the-shelf inference Algorithms with Predictor](docs/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
+* [Tutorial 1: How to construct and use Tokenizer](/docs/TUTORIAL_1_TOKENIZER.md)
+* [Tutorial 2: Dataset Preprocessing Pipeline](/docs/TUTORIAL_2_DATASET.md)
+* [Tutorial 3: Major Function of Model Module](/docs/TUTORIAL_3_MODEL.md)
+* [Tutorial 4: Customize trainer for model and data-parallel training](/docs/TUTORIAL_4_TRAINER.md)
+* [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](/docs/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
+* [Tutorial 6: Use off-the-shelf inference Algorithms with Predictor](/docs/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
 
-* [Tutorial 7: Use FlagAI prompt-learning tool-kit to improve performance on SuperGLUE](docs/TUTORIAL_7_PROMPT_LERANING.md)
-* [Tutorial 8: Setup environment for training models with multi-machine](docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* [Tutorial 9: Text generation with encoder/decoder/encoder-decoder models](docs/TUTORIAL_9_SEQ2SEQ_METHOD.md)
-* [Tutorial 11: How to transform a customized model into a megatron-LM-style parallel model](docs/TUTORIAL_10_MEGATRON.md)
-* 
+* [Tutorial 7: Use FlagAI prompt-learning tool-kit to improve performance on SuperGLUE](/docs/TUTORIAL_7_PROMPT_LERANING.md)
+* [Tutorial 8: Setup environment for training models with multi-machine](/docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* [Tutorial 9: Text generation with encoder/decoder/encoder-decoder models](/docs/TUTORIAL_9_SEQ2SEQ_METHOD.md)
+* [Tutorial 11: How to transform a customized model into a megatron-LM-style parallel model](/docs/TUTORIAL_10_MEGATRON.md)
 ## Contributing
 
 Thanks for your interest in contributing! There are many ways to get involved;
