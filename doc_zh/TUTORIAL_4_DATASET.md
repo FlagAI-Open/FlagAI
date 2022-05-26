@@ -74,7 +74,7 @@ FlagAI目前支持自动加载下列数据集：
 | label     | 代表前提和假设关系的标签<br/>包含entailment,neutral和contradiction三种 | entailment                     |
 | idx       | 样例在数据集里的序号                                            | 10                             |
 
-目前所有FlagAI支持数据集的具体结构可以在[这里]()查看。
+目前所有FlagAI支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
 
 ## 整理成统一的数据结构
 在这一步里，我们会统一不同数据集的数据结构，以方便接下来处理。此结构的细节如下：

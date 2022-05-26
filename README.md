@@ -135,8 +135,8 @@ We provide a set of quick tutorials to get you started with the library:
 [//]: # (* [Tutorial 1: Background: Transformers]&#40;docs/TUTORIAL_1_BASICS.md&#41;)
 * [Tutorial 1: How to construct and use Tokenizer](docs/TUTORIAL_3_TOKENIZER.md)
 * [Tutorial 2: Dataset Preprocessing Pipeline](docs/TUTORIAL_4_DATASET.md)
-* [Tutorial 3: Major Function of Model Module](https://model.baai.ac.cn/models)
-* [Tutorial 4: Customize trainer for model and data-parallel training](docs/TUTORIAL_8_TRAINING.md)
+* [Tutorial 3: Major Function of Model Module](docs/TUTORIAL_MODEL.md)
+* [Tutorial 4: Customize trainer for model and data-parallel training](docs/TUTORIAL_Trainer.md)
 * [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](docs/TUTORIAL_12_INSTRUCTIONS_FOR_AutoLoader.md)
 * [Tutorial 6: Use off-the-shelf inference Algorithms with Predictor](docs/TUTORIAL_13_INSTRUCTIONS_FOR_PREDICTOR.md)
 
