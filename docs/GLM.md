@@ -17,10 +17,19 @@ The key features of GLM include:
   - Feed-forward network is replaced with a linear layer
 
 ## Performance of GLM
-The performance of GLM on SuperGLUE benchmark is listed below:
+### SuperGLUE
+
+1. With multi-task pretraining, GLM-Doc and GLM-Sent perform slightly worse than GLM-Large, but still outperform BERT-Large and UniLM-Large. 
+2. Among multitask models, GLM-Sent outperforms GLM-Doc by 1.1% on average. Increasing GLM-Doc’s parameters to 410M (1.25×BERT-Large) leads to better performance than GLM-Large. GLM with 515M parameters (1.5×BERT-Large) can perform even better.
+
 <div align=center><img src="img/glm_results2.png"></div>
 
-As shown in the chart below, GLM-XXlarge model has achieved an avarage score of 79.297 on the CLUE1.0 benchmark, and outperforms the rest of the models on TNEWs, OCNLI, CLUEWSC, and C3.
+### CLUE
+
+1. GLM-XXLarge has has achieved an avarage score of 79.297 which is improved significantly in multiple tasks. In the selected 3 general +2 business evaluation tasks, the average improvement is 2.47pp.
+2. Among the tasks in the CLUE1.0, except for the CMRC task, the average improvement is 1.56pp, of which the C3 and OCNLI data sets have improved significantly (+9.9PP, +2.84PP).
+
+
 <div align=center><img src="img/glm_performance.png"></div>
 
 ## Supported pre-trained GLM models
