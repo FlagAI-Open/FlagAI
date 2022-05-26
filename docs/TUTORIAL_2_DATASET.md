@@ -70,7 +70,7 @@ dataset = SuperGlueDataset(task_name='cb',
 
 不同的数据集可能会有不同的文件格式，以及不同的结构。以CommitmentBank数据集为例，下面是其中的一个样例
 
-<div align=center><img src="img/dataset_example_1.png" width="600px"></div>
+<div align=center><img src="img/dataset_figure_0.png" width="600px"></div>
 
 可以看到，其包含了四个部分,如下所示：
 
@@ -150,7 +150,7 @@ collate_fn = ConstructSuperglueStrategy(cl_args,
 <sup>1</sup>: seq_length代表规定的每个输入向量的最大长度
 
 <sup>2</sup>: 特殊字符添加流程：在句首添加[CLS]符号，句尾添加[EOS]符号，直到长度达到seq_length, 如果完形填空输出的文本有两段，则在中间添加[SEP]符号
-<div align=center><img src="img/dataset_example_4.png" width="500px"></div>
+<div align=center><img src="img/dataset_figure_5.png" width="500px"></div>
 
 <sup>3</sup>: num_labels代表完形填空问题中选项的个数
 

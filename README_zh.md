@@ -8,13 +8,13 @@
 FlagAI 是一个快速、易于使用和可扩展的大型模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。 目前，我们专注于 NLP 模型和任务。 在不久的将来，我们将支持其他模态。
 <br><br>
 
-* 现在它支持 GLM、BERT、RoBERTa、GPT2、T5 模型和 Huggingface Transformers 的模型。
+* 现在它支持最高百亿参数的**WUDAO GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持**BERT**、**RoBERTa**、**GPT2**、**T5** 模型和 Huggingface Transformers 的模型。
 
-* 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在您自己的数据集上对其进行微调，然后在我们的模型中心与社区共享它们。
+* 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在您自己的数据集上对其进行微调(fine-tuning)或者应用[提示学习(prompt-tuning)](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)，然后在我们的模型中心与社区共享它们。 
 
 * 这些模型可以应用于文本，用于文本分类、信息提取、问答、摘要、文本生成等任务，尤其是中文。
 
-* FlagAI 由三个最流行的数据/模型并行库（PyTorch/Deepspeed/Megatron-LM）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
+* FlagAI 由三个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
 
 
 本项目的部分代码基于[Transformers](https://github.com/huggingface/transformers) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
@@ -198,14 +198,18 @@ for text_pair in test_data:
 
 # 教程
 我们提供了一组教程来帮助您快速上手使用本库：
-* [教程 1: 基础知识](doc_zh/TUTORIAL_1_BASICS.md)
-* [教程 2: 项目结构](doc_zh/TUTORIAL_2_PROJECT_STRUCTURE.md)
-* [教程 3: 项目支持的分词器](doc_zh/TUTORIAL_3_TOKENIZER.md)
-* [教程 4: 项目支持的数据集](doc_zh/TUTORIAL_4_DATASET.md)
-* [教程 5: 项目支持的模型](https://model.baai.ac.cn/models)
-* [教程 6: 训练一个模型](doc_zh/TUTORIAL_8_TRAINING.md)
-* [教程 7: AutoLoader工具](doc_zh/TUTORIAL_12_INSTRUCTIONS_FOR_AutoLoader.md)
-* [教程 8: Predictor工具](doc_zh/TUTORIAL_13_INSTRUCTIONS_FOR_PREDICTOR.md)
+* [Tutorial 1: 构建和应用分词器](/doc_zh/TUTORIAL_1_TOKENIZER.md)
+* [Tutorial 2: 数据集预处理流程](/doc_zh/TUTORIAL_2_DATASET.md)
+* [Tutorial 3: 模型的主要功能及相关结构](/doc_zh/TUTORIAL_3_MODEL.md)
+* [Tutorial 4: 模型训练(支持并行化)](/doc_zh/TUTORIAL_4_TRAINER.md)
+* [Tutorial 5: 使用AutoLoader工具快速构建模型](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
+* [Tutorial 6: 使用Predictor工具进行预测](/doc_zh/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
+
+* [Tutorial 7: FlagAI提示学习功能](/docs/TUTORIAL_7_PROMPT_LERANING.md)
+* [Tutorial 8: 数据/模型并行的环境设置](/docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* [Tutorial 9: 使用**编码器/解码器/编解码**器模型进行文本生成](/docs/TUTORIAL_9_SEQ2SEQ_METHOD.md)
+* [Tutorial 10: 转化一个模型为Megatron-LM的模型并行版本](/docs/TUTORIAL_10_MEGATRON.md)
+
 
 
 # 了解更多关于FlagAI

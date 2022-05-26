@@ -15,7 +15,7 @@ Here is an example for cloze promts:
 
 As shown in the following example, the dataset contains two input texts: premise and hypothesis. The label indicates the relationship between premise and hypothesis, and there are three possible text strings for label: entailment, contradiction and neutral. 
 
-<div align=center><img src="img/dataset_example_2.png" width="500px"></div>
+<div align=center><img src="img/dataset_figure_0.png" width="500px"></div>
 
 We can design a meaningful cloze template as below
 

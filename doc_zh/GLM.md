@@ -1,4 +1,4 @@
-# GLM
+# Introduction to GLM
 
 ## Model Description
 Currently, there exist several different pre-training model architectures: autoencoding models that only implement encoder architecture (e.g., BERT),

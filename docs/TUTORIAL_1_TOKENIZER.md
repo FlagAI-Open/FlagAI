@@ -24,7 +24,7 @@ as listed below:
 | BertWordPieceTokenizer       | Chinese  | 
 
 Details about their variations can be viewed 
-[here](https://github.com/BAAI-WuDao/Sailing/blob/old_main/docs/tokenization/tokenization.md).
+[here](/docs/tokenization.md).
 
 
 ## Loading a tokenizer
