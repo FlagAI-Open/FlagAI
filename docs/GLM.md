@@ -1,10 +1,13 @@
 # GLM
 
 ## Model Description
+
 Currently, there exist several different pre-training model architectures: autoencoding models that only implement encoder architecture (e.g., BERT),
 autoregressive models that only implement decoder (e.g., GPT), and encoder-decoder models that implement both encoder and decoder (e.g., T5).
 
-The **GLM model** was proposed in [All NLP Tasks Are Generation Tasks: A General Pretraining Framework](https://arxiv.org/abs/2103.10360).
+The **GLM model**, proposed in [GLM: General Language Model Pretraining
+with Autoregressive Blank Infilling](https://arxiv.org/abs/2103.10360), is based on a slightly different strategy: autoregressive blank infilling. 
+
 It claims to perform well in the three main categories of NLP taks: classification, unconditional generation, and conditional generation tasks.
 <div align=center><img src="img/glm_example_1.png" width="600px"></div>
 The key features of GLM include:
@@ -33,7 +36,7 @@ The key features of GLM include:
 <div align=center><img src="img/glm_performance.png"></div>
 
 ## Supported pre-trained GLM models
-see [Tutorial 5: Supported models](https://model.baai.ac.cn/models)
+see [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](/docs/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md).
 
 ## Step-by-step procedure of GLM
 1) Following the example in the paper, the original text contains 6 tokens, and two spans are masked: first span contains the 3rd token and the second span contains the 5th and 6th token.
@@ -47,5 +50,5 @@ see [Tutorial 5: Supported models](https://model.baai.ac.cn/models)
 3) Input and output of GLM, the input contains token embeddings and 2 sets of positional encodings: the first set is the positions of each token, where the tokens in each masked span share the same position ID. The second set records the relative positions inside the masked span.
 <div align=center><img src="img/glm_example_4.png" width="400px"></div>
 
-4) The self-attention mask that realizes both autoencoding upon corrupted text and autoregressive upon the masked spans
+4) The self-attention mask that realizes both autoencoding upon corrupted text and autoregressive upon the masked spans.
 <div align=center><img src="img/glm_example_5.png" width="400px"></div>

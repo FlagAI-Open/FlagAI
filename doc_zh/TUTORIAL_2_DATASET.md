@@ -1,5 +1,5 @@
 # 数据集处理流程
-构建数据集的过程就是NLP的数据预处理过程，其主要目的是将原始的散乱的文件数据重新整理成统一结构的数据，以便语言模型能够直接使用。构建数据集样例的主要流程如下所示（以CommitmentBank数据集为例）：
+构建数据集的过程就是NLP的数据预处理过程，其主要目的是将原始的散乱的文件数据重新整理成统一结构的数据，以便语言模型能够直接使用。构建数据集样例的主要流程如下所示（以`CommitmentBank`数据集为例）：
 
 <div align=center><img src="img/dataset_pipeline.png" width="600px"></div>
 
@@ -49,7 +49,7 @@ dataset = SuperGlueDataset(task_name='cb',
 ```
 #### 1.加载数据集
 
-将`task_name`设置成任务名的缩写后，相关数据会在后台自动下载。FlagAI目前支持自动加载下列分类数据集：
+将`task_name`设置成数据集对应的简称后，运行以上代码，相关数据会在后台自动下载。FlagAI目前支持自动加载下列分类数据集：
 
 
 | 数据集名称                                     | 数据集简称    | 语言   | 所属评测基准   |
@@ -66,9 +66,9 @@ dataset = SuperGlueDataset(task_name='cb',
 
 数据集会被自动下载到`data_dir`对应的地址，默认为项目的`./dataset`目录。
 
-下载好的数据集目录下会包含三个文件，对应训练集数据，验证集数据，以及测试集数据, 以CommitmentBank数据集为例，目录下的`train.jsonl`对应训练集，`val.jsonl`对应验证集，`test.jsonl`对应测试集。一般来说训练集和测试集会包含标签信息，而测试集则没有。这些数据文件在接下来的流程中会分开处理。
+下载好的数据集目录下会包含三个文件，对应训练集数据，验证集数据，以及测试集数据, 以`CommitmentBank`数据集为例，目录下的`train.jsonl`对应训练集，`val.jsonl`对应验证集，`test.jsonl`对应测试集。一般来说训练集和测试集会包含标签信息，而测试集则没有。这些数据文件在接下来的流程中会分开处理。
 
-不同的数据集可能会有不同的文件格式，以及不同的结构。以CommitmentBank数据集为例，下面是其中的一个样例
+不同的数据集可能会有不同的文件格式，以及不同的结构。以`CommitmentBank`数据集为例，下面是其中的一个样例
 
 <div align=center><img src="img/dataset_example_1.png" width="600px"></div>
 
@@ -97,11 +97,11 @@ dataset = SuperGlueDataset(task_name='cb',
 | meta   | an optional dictionary to store arbitrary meta information                        | dict |
 | ids    | an optional numeric index                                                    | int  |
 
-例如上一步CommitBank的样例会被处理成如下的形式
+例如上一步`CommitmentBank`的样例会被处理成如下的形式
 
 <div align=center><img src="img/dataset_figure_2.png" width="500px"></div>
 
-需要注意的是如果因为数据结构太复杂，导致text_a和text_b无法塞下背景文本信息的话，可以把剩下的信息放在meta里。
+需要注意的是如果因为数据结构太复杂，导致text_a和text_b无法塞下背景文本信息的话，可以把剩下的信息放在`meta`里。
 
 当数据集被构造好以后，可以直接在代码里通过索引的方式查看其中某个样例：
 
@@ -124,15 +124,14 @@ collate_fn = ConstructSuperglueStrategy(cl_args,
 
 对于每个不同的任务，我们都需要构建不同构造的完型填空问题来让模型回答，以CommitmentBank数据集为例， 其考量的是能否由前提推导出假设, 而有且仅有三种结果：contradiction/neutral/entailment。那么我们可以构建如下的完型填空问题， 其中contradiction/neutral/entailment分别对应true/false/neither。
 
-
-
 <div align=center><img src="img/dataset_figure_3.png" width="500px"></div>
 
 可以看到，大体上可以分成两步：第一步是组合已有的文本，使其看上去符合完形填空格式；第二步是将原始的标签文本转化为新的标签，作为可能会填入空位的选项。        
 
 #### 2.分词并构造输入样例
 接下来，我们需要构造模型的输入，第一步是分词，而接下来则需要分成两种情况：
-第一种情况下，数据集包含的标签类别是有限的，比如CommitmentBank数据集里只会存在entailment/contradiction/neutral三种标签文本，，常见于分类任务。第二类情况里每一段完型填空都会给出不同的选项(一般是一段长文本)。比如在一些阅读理解数据集里，每一个选项都是一段对于文本的不同理解。这两类情况的处理方法如下所示：
+
+第一种情况下，数据集包含的标签类别是有限的，比如`CommitmentBank`数据集里只会存在`entailment/contradiction/neutral`三种标签文本。第二类情况里每一段完型填空都会给出不同的选项(一般是一段长文本)。比如在一些阅读理解数据集里，每一个选项都是一段对于文本的不同理解。这两类情况的处理方法如下所示：
 
 **a)单个token的完形填空**
 
