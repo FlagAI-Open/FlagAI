@@ -4,6 +4,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
+# Note "./checkpoints_semantic_matching/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_semantic_matching.
 model_save_path = "./checkpoints_semantic_matching/11250/mp_rank_00_model_states.pt"
 
 maxlen = 256

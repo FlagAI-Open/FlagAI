@@ -5,10 +5,6 @@
 
 ![](./img/bert_title_generation_model.png)
 
-注意，为了生成方法的通用性，我们目前使用GLM模型做标题生成任务是通过UniLM (https://github.com/microsoft/unilm/tree/master/unilm) 的方式，并不是像原论文 (https://arxiv.org/pdf/2103.10360.pdf) 中使用完形填空的方式。
-
-我们之后会测试GLM独特的完形填空式生成方式，并且会将两种生成方式的生成结果进行展示与对比。
-
 ## 结果展示
 #### 输入
 ```

@@ -1,12 +1,9 @@
 # GLM example：title generation
 
-## Background
+
+## background
 The title generation task needs to input a piece of text, and the model outputs the corresponding title according to the input text.
 ![](./img/bert_title_generation_model.png)
-
-Note that for the generality of the generation method, we currently use the GLM model for the title generation task through UniLM (https://github.com/microsoft/unilm/tree/master/unilm) , not the blank filling used in the original paper (https://arxiv.org/pdf/2103.10360.pdf).
-
-We will test GLM's unique blank filling generation method later, and will show and compare the generation results of the two generation methods.
 
 ## Result show
 #### Input

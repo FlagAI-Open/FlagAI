@@ -218,5 +218,5 @@ class ExamplePVP(PVP):
         else:
             raise NotImplementedError
 ```
-关于为什么要建立processor和pvp， 以及具体怎么设计样例可以参考 [这里](APPENDIX_TASK.md).
+关于为什么要建立processor和pvp， 以及具体怎么设计样例可以参考 [这里](TUTORIAL_7_PROMPT_LERANING.md).
 

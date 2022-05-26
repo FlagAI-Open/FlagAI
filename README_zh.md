@@ -181,13 +181,16 @@ for text_pair in test_data:
 ```
 
 # 预训练模型以及样例
+* [GLM-large-ch用户完形填空问答](/doc_zh/TUTORIAL_18_GLM_BLANK_FILLING_QA.md)
+* [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [GLM-large-ch用于标题生成](doc_zh/TUTORIAL_17_GLM_EXAMPLE_TITLE_GENERATION.md)
+* [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/Huggingface_t5.md)
 * [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
-* [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
-* [RoBERTa-base-ch用于命名实体识别](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)
-* [GPT-2用于文本续写](/docs/TUTORIAL_15_GPT2_WRITING.md)
-* [T5用于标题生成](/docs/TUTORIAL_16_T5_EXAMPLE_TITLE_GENERATION.md)
-* [所有支持的任务](docs/AllSupportedTasks.md)
+* [RoBERTa-base-ch用于命名实体识别](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
+* [GPT-2用于文本续写](/docs/TUTORIAL_18_GPT2_WRITING.md)
+* [T5用于标题生成](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
+* [所有支持的任务](docs/TUTORIAL_20_SUPPORTED_TASKS.md)
 
 
 本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。

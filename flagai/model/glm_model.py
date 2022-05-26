@@ -181,8 +181,8 @@ class GLMStack(torch.nn.Module):
                 detach_memory=True,
                 checkpoint=None):
         batch_size, query_length = hidden_states.size()[:2]
-        memory_length = 0
-        memory_states[0].size(1) if memory_states and memory_states[0] else 0
+        memory_length = memory_states[0].size(1) if memory_states else 0
+        
         key_length = query_length + memory_length
         # attention mask is the beginning postion of B region, \in [0, query_len)
         is_scalar = torch.numel(attention_mask) == 1
