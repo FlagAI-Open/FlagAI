@@ -22,13 +22,17 @@ from flagai.model.utils import scaled_init_method, divide, unscaled_init_method
 from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.base_model import BaseModel
 from flagai.model.layers.embeddings import PositionalEmbedding
-from flagai.mpu.random import checkpoint
 from flagai.model.utils import normal_init_method
 from torch.nn import LayerNorm
 
 print_rank_0 = print
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import copy_to_model_parallel_region
+    from flagai.mpu.random import checkpoint 
+elif os.getenv('ENV_TYPE') == 'deepspeed':
+    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+else:
+    from torch.utils.checkpoint import checkpoint 
 
 
 class GLMStack(torch.nn.Module):
@@ -160,15 +164,6 @@ class GLMStack(torch.nn.Module):
 
         # Final layer norm before output.
         self.final_layernorm = LayerNorm(hidden_size, eps=layernorm_epsilon)
-        #
-        try:
-            import deepspeed
-            if deepspeed.checkpointing.is_configured():
-                global get_cuda_rng_tracker, checkpoint
-                get_cuda_rng_tracker = deepspeed.checkpointing.get_cuda_rng_tracker
-                checkpoint = deepspeed.checkpointing.checkpoint
-        except:
-            from torch.utils.checkpoint import checkpoint
 
     def forward(self,
                 hidden_states,
@@ -177,11 +172,9 @@ class GLMStack(torch.nn.Module):
                 memory_states=None,
                 encoder_states=None,
                 return_memory=False,
-                detach_memory=True,
-                checkpoint=None):
+                detach_memory=True):
         batch_size, query_length = hidden_states.size()[:2]
-        memory_length = 0
-        memory_states[0].size(1) if memory_states and memory_states[0] else 0
+        memory_length = memory_states[0].size(1) if memory_states else 0
         key_length = query_length + memory_length
         # attention mask is the beginning postion of B region, \in [0, query_len)
         is_scalar = torch.numel(attention_mask) == 1
@@ -251,34 +244,48 @@ class GLMStack(torch.nn.Module):
         else:
             mem_layers = []
 
-        for i, layer in enumerate(self.layers):
-            args = [hidden_states, attention_mask] if not self.use_decoder_layer else \
-                   [hidden_states, encoder_states, attention_mask]
+        def custom(start, end):
+            def custom_forward(*inputs):
+                layers_ = self.layers[start:end]
+                x_, inputs = inputs[0], inputs[1:]
+                if self.relative_encoding:
+                    inputs, mems_ = inputs[:4], inputs[4:]
+                else:
+                    inputs, mems_ = inputs[:1], inputs[1:]
+                for i, layer in enumerate(layers_):
+                    mem_i_ = mems_[i] if mems_ else None
+                    x_ = layer(x_, *inputs, mem=mem_i_)
+                    if self.max_memory_length > 0 or return_memory:
+                        mem_layers.append(check_detach(x_))
+                return x_
 
-            def create_custom_forward(module):
-                def custom_forward(*inputs):
-                    # None for past_key_value
-                    return module(*inputs)
+            return custom_forward
 
-                return custom_forward
-
-            if self.relative_encoding:
-                args += [position_embeddings, self.r_w_bias, self.r_r_bias]
-            mem_i = memory_states[i] if (memory_states
-                                         and len(memory_states) > i) else None
-
-            if self.checkpoint_activations and checkpoint is not None:
-
-                hidden_states = checkpoint(
-                    create_custom_forward(layer),
-                    hidden_states,
-                    mem=mem_i,
-                )
-
-            else:
+        if self.checkpoint_activations:
+            l = 0
+            num_layers = len(self.layers)
+            chunk_length = self.checkpoint_num_layers
+            while l < num_layers:
+                args = [hidden_states, attention_mask] if not self.use_decoder_layer else [hidden_states,
+                                                                            encoder_states,
+                                                                            attention_mask]
+                if self.relative_encoding:
+                    args += [position_embeddings, self.r_w_bias, self.r_r_bias]
+                if memory_states:
+                    args += memory_states[l: l + chunk_length]
+                hidden_states = checkpoint(custom(l, l + chunk_length), *args)
+                l += chunk_length
+        else:
+            for i, layer in enumerate(self.layers):
+                args = [hidden_states, attention_mask] if not self.use_decoder_layer else [hidden_states,
+                                                                                           encoder_states,
+                                                                                           attention_mask]
+                if self.relative_encoding:
+                    args += [position_embeddings, self.r_w_bias, self.r_r_bias]
+                mem_i = memory_states[i] if memory_states else None
                 hidden_states = layer(*args, mem=mem_i)
-            if self.max_memory_length > 0 or return_memory:
-                mem_layers.append(check_detach(hidden_states))
+                if self.max_memory_length > 0 or return_memory:
+                    mem_layers.append(check_detach(hidden_states))
 
         # Final layer norm.
         output = self.final_layernorm(hidden_states)

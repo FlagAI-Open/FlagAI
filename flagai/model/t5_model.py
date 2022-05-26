@@ -17,6 +17,7 @@
 import copy
 import warnings
 import torch
+import os
 from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch import Tensor, device
@@ -27,7 +28,13 @@ from flagai.model.layers.layer_norm import T5LayerNorm
 from flagai.model.layers.attentions import T5Attention
 from flagai.model.layers.feedforward import T5DenseReluDense, T5DenseGatedGeluDense
 from flagai.data.tokenizer.t5.t5_tokenizer import T5JiebaTokenizer
-
+if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+    from flagai.mpu import copy_to_model_parallel_region
+    from flagai.mpu.random import checkpoint 
+elif os.getenv('ENV_TYPE') == 'deepspeed':
+    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+else:
+    from torch.utils.checkpoint import checkpoint 
 # Warning message for FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
 __HEAD_MASK_WARNING_MSG = """
 The input argument `head_mask` was split into two arguments `head_mask` and `decoder_head_mask`. Currently,
@@ -169,7 +176,6 @@ class T5Stack(nn.Module):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=True,
-        checkpoint=None,
     ):
 
         if input_ids is not None and inputs_embeds is not None:
@@ -248,7 +254,7 @@ class T5Stack(nn.Module):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states, )
 
-            if checkpoint is not None:
+            if self.config.checkpoint_activations:
 
                 def create_custom_forward(module):
                     def custom_forward(*inputs):
