@@ -9,7 +9,7 @@
 示例
 ```json
 {"question": "is barq's root beer a pepsi product", 
- "passage": "Barq's -- Barq's /\u02c8b\u0251\u02d0rks/ is an American soft drink. Its brand of root beer is notable for having caffeine. Barq's, created by Edward Barq and bottled since the turn of the 20th century, is owned by the Barq family but bottled by the Coca-Cola Company. It was known as Barq's Famous Olde Tyme Root Beer until 2012.", 
+ "passage": "Barq's -- Barq's is an American soft drink. Its brand of root beer is notable for having caffeine. Barq's, created by Edward Barq and bottled since the turn of the 20th century, is owned by the Barq family but bottled by the Coca-Cola Company. It was known as Barq's Famous Olde Tyme Root Beer until 2012.", 
  "idx": 5, "label": false}
 ```
 
@@ -131,7 +131,7 @@
 | question                      |  根据背景信息提出来的问题，一段背景信息可以对应多个问题   |
 | answers                    |  对于某个问题，answers包含了三个人工给出来的回答  |
 示例
-```json
+```
 {'paragraphs': 
     [{'id': 'TRAIN_186', 
     'context': '工商协进会报告...所谓的“傻钱”策略，其实就是买入并持有美国股票这样的普通组合。...',
