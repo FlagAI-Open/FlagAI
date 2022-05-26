@@ -11,8 +11,6 @@ Generally, the input texts and labels can be obtained from the task dataset. The
 1. Applying a template which consists of an input slot, an answer slot, and self-defined natural language texts
 2. Applying a verbalizer that maps the original labels to answers for the answer slot.
 
-Here is an example for cloze promts:
-
 As shown in the following example, the dataset contains two input texts: premise and hypothesis. The label indicates the relationship between premise and hypothesis, and there are three possible text strings for label: entailment, contradiction and neutral. 
 
 <div align=center><img src="img/dataset_figure_0.png" width="500px"></div>
@@ -34,6 +32,7 @@ def get_parts(self, example: InputExample):
 ```
 
 The label in various datasets can have multiple types including boolean, integer and string. We need to implement a verbalizer that maps the labels to the text string of choices in cloze question. For example, here the 'entailment', 'contradiction' and 'neutral' labels can be mapped to 'true' ,'false' and 'neither', and each time the answer to be filled is always selected among those choices. 
+
 Verbalizer is essentially a mapping relationship, and we can define it in a Python dictionary as shown below:
 
 ```python

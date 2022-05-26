@@ -5,7 +5,7 @@
 
 --------------------------------------------------------------------------------
 
-FlagAI 是一个快速、易于使用和可扩展的大型模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。 目前，我们专注于 NLP 模型和任务。 在不久的将来，我们将支持其他模态。
+FlagAI 是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。 目前，我们专注于 NLP 模型和任务。 在不久的将来，我们将支持其他模态。
 <br><br>
 
 * 现在它支持最高百亿参数的**WUDAO GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持**BERT**、**RoBERTa**、**GPT2**、**T5** 模型和 Huggingface Transformers 的模型。
@@ -181,12 +181,12 @@ for text_pair in test_data:
 ```
 
 # 预训练模型以及样例
-* [GLM-large-ch用户完形填空问答](/doc_zh/TUTORIAL_18_GLM_BLANK_FILLING_QA.md)
-* [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
-* [GLM-large-ch用于标题生成](doc_zh/TUTORIAL_17_GLM_EXAMPLE_TITLE_GENERATION.md)
-* [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/Huggingface_t5.md)
-* [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
-* [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
+* [GLM-large-ch用户完形填空问答](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
+* [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [GLM-large-ch用于标题生成](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
+* [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
+* [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
+* [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
 * [RoBERTa-base-ch用于命名实体识别](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
 * [GPT-2用于文本续写](/docs/TUTORIAL_18_GPT2_WRITING.md)
 * [T5用于标题生成](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
@@ -214,10 +214,10 @@ for text_pair in test_data:
 
 # 了解更多关于FlagAI
 * [数据集：支持的数据集和 `PET` 集成](doc_zh/APPENDIX_TASK.md)
-* [数据/模型并行的环境设置](doc_zh/EnvironmentSetup.md)
-* [三种不同的生成方式](doc_zh/Seq2seqMethod.md)
-* [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/Huggingface_t5.md)
-* [转化一个模型为Megatron-LM的模型并行版本](doc_zh/ChangeToMegatron.md)
+* [数据/模型并行的环境设置](doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* [三种不同的生成方式](doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
+* [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
+* [转化一个模型为Megatron-LM的模型并行版本](doc_zh/TUTORIAL_10_METATRON.md)
 
 # 贡献代码
 感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/BAAI-WuDao/Sailing/issues)以执行特定任务。

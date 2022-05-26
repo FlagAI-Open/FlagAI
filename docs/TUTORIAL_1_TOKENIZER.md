@@ -9,9 +9,13 @@ In the tokenization process, a **tokenizer** is used to split natural language t
 into a sequence of semantic units called **tokens**, which are then converted into
 ids by looking up the tokens in a vocabulary file. An example of tokenizing 
 input text `Jack is walking a dog.` is shown below:
+
 <div align=center><img src="img/tokenizer_example_1.png" width="500px"></div>
+
 It is noticeable that different tokenizers can have different ways to split text,
-and have different vocabulary files. Our projects currently support six tokenizers
+and have different vocabulary files. An introduction to those algorithms can be viewed [here](tokenization.md).
+
+Our projects currently support six tokenizers
 as listed below:
 
 | Tokenizer                    | Language |
@@ -23,8 +27,7 @@ as listed below:
 | ROBERTATokenizer             | Chinese  |
 | BertWordPieceTokenizer       | Chinese  | 
 
-Details about their variations can be viewed 
-[here](/docs/tokenization.md).
+
 
 
 ## Loading a tokenizer
