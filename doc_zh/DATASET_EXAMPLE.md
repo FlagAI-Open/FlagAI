@@ -88,12 +88,12 @@
 ```
 
 ## SuperGLUE: WSC
-| 键值                          | 含义  |
-|------------------------------|----------|
-| text                        | 背景文本   |
-| span2_text                      |  背景文本中出现过的某个代词  |
-| span1_text                      | 背景文本中出现过的某个片段 |
-| label                     | 取值范围：true/false, 分别代表了1.span1_text这个代词指向了span2_text中的内容 2.|
+| 键值                          | 含义                                                                         |
+|------------------------------|----------------------------------------------------------------------------|
+| text                        | 背景文本                                                                       |
+| span2_text                      | 背景文本中出现过的某个代词                                                              |
+| span1_text                      | 背景文本中出现过的某个片段                                                              |
+| label                     | 取值范围：true/false, 分别代表了1.span1_text这个代词指向了span2_text中的内容 2.没有指向到span2_text。 |
 示例
 ```json
 {"word": "class", "sentence1": "An emerging professional class.", 

@@ -1,4 +1,4 @@
-# GLM
+# Introduction to GLM
 
 ## Model Description
 

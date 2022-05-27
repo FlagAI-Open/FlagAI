@@ -1,12 +1,12 @@
 # Examples in datasets
 
 ## SuperGLUE: BoolQ
-| 键值                          | 含义  |
-|------------------------------|----------|
-| passage                      | 背景信息  |
-| question                     |  根据背景信息提出的是/否问题  |
-| label                        | 取值范围：true/false, 分别代表答案为是/否 |
-示例
+| Key      | Meaning                                 |
+|----------|-----------------------------------------|
+| passage  | Background information                  |
+| question | true/false question according to passage |
+| label    | Range：true/false                        |
+Example
 ```json
 {"question": "is barq's root beer a pepsi product", 
  "passage": "Barq's -- Barq's is an American soft drink. Its brand of root beer is notable for having caffeine. Barq's, created by Edward Barq and bottled since the turn of the 20th century, is owned by the Barq family but bottled by the Coca-Cola Company. It was known as Barq's Famous Olde Tyme Root Beer until 2012.", 
@@ -14,12 +14,12 @@
 ```
 
 ## SuperGLUE: CB
-| 键值                          | 含义  |
-|------------------------------|----------|
-| premise                      | 前提文本  |
-| hypothesis                     |  假设文本  |
-| label                        |取值范围：entailment/contradiction/neutral 分别代表前提与假设的关系为1.前提能推导出假设 2.前提与假设矛盾 3. 没有足够信息得到两者关联性<br /> |
-示例
+| Key        | Meaning                                |
+|------------|----------------------------------------|
+| premise    | Premise text                           |
+| hypothesis | Hypothesis text                        |
+| label      | Range：entailment/contradiction/neutral |
+Example:
 ```json
 {"premise": "Mary is a high school student.",
  "hypothesis": "Mary is a student",
@@ -27,13 +27,13 @@
 ```
 
 ## SuperGLUE: Copa
-| 键值                          | 含义  |
-|------------------------------|----------|
-| premise                      | 前提文本  |
-| choice1                      |  选项1  |
-| choice2                      |选项2|
-| question                      | 取值范围： cause/effect, 分别代表问题是1.两个选项里哪个是前提的原因2.两个选项里哪个是前提的结果  |
-| label                     | 取值范围：0/1, 分别代表选项1为正确答案和选项2为正确答案  |
+| Key      | Meaning                                                                                                             |
+|----------|---------------------------------------------------------------------------------------------------------------------|
+| premise  | Background information                                                                                              |
+| choice1  | The first choice                                                                                                    |
+| choice2  | The second choice                                                                                                   |
+| question | Range： cause/effect, which is asking 1.which choice is the cause of premise 2.which choice is the effect of premise |
+| label    | Range：0/1, which represents the answer is choice1 and choice2 , respectively                                        |
 示例
 ```json
 {"premise": "My eyes became red and puffy.",
@@ -42,11 +42,11 @@
 ```
 
 ## SuperGLUE: MultiRC
-| 键值                          | 含义  |
-|------------------------------|----------|
-| text                      | 背景信息  |
-| questions         |  包含了一系列针对背景信息提出的问题，其中每个问题下有五个回答，而每个回答后面有一个标签，标签为0代表此回答正确，标签为1代表此回答错误  |
-示例
+| Key       | Meaning                                                                                                                                                                  |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| text      | Background information                                                                                                                                                   |
+| questions | Consists of several questions for text. There are 5 answers under each question, and there is a label for each answer, label is 0 if the answer is correct, otherwise 1. |
+Example:
 ```json
 {"idx": 4, "version": 1.1, 
  "passage": {"text": "...The two companies numbered about 225 men, and were commanded by General John E. Ross, a veteran Indian fighter... ", 
@@ -60,12 +60,12 @@
 
 
 ## SuperGLUE: RTE
-| 键值                          | 含义  |
-|------------------------------|----------|
-| premise                      | 前提文本  |
-| hypothesis                     |  假设文本  |
-| label                        |取值范围：entailment/not entailment 分别代表前提与假设的关系为1.前提能推导出假设 2.前提不能推导出假设|
-示例
+| Key        | Meaning                           |
+|------------|-----------------------------------|
+| premise    | Premise text                      |
+| hypothesis | Hypothesis text                   |
+| label      | Range：entailment/not entailment   |
+Example
 ```json
 {"premise": "Security forces were on high alert after an election campaign in which more than 1,000 people, including seven election candidates, have been killed.", 
 "hypothesis": "Security forces were on high alert after a campaign marred by violence.", 
@@ -74,13 +74,13 @@
 
 
 ## SuperGLUE: Wic
-| 键值                          | 含义  |
-|------------------------------|----------|
-| sentence1                      | 背景文本1  |
-| sentence2                      |  背景文本2  |
-| word                      | 一个在sentence1和sentence2中都会出现的单词 |
-| label                     | 取值范围：true/false, 分别代表选项1.word在sentence1和sentence2中有着相同的含义 2.在两段话里word的含义不同  |
-示例
+| Key       | Meaning                                                                                                                                |
+|-----------|----------------------------------------------------------------------------------------------------------------------------------------|
+| sentence1 | sentence1                                                                                                                              |
+| sentence2 | sentence2                                                                                                                              |
+| word      | A word that appears in both sentence1 and sentence2.                                                                                   |
+| label     | Range：true/false, which represents 1. This word has the same meaning in sentence1 and sentence2 2.Different meanings in two sentences. |
+Example
 ```json
 {"word": "class", "sentence1": "An emerging professional class.", 
 "sentence2": "Apologizing for losing your temper, even though you were badly provoked, showed real class.",
@@ -88,13 +88,13 @@
 ```
 
 ## SuperGLUE: WSC
-| 键值                          | 含义  |
-|------------------------------|----------|
-| text                        | 背景文本   |
-| span2_text                      |  背景文本中出现过的某个代词  |
-| span1_text                      | 背景文本中出现过的某个片段 |
-| label                     | 取值范围：true/false, 分别代表了1.span1_text这个代词指向了span2_text中的内容 2.|
-示例
+| Key        | Meaning                                                                           |
+|------------|-----------------------------------------------------------------------------------|
+| text       | Background information                                                            |
+| span2_text | A pronoun in text                                                                 |
+| span1_text | A sentence piece in text                                                          |
+| label      | Range：true/false, which represents 1.span1_text refers to span2_text 2. elsewise. |
+Example
 ```json
 {"word": "class", "sentence1": "An emerging professional class.", 
 "sentence2": "Apologizing for losing your temper, even though you were badly provoked, showed real class.",
@@ -102,34 +102,34 @@
 ```
 
 ## CLUE: AFQMC
-| 键值                          | 含义  |
-|------------------------------|----------|
-| sentence1                      | 背景文本1  |
-| sentence2                      |  背景文本2  |
-| label                     | 取值范围：0/1, 分别代表选项1.两句话的含义不同 2.两句话的含义相似  |
-示例
+| Key       | Meaning                                                                                           |
+|-----------|---------------------------------------------------------------------------------------------------|
+| sentence1 | sentence1                                                                                         |
+| sentence2 | sentence1                                                                                         |
+| label     | Range：0/1, Which represents 1.The meanings of two sentences are different 2.Meanings are similar. |
+Example
 ```json
 {"sentence1": "双十一花呗提额在哪", "sentence2": "里可以提花呗额度", "label": "0"}
 ```
 
 ## CLUE: TNEWS
-| 键值                          | 含义  |
-|------------------------------|----------|
-| sentence                      | 背景文本  |
-| label                      |  背景文本的标签，包含十五种类别   |
-| label_des                     |  标签对应的真正含义  |
-示例
+| Key       | Meaning                         |
+|-----------|---------------------------------|
+| sentence  | Background information          |
+| label     | labels which have 15 categories |
+| label_des | What the label refers to        |
+Example
 ```json
 {"label": "102", "label_des": "news_entertainment", "sentence": "江疏影甜甜圈自拍，迷之角度竟这么好看，美吸引一切事物"}
 ```
 
 
 ## CLUE: CMRC2018
-| 键值                          | 含义  |
-|------------------------------|----------|
-| context                      | 背景信息  |
-| question                      |  根据背景信息提出来的问题，一段背景信息可以对应多个问题   |
-| answers                    |  对于某个问题，answers包含了三个人工给出来的回答  |
+| Key      | Meaning                                                               |
+|----------|-----------------------------------------------------------------------|
+| context  | Background information                                                |
+| question | Question for context, there could be multiple questions for one text. |
+| answers  | for a question, there are 3 answers provided by humans                |
 示例
 ```
 {'paragraphs': 
