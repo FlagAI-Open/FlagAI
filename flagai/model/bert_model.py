@@ -24,7 +24,13 @@ import torch
 from flagai.model.layers.crf import CRFLayer
 from torch import nn
 from typing import List
-
+import os
+if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+    from flagai.mpu.random import checkpoint 
+elif os.getenv('ENV_TYPE') == 'deepspeed':
+    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+else:
+    from torch.utils.checkpoint import checkpoint 
 
 def init_bert_weights(module):
     """ Initialize the weights.
@@ -58,20 +64,19 @@ class BertStack(torch.nn.Module):
                 hidden_states,
                 attention_mask,
                 output_all_encoded_layers=True,
-                checkpoint_fn=None):
+                ):
         all_encoder_layers = []
 
         for i, layer_module in enumerate(self.layer):
 
-            if checkpoint_fn is not None:
-
+            if self.config.checkpoint_activations:
                 def create_custom_forward(module):
                     def custom_forward(*inputs):
                         return module(*inputs)
 
                     return custom_forward
 
-                hidden_states = checkpoint_fn(
+                hidden_states = checkpoint(
                     create_custom_forward(layer_module), hidden_states,
                     attention_mask)
             else:
@@ -80,8 +85,6 @@ class BertStack(torch.nn.Module):
             if output_all_encoded_layers:
                 all_encoder_layers.append(hidden_states)
 
-        if not output_all_encoded_layers or checkpoint_fn is not None:
-            all_encoder_layers.append(hidden_states)
         return all_encoder_layers
 
 
