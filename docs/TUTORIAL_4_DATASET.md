@@ -16,7 +16,6 @@ Our project now supports 12 datasets as listed below:
 | Short Text Classificaiton for News             | TNEWS      | Chinese  | CLUE             |
 | Reading Comprehension for Simplified Chinese      | CMRC2018   | Chinese  | CLUE             |
 
-## Introduction to prompt learning
 
 ## Load datasets
 
@@ -63,7 +62,7 @@ print(tokenizer.DecodeIds(batch['target_ids'].tolist()[0]))
 ```
 
 ## Create datasets
-Under flagai/data/dataset/superglue/control.py, create your own processor and pvp as shown in examples below, and add them to the corresponding dictionary.
+Under `flagai/data/dataset/superglue/control.py`, create your own processor and pvp as shown in examples below, and add them to the corresponding dictionary.
 ```python
 class ExampleProcessor(DataProcessor):
 

@@ -19,7 +19,7 @@ trainer = Trainer(env_type='pytorch',
                   save_dir="./glm_superglue_en")
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="./state_dict",
-                                             model_name="glm_large_en")
+                                             model_name="GLM-large-en")
 
 optimizer = Adam(model.parameters())
 

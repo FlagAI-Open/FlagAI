@@ -3,7 +3,7 @@ from flagai.model.predictor.predictor import Predictor
 
 if __name__ == '__main__':
     loader = AutoLoader("seq2seq",
-                        "gpt2_base_chinese",
+                        "GPT2-base-ch",
                         model_dir="./state_dict/")
     model = loader.get_model()
     tokenizer = loader.get_tokenizer()

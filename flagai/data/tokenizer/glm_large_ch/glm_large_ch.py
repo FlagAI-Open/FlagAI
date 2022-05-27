@@ -163,7 +163,7 @@ def from_pretrained(pretrained_model_file=None):
     model_file = 'cog-pretrain.model'
     if pretrained_model_file is None:
         cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs')
-        model_id = _get_model_id("glm_large_ch")
+        model_id = _get_model_id("GLM-large-ch")
         _get_vocab_path(cache_dir, vocab_file, model_id, rank=0)
         _get_vocab_path(cache_dir, model_file, model_id, rank=0)
     return get_encoder(pretrained_model_file, "")

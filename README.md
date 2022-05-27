@@ -6,16 +6,15 @@
 --------------------------------------------------------------------------------
 
 
-FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP tasks.
-<br><br>
+FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
 
-* Now it supports GLM, Bert, RoBerta, GPT2, T5 and models from Huggingface Transformers.
+* Now it supports GLM, BERT, RoBERTa, GPT2, T5, and models from Huggingface Transformers.
 
-* It provides APIs to quickly download and use those pretrained models on a given text, fine-tune them on your own datasets and then share them with the community on our model hub.
+* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on your own datasets, and then share them with the community on our model hub.
 
-* These models can be applied on Text, for tasks like text classification, information extraction, question answering, summarization, text generation, especially in Chinese.
+* These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
-* FlagAI is backed by the three most popular data/model parallel libraries — PyTorch/Deepspeed/Megatron-LM — with a seamless integration between them. Your can paralle your training/testing process with less than ten lines of code.
+* FlagAI is backed by the three most popular data/model parallel libraries — PyTorch/Deepspeed/Megatron-LM — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
 
 The code is partially based on [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
@@ -50,7 +49,7 @@ pip install -U flagai
 - [Optional]To install FlagAI and develop locally:
 
 ```shell
-git clone https://github.com/BAAI-WuDao/Sailing.git
+git clone https://github.com/BAAI-Open/FlagAI.git
 python setup.py install
 ```
 
@@ -87,11 +86,9 @@ We provide the AutoLoad class to load the model and tokenizer quickly, for examp
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 auto_loader = AutoLoader(
-    task_name="seq2seq",
-    model_name="bert_title_generation_en"
+    task_name="title-generation",
+    model_name="BERT-base-en"
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
@@ -103,7 +100,6 @@ Then you can use the model and tokenizer to finetune or test.
 We provide the `Predictor` class to predict for different tasks, for example:
 
 ```python
-import torch
 from flagai.model.predictor.predictor import Predictor
 predictor = Predictor(model, tokenizer)
 test_data = [
@@ -118,7 +114,7 @@ for text in test_data:
 ```
 
 ## Pretrained Models and examples
-* [Poetry generation with glm_large_ch](docs/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [Poetry generation with GLM-large-ch](docs/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
 * [Title Generation with RoBerta-WWM ](/docs/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [Semantic Matching with RoBerta-WWM](/docs/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
 * [NER with RoBerta-WWM](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)

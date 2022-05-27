@@ -9,7 +9,7 @@ model_save_path = "./checkpoints_semantic_matching/11250/mp_rank_00_model_states
 maxlen = 256
 
 auto_loader = AutoLoader("classification",
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          only_download_config=True,
                          classification_size=2)
 model = auto_loader.get_model()

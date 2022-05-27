@@ -57,7 +57,7 @@ from flash_tran.auto_model.auto_loader import AutoLoader
 # 'seq2seq' is the task_name.
 auto_loader = AutoLoader("seq2seq",
                          model_dir="./state_dict/",
-                         model_name="RoBERTa-wwm-ext")
+                         model_name="RoBERTa-base-ch")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```

@@ -64,11 +64,11 @@ def load_data(filename):
 
 ```python
 from flash_tran.auto_model.auto_loader import AutoLoader
-task_name = "sequence_labeling"
+task_name = "sequence-labeling"
 model_dir = "./state_dict/"
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 auto_loader = AutoLoader(task_name,
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
                          class_num=len(target))
 model = auto_loader.get_model()

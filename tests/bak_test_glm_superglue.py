@@ -31,18 +31,18 @@ class TrainerTestCase(unittest.TestCase):
 
             cl_args = CollateArguments()
             cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
-            model_name = 'glm_large_ch'
+            model_name = 'GLM-large-ch'
             if task_name in CH_TASKS:
-                model_name = 'glm_large_ch'
-                #lm_model = GLMModel.from_pretrain(model_name='glm_large_ch')
+                model_name = 'GLM-large-ch'
+                #lm_model = GLMModel.from_pretrain(model_name='GLM-large-ch')
                 tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
                                                 add_task_mask=False,
                                                 add_decoder_mask=False,
                                                 fix_command_token=True)
-                # tokenizer = GLMBertWordPieceTokenizer(tokenizer_model_type='bert-base-chinese')
+                # tokenizer = GLMBertWordPieceTokenizer(tokenizer_model_type='BERT-base-ch')
             else:
-                model_name = 'glm_large_en'
-                #lm_model = GLMModel.from_pretrain(model_name='glm_large_en')
+                model_name = 'GLM-large-en'
+                #lm_model = GLMModel.from_pretrain(model_name='GLM-large-en')
                 tokenizer = GLMLargeEnWordPieceTokenizer()
 
             if cl_args.multi_token:

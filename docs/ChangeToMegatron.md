@@ -6,7 +6,7 @@ Three steps：
 
 Most of the process in `parallel` are taken from `Megatron-LM`，and is put in `mpu`module
 
-## 1.Turn MLP layer into column/rowParallel版本
+## 1.Turn MLP layer into column/rowParallel version
 Location：`flagai/model/layers/embeddings_mpu.py`
 
 Key idea:

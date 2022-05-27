@@ -4,7 +4,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling_crf"
+task_name = "sequence-labeling-crf"
 model_dir = "./state_dict/"  # download dir
 model_save_path = "./checkpoints_ner_crf/1304/mp_rank_00_model_states.pt"
 
@@ -13,7 +13,7 @@ target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 maxlen = 256
 
 auto_loader = AutoLoader(task_name,
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
                          classification_size=len(target))
 model = auto_loader.get_model()

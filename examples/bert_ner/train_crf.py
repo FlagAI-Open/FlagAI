@@ -12,13 +12,13 @@ train_path = "../data/china-people-daily-ner-corpus/example.train"
 valid_path = '../data/china-people-daily-ner-corpus/example.dev'
 test_path = '../data/china-people-daily-ner-corpus/example.test'
 
-task_name = "sequence_labeling_crf"
+task_name = "sequence-labeling-crf"
 model_dir = "./state_dict/"  # download path
 maxlen = 256
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 
 auto_loader = AutoLoader(task_name,
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
                          classification_size=len(target))
 model = auto_loader.get_model()

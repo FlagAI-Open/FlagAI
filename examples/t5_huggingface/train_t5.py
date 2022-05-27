@@ -1,6 +1,3 @@
-import sys
-
-sys.path.append('/data/liuguang/Sailing/')
 from flagai.trainer import Trainer
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 from torch.utils.data import Dataset
@@ -20,30 +17,24 @@ class MyTrainer(Trainer):
 
 
 trainer = MyTrainer(
-    env_type='deepspeed',
-    #local_rank=ds_args.local_rank,
-    #world_size=ds_args.world_size,
-    #rank=ds_args.rank,
-    #model_parallel_size=ds_args.model_parallel_size,
-    #deepspeed_config=ds_args.deepspeed_config,
+    env_type='pytorch',
     epochs=1,
     batch_size=4,
     eval_interval=100000,
     log_interval=10,
     experiment_name='t5-3b',
-    pytorch_device='cuda:1',
+    pytorch_device='cpu',
     load_dir=None,
     lr=1e-4,
     fp16=False)
 
 model_name = 't5-3b'
 tokenizer = T5Tokenizer.from_pretrained(model_name)
-model = T5ForConditionalGeneration.from_pretrained('/data/liuguang/t5_model')
+model = T5ForConditionalGeneration.from_pretrained(model_name)
 
 print("loading model & tokenizer is done!")
-src_dir = '/data/liuguang/Sailing/examples/huggingface_t5/train_inputs.txt'
-tgt_dir = '/data/liuguang/Sailing/examples/huggingface_t5/train_targets.txt'
-model_dir = "/data/liuguang/Sailing/examples/huggingface_t5/t5-3b"  # 模型位置
+src_dir = './data/train.src'
+tgt_dir = './data/train.tgt'
 maxlen = 1024
 
 

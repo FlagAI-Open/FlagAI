@@ -9,7 +9,7 @@ from flagai.model.predictor.predictor import Predictor
 
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="RoBERTa-wwm-ext",
+    model_name="RoBERTa-base-ch",
     load_pretrain_params=True,
 )
 model = auto_loader.get_model()
@@ -20,7 +20,7 @@ tokenizer = auto_loader.get_tokenizer()
 我们将在下面列出所有当前支持的任务。
 ### 所有支持的任务
 **task_name**参数可以为如下值:
-1. task_name="cls": 支持不同的分类任务，例如文本分类， 语义匹配， 情感分析...
+1. task_name="classification": 支持不同的分类任务，例如文本分类， 语义匹配， 情感分析...
 2. task_name="seq2seq": 支持序列到序列的模型, 例如标题自动生成, 对联自动生成, 自动对话...
 3. task_name="sequence_labeling": 支持序列标注任务， 比如实体检测，词性标注，中文分词任务...
 4. task_name="sequence_labeling_crf": 为序列标注模型添加条件随机场层.
@@ -32,12 +32,12 @@ tokenizer = auto_loader.get_tokenizer()
 
 #### Transfomrer编码器:
 
-例如 model_name="bert-base-chinese" or "RoBERTa-wwm-ext"时， 这些模型支持上一节中提到的所有任务
+例如 model_name="BERT-base-ch" or "RoBERTa-base-ch"时， 这些模型支持上一节中提到的所有任务
 
 #### Transformer解码器:
 
-例如 model_name="gpt2-chinese"时, 模型支持 "seq2seq" 任务.
+例如 model_name="GPT2-base-ch"时, 模型支持 "seq2seq" 任务.
 
 #### Transformer 编码器+解码器:
 
-例如 model_name="t5-base-chinese"时, 模型支持"seq2seq" task.
+例如 model_name="T5-base-ch"时, 模型支持"seq2seq" task.

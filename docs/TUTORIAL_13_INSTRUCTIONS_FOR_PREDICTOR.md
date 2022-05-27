@@ -29,7 +29,7 @@ if __name__ == '__main__':
 ```
 
 ### All supported prediction method
-1. predict_cls_classifier: Input a text or a text-pair to get the multi-class result, support the bert, roberta and other transformer encoder models.
+1. predict_classification_classifier: Input a text or a text-pair to get the multi-class result, support the bert, roberta and other transformer encoder models.
 2. predict_masklm: Input a text with [MASK] tokens to get the result of original text, support the bert, roberta and other transformer encoder models.
 3. predict_ner: Input a text to get the ner result, support the bert, roberta and other transformer encoder models.
 4. predict_generate_beamsearch: Input a text to get the output text, seq2seq task. support the bert, roberta, gpt2, t5 and glm models.

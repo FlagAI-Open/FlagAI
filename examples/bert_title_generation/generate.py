@@ -10,7 +10,7 @@ model_save_path = "./checkpoints_seq2seq/500/mp_rank_00_model_states.pt"
 maxlen = 256
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="RoBERTa-wwm-ext",
+    model_name="RoBERTa-base-ch",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()

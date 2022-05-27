@@ -54,10 +54,10 @@ from flagai.auto_model.auto_loader import AutoLoader
 # or we will download these files from the model hub to this dir.
 model_dir = "./state_dict/"
 # Autoloader can build the model and tokenizer automatically.
-# 'cls' is the task_name.
-auto_loader = AutoLoader("cls",
+# 'classification' is the task_name.
+auto_loader = AutoLoader("classification",
                          model_dir,
-                         model_name="RoBERTa-wwm-ext")
+                         model_name="RoBERTa-base-ch")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
@@ -73,7 +73,7 @@ from flagai.trainer import Trainer
 import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(env_type="pytorch",
-                  experiment_name="roberta_semantic_matching",
+                  experiment_name="roberta-base-ch-semantic-matching",
                   batch_size=8, gradient_accumulation_steps=1,
                   lr = 1e-5,
                   weight_decay=1e-3,

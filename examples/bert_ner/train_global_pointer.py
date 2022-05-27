@@ -13,7 +13,7 @@ train_path = "../data/china-people-daily-ner-corpus/example.train"
 valid_path = '../data/china-people-daily-ner-corpus/example.dev'
 test_path = '../data/china-people-daily-ner-corpus/example.test'
 
-task_name = "sequence_labeling_gp"
+task_name = "sequence-labeling-gp"
 model_dir = "./state_dict/"
 
 target = ["LOC", "ORG", "PER"]
@@ -64,7 +64,7 @@ print(f"test_data is {len(test_data)}")
 print(f"target is {target}")
 
 auto_loader = AutoLoader(task_name,
-                         model_name="RoBERTa-wwm-ext",
+                         model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
                          classification_size=len(target),
                          inner_dim=64)

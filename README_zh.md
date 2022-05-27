@@ -5,12 +5,12 @@
 
 --------------------------------------------------------------------------------
 
-FlagAI 旨在帮助研究人员和开发人员自由地训练和测试用于 NLP 任务的大规模模型。
+FlagAI 是一个快速、易于使用和可扩展的大型模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。 目前，我们专注于 NLP 模型和任务。 在不久的将来，我们将支持其他模态。
 <br><br>
 
 * 现在它支持 GLM、BERT、RoBERTa、GPT2、T5 模型和 Huggingface Transformers 的模型。
 
-* 它提供 API 以快速下载并在给定文本上使用这些预训练模型，在您自己的数据集上对其进行微调，然后在我们的模型中心与社区共享它们。
+* 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在您自己的数据集上对其进行微调，然后在我们的模型中心与社区共享它们。
 
 * 这些模型可以应用于文本，用于文本分类、信息提取、问答、摘要、文本生成等任务，尤其是中文。
 
@@ -48,7 +48,7 @@ pip install -U flagai
 - [可选]下载源码安装:
 
 ```shell
-git clone https://github.com/BAAI-WuDao/Sailing.git
+git clone https://github.com/BAAI-Open/FlagAI.git
 python setup.py install
 ```
 
@@ -86,8 +86,8 @@ Host 127.0.0.1
 我们提供 `AutoLoad` 类来快速加载模型和分词器，例如：
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
-auto_loader = AutoLoader(task_name="classification",
-                         model_name="RoBERTa-wwm-ext",
+auto_loader = AutoLoader(task_name="title-generation",
+                         model_name="RoBERTa-base-ch",
                          load_pretrain_params=True,
                          class_num=2)
 model = auto_loader.get_model()
@@ -99,6 +99,7 @@ tokenizer = auto_loader.get_tokenizer()
 ## 使用预测器
 我们提供 `Predictor` 类来预测不同的任务，例如：
 ```python
+from flagai.model.predictor.predictor import Predictor
 predictor = Predictor(model, tokenizer)
 test_data = [
     "本文总结了十个可穿戴产品的设计原则而这些原则同样也是笔者认为是这个行业最吸引人的地方1为人们解决重复性问题2从人开始而不是从机器开始3要引起注意但不要刻意4提升用户能力而不是取代人",
@@ -117,13 +118,11 @@ for text in test_data:
 ## 命名实体识别任务示例
 
 ```python
-import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence_labeling"
-model_name = "RoBERTa-wwm-ext-ner"
+task_name = "ner"
+model_name = "RoBERTa-base-ch"
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 maxlen = 256
 
@@ -155,52 +154,17 @@ for t in test_data:
     print(f"result is {result}")
 ```
 
-## 标题生成任务示例
-
-```python
-import torch
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-maxlen = 256
-
-auto_loader = AutoLoader(
-    task_name="seq2seq",
-    model_name="RoBERTa-wwm-ext-title-generation",
-    load_pretrain_params=True,
-)
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
-
-predictor = Predictor(model, tokenizer)
-
-test_data = [
-    "本文总结了十个可穿戴产品的设计原则而这些原则同样也是笔者认为是这个行业最吸引人的地方1为人们解决重复性问题2从人开始而不是从机器开始3要引起注意但不要刻意4提升用户能力而不是取代人",
-    "2007年乔布斯向人们展示iPhone并宣称它将会改变世界还有人认为他在夸大其词然而在8年后以iPhone为代表的触屏智能手机已经席卷全球各个角落未来智能手机将会成为真正的个人电脑为人类发展做出更大的贡献",
-    "雅虎发布2014年第四季度财报并推出了免税方式剥离其持有的阿里巴巴集团15％股权的计划打算将这一价值约400亿美元的宝贵投资分配给股东截止发稿前雅虎股价上涨了大约7％至5145美元"
-]
-
-for text in test_data:
-    print(
-        predictor.predict_generate_beamsearch(text,
-                                              out_max_length=50,
-                                              beam_size=3))
-```
 
 ## 语义相似度匹配任务示例
 
 ```python
-
-import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 maxlen = 256
 
-auto_loader = AutoLoader("cls",
-                         model_name="RoBERTa-wwm-ext-semantic-matching",
+auto_loader = AutoLoader("semantic-matching",
+                         model_name="RoBERTa-base-ch",
                          load_pretrain_params=True,
                          class_num=2)
 model = auto_loader.get_model()
@@ -216,39 +180,11 @@ for text_pair in test_data:
 
 ```
 
-## BERT 英文标题生成任务示例
-```python
-import torch
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-maxlen = 512
-
-auto_loader = AutoLoader(
-    task_name="seq2seq",
-    model_name="bert_title_generation_en"
-)
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
-predictor = Predictor(model, tokenizer)
-
-test_data = [
-    "Four minutes after the red card, Emerson Royal nodded a corner into the path of the unmarked Kane at the far post, who nudged the ball in for his 12th goal in 17 North London derby appearances. Arteta's misery was compounded two minutes after half-time when Kane held the ball up in front of goal and teed up Son to smash a shot beyond a crowd of defenders to make it 3-0.The goal moved the South Korea talisman a goal behind Premier League top scorer Mohamed Salah on 21 for the season, and he looked perturbed when he was hauled off with 18 minutes remaining, receiving words of consolation from Pierre-Emile Hojbjerg.Once his frustrations have eased, Son and Spurs will look ahead to two final games in which they only need a point more than Arsenal to finish fourth.",
-]
-
-for text in test_data:
-    print(
-        predictor.predict_generate_beamsearch(text,
-                                              out_max_length=50,
-                                              beam_size=3))
-```
-
 # 预训练模型以及样例
-* [RoBerta-WWM-ext用于标题生成](doc_zh/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
-* [RoBerta-WWM-ext用于语义相似度匹配](doc_zh/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
-* [glm_large_ch用于诗歌生成](doc_zh/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
-* [RoBerta-WWM-ext用于命名实体识别](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)
+* [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
+* [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
+* [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [RoBERTa-base-ch用于命名实体识别](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)
 * [GPT-2用于文本续写](/docs/TUTORIAL_15_GPT2_WRITING.md)
 * [T5用于标题生成](/docs/TUTORIAL_16_T5_EXAMPLE_TITLE_GENERATION.md)
 * [所有支持的任务](docs/AllSupportedTasks.md)
