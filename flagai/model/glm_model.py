@@ -71,6 +71,7 @@ class GLMStack(torch.nn.Module):
     """
     def __init__(
         self,
+        config,
         num_layers,
         hidden_size,
         num_attention_heads,
@@ -91,6 +92,7 @@ class GLMStack(torch.nn.Module):
         attention_scale=1.0,
     ):
         super(GLMStack, self).__init__()
+        self.config = config
         self.hidden_size = hidden_size
         # Store activation checkpoiting flag.
         self.checkpoint_activations = checkpoint_activations
@@ -261,7 +263,7 @@ class GLMStack(torch.nn.Module):
 
             return custom_forward
 
-        if self.checkpoint_activations:
+        if self.config['checkpoint_activations']:
             l = 0
             num_layers = len(self.layers)
             chunk_length = self.checkpoint_num_layers
@@ -353,6 +355,7 @@ class GLMModel(BaseModel):
 
         # Transformer
         self.transformer = GLMStack(
+            config,
             num_layers,
             hidden_size,
             num_attention_heads,

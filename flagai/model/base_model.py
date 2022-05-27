@@ -32,6 +32,8 @@ class BaseModel(Module):
             args = json.load(js)
         for k in kwargs:
             args[k] = kwargs[k]
+        if 'checkpoint_activations' not in args:
+            args['checkpoint_activations'] = False
         return cls(args, **kwargs)
 
     @classmethod
