@@ -22,6 +22,7 @@ from flagai.model.utils import scaled_init_method, divide, unscaled_init_method
 from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.base_model import BaseModel
 from flagai.model.layers.embeddings import PositionalEmbedding
+from flagai.model.prompt import PromptSpell
 from flagai.model.utils import normal_init_method
 from torch.nn import LayerNorm
 
@@ -177,6 +178,10 @@ class GLMStack(torch.nn.Module):
                 detach_memory=True):
         batch_size, query_length = hidden_states.size()[:2]
         memory_length = memory_states[0].size(1) if memory_states else 0
+<<<<<<< HEAD
+=======
+        
+>>>>>>> origin/doc_builder_docs
         key_length = query_length + memory_length
         # attention mask is the beginning postion of B region, \in [0, query_len)
         is_scalar = torch.numel(attention_mask) == 1
@@ -341,7 +346,10 @@ class GLMModel(BaseModel):
         relative_encoding = config["relative_encoding"]
         block_position_encoding = config["block_position_encoding"]
         output_predict = config["output_predict"]
+        spell_length = config["spell_length"]
+        spell_func = config["spell_func"]
         attention_scale = config["attention_scale"]
+        tune_prefix_layers = config.get("tune_prefix_layers", None)
 
         self.parallel_output = parallel_output
         self.output_predict = output_predict
@@ -369,6 +377,11 @@ class GLMModel(BaseModel):
             attention_scale=attention_scale,
             relative_encoding=relative_encoding,
             block_position_encoding=block_position_encoding)
+
+        if spell_length is not None:
+            self.prompt_spell = PromptSpell(spell_length, self.hidden_size, spell_func)
+        if tune_prefix_layers != None:
+            self.freeze_transformer(tune_prefix_layers=tune_prefix_layers)
 
     def freeze_transformer(self, tune_prefix_layers=None):
         log_str = "Freeze transformer"
@@ -912,7 +925,6 @@ class GLMForSeq2Seq(BaseModel):
                                attention_mask,
                                prompt_pos=prompt_pos)
         outputs, mems = model_out['logits'], model_out['hidden_states']
-
         vocab_size = outputs.size()[-1]
         target_ids = target_ids.view(-1)
         loss_mask = loss_mask.view(-1).float()

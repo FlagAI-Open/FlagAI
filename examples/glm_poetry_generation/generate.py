@@ -3,7 +3,9 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model_save_path = "/mnt/finetune_models/glm_poetry/mp_rank_00_model_states.pt"
+
+# Note "./checkpoints_poetry/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_poetry.
+model_save_path = "./checkpoints_poetry/1/mp_rank_00_model_states.pt"
 
 auto_loader = AutoLoader("seq2seq",
                          model_name="GLM-large-ch",

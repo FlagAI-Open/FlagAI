@@ -7,7 +7,7 @@ from flagai.trainer import Trainer
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/src.txt'
 tgt_dir = cur_dir + '/data/tgt.txt'
-model_dir = "./state_dict/glm/"  # ./state_dict/roberta/  # 模型位置
+model_dir = "./state_dict/"  # ./state_dict/roberta/  # 模型位置
 
 
 def read_file():

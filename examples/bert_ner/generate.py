@@ -6,6 +6,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 task_name = "sequence-labeling"
 model_dir = "./state_dict/"
+
+# Note "./checkpoints_ner/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_ner.
 model_save_path = "./checkpoints_ner/3913/mp_rank_00_model_states.pt"
 
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]

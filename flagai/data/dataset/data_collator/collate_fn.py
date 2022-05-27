@@ -6,6 +6,7 @@ import numpy as np
 import math
 from torch.utils.data.dataloader import default_collate
 from scipy.stats import poisson
+from flagai.data.dataset.data_utils import build_sample
 from flagai.data.dataset.superglue.control import PVPS, SuperGlueProcessor
 
 
@@ -110,23 +111,129 @@ class ConstructSeq2seqStrategy:
     def __init__(self, args, tokenizer, task_name):
         # pattern_id, seq_length, num_prompt_tokens, multi_token, segment_length, fast_decode, dataset_type, cloze_val=True
         self.tokenizer = tokenizer
-        self.cloze_eval = args.cloze_eval
-        self.processor = SuperGlueProcessor().get_processor(None,
-                                                            task_name)(False)
-
-        self.pvp = PVPS[task_name](args,
-                                   tokenizer,
-                                   self.processor.get_labels(),
-                                   args.seq_length,
-                                   pattern_id=args.pattern_id,
-                                   num_prompt_tokens=args.num_prompt_tokens,
-                                   is_multi_token=args.multi_token,
-                                   max_segment_length=args.segment_length,
-                                   fast_decode=args.fast_decode)
+        self.task_name = task_name
+        self.tokenizer = tokenizer
         self.args = args
+
+    def encode(self, example):
+        cls_id = self.tokenizer.get_command('ENC').Id
+        mask_token = 'sMASK' if self.args.task_mask else 'MASK'
+        mask_id = self.tokenizer.get_command(mask_token).Id
+        pad_id = self.tokenizer.get_command('pad').Id
+        sop_id = self.tokenizer.get_command('sop').Id
+        eop_id = self.tokenizer.get_command('eop').Id
+        if self.task_name in [
+            "gigaword", "cnn_dm", "cnn_dm_original", "xsum", "lang8_hsk"
+        ]:
+            source_text, target_text = example.text_a, example.text_b
+            source_tokens = self.tokenizer.EncodeAsIds(" " + source_text)
+            prompt = [cls_id, mask_id
+                      ] + self.tokenizer.EncodeAsIds(" Content:")
+            if len(source_tokens) > self.args.max_src_length - len(prompt):
+                source_tokens = source_tokens[:self.args.max_src_length -
+                                               len(prompt)]
+            source_tokens = prompt + source_tokens
+        elif self.task_name == "squad_generation":
+            source_text = example.text_a
+            target_text, answer = example.meta["question"], example.meta[
+                "answer"]
+            source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip() +
+                                                       " Question:")
+            answer_tokens = self.tokenizer.EncodeAsIds(" Answer: " + answer)
+            if len(source_tokens
+                   ) > self.args.max_src_length - len(answer_tokens) - 2:
+                max_src_length = self.args.max_src_length - len(answer_tokens) - 2
+                answer_pattern = self.tokenizer.EncodeAsIds(" " + answer)
+
+                def sub_finder(mylist, pattern):
+                    matches = []
+                    for i in range(len(mylist)):
+                        if mylist[i] == pattern[0] and mylist[
+                                                       i:i + len(pattern)] == pattern:
+                            matches.append(i)
+                    return matches
+
+                answer_indices = sub_finder(source_tokens, answer_pattern)
+                if len(answer_indices) == 0:
+                    print(f"Answer {answer} not exists in the source text")
+                    source_tokens = source_tokens[:max_src_length]
+                else:
+                    start_index = max(answer_indices[0] - max_src_length // 2,
+                                      0)
+                    source_tokens = source_tokens[start_index:start_index +
+                                                              max_src_length]
+            source_tokens = [cls_id] + source_tokens + [mask_id
+                                                        ] + answer_tokens
+        elif self.task_name in ["cmrc"]:
+            mask_id = self.tokenizer.get_command('MASK').Id
+            source_text = example.text_a
+            target_text = example.meta["answer"].strip()
+            question = example.meta["question"].strip()
+            source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip())
+            question_tokens = self.tokenizer.EncodeAsIds("问题：" + question +
+                                                         "答案：")
+            max_src_length = self.args.max_src_length - len(question_tokens) - 2
+            if max_src_length <= 0:
+                question_tokens = question_tokens[self.args.max_src_length // 4]
+            source_tokens = [cls_id] + question_tokens + [
+                mask_id
+            ] + source_tokens[:max_src_length]
+        elif self.task_name in ["wsc"]:
+            mask_id = self.tokenizer.get_command('MASK').Id
+            source_text = example.text_a
+            target_text = example.meta["answer"].strip()
+            question = example.meta["question"].strip()
+            source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip())
+            question_tokens = self.tokenizer.EncodeAsIds("what does " +
+                                                         question + "mean: ")
+            max_src_length = self.args.max_src_length - len(question_tokens) - 2
+            if max_src_length <= 0:
+                print(question)
+                question_tokens = question_tokens[self.args.max_src_length // 4]
+            source_tokens = [cls_id] + question_tokens + [
+                mask_id
+            ] + source_tokens[:max_src_length]
+        else:
+            raise NotImplementedError
+        if len(source_tokens) < self.args.max_src_length:
+            source_tokens = source_tokens + [pad_id] * (self.args.max_src_length -
+                                                        len(source_tokens))
+        sep = len(source_tokens)
+        position_ids = list(range(len(source_tokens)))
+        block_position_ids = [0] * len(source_tokens)
+        mask_pos = source_tokens.index(mask_id)
+
+        target_tokens = self.tokenizer.EncodeAsIds(" " + target_text)
+        target_tokens = target_tokens + [eop_id]
+        if len(target_tokens) > self.args.max_tgt_length:
+            target_tokens = target_tokens[:self.args.max_tgt_length]
+        loss_mask = [1] * len(target_tokens)
+        if len(target_tokens) < self.args.max_tgt_length:
+            loss_mask += [0] * (self.args.max_tgt_length - len(target_tokens))
+            target_tokens += [pad_id] * (self.args.max_tgt_length -
+                                         len(target_tokens))
+        tokens = source_tokens + [sop_id] + target_tokens[:-1]
+        loss_mask = [0] * len(source_tokens) + loss_mask
+        target_ids = [0] * len(source_tokens) + target_tokens
+        position_ids += [mask_pos] * len(target_tokens)
+        if self.args.no_block_position:
+            block_position_ids += [1] * len(target_tokens)
+        else:
+            block_position_ids += list(range(1, len(target_tokens) + 1))
+        position_ids = [position_ids, block_position_ids]
+        sample = build_sample(ids=tokens,
+                                positions=position_ids,
+                                target=target_ids,
+                                masks=sep,
+                                loss_mask=loss_mask,
+                                unique_id=example.guid)
+        return sample
 
     def __call__(self, examples):
         samples = []
+        for example in examples:
+            sample = self.encode(example)
+            samples.append(sample)
         return my_collate(samples)
 
 

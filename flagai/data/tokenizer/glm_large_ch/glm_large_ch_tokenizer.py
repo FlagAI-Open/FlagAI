@@ -27,8 +27,8 @@ class GLMLargeChTokenizer(GLMTokenizer):
                  vocab_path=None,
                  add_block_symbols=True,
                  add_task_mask=True,
-                 add_decoder_mask=True,
-                 fix_command_token=False):
+                 add_decoder_mask=False,
+                 fix_command_token=True):
         """
         Args:
             add_block_symbols: (str):
