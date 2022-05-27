@@ -211,7 +211,7 @@ class RowParallelLinear(torch.nn.Module):
 ```
 ## 2.将`self-Attention` 中的两个Linear layer分别转化为`column/rowParallel` 版本
 代码位置：`flagai/model/layers/attentions_mpu.py`
-### 2.1 将`x` proj 到  `q, k, v` 的`linear `层，转化为 `collumnParalleLinear`
+### 2.1 将`x` proj 到  `q, k, v` 的`linear `层，转化为 `columnParalleLinear`
 ### 2.2 将输出的`dense`层转化为`rowparallelLinear`
 如下：
 ```python

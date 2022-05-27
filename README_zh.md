@@ -187,10 +187,10 @@ for text_pair in test_data:
 * [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
 * [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
-* [RoBERTa-base-ch用于命名实体识别](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
-* [GPT-2用于文本续写](/docs/TUTORIAL_18_GPT2_WRITING.md)
-* [T5用于标题生成](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
-* [所有支持的任务](docs/TUTORIAL_20_SUPPORTED_TASKS.md)
+* [RoBERTa-base-ch用于命名实体识别](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)
+* [GPT-2用于文本续写](/doc_zh/TUTORIAL_18_GPT2_WRITING.md)
+* [T5用于标题生成](/doc_zh/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
+* [所有支持的任务](doc_zh/TUTORIAL_20_SUPPORTED_TASKS.md)
 
 
 本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。
@@ -205,10 +205,10 @@ for text_pair in test_data:
 * [Tutorial 5: 使用AutoLoader工具快速构建模型](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
 * [Tutorial 6: 使用Predictor工具进行预测](/doc_zh/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
 
-* [Tutorial 7: FlagAI提示学习功能](/docs/TUTORIAL_7_PROMPT_LERANING.md)
-* [Tutorial 8: 数据/模型并行的环境设置](/docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* [Tutorial 9: 使用**编码器/解码器/编解码**器模型进行文本生成](/docs/TUTORIAL_9_SEQ2SEQ_METHOD.md)
-* [Tutorial 10: 转化一个模型为Megatron-LM的模型并行版本](/docs/TUTORIAL_10_MEGATRON.md)
+* [Tutorial 7: FlagAI提示学习功能](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)
+* [Tutorial 8: 数据/模型并行的环境设置](/doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* [Tutorial 9: 使用**编码器/解码器/编解码**器模型进行文本生成](/doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
+* [Tutorial 10: 转化一个模型为Megatron-LM的模型并行版本](/doc_zh/TUTORIAL_10_MEGATRON.md)
 
 
 

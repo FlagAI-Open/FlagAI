@@ -22,13 +22,13 @@ trainer = MyTrainer(
     batch_size=4,
     eval_interval=100000,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     pytorch_device='cpu',
     load_dir=None,
     lr=1e-4,
     fp16=False)
 
-model_name = 't5-3b'
+model_name = 't5-11b'
 tokenizer = T5Tokenizer.from_pretrained(model_name)
 model = T5ForConditionalGeneration.from_pretrained(model_name)
 model.gradient_checkpointing = True

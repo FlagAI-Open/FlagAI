@@ -13,7 +13,7 @@ class TrainerTestCase(unittest.TestCase):
 
     def test_init_trainer_pytorch(self):
         # task_name options: ['boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc', 'tnews']
-        task_name = "cb"
+        task_name = "afqmc"
 
         trainer = Trainer(env_type='pytorch',
                           epochs=10,

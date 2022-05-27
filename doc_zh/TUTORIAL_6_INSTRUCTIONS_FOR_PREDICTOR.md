@@ -80,7 +80,7 @@ for t in test_data:
 ![predictor-table](../docs/img/predictor_table.png)
 
 
-### Perdictor所有支持的方法
+### Predictor所有支持的方法
 #### 文本表征
 1. predict_embedding: 输入一个文本来获取嵌入表征，支持bert、roberta等模型。
 #### 文本分类，语义匹配
