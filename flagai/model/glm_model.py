@@ -336,6 +336,7 @@ class GLMModel(BaseModel):
         attention_dropout_prob = config["attention_dropout_prob"]
         output_dropout_prob = config["output_dropout_prob"]
         max_sequence_length = config["max_sequence_length"]
+        # max_sequence_length = 512
         max_memory_length = config["max_memory_length"]
         checkpoint_activations = config["checkpoint_activations"]
         checkpoint_num_layers = config["checkpoint_num_layers"]
@@ -343,7 +344,7 @@ class GLMModel(BaseModel):
         relative_encoding = config["relative_encoding"]
         block_position_encoding = config["block_position_encoding"]
         output_predict = config["output_predict"]
-        spell_length = config["spell_length"]
+        spell_length = config.get("spell_length", None)
         spell_func = config["spell_func"]
         attention_scale = config["attention_scale"]
         tune_prefix_layers = config.get("tune_prefix_layers", None)

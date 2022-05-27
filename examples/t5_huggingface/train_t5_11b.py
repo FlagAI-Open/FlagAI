@@ -31,6 +31,7 @@ trainer = MyTrainer(
 model_name = 't5-3b'
 tokenizer = T5Tokenizer.from_pretrained(model_name)
 model = T5ForConditionalGeneration.from_pretrained(model_name)
+model.gradient_checkpointing = True
 
 print("loading model & tokenizer is done!")
 src_dir = './data/train.src'
@@ -54,10 +55,10 @@ def read_file():
     return src, tgt
 
 
-class BertSeq2seqDataset(Dataset):
+class T5Seq2seqDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(BertSeq2seqDataset, self).__init__()
+        super(T5Seq2seqDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -110,11 +111,11 @@ train_tgt = sents_tgt[:train_size][:200]
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = T5Seq2seqDataset(train_src,
                                    train_tgt,
                                    tokenizer=tokenizer,
                                    maxlen=maxlen)
-val_dataset = BertSeq2seqDataset(val_src,
+val_dataset = T5Seq2seqDataset(val_src,
                                  val_tgt,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)

@@ -170,6 +170,7 @@ collate_fn = ConstructSuperglueStrategy(cl_args,
 
 最后将数据放入[PyTorch加载器](https://pytorch.org/docs/stable/data.html?highlight=dataloader#torch.utils.data.DataLoader)即可。
 ```python
+import torch
 loader = torch.utils.data.DataLoader(dataset,
                                     batch_size=1,
                                     shuffle=False,
@@ -181,7 +182,7 @@ loader = torch.utils.data.DataLoader(dataset,
 Dataloader里的数据可以通过如下方法查看
 
 ```python
-for data_iterator in train_loader:
+for data_iterator in loader:
     for key, value in data_iterator.items():
         print(key, value)
     # break

@@ -13,7 +13,7 @@ class TrainerTestCase(unittest.TestCase):
 
     def test_init_trainer_pytorch(self):
         # task_name options: ['boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc', 'tnews']
-        task_name = "afqmc"
+        task_name = "cb"
 
         trainer = Trainer(env_type='pytorch',
                           epochs=10,
@@ -61,8 +61,19 @@ class TrainerTestCase(unittest.TestCase):
                       train_dataset=train_dataset,
                       valid_dataset=valid_dataset,
                       metric_methods=metric_methods)
-
-
+        # import torch
+        # loader = torch.utils.data.DataLoader(train_dataset,
+        #                                      batch_size=1,
+        #                                      shuffle=False,
+        #                                      num_workers=1,
+        #                                      drop_last=False,
+        #                                      pin_memory=False,
+        #                                      collate_fn=collate_fn)
+        #
+        # for data_iterator in loader:
+        #     for key, value in data_iterator.items():
+        #         print(key, value)
+        #     break
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(TrainerTestCase('test_init_trainer_pytorch'))

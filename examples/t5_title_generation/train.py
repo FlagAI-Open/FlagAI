@@ -55,7 +55,7 @@ def read_file():
     return src, tgt
 
 
-class BertSeq2seqDataset(Dataset):
+class T5Seq2seqDataset(Dataset):
 
     def __init__(self,
                  sents_src,
@@ -63,7 +63,7 @@ class BertSeq2seqDataset(Dataset):
                  tokenizer,
                  max_src_length=300,
                  max_tgt_length=200):
-        super(BertSeq2seqDataset, self).__init__()
+        super(T5Seq2seqDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -108,12 +108,12 @@ train_tgt = sents_tgt[:train_size][:2000]
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = T5Seq2seqDataset(train_src,
                                    train_tgt,
                                    tokenizer=tokenizer,
                                    max_src_length=300,
                                    max_tgt_length=200)
-val_dataset = BertSeq2seqDataset(val_src,
+val_dataset = T5Seq2seqDataset(val_src,
                                  val_tgt,
                                  tokenizer=tokenizer,
                                  max_src_length=300,

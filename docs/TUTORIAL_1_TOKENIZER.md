@@ -1,4 +1,4 @@
-# Tokenizer
+# How to construct and use Tokenizer
 
 ## What is Tokenization?
 **Tokenization** is a fundamental step in the preprocessing stage of NLP projects, 
