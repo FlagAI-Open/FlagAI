@@ -1,12 +1,13 @@
-# 数据集处理流程
-构建数据集的过程就是NLP的数据预处理过程，其主要目的是将原始的散乱的文件数据重新整理成统一结构的数据，以便语言模型能够直接使用。构建数据集样例的主要流程如下所示（以CommitmentBank数据集为例）：
+# Data set processing flow
+The process of constructing a dataset is the data preprocessing process of NLP. Its main purpose is to rearrange the original scattered file data into data of a unified structure so that the language model can directly use it. The main process of constructing a sample dataset is as follows (take the CommitmentBank dataset as an example):
 
 <div align=center><img src="img/dataset_pipeline.png" width="600px"></div>
 
-目前项目里存在三种数据预处理的情况，即对分类任务的微调，预训练, 以及对生成任务的微调。我们在接下来会分别展开。
+At present, there are three kinds of data preprocessing in the project, namely, fine-tuning for classification tasks, pre-training, and fine-tuning for generation tasks. We will expand on them separately in the following.
 
-## 数据处理：分类任务微调([prompt-learning模式](TUTORIAL_7_PROMPT_LEARNING.md))
-### 应用代码
+## Data processing: fine-tuning for classification tasks ([prompt-learning mode](TUTORIAL_7_PROMPT_LEARNING.md))
+### Application code
+
 ```python
 import torch.utils.data
 from flagai.data.dataset import SuperGlueDataset
@@ -14,22 +15,22 @@ from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
 from tests.test_dataset_new_superglue import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
-# 得到默认参数
+# get default parameters
 cl_args = CollateArguments()
 
-# 创建分词器
+# Create tokenizer
 tokenizer = GLMLargeEnWordPieceTokenizer()
             
-# 初步读取并处理数据集
+# Initially read and process the dataset
 dataset = SuperGlueDataset(task_name='cb',
                            data_dir='./datasets/',
                            dataset_type='train',
                            tokenizer=tokenizer)
 
-# 构建collate function
+# Construct collate function
 collate_fn = ConstructSuperglueStrategy(cl_args, tokenizer, task_name="rte")
 
-# 创建加载器
+# create loader
 loader = torch.utils.data.DataLoader(dataset,
                                     batch_size=1,
                                     shuffle=False,
@@ -39,55 +40,55 @@ loader = torch.utils.data.DataLoader(dataset,
                                     collate_fn=collate_fn)
 ```
 
-### 初步读取并处理数据集
-对应的代码模块如下所示，其包含了两个步骤：自动加载数据集，以及统一所有数据集的结构
+### Initially read and process the dataset
+The corresponding code module is shown below, which consists of two steps: automatically loading the dataset, and unifying the structure of all datasets
+
 ```python
 dataset = SuperGlueDataset(task_name='cb',
                            data_dir='./datasets/',
                            dataset_type='train',
                            tokenizer=tokenizer)
 ```
-#### 1.加载数据集
+#### 1. Load the dataset
 
-将`task_name`设置成任务名的缩写后，相关数据会在后台自动下载。FlagAI目前支持自动加载下列分类数据集：
+After setting `task_name` to the abbreviation of the task name, the relevant data will be automatically downloaded in the background. FlagAI currently supports automatic loading of the following classification datasets:
 
-
-| 数据集名称                                     | 数据集简称    | 语言   | 所属评测基准   |
+| dataset name                                 | short name| Language | Benchmark   |
 |----------------------------------------------|----------|------|----------|
-| Broadcoverage Diagnostics                    | boolq    | 英文   | SuperGLUE |
-| CommitmentBank                               | cb       | 英文   | SuperGLUE |
-| Choice of Plausible Alternatives             | copa     | 英文   | SuperGLUE |
-| Multi-Sentence Reading Comprehension         | muiltirc | 英文   | SuperGLUE |
-| Recognizing Textual Entailment               | rte      | 英文   | SuperGLUE |
-| Words in Context                             | wic      | 英文   | SuperGLUE |                                                   
-| The Winograd Schema Challenge                | wsc      | 英文   | SuperGLUE |
-| Ant Financial Question Matching Corpus       | afqmc    | 中文   | CLUE     |
-| Short Text Classificaiton for News           | tnews    | 中文   | CLUE     |
+| Broadcoverage Diagnostics                    | boolq    | Eng   | SuperGLUE |
+| CommitmentBank                               | cb       | Eng   | SuperGLUE |
+| Choice of Plausible Alternatives             | copa     | Eng   | SuperGLUE |
+| Multi-Sentence Reading Comprehension         | muiltirc | Eng   | SuperGLUE |
+| Recognizing Textual Entailment               | rte      | Eng   | SuperGLUE |
+| Words in Context                             | wic      | Eng   | SuperGLUE |                                                   
+| The Winograd Schema Challenge                | wsc      | Eng   | SuperGLUE |
+| Ant Financial Question Matching Corpus       | afqmc    | Zh    | CLUE     |
+| Short Text Classificaiton for News           | tnews    | Zh    | CLUE     |
 
-数据集会被自动下载到`data_dir`对应的地址，默认为项目的`./dataset`目录。
+The dataset will be automatically downloaded to the address corresponding to `data_dir`, which defaults to the `./dataset` directory of the project.
 
-下载好的数据集目录下会包含三个文件，对应训练集数据，验证集数据，以及测试集数据, 以CommitmentBank数据集为例，目录下的`train.jsonl`对应训练集，`val.jsonl`对应验证集，`test.jsonl`对应测试集。一般来说训练集和测试集会包含标签信息，而测试集则没有。这些数据文件在接下来的流程中会分开处理。
+The downloaded dataset directory will contain three files, corresponding to the training set data, the validation set data, and the test set data. Take the CommitmentBank dataset as an example, the `train.jsonl` in the directory corresponds to the training set, `val.jsonl `corresponds to the validation set, `test.jsonl` corresponds to the test set. Generally, the training set and test set contain label information, but the test set does not. These data files will be processed separately in the next process.
 
-不同的数据集可能会有不同的文件格式，以及不同的结构。以CommitmentBank数据集为例，下面是其中的一个样例
+Different datasets may have different file formats, as well as different structures. Taking the CommitmentBank dataset as an example, the following is an example of it
 
 <div align=center><img src="img/dataset_figure_0.png" width="600px"></div>
 
-可以看到，其包含了四个部分,如下所示：
+It contains four parts, as shown below
 
-| 键值        | 含义                                                    | 值                              |
+| key        | meaning                                                   | value                              |
 |-----------|-------------------------------------------------------|--------------------------------|
-| premise   | 前提文本                                                  | Mary is a high school student. |
-| hypothesis | 假设文本                                                  | Mary is a student              |
-| label     | 代表前提和假设关系的标签<br/>包含entailment,neutral和contradiction三种 | entailment                     |
-| idx       | 样例在数据集里的序号                                            | 10                             |
+| premise   | premise text                                                 | Mary is a high school student. |
+| hypothesis | hypothetical text                                                 | Mary is a student              |
+| label     | The tags representing the relationship between the premise and the hypothesis. Include three kinds of inclusion, neutral and contrast | entailment                     |
+| idx       | The sequence number of the sample in the dataset           | 10                             |
 
-目前所有FlagAI支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
+The specific structure of all FlagAI supported datasets can be viewed [here](DATASET_EXAMPLE.md).
 
-#### 2. 统一数据集结构
-在这一步里，我们会统一不同数据集的数据结构，以方便接下来处理。此结构的细节如下：
+#### 2. Unified dataset structure
+In this step, we will unify the data structures of different datasets to facilitate subsequent processing. The details of this structure are as follows:
 
 
-| 键值     | 含义                                                    | 数据格式 |
+| key     | meaning                                                    | format |
 |--------|-------------------------------------------------------|------|
 | guid   | a unique textual identifier                                                  | str  |
 | text_a | the sequence of text                                                  | str  |
@@ -97,79 +98,80 @@ dataset = SuperGlueDataset(task_name='cb',
 | meta   | an optional dictionary to store arbitrary meta information                        | dict |
 | ids    | an optional numeric index                                                    | int  |
 
-例如上一步CommitBank的样例会被处理成如下的形式
+For example, the example of CommitBank in the previous step will be processed into the following form
 
 <div align=center><img src="img/dataset_figure_2.png" width="500px"></div>
 
-需要注意的是如果因为数据结构太复杂，导致text_a和text_b无法塞下背景文本信息的话，可以把剩下的信息放在meta里。
+Noted that if text_a and text_b cannot be filled with background text information because the data structure is too complex, you can put the rest of the information in meta.
 
-当数据集被构造好以后，可以直接在代码里通过索引的方式查看其中某个样例：
+When the dataset is constructed, you can view one of the samples directly in the code by indexing:
+
 
 ```python
-example = dataset[3]  # 数据集里第3个样例
+example = dataset[3]  # The third example in dataset 
 ```
 
-### 将数据整理成模型的输入
+### Organize the data into input to the model
 
-对应的功能在下面的函数里实现，其包含了两个步骤：构造模板，分词并构造输入样例。
+The corresponding function is implemented in the following function, which consists of two steps: constructing the template, segmenting the word and constructing the input sample.
+
 ```python
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name)
 ```
 
-#### 1.构建完形填空模板
+#### 1. Build the cloze template
 
-一个完形填空模板包含了背景文本，空位，以及在提供给空位的选项。模型需要找到正确的选项，并填进空位里。
+A cloze template contains background text, slots, and options provided to the slots. Models need to find the right options and fill in the blanks.
 
-对于每个不同的任务，我们都需要构建不同构造的完型填空问题来让模型回答，以CommitmentBank数据集为例， 其考量的是能否由前提推导出假设, 而有且仅有三种结果：contradiction/neutral/entailment。那么我们可以构建如下的完型填空问题， 其中contradiction/neutral/entailment分别对应true/false/neither。
-
-
+For each different task, we need to construct cloze questions of different structures for the model to answer. Taking the CommitmentBank dataset as an example, it considers whether the hypothesis can be deduced from the premise, and there are only three results: contradiction/neutral/entailment. Then we can construct the following cloze problem, where contrast/neutral/entailment correspond to true/false/neither respectively.
 
 <div align=center><img src="img/dataset_figure_3.png" width="500px"></div>
 
-可以看到，大体上可以分成两步：第一步是组合已有的文本，使其看上去符合完形填空格式；第二步是将原始的标签文本转化为新的标签，作为可能会填入空位的选项。        
+It can be seen that it can be roughly divided into two steps: the first step is to combine the existing text to make it look like a cloze format; the second step is to convert the original label text into a new label, which may be filled in. Option to enter vacancies.
 
-#### 2.分词并构造输入样例
-接下来，我们需要构造模型的输入，第一步是分词，而接下来则需要分成两种情况：
-第一种情况下，数据集包含的标签类别是有限的，比如CommitmentBank数据集里只会存在entailment/contradiction/neutral三种标签文本，，常见于分类任务。第二类情况里每一段完型填空都会给出不同的选项(一般是一段长文本)。比如在一些阅读理解数据集里，每一个选项都是一段对于文本的不同理解。这两类情况的处理方法如下所示：
+#### 2. Word segmentation and construct input samples
+Next, we need to construct the input of the model. The first step is word segmentation, and then we need to divide it into two cases:
+In the first case, the label categories contained in the dataset are limited. For example, in the CommitmentBank dataset, there are only three kinds of label texts—intailment/contradiction/neutral, which are common in classification tasks. In the second case, each cloze will give different options (usually a long text). For example, in some reading comprehension datasets, each option is a different understanding of the text. The two cases are handled as follows:
 
-**a)单个token的完形填空**
+**a) Cloze for a single token**
 
+| key             | dimension        | meaning         | Construction method                                          |
+|-----------------|--------------------------------------|------------|-----------------------------------------------|
+| input_ids       | torch.Size([seq_length<sup>1</sup>]) | input matrix   | composed of the cloze text from the previous step, plus some special characters <sup>2</sup>            |
+| labels          | labels: torch.Size([1])              | labels         | corresponding numeric labels, such as 0,1,2... |
+| position_ids    | torch.Size([2， seq_length])   | position encoding  | refer to [GLM process] (GLM.md), the first line represents the absolute position of the token, the second line represents the relative position of the occluded part  |
+| attention_mask  | torch.Size([1])          | separator position  |                |
+| target_ids      | torch.Size([num_labels<sup>3</sup>]) | full label list | All label texts correspond to the labels of a single token, and then put the serial numbers of these labels into target_ids  |
+| logit_mask      | torch.Size([seq_length])  | Whether the corresponding text is an answer | For each token, if it is an answer, the corresponding place is 1, otherwise it is 0 |                                                   
 
-| 键值                                          | 维度                                   | 含义         | 构造方法                                          |
-|---------------------------------------------|--------------------------------------|------------|-----------------------------------------------|
-| input_ids                                   | torch.Size([seq_length<sup>1</sup>]) | 输入矩阵       | 由上一步的完形填空文本，加上一些特殊字符<sup>2</sup>组成            |
-| labels                                      | labels: torch.Size([1])              | 标签         | 对应的数字标签，比如0,1,2...                            |
-| position_ids                                | torch.Size([2， seq_length])          | 位置编码         | 参考[GLM流程](GLM.md)，第一行代表token的绝对位置，第二行代表遮挡部分的相对位置    |
-| attention_mask                              | torch.Size([1])                      | 分隔符位置         |                                               |
-| target_ids                                  | torch.Size([num_labels<sup>3</sup>]) | 全量标签列表     | 将所有标签文本分别对应单token的标签，然后将这些标签的序号依次放入target_ids |
-| logit_mask                                  | torch.Size([seq_length])             | 对应的文本是否为回答 | 对于每个token, 如果是回答，则对应的地方为1，否则为0                |                                                   
+<sup>1</sup>: seq_length represents the specified maximum length of each input vector
 
-
-<sup>1</sup>: seq_length代表规定的每个输入向量的最大长度
-
-<sup>2</sup>: 特殊字符添加流程：在句首添加[CLS]符号，句尾添加[EOS]符号，直到长度达到seq_length, 如果完形填空输出的文本有两段，则在中间添加[SEP]符号
+<sup>2</sup>: The process of adding special characters: add the [CLS] symbol at the beginning of the sentence and the [EOS] symbol at the end of the sentence until the length reaches seq_length. If the text output by cloze has two paragraphs, it will be in the middle Add [SEP] symbol
 <div align=center><img src="img/dataset_figure_5.png" width="500px"></div>
 
-<sup>3</sup>: num_labels代表完形填空问题中选项的个数
+<sup>3</sup>: num_labels represents the number of options in the cloze problem
 
-**b)多个token的完形填空**
-
-| 键值                                          | 维度                                      | 含义         | 区别                                               |
-|---------------------------------------------|-----------------------------------------|------------|----------------------------------------------------|
-| input_ids                                   | torch.Size([num_labels, seq_length])    | 输入矩阵       | 将对应的文本拷贝num_labels份                 |
-| labels                                      | labels: torch.Size([1])                 | 标签         |                                  |
-| position_ids                                | torch.Size([num_labels, 2， seq_length]) | 位置编码       | 将原本的位置编码拷贝num_labels份 |
-| attention_mask                              | torch.Size([num_labels])                | 分隔符位置      |      拷贝num_labels份                                              |
-| target_ids                                  | torch.Size([num_labels, seq_length])    | 每个选项信息     | 矩阵的每一列代表每一个选项，每一行代表当前选项对应的文本      |
-| logit_mask                                  | torch.Size([num_labels, seq_length])    | 对应的文本是否为回答 | 拷贝num_labels份                     |                                                   
+**b) Cloze for multiple tokens**
 
 
 
-### 创建加载器
+| key             | dimension        | meaning         | Construction method                 |                        
+|-----------------|------------------|-----------------|-------------------------------------|
+| input_ids       | torch.Size([num_labels, seq_length])    | input matrix | copy the corresponding text num_labels copies                 |
+| labels          | labels: torch.Size([1])                 | Label         |                                  |
+| position_ids    | torch.Size([num_labels, 2， seq_length]) | position encoding | Copy the original position code num_labels copies |
+| attention_mask  | torch.Size([num_labels])                | separator position      | copy num_labels copies        |
+| target_ids      | torch.Size([num_labels, seq_length])    | Information about each option    | Each column of the matrix represents each option, and each row represents the text corresponding to the current option      |
+| logit_mask      | torch.Size([num_labels, seq_length])    | Whether the corresponding text is an answer | copy num_labels copies                    |                                                   
 
-最后将数据放入[PyTorch加载器](https://pytorch.org/docs/stable/data.html?highlight=dataloader#torch.utils.data.DataLoader)即可。
+
+
+### Create loader
+
+Finally, put the data into the [PyTorch Loader](https://pytorch.org/docs/stable/data.html?highlight=dataloader#torch.utils.data.DataLoader).
+
 ```python
 loader = torch.utils.data.DataLoader(dataset,
                                     batch_size=1,
@@ -179,7 +181,7 @@ loader = torch.utils.data.DataLoader(dataset,
                                     pin_memory=False,
                                     collate_fn=collate_fn)
 ```
-Dataloader里的数据可以通过如下方法查看
+The data in the Dataloader can be viewed by the following methods
 
 ```python
 for data_iterator in train_loader:
@@ -187,11 +189,11 @@ for data_iterator in train_loader:
         print(key, value)
     # break
 ```
-加载器构造好之后即可用于接下来的训练和预测过程。<br /><br /><br />
+Once the loader is constructed, it can be used for the subsequent training and prediction process. <br /><br /><br />
 
+## Data processing: GLM pre-training task
 
-## 数据处理：GLM预训练任务
-预训练任务数据格式样例：
+Sample pre-training task data format:
 ```text
 {
     "RECORDS": [
@@ -216,7 +218,8 @@ for data_iterator in train_loader:
     ]
 }
 ```
-预训练的任务处理实例代码:
+Pre-trained task processing example code:
+
 ```python
 tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
                                 add_task_mask=True,
@@ -233,13 +236,13 @@ tokenizer = GLMLargeChTokenizer(fix_command_token=True,
 ds_args = add_args(ds_args, tokenizer)
 
 def create_dataset(tokenizer, should_split):
-    dataset = get_dataset_lazy("./examples/glm_pretrain/data", # 懒加载
+    dataset = get_dataset_lazy("./examples/glm_pretrain/data", # load
                                tokenizer=tokenizer,
                                pre_tokenize=True,
                                num_processes=10,
                                no_lazy_loader=True)
     if should_split:
-        datasets = split_ds(dataset, split=[.8, .2, .0], shuffle=True) # 手动切分
+        datasets = split_ds(dataset, split=[.8, .2, .0], shuffle=True) # Manual segmentation
     else:
         datasets = [dataset]
 
@@ -255,24 +258,26 @@ def create_dataset(tokenizer, should_split):
 
 datasets = create_dataset(tokenizer, should_split=True)
 ```
-预训练的数据处理也遵循着同样的流程，不过有如下的区别
-1. 预训练数据集默认是没有切分成训练集，验证集，以及测试集的，所以还需要手动进行切分
-2. 由于预训练数据集一般来说较为庞大，所以使用了懒加载(lazy loading)，懒加载只在真正用到对象的时候才使其实例化，是一种较为节省资源的操作。
-3. 预训练的时候，collate function会随机按照三种不同的模式处理数据: bert模式（遮挡随机区间），sentence模式(按照完整句子进行遮挡)以及gpt模式（只遮挡一段长区间）。模型的输入相比一般生成任务也会多一个`mode`键。
-4. 预训练不用添加模板，直接按下表构建模型输入即可
 
-| 键值             | 维度                                   | 含义         | 构造方法                                             |
+Pre-training data processing also follows the same process, with the following differences
+1. The pre-training data set is not divided into training set, validation set, and test set by default, so it needs to be divided manually
+2. Since the pre-training data set is generally relatively large, lazy loading is used. Lazy loading only instantiates the object when it is actually used, which is a relatively resource-saving operation.
+3. During pre-training, the collate function will randomly process data according to three different modes: bert mode (occlude random intervals), sentence mode (occlude according to complete sentences) and gpt mode (occlude only a long section). The input of the model will also have one more `mode` key than the general generation task.
+4. There is no need to add templates for pre-training, just follow the table below to build the model input
+
+
+| key             | dimension        | meaning         | Construction method                                            |
 |----------------|--------------------------------------|------------|--------------------------------------------------|
-| input_ids      | torch.Size([seq_length<sup>1</sup>]) | 输入矩阵       | 由上一步的模板文本，加上一些特殊字符组成                             |
-| position_ids   | torch.Size([2， seq_length])          | 位置编码         | 参考[GLM流程](GLM.md)，第一行代表token的绝对位置，第二行代表遮挡部分的相对位置 |
-| attention_mask | torch.Size([1])                      | 分隔符位置         | 对于生成类的模式，得到源文本结束的位置；否则得到输入文本结束的位置                                          |
-| target_ids     | torch.Size([num_labels<sup>3</sup>]) | 全量标签列表     | 被遮挡住的文本                                          |
-| logit_mask     | torch.Size([seq_length])             | 通过遮挡使得模型只会处理目标文本部分的loss | 对于每个token, 如果是回答，则对应的地方为1，否则为0                   |                                                   
-| mode           | str                                  | 数据处理模式 |                    |  
-<br /><br /><br />
+| input_ids      | torch.Size([seq_length<sup>1</sup>]) | input matrix       | consists of the template text from the previous step, plus some special characters                          |
+| position_ids   | torch.Size([2， seq_length])          | position encoding | refer to [GLM process](GLM.md), the first line represents the absolute position of the token, the second line represents the relative position of the occluded part |
+| attention_mask | torch.Size([1])                      | delimiter position | for the pattern of the generated class, get the position where the source text ends; otherwise get the position where the input text ends |
+| target_ids     | torch.Size([num_labels<sup>3</sup>]) | full label list | occluded text |                                         
+| logit_mask     | torch.Size([seq_length])             | By occlusion, the model will only process the loss of the target text part | For each token, if it is an answer, the corresponding place is 1, otherwise it is 0 |                       
+| mode           | str                                  | Data processing mode            |  
 
-## 数据处理：生成任务微调
-代码实现如下所示：
+## Data processing: Generating task fine-tuning
+The code implementation is as follows:
+
 ```python 
 import torch.utils.data
 from flagai.data.dataset import Seq2SeqDataset
@@ -280,25 +285,25 @@ from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
 from tests.test_dataset_new_superglue import Seq2SeqCollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
-# 得到默认参数
+# get default parameters
 cl_args = Seq2SeqCollateArguments()
 
-# 创建分词器
+# create tokenizer
 tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
                        TUTORIAL_4_DATASET.md         add_task_mask=False,
                                 add_decoder_mask=False,
                                 fix_command_token=False)
             
-# 初步读取并处理数据集
+# Initially read and process the dataset
 dataset = Seq2SeqDataset(task_name='cmrc',
                            data_dir='./datasets/',
                            dataset_type='train',
                            tokenizer=tokenizer)
 
-# 构建collate function
+# build collate function
 collate_fn = ConstructSeq2seqStrategy(cl_args, tokenizer, task_name="rte")
 
-# 创建加载器
+# Create a loader
 loader = torch.utils.data.DataLoader(dataset,
                                     batch_size=1,
                                     shuffle=False,
@@ -308,9 +313,9 @@ loader = torch.utils.data.DataLoader(dataset,
                                     collate_fn=collate_fn)
 ```
 
-### 初步读取并处理数据集
+### Initially read and process the dataset
 
-目前支持[CMRC2018](https://www.clue.ai/introduce.html)任务，CMRC是一个阅读理解类的任务，需要根据背景文本来回答一系列提问，其数据结构示例如下：
+Currently, [CMRC2018](https://www.clue.ai/introduce.html) task is supported. CMRC is a reading comprehension task that needs to answer a series of questions based on the background text. An example of its data structure is as follows:
 
 ```text
 {'paragraphs': 
@@ -333,28 +338,27 @@ loader = torch.utils.data.DataLoader(dataset,
     'answers': [{'text': '范廷颂于2009年2月22日清晨在河内离世', 'answer_start': 759}]}]}], 
     'id': 'TRAIN_186', 'title': '范廷颂'}
 ```
-使用的时候，我们将`task_name`参数改为`cmrc`即可。实现的过程类似分类任务的微调，最终也会将数据集初步处理成一样的结构，对应代码如下：
+When using it, we can change the `task_name` parameter to `cmrc`. The implementation process is similar to the fine-tuning of the classification task, and the data set will be initially processed into the same structure in the end. The corresponding code is as follows:
 
 ```python 
 dataset = Seq2SeqDataset(task_name='cmrc', data_dir='./datasets/', 
                             dataset_type='train', tokenizer=tokenizer) 
 ```
 
-### 将数据整理成模型的输入
+### Organize the data into input to the model
 
-代码如下所示。与生成任务相比，同样是构造模板以及模型输入，区别在于构造的方式不一样
+The code is shown below. Compared with the generation task, it is also the construction template and model input, the difference is that the construction method is different
+
 ```python 
 collate_fn = ConstructSeq2seqStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name) 
 ```
 
-#### 1.构建填空模板
-由于是阅读理解任务，所以在模板里需要体现出是针对指定的阅读理解问题进行回答的，参考如下构建方式
+#### 1. Build a fill-in-the-blank template
+Since it is a reading comprehension task, it needs to be reflected in the template to answer the specified reading comprehension question, refer to the following construction method
 <div align=center><img src="img/dataset_figure_4.png" width="500px"></div>
 
 
-
-#### 2.分词并构造输入样例
-与预训练类似，区别在于没有mode这个键值。
-
+#### 2. Word segmentation and construct input samples
+Similar to pre-training, the difference is that there is no mode key.

@@ -204,20 +204,11 @@ for text_pair in test_data:
 * [Tutorial 4: 模型训练(支持并行化)](/doc_zh/TUTORIAL_4_TRAINER.md)
 * [Tutorial 5: 使用AutoLoader工具快速构建模型](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
 * [Tutorial 6: 使用Predictor工具进行预测](/doc_zh/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
-
 * [Tutorial 7: FlagAI提示学习功能](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)
 * [Tutorial 8: 数据/模型并行的环境设置](/doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * [Tutorial 9: 使用**编码器/解码器/编解码**器模型进行文本生成](/doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
 * [Tutorial 10: 转化一个模型为Megatron-LM的模型并行版本](/doc_zh/TUTORIAL_10_MEGATRON.md)
 
-
-
-# 了解更多关于FlagAI
-* [数据集：支持的数据集和 `PET` 集成](doc_zh/APPENDIX_TASK.md)
-* [数据/模型并行的环境设置](doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* [三种不同的生成方式](doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
-* [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
-* [转化一个模型为Megatron-LM的模型并行版本](doc_zh/TUTORIAL_10_METATRON.md)
 
 # 贡献代码
 感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/BAAI-WuDao/Sailing/issues)以执行特定任务。

@@ -1,9 +1,11 @@
 # Trainer
 
-Trainer 类提供了API用于多种并行框架的训练。API 支持在多个 GPU上使用Pytorch DDP/Deepspeed进行分布式训练，同时支持Megatron-LM+Deepspeed的混合并行分布式训练，同时也通过 NVIDIA Apex 实现混合精度。
-## 入门
-Trainer 包含支持上述功能的基本训练循环。 要自定义行为，您可以对它们进行子类化并覆盖forward_step方法：
-forward_step方法的返回是一个dict
+The Trainer class provides APIs for training with multiple parallel frameworks. The API supports distributed training with Pytorch DDP/Deepspeed on multiple GPUs, as well as mixed parallel distributed training with Megatron-LM+Deepspeed, and mixed precision via NVIDIA Apex.
+
+## Getting Started
+Trainer includes basic training loops that support the above features. To customize the behavior, you can subclass them and override the forward_step method:
+The return of the forward_step method is a dict
+
 ```python
 from flagai.trainer import Trainer
 
@@ -19,7 +21,8 @@ class MyTrainer(Trainer):
         return output
 ```
 
-Trainer 中有一个控制是否分布式训练的参数  env_type，
+There is a parameter env_type in Trainer that controls whether the training is distributed or not.
+
 ```shell
 The enviroment type for training. Will default to 'pytorch'.
 env_type: `pytorch`, `pytorchDDP`, `deepspeed`, `deepspeed+mpu`
@@ -29,7 +32,8 @@ env_type: `pytorch`, `pytorchDDP`, `deepspeed`, `deepspeed+mpu`
             deepspeed+mpu: single-/multi- node gpu <data parallel + model parallel>
 ```                          
 
-## 单节点cpu/gpu
+## Single node cpu/gpu
+
 ```python
 trainer = MyTrainer(
     env_type='pytorch',
@@ -42,8 +46,9 @@ trainer = MyTrainer(
     load_dir=None,
     lr=1e-4)
 ```
-指定显卡/cpu的设置为pytorch_device, 'cpu', 'cuda:0'等
-## fp16 
+Specify the graphics card/cpu settings as pytorch_device, 'cpu', 'cuda:0', etc.
+## fp16
+
 ```python
 Model parameters turned to fp16
 trainer = MyTrainer(
@@ -58,7 +63,7 @@ trainer = MyTrainer(
     lr=1e-4,
     fp16=True) # change to `True`
 ```
-## gradient recomputation(checkpoints)
+## Gradient recomputation(checkpoints)
 Do not save the Intermediate results in the forward stage. Now you may run t5-3b with batch size=1. Paper: Training Deep Nets with Sublinear Memory Cost【https://arxiv.org/abs/1604.06174v2】
 Now, we can train/finetune a t5-3b with gradient_accumulation_steps. 
 ```python
@@ -75,10 +80,11 @@ trainer = MyTrainer(
     fp16=True
     checkpoint_activations = True) # setting as `True`
 ```
-## 支持huggingface model
-FlagAI 项目的example目录位置：examples/t5_huggingface
+## Support huggingface model
+The example directory location of the FlagAI project：examples/t5_huggingface
 T5-3b paper Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer[https://arxiv.org/pdf/1910.10683.pdf]
 The example train T5-3b on a toy dataset.  You need  a device > 30G memory to run the example. If your have multiple devices,  please check out the following session for speedup.
+
 ```python
 import sys
 from flagai.trainer import Trainer
@@ -215,11 +221,12 @@ trainer.train(model,
               collate_fn=seq2seq_collate_fn)
 ```
 
-## 分布式训练
+## Distributed training
 To accelerate your training/finetuning process, FlagAI integrate three popular parallel frameworks for deep neural networks.
 ### pytorchDDP
 DistributedDataParallel (DDP) link
-我们可以通过修改几个参数就能使用分布式的训练，内部直接封装了launch的调用，直接python script_name.py  [script_name:是训练脚本的名字] 就可以直接运行。
+We can use distributed training by modifying a few parameters. The launch call is directly encapsulated inside, and python script_name.py [script_name: is the name of the training script] can be run directly.
+
 ```python
 trainer = MyTrainer(
     env_type='pytorchDDP',
@@ -240,9 +247,10 @@ trainer = MyTrainer(
 )
 ```
 ### deepspeed
-deepspeed相对于pytorch主要在优化器方面做了优化。
-其提供了cpu-offload的optimizer，可以极大的降低gpu显存的占用。
-对deepspeed优化器的相关设置，需要提供deepspeed.json的配置文件 
+Compared with pytorch, deepspeed mainly optimizes the optimizer.
+It provides an optimizer of cpu-offload, which can greatly reduce the occupation of gpu video memory.
+For the relevant settings of the deepspeed optimizer, the configuration file of deepspeed.json needs to be provided
+
 ```python
 trainer = MyTrainer(
     env_type='pytorchDDP',
@@ -264,12 +272,16 @@ trainer = MyTrainer(
     deepspeed_config='deepspeed.json'
 )
 ```
-Deepspeed config文件参考 [examples/t5_huggingface/deepspeed.json]
-其中，主要的参数为 stage 和 cpu offload
+
+Deepspeed config file reference [examples/t5_huggingface/deepspeed.json]
+Among them, the main parameters are stage and cpu offload
+
 ### deepspeed + megatron-lm
-现在百亿级模型GLM采用了Megatron-LM的模型并行技术。在模型参数scaling到10b以上级别，单卡的显存就很难将单个模型以及训练时的中间变量全部加载进来。为此，Megatron-LM提供了Tensor的切分方法，主要思想是将矩阵按照行/列进行切分。 FlagAI link，将model转化为Megatron-LM版本。
-如下，FlagAI内部模型（GLM，T5，BERT【包括RoBERTa】，GPT2）支持了Megatron-LM，只要在配置文件中将环境变量修改为deepspeed+mpu，就能启动模型并行的功能。
-对于huggingface版本的模型，暂时没有提供模型并行的支持。
+
+Now the tens of billions of model GLM adopts the model parallel technology of Megatron-LM. When the model parameter scaling is above 10b, it is difficult to load a single model and all the intermediate variables during training in the video memory of a single card. To this end, Megatron-LM provides a Tensor segmentation method. The main idea is to segment the matrix according to rows/columns. FlagAI link, convert the model to the Megatron-LM version.
+As follows, FlagAI's internal models (GLM, T5, BERT [including RoBERTa], GPT2) support Megatron-LM. As long as the environment variable is changed to deepspeed+mpu in the configuration file, the model parallel function can be started.
+For the huggingface version of the model, there is no support for model parallelism.
+
 ```python
 trainer = MyTrainer(
     env_type="deepspeed+mpu", # env_type
@@ -293,4 +305,3 @@ trainer = MyTrainer(
     model_paralle_size = 2
 )
 ```
-

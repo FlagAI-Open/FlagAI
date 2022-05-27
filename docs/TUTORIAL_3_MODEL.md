@@ -1,74 +1,85 @@
-# 基类
+# Base class
 
-基类 BaseModel 实现了从本地文件或目录或从库提供的预训练模型配置（从BAAI modelhub 的 金山 S3 存储库下载）加载/保存模型的常用方法。
-现在所有支持的模型，对三种最常见的模型类型【encoder，decoder和encoder-decoder】进行了支持。现在GLM模型可以加载所有GLM系列的模型，详见 https://github.com/THUDM/GLM
+The base class BaseModel implements common methods for loading/saving models from a local file or directory or from a library-provided pretrained model configuration (downloaded from BAAI modelhub's Kingsoft S3 repository).
+All supported models now support the three most common model types [encoder, decoder and encoder-decoder]. GLM models can now load all GLM series models, see https://github.com/THUDM/GLM
 
 ## From_pretrain
 
-同一个模型结构的模型可以用同一个class进行加载，比如BERT-base 和Roberta-base模型都能用BertModel这个class进行加载。From_pretrain为了数据/模型并行的模型加载进行了特定优化，避免重复下载导致的资源浪费。
-通过调用ClassName.from_pretrian()来进行加载，现在我们的model hub中对以下的模型进行了支持，可以直接下载模型配置文件【config.json】，模型权重[pytorch_model.bin]，以及字典文件[vocab.txt]。例子：
-```python
+Models with the same model structure can be loaded with the same class. For example, BERT-base and Roberta-base models can be loaded with the BertModel class. From_pretrain is optimized for data/model parallel model loading to avoid resource waste caused by repeated downloads.
+By calling ClassName.from_pretrian() to load, now our model hub supports the following models, you can directly download the model configuration file [config.json], model weights [pytorch_model.bin], and dictionary files [vocab .txt]. example:
+
+````python
 from flagai.model.glm_model import GLMForSingleTokenCloze
 model = GLMForSingleTokenCloze.from_pretrain(download_path="./state_dict", model_name="GLM-large-ch")
-```
-如果是从本地加载模型权重，也可以通过 ClassName.from_pretrain()进行加载。例子：
-从`./state_dict/GLM-large-ch`目录中加载模型文件 `pytorch_model.bin`
-```python
+````
+
+If the model weights are loaded locally, they can also be loaded through ClassName.from_pretrain(). example:
+Load the model file `pytorch_model.bin` from the `./state_dict/GLM-large-ch` directory
+
+````python
 from flagai.model.glm_model import GLMForSingleTokenCloze
 model = GLMForSingleTokenCloze.from_pretrain(download_path="./state_dict",
                                                model_name="GLM-large-ch")
-```
-## 所有支持模型
+````
 
-| ClassName                         | ModelName       | Language | Model Type |
-|-----------------------------------|-----------------|----------|------------|
-| flagai.model.glm_model.GLMModel   | GLM-10b-ch      | chinese  | encoder    |
-| flagai.model.glm_model.GLMModel   | GLM-large-ch    | chinese  | encoder    |
-| flagai.model.bert_model.BertModel | RoBERTa-base-ch | chinese  | encoder    |
-| flagai.model.gpt2_model.GPT2Model | GPT2_base_ch    | chinese  | decoder    |
-| flagai.model.t5_model.T5Model     | T5-base-ch      | chinese  | enc2dec    |
-| flagai.model.t5_model.T5Model     | T5-base-en      | chinese  | enc2dec    |
-| flagai.model.bert_model.BertModel | BERT-base-en    | english  | encoder    |
-| flagai.model.glm_model.GLMModel   | GLM-large-en    | english  | encoder    |
+## All supported models
 
-## 支持的模型+任务
+| ClassName | ModelName | Language | Model Type |
+|-----------------------------------|------------- ----|----------|------------|
+| flagai.model.glm_model.GLMModel | GLM-10b-ch | chinese | encoder |
+| flagai.model.glm_model.GLMModel | GLM-large-ch | chinese | encoder |
+| flagai.model.bert_model.BertModel | RoBERTa-base-ch | chinese | encoder |
+| flagai.model.gpt2_model.GPT2Model | GPT2_base_ch | chinese | decoder |
+| flagai.model.t5_model.T5Model | T5-base-ch | chinese | enc2dec |
+| flagai.model.t5_model.T5Model | T5-base-en | chinese | enc2dec |
+| flagai.model.bert_model.BertModel | BERT-base-en | english | encoder |
+| flagai.model.glm_model.GLMModel | GLM-large-en | english | encoder |
 
-同时，我们对在任务上finetune好的模型进行了支持，如下表所示，可以通过ClassName.from_pretrain()来加载模型权重，例如，我们自动下载并加载一个在title-generation任务上训练好的GLM-large-ch模型：
-```python
+## Supported models + tasks
+
+At the same time, we support the finetuned model on the task, as shown in the table below, the model weights can be loaded through ClassName.from_pretrain(), for example, we automatically download and load a GLM trained on the title-generation task -large-ch model:
+
+````python
 from flagai.model.glm_model import GLMForSeq2Seq
 model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
-```
-我们也提供了AutoLoader类来帮助加载模型，比如GLM-large-ch模型用于seq2seq任务，这里我们采用了任务和模型独立的设计，理论上任务和模型可以自由更换。
-```python
+````
+
+We also provide the AutoLoader class to help load models. For example, the GLM-large-ch model is used for seq2seq tasks. Here we adopt a task- and model-independent design. In theory, tasks and models can be freely replaced.
+
+````python
 from flagai.auto_model.auto_loader import AutoLoader
 auto_loader = AutoLoader("seq2seq",
                          model_name="GLM-large-ch",
                          model_dir= "./state_dict")
 model = auto_loader.get_model()
-```
-| ClassName                                       | Model Name      | language | Task              |
-|-------------------------------------------------|-----------------|----------|-------------------|
-| flagai.model.glm_model.GLMForSeq2Seq            | GLM-large-ch    | chinese  | title generation  |
-| flagai.model.glm_model.GLMForSeq2Seq            | GLM-large-ch    | chinese  | poetry generation |
-| flagai.model.bert_model.BertForSequenceLabeling | RoBERTa-base-ch | chinese  | title generation  |
-| flagai.model.bert_model.BertForSequenceLabeling | RoBERTa-base-ch | chinese  | NER               |
-| flagai.model.bert_model.BertForSequenceLabeling | RoBERTa-base-ch | chinese  | semantic matching |
-| flagai.model.t5_model.T5Model                   | T5-base-ch      | chinese  | title generation  |
-| flagai.model.bert_model.BertForSequenceLabeling | BERT-base-en    | english  | title gneration   |
+````
 
-## 模型设计
-模型主要的构建逻辑`layer->block>model`
-`flagai.model.layer`: 包括mlp，layernorm, activation，attention等各种layer层
+| ClassName | Model Name | language | Task |
+|------------------------------------------------- |-----------------|----------|-------------------|
+| flagai.model.glm_model.GLMForSeq2Seq | GLM-large-ch | chinese | title generation |
+| flagai.model.glm_model.GLMForSeq2Seq | GLM-large-ch | chinese | poetry generation |
+| flagai.model.bert_model.BertForSequenceLabeling | RoBERTa-base-ch | chinese | title generation |
+| flagai.model.bert_model.BertForSequenceLabeling | RoBERTa-base-ch | chinese | NER |
+| flagai.model.bert_model.BertForSequenceLabeling | RoBERTa-base-ch | chinese | semantic matching |
+| flagai.model.t5_model.T5Model | T5-base-ch | chinese | title generation |
+| flagai.model.bert_model.BertForSequenceLabeling | BERT-base-en | english | title gneration |
 
-`flagai.model.block`:通过组装各种layer来构建transformer block，比如BERT block等
+## Model design
 
-`flagai.model`: 通过embedding层和stacked blocks 来构建model
+The main construction logic of the model `layer->block>model`
+`flagai.model.layer`: including mlp, layernorm, activation, attention and other layers
 
-## forward 函数
-Model 的forward函数：
-输入是 keyword arguments：包括 input_ids, position_ids, attention_mask等，对冗余的参数会自动忽略
-比如GLM的forward 函数：
-```python
+`flagai.model.block`: Build a transformer block by assembling various layers, such as BERT block, etc.
+
+`flagai.model`: build the model by embedding layers and stacked blocks
+
+## forward function
+
+Model's forward function:
+Input is keyword arguments: including input_ids, position_ids, attention_mask, etc., redundant parameters will be automatically ignored
+For example, GLM's forward function:
+
+````python
 def forward(self,
             input_ids=None,
             position_ids=None,
@@ -78,16 +89,21 @@ def forward(self,
             detach_memory=True,
             prompt_pos=None,
             **kwargs)
-```
-输出是 dictionary，包括 logits 和hidden states，这两个是必须的，例如GLM forword函数的返回：
-```python
+````
+
+The output is a dictionary, including logits and hidden states, which are required, such as the return of the GLM forword function:
+
+````python
 return {'loss': loss, 'logits': logits, 'hidden_states': mems}
-```
+````
+
 ## init_from_json
-Model 的init_from json函数：
-输入是一个dictionary， 输出是一个初始化的model
-例如GLMModel的调用如下：
-```python
+Model's init_from json function:
+The input is a dictionary, the output is an initialized model
+For example, the invocation of GLMModel is as follows:
+
+````python
 GLMModel.init_from_json(config_file = "./config.json", **kwargs)
-```
-**kwargs是预留参数，为了兼容一些模型新增的初始化参数
+````
+
+**kwargs are reserved parameters, in order to be compatible with new initialization parameters of some models
