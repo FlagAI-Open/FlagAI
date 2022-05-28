@@ -33,21 +33,21 @@ trainer = MyTrainer(
     batch_size=4,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     pytorch_device='cuda:0',
     load_dir=None,
     lr=1e-4,
     fp16=False)
 
 # using huggingface transformers to get tokenizer and models
-model_name = 't5-3b'
+model_name = 't5-11b'
 tokenizer = T5Tokenizer.from_pretrained(model_name)
 model = T5ForConditionalGeneration.from_pretrained(model_name)
 
 print("loading model & tokenizer is done!")
 src_dir = 'train_inputs.txt'
 tgt_dir = 'train_targets.txt'
-model_dir = "./t5-3b"  # 模型位置
+model_dir = "./t5-11b"  # 模型位置
 maxlen = 1024
 
 
@@ -139,7 +139,7 @@ trainer.train(model,
 ```
 
 ## 加速训练的技巧
-我们可能不会在V100 32G上运行t5-3b。所以，我们需要一些技巧来减少GPU内存的使用。
+我们可能不会在V100 32G上运行t5-11b。所以，我们需要一些技巧来减少GPU内存的使用。
 ### 第一步：fp16
 把模型参数变为 `fp16`
 ```python
@@ -149,15 +149,15 @@ trainer = MyTrainer(
     batch_size=1,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     pytorch_device='cuda:0',
     load_dir=None,
     lr=1e-4,
     fp16=True) # change to `True`
 ```  
 ### 第二步：梯度重计算（checkpoint）
-在forward阶段不将中间结果保存。我们可以运行`batch size`=1的t5-3b。
-现在，我们可以用 `gradient_accumulation_steps` train/finetune 一个 t5-3b。
+在forward阶段不将中间结果保存。我们可以运行`batch size`=1的t5-11b。
+现在，我们可以用 `gradient_accumulation_steps` train/finetune 一个 t5-11b。
 ```python
 trainer = MyTrainer(
     env_type='pytorch',
@@ -165,7 +165,7 @@ trainer = MyTrainer(
     batch_size=1,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     pytorch_device='cuda:0',
     load_dir=None,
     lr=1e-4,
@@ -181,7 +181,7 @@ trainer = Trainer(
     batch_size=1,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     load_dir=None,
     lr=1e-4,
     fp16=True
@@ -205,7 +205,7 @@ trainer = Trainer(
     batch_size=1,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     load_dir=None,
     lr=1e-4,
     fp16=True
@@ -230,7 +230,7 @@ trainer = Trainer(
     batch_size=1,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     load_dir=None,
     lr=1e-4,
     fp16=True

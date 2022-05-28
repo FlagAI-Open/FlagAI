@@ -1,7 +1,7 @@
 # GLM 例子：标题生成
 
 ## 背景
-标题生成任务需要输入一段文本，模型根据输入文本输出对应的标题。
+标题生成任务需要输入一段文本，模型根据输入文本输出对应的标题。这里使用`GLM-large-ch`作为样例,如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
 
 ![](./img/bert_title_generation_model.png)
 
