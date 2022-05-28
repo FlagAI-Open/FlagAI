@@ -91,7 +91,7 @@ class GPT2Stack(nn.Module):
         for i, block in enumerate(self.h):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states, )
-            if self.config.checkpoint_activations:
+            if self.config['checkpoint_activations']:
                 def create_custom_forward(module):
                     def custom_forward(*inputs):
                         return module(*inputs)
