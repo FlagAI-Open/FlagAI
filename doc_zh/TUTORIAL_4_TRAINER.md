@@ -1,4 +1,4 @@
-# Trainer
+# 为模型和数据并行训练定制训练器
 
 Trainer 类提供了API用于多种并行框架的训练。API 支持在多个 GPU上使用Pytorch DDP/Deepspeed进行分布式训练，同时支持Megatron-LM+Deepspeed的混合并行分布式训练，同时也通过 NVIDIA Apex 实现混合精度。
 ## 入门
