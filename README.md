@@ -8,16 +8,16 @@
 
 FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
 
-* Now it supports GLM, BERT, RoBERTa, GPT2, T5, and models from Huggingface Transformers.
+* Now it supports **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports **BERT**, **RoBERTa**, **GPT2**, **T5**, and models from Huggingface Transformers.
 
-* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on your own datasets, and then share them with the community on our model hub.
+* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LERANING.md) toolkit for few shot tasks.   
 
 * These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
-* FlagAI is backed by the three most popular data/model parallel libraries — PyTorch/Deepspeed/Megatron-LM — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
+* FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
 
-The code is partially based on [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
+The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
 
 
 <!-- toc -->
@@ -114,13 +114,17 @@ for text in test_data:
 ```
 
 ## Pretrained Models and examples
-* [Poetry generation with GLM-large-ch](docs/TUTORIAL_9_GLM_EXAMPLE_PEOTRY_GENERATION.md)
-* [Title Generation with RoBerta-WWM ](/docs/TUTORIAL_10_BERT_EXAMPLE_TITLE_GENERATION.md)
-* [Semantic Matching with RoBerta-WWM](/docs/TUTORIAL_11_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
-* [NER with RoBerta-WWM](/docs/TUTORIAL_14_BERT_EXAMPLE_NER.md)
-* [Writing with GPT-2](/docs/TUTORIAL_15_GPT2_WRITING.md)
-* [Title generation with T5](/docs/TUTORIAL_16_T5_EXAMPLE_TITLE_GENERATION.md)
-* [Supported tasks](/docs/AllSupportedTasks.md)
+
+* [Blank_Filling_QA with GLM ](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
+* [Title Generation with GLM ](/docs/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
+* [Poetry generation with GLM-large-ch](docs/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [Using huggingface's t5-11b & tricks ](docs/TUTORIAL_14_HUGGINGFACE_T5.md)
+* [Title Generation with RoBerta-WWM](/docs/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
+* [Semantic Matching with RoBerta-WWM](/docs/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
+* [NER with RoBerta-WWM](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
+* [Writing with GPT-2](/docs/TUTORIAL_18_GPT2_WRITING.md)
+* [Title generation with T5](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
+* [Supported tasks](/docs/TUTORIAL_20_SUPPORTED_TASKS.md)
 
 
 This session explains how the base NLP classes work, how you can load pre-trained models to tag your
@@ -131,22 +135,16 @@ language models, sequence labeling models, and text classification models. Let u
 
 ## Tutorials
 We provide a set of quick tutorials to get you started with the library:
-
-* [Tutorial 1: Basics](docs/TUTORIAL_1_BASICS.md)
-* [Tutorial 2: Project structure](docs/TUTORIAL_2_PROJECT_STRUCTURE.md)
-* [Tutorial 3: Supported tokenizers](docs/TUTORIAL_3_TOKENIZER.md)
-* [Tutorial 4: Supported datasets](docs/TUTORIAL_4_DATASET.md)
-* [Tutorial 5: Supported models](https://model.baai.ac.cn/models)
-* [Tutorial 6: Training a model](docs/TUTORIAL_8_TRAINING.md)
-* [Tutorial 7: AutoLoader](docs/TUTORIAL_12_INSTRUCTIONS_FOR_AutoLoader.md)
-* [Tutorial 8: Predictor](docs/TUTORIAL_13_INSTRUCTIONS_FOR_PREDICTOR.md)
-
-## Learn More About FlagAI
-* [Datasets: supported datasets & PET integration.](docs/APPENDIX_TASK.md)
-* [Setup enviroments for data/model parallel](docs/EnvironmentSetup.md)
-* [Three types of generation](docs/Seq2seqMethod.md)
-* [Using huggingface's t5-3b & tricks ](docs/Huggingface_t5.md)
-* [Transform a model into Megatron-LM version](docs/ChangeToMegatron.md)
+* [Tutorial 1: How to construct and use Tokenizer](/docs/TUTORIAL_1_TOKENIZER.md)
+* [Tutorial 2: Dataset Preprocessing Pipeline](/docs/TUTORIAL_2_DATASET.md)
+* [Tutorial 3: Major Function of Model Module](/docs/TUTORIAL_3_MODEL.md)
+* [Tutorial 4: Customize trainer for model and data-parallel training](/docs/TUTORIAL_4_TRAINER.md)
+* [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](/docs/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
+* [Tutorial 6: Use off-the-shelf inference Algorithms with Predictor](/docs/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
+* [Tutorial 7: Use FlagAI prompt-learning tool-kit to improve performance on SuperGLUE](/docs/TUTORIAL_7_PROMPT_LERANING.md)
+* [Tutorial 8: Setup environment for training models with multi-machine](/docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* [Tutorial 9: Text generation with encoder/decoder/encoder-decoder models](/docs/TUTORIAL_9_SEQ2SEQ_METHOD.md)
+* [Tutorial 10: How to transform a customized model into a megatron-LM-style parallel model](/docs/TUTORIAL_10_MEGATRON.md)
 
 ## Contributing
 

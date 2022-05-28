@@ -17,6 +17,7 @@
 import copy
 import warnings
 import torch
+import os
 from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch import Tensor, device
@@ -27,7 +28,13 @@ from flagai.model.layers.layer_norm import T5LayerNorm
 from flagai.model.layers.attentions import T5Attention
 from flagai.model.layers.feedforward import T5DenseReluDense, T5DenseGatedGeluDense
 from flagai.data.tokenizer.t5.t5_tokenizer import T5JiebaTokenizer
-
+if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+    from flagai.mpu import copy_to_model_parallel_region
+    from flagai.mpu.random import checkpoint 
+elif os.getenv('ENV_TYPE') == 'deepspeed':
+    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+else:
+    from torch.utils.checkpoint import checkpoint 
 # Warning message for FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
 __HEAD_MASK_WARNING_MSG = """
 The input argument `head_mask` was split into two arguments `head_mask` and `decoder_head_mask`. Currently,
@@ -43,7 +50,8 @@ class T5PreTrainedModel(BaseModel):
     models.
     """
     def __init__(self, config, **kwargs):
-        super(T5PreTrainedModel, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
+        # super(T5PreTrainedModel, self).__init__(config, **kwargs)
 
     def init_weights(self):
         for module in self.modules():
@@ -51,7 +59,7 @@ class T5PreTrainedModel(BaseModel):
 
     def _init_weights(self, module):
         """ Initialize the weights """
-        factor = self.config.initializer_factor  # Used for testing weights initialization
+        factor = self.config['initializer_factor']  # Used for testing weights initialization
         if isinstance(module, T5LayerNorm):
             module.weight.data.fill_(factor * 1.0)
 
@@ -65,36 +73,36 @@ class T5PreTrainedModel(BaseModel):
             # and https://github.com/tensorflow/mesh/blob/fa19d69eafc9a482aff0b59ddd96b025c0cb207d/mesh_tensorflow/layers.py#L89
             module.wi.weight.data.normal_(mean=0.0,
                                           std=factor *
-                                          ((self.config.d_model)**-0.5))
+                                          ((self.config['d_model'])**-0.5))
             if hasattr(module.wi, "bias") and module.wi.bias is not None:
                 module.wi.bias.data.zero_()
             module.wo.weight.data.normal_(mean=0.0,
                                           std=factor *
-                                          ((self.config.d_ff)**-0.5))
+                                          ((self.config['d_ff'])**-0.5))
             if hasattr(module.wo, "bias") and module.wo.bias is not None:
                 module.wo.bias.data.zero_()
         elif isinstance(module, T5DenseGatedGeluDense):
             module.wi_0.weight.data.normal_(mean=0.0,
                                             std=factor *
-                                            ((self.config.d_model)**-0.5))
+                                            ((self.config['d_model'])**-0.5))
             if hasattr(module.wi_0, "bias") and module.wi_0.bias is not None:
                 module.wi_0.bias.data.zero_()
             module.wi_1.weight.data.normal_(mean=0.0,
                                             std=factor *
-                                            ((self.config.d_model)**-0.5))
+                                            ((self.config['d_model'])**-0.5))
             if hasattr(module.wi_1, "bias") and module.wi_1.bias is not None:
                 module.wi_1.bias.data.zero_()
             module.wo.weight.data.normal_(mean=0.0,
                                           std=factor *
-                                          ((self.config.d_ff)**-0.5))
+                                          ((self.config['d_ff'])**-0.5))
             if hasattr(module.wo, "bias") and module.wo.bias is not None:
                 module.wo.bias.data.zero_()
         elif isinstance(module, T5Attention):
             # Mesh TensorFlow attention initialization to avoid scaling before softmax
             # See https://github.com/tensorflow/mesh/blob/fa19d69eafc9a482aff0b59ddd96b025c0cb207d/mesh_tensorflow/transformer/attention.py#L136
-            d_model = self.config.d_model
-            key_value_proj_dim = self.config.d_kv
-            n_heads = self.config.num_heads
+            d_model = self.config['d_model']
+            key_value_proj_dim = self.config['d_kv']
+            n_heads = self.config['num_heads']
             module.q.weight.data.normal_(
                 mean=0.0, std=factor * ((d_model * key_value_proj_dim)**-0.5))
             module.k.weight.data.normal_(mean=0.0,
@@ -108,8 +116,8 @@ class T5PreTrainedModel(BaseModel):
                     mean=0.0, std=factor * ((d_model)**-0.5))
 
     def _shift_right(self, input_ids):
-        decoder_start_token_id = self.config.decoder_start_token_id
-        pad_token_id = self.config.pad_token_id
+        decoder_start_token_id = self.config['decoder_start_token_id']
+        pad_token_id = self.config['pad_token_id']
 
         assert (
             decoder_start_token_id is not None
@@ -169,7 +177,6 @@ class T5Stack(nn.Module):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=True,
-        checkpoint=None,
     ):
 
         if input_ids is not None and inputs_embeds is not None:
@@ -248,7 +255,7 @@ class T5Stack(nn.Module):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states, )
 
-            if checkpoint is not None:
+            if self.config['checkpoint_activations']:
 
                 def create_custom_forward(module):
                     def custom_forward(*inputs):
@@ -470,7 +477,7 @@ class T5Stack(nn.Module):
         return encoder_extended_attention_mask
 
 
-class T5Model(BaseModel):
+class T5Model(T5PreTrainedModel):
     _keys_to_ignore_on_load_missing = [
         r"encoder\.embed_tokens\.weight",
         r"decoder\.embed_tokens\.weight",
@@ -721,26 +728,27 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         r"decoder\.block\.0\.layer\.1\.EncDecAttention\.relative_attention_bias\.weight",
     ]
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, **kwargs):
+        super().__init__(config, **kwargs)
         self.config = config
-        self.model_dim = config.d_model
+        self.model_dim = config['d_model']
 
-        self.shared = nn.Embedding(config.vocab_size, config.d_model)
+        self.shared = nn.Embedding(config['vocab_size'], config['d_model'])
 
         encoder_config = copy.deepcopy(config)
-        encoder_config.is_decoder = False
-        encoder_config.use_cache = False
-        encoder_config.is_encoder_decoder = False
+        encoder_config['is_decoder'] = False
+        encoder_config['use_cache'] = False
+        encoder_config['is_encoder_decoder'] = False
         self.encoder = T5Stack(encoder_config, self.shared)
 
         decoder_config = copy.deepcopy(config)
-        decoder_config.is_decoder = True
-        decoder_config.is_encoder_decoder = False
-        decoder_config.num_layers = config.num_decoder_layers
+        decoder_config['is_decoder'] = True
+        decoder_config['is_encoder_decoder'] = False
+        if 'number_decoder_layers' in config:
+            decoder_config['num_layers'] = config['num_decoder_layers']
         self.decoder = T5Stack(decoder_config, self.shared)
 
-        self.lm_head = nn.Linear(config.d_model, config.vocab_size, bias=False)
+        self.lm_head = nn.Linear(config['d_model'], config['vocab_size'], bias=False)
         self.init_weights()
 
         # Model parallel
@@ -748,7 +756,7 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         self.device_map = None
 
     def get_input_embeddings(self):
-        return self.shared
+        return self.shared.weight.data
 
     def set_input_embeddings(self, new_embeddings):
         self.shared = new_embeddings
@@ -756,10 +764,10 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         self.decoder.set_input_embeddings(new_embeddings)
 
     def set_output_embeddings(self, new_embeddings):
-        self.lm_head = new_embeddings
+        self.lm_head.weight.data = new_embeddings
 
     def get_output_embeddings(self):
-        return self.lm_head
+        return self.lm_head.weight
 
     def get_encoder(self):
         return self.encoder
@@ -768,23 +776,23 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         return self.decoder
 
     def forward(
-        self,
-        input_ids=None,
-        attention_mask=None,
-        decoder_input_ids=None,
-        decoder_attention_mask=None,
-        head_mask=None,
-        decoder_head_mask=None,
-        encoder_outputs=None,
-        past_key_values=None,
-        inputs_embeds=None,
-        decoder_inputs_embeds=None,
-        labels=None,
-        use_cache=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
-        mems=None,
+            self,
+            input_ids=None,
+            attention_mask=None,
+            decoder_input_ids=None,
+            decoder_attention_mask=None,
+            head_mask=None,
+            decoder_head_mask=None,
+            encoder_outputs=None,
+            past_key_values=None,
+            inputs_embeds=None,
+            decoder_inputs_embeds=None,
+            labels=None,
+            use_cache=True,
+            output_attentions=None,
+            output_hidden_states=None,
+            return_dict=True,
+            mems=None,
     ):
         r"""
         labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`):
@@ -804,12 +812,10 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
             >>> input_ids = tokenizer("summarize: studies have shown that owning a dog is good for you ", return_tensors="pt").input_ids  # Batch size 1
             >>> outputs = model.generate(input_ids)
         """
-        use_cache = use_cache if use_cache is not None else self.config.use_cache
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
         if head_mask is not None and decoder_head_mask is None:
-            if self.config.num_layers == self.config.num_decoder_layers:
+            if self.config['num_layers'] == self.config['num_decoder_layers']:
                 warnings.warn(__HEAD_MASK_WARNING_MSG, FutureWarning)
                 decoder_head_mask = head_mask
 
@@ -828,11 +834,11 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         elif return_dict and not isinstance(encoder_outputs, dict):
             encoder_outputs = {
                 "last_hidden_state":
-                encoder_outputs[0],
+                    encoder_outputs[0],
                 "hidden_states":
-                encoder_outputs[1] if len(encoder_outputs) > 1 else None,
+                    encoder_outputs[1] if len(encoder_outputs) > 1 else None,
                 "attentions":
-                encoder_outputs[2] if len(encoder_outputs) > 2 else None,
+                    encoder_outputs[2] if len(encoder_outputs) > 2 else None,
             }
 
         hidden_states = encoder_outputs['last_hidden_state']
@@ -890,10 +896,6 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
             self.lm_head = self.lm_head.to(self.encoder.first_device)
             sequence_output = sequence_output.to(self.lm_head.weight.device)
 
-        if self.config.tie_word_embeddings:
-            # Rescale output before projecting on vocab
-            # See https://github.com/tensorflow/mesh/blob/fa19d69eafc9a482aff0b59ddd96b025c0cb207d/mesh_tensorflow/transformer/transformer.py#L586
-            sequence_output = sequence_output * (self.model_dim**-0.5)
         #
         lm_logits = self.lm_head(sequence_output)
 
@@ -907,17 +909,11 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         if not return_dict:
             output = (lm_logits, ) + decoder_outputs[1:] + encoder_outputs
             return ((loss, ) + output) if loss is not None else output
-        if self.config.return_logist_only:
-            if labels is not None:
-                return {"loss": loss, "logits": lm_logits}
-
-            else:
-                return {"logits": lm_logits}
 
         return {
             "loss": loss,
             "logits": lm_logits,
-            "past_key_values": decoder_outputs.past_key_values,
+            "past_key_values": decoder_outputs["past_key_values"],
             "decoder_hidden_states": decoder_outputs["hidden_states"],
             "decoder_attentions": decoder_outputs["attentions"],
             "cross_attentions": decoder_outputs["cross_attentions"],
@@ -976,6 +972,26 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
                 reordered_layer_past_states, )
         return reordered_decoder_past
 
+    def load_weights(self, checkpoint_path):
+
+        _keys_to_ignore_on_load_missing = [
+            r"encoder\.embed_tokens\.weight",
+            r"decoder\.embed_tokens\.weight",
+            r"lm_head\.weight",
+        ]
+        _keys_to_ignore_on_load_unexpected = [
+            r"decoder\.block\.0\.layer\.1\.EncDecAttention\.relative_attention_bias\.weight",
+        ]
+
+        checkpoint = torch.load(checkpoint_path,
+                                map_location=torch.device("cpu"))
+        if "module" in checkpoint:
+            # ddp
+            checkpoint = checkpoint["module"]
+        self.load_state_dict(checkpoint, strict=False)
+        self.set_output_embeddings(nn.Parameter(self.get_input_embeddings()))
+
+        return checkpoint
 
 class T5EncoderModel(T5PreTrainedModel):
     authorized_missing_keys = [
@@ -985,11 +1001,11 @@ class T5EncoderModel(T5PreTrainedModel):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.shared = nn.Embedding(config.vocab_size, config.d_model)
+        self.shared = nn.Embedding(config['vocab_size'], config['d_model'])
 
         encoder_config = copy.deepcopy(config)
-        encoder_config.use_cache = False
-        encoder_config.is_encoder_decoder = False
+        encoder_config['use_cache'] = False
+        encoder_config['is_encoder_decoder'] = False
         self.encoder = T5Stack(encoder_config, self.shared)
 
         self.init_weights()
@@ -1028,7 +1044,7 @@ class T5EncoderModel(T5PreTrainedModel):
             >>> outputs = model(input_ids=input_ids)
             >>> last_hidden_states = outputs.last_hidden_state
         """
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        return_dict = return_dict if return_dict is not None else self.config['use_return_dict']
 
         encoder_outputs = self.encoder(
             input_ids=input_ids,

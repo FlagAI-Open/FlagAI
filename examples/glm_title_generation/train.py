@@ -2,6 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.glm_model import GLMModel, GLMForSeq2Seq
 from flagai.data.tokenizer import GLMLargeChTokenizer
 from flagai.trainer import Trainer
@@ -10,37 +11,30 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="roberta_seq2seq",
+    experiment_name="GLM_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
-    lr=2e-4,
-    weight_decay=1e-3,
+    lr=1e-5,
+    weight_decay=1e-5,
     epochs=10,
     log_interval=10,
     eval_interval=10000,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints",
+    save_dir="checkpoints_glm_title_generation",
     save_epoch=1,
     num_checkpoints=1,
-    master_ip='127.0.0.1',
-    master_port=17750,
-    num_nodes=1,
-    num_gpus=2,
-    hostfile='./hostfile',
-    deepspeed_config='./deepspeed.json',
-    training_script=__file__,
 )
 
-cur_dir = os.path.dirname(os.path.abspath(__file__))
-src_dir = cur_dir + '/data/train.src'
-tgt_dir = cur_dir + '/data/train.tgt'
-model_dir = "./state_dict/roberta/"  # 模型位置
-os.makedirs(model_dir, exist_ok=True)
-model_save_path = "./bert_auto_title_model.bin"
+src_dir = './data/train.src'
+tgt_dir = './data/train.tgt'
+
 maxlen = 256
-model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
-tokenizer = GLMLargeChTokenizer()
+auto_loader = AutoLoader("seq2seq",
+                         model_name="GLM-large-ch",
+                         model_dir="./state_dict/")
+model = auto_loader.get_model()
+tokenizer = auto_loader.get_tokenizer()
 
 
 def read_file():
@@ -60,7 +54,7 @@ def read_file():
     return src, tgt
 
 
-class BertSeq2seqDataset(Dataset):
+class GLMSeq2seqDataset(Dataset):
 
     def __init__(self,
                  sents_src,
@@ -68,7 +62,7 @@ class BertSeq2seqDataset(Dataset):
                  tokenizer,
                  max_src_length=300,
                  max_tgt_length=200):
-        super(BertSeq2seqDataset, self).__init__()
+        super(GLMSeq2seqDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -79,58 +73,63 @@ class BertSeq2seqDataset(Dataset):
     def __getitem__(self, i):
         source_text = self.sents_src[i]
         target_text = self.sents_tgt[i]
-        cls_id = self.tokenizer.get_command('ENC').Id
-        mask_token = 'MASK'
-        mask_id = self.tokenizer.get_command(mask_token).Id
-        pad_id = self.tokenizer.get_command('pad').Id
-        sop_id = self.tokenizer.get_command('sop').Id
-        eop_id = self.tokenizer.get_command('eop').Id
-        source_tokens = self.tokenizer.EncodeAsIds(" " + source_text)
-        prompt = [cls_id, mask_id] + self.tokenizer.EncodeAsIds(" Content:")
-        if len(source_tokens) > self.max_src_length - len(prompt):
-            source_tokens = source_tokens[:self.max_src_length - len(prompt)]
-        source_tokens = prompt + source_tokens
+        data = self.tokenizer.encode_plus(source_text, target_text)
 
-        if len(source_tokens) < self.max_src_length:
-            source_tokens = source_tokens + [pad_id] * (self.max_src_length -
-                                                        len(source_tokens))
-        sep = len(source_tokens)
-        position_ids = list(range(len(source_tokens)))
-        block_position_ids = [0] * len(source_tokens)
-        mask_pos = source_tokens.index(mask_id)
-        target_tokens = self.tokenizer.EncodeAsIds(" " + target_text)
-        target_tokens = target_tokens + [eop_id]
-        if len(target_tokens) > self.max_tgt_length:
-            target_tokens = target_tokens[:self.max_tgt_length]
-        loss_mask = [1] * len(target_tokens)
-        if len(target_tokens) < self.max_tgt_length:
-            loss_mask += [0] * (self.max_tgt_length - len(target_tokens))
-            target_tokens += [pad_id
-                              ] * (self.max_tgt_length - len(target_tokens))
-        tokens = source_tokens + [sop_id] + target_tokens[:-1]
-        loss_mask = [0] * len(source_tokens) + loss_mask
-        target_ids = [0] * len(source_tokens) + target_tokens
-        position_ids += [mask_pos] * len(target_tokens)
-        if self.no_block_position:
-            block_position_ids += [1] * len(target_tokens)
-        else:
-            block_position_ids += list(range(1, len(target_tokens) + 1))
-        position_ids = [position_ids, block_position_ids]
-        sample = {
-            'input_ids': np.array(tokens, dtype=np.int64),
-            'target_ids': np.array(target_ids, dtype=np.int64),
-            'attention_mask': np.array(sep, dtype=np.int64),
-            'loss_mask': np.array(loss_mask, dtype=np.int64),
-            "position_ids": np.array(position_ids, dtype=np.int64)
-        }
-        return sample
+        return data
 
     def __len__(self):
 
         return len(self.sents_src)
 
 
+class GLMPoetryDynamicCollateFN():  #padding process in each batch
+
+    def __init__(self, pad_id):
+        self.pad_id = pad_id
+
+    def pad_token(self, tokens, max_length):
+        pad_len = max_length - len(tokens)
+        tokens += [self.pad_id] * pad_len
+        return tokens
+
+    def pad_position_ids(self, position_ids, max_length):
+        pad_len = max_length - len(position_ids[0])
+        position_ids[0] += [len(position_ids[0]) + x for x in range(pad_len)]
+        position_ids[1] += [1] * pad_len
+        return position_ids
+
+    def pad_loss_mask(self, loss_mask, max_length):
+        pad_len = max_length - len(loss_mask)
+        loss_mask += [0] * pad_len
+        return loss_mask
+
+    def __call__(self, batch):
+        input_ids = [data["input_ids"] for data in batch]
+        target_ids = [data["target_ids"] for data in batch]
+        position_ids = [data["position_ids"] for data in batch]
+        attention_mask = [data['attention_mask'] for data in batch]
+        loss_mask = [data['loss_mask'] for data in batch]
+
+        max_length = max([len(t) for t in input_ids])
+        for i in range(len(input_ids)):
+            input_ids[i] = self.pad_token(input_ids[i], max_length)
+            target_ids[i] = self.pad_token(target_ids[i], max_length)
+            position_ids[i] = self.pad_position_ids(position_ids[i],
+                                                    max_length)
+            loss_mask[i] = self.pad_loss_mask(loss_mask[i], max_length)
+        return {
+            'input_ids': torch.LongTensor(input_ids),
+            'target_ids': torch.LongTensor(target_ids),
+            'position_ids': torch.LongTensor(position_ids),
+            'attention_mask': torch.LongTensor(attention_mask),
+            'loss_mask': torch.LongTensor(loss_mask)
+        }
+
+
 sents_src, sents_tgt = read_file()
+my_collate_fn = GLMPoetryDynamicCollateFN(
+    pad_id=tokenizer.get_command('pad').Id)
+
 data_len = len(sents_tgt)
 train_size = int(data_len * 0.8)
 train_src = sents_src[:train_size][:2000]
@@ -139,15 +138,18 @@ train_tgt = sents_tgt[:train_size][:2000]
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src,
-                                   train_tgt,
-                                   tokenizer=tokenizer,
-                                   max_src_length=300,
-                                   max_tgt_length=200)
-val_dataset = BertSeq2seqDataset(val_src,
-                                 val_tgt,
-                                 tokenizer=tokenizer,
-                                 max_src_length=300,
-                                 max_tgt_length=200)
+train_dataset = GLMSeq2seqDataset(train_src,
+                                  train_tgt,
+                                  tokenizer=tokenizer,
+                                  max_src_length=300,
+                                  max_tgt_length=200)
+val_dataset = GLMSeq2seqDataset(val_src,
+                                val_tgt,
+                                tokenizer=tokenizer,
+                                max_src_length=300,
+                                max_tgt_length=200)
 
-trainer.train(model, train_dataset=train_dataset, valid_dataset=val_dataset)
+trainer.train(model,
+              train_dataset=train_dataset,
+              valid_dataset=val_dataset,
+              collate_fn=my_collate_fn)

@@ -8,6 +8,9 @@ side, please stick to the following process:
 3. If we decide your concern needs code changes, we would be happy to accept a pull request. Please consider the
 commit guidelines below.
 
+## Sign the CLA
+
+Before you can contribute to FlagAI, you will need to sign the [Contributor License Agreement](CLA.md).
 
 ## Git Commit Guidelines
 
@@ -34,17 +37,13 @@ pip install -r requirements.txt
 ```
 
 ### tests
-
-
-
+Install `pytest` for testing
+```
+pip install pytest
+```
 To run all basic tests execute:
 ```bash
-python test.py
-```
-
-To check the test results in
-```
-tests/test_report
+pytest
 ```
 
 ### code formatting

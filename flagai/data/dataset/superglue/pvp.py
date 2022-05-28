@@ -335,10 +335,6 @@ class PVP(ABC):
                                           segment_ids=segment_id_list,
                                           prompt_ids=prompt_list,
                                           meta={})
-                    # print(sample['input_ids'].shape, sample['target_ids'].shape, sample['attention_mask'].shape,
-                    #       sample['logit_mask'].shape)
-                    # print(sample['input_ids'], sample['target_ids'], sample['attention_mask'],
-                    #       sample['logit_mask'])
                     return sample
             else:
                 this_parts_a, this_parts_b = copy.deepcopy(

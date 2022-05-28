@@ -16,12 +16,11 @@ import random
 import numpy as np
 import torch.distributed as dist
 from flagai.logger import log_dist
-from torch.utils.checkpoint import checkpoint as torch_checkpoint
 from torch.utils.tensorboard import SummaryWriter
 from flagai.utils import load_checkpoint, save_checkpoint
 from flagai.schedulers import AnnealingLR
 from flagai.optimizers import get_optimizer, get_optimizer_param_groups
-from flagai.fp16 import convert_network
+from flagai.fp16 import FP16_Module
 from flagai.utils import Timers
 from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -264,6 +263,7 @@ class Trainer():
                                                  init_method=init_method)
         # Set the model-parallel / data-parallel communicators.
         if self.env_type == 'deepspeed+mpu':
+            os.environ["MODEL_PARALLEL_SIZE"] = str(self.model_parallel_size)
             try:
                 mpu.initialize_model_parallel(self.model_parallel_size)
                 if 'deepspeed' in self.env_type and self.deepspeed_activation_checkpointing:
@@ -361,6 +361,8 @@ class Trainer():
         else:
             valid_dataloader = valid_dataset
 
+        if self.fp16:
+            model.half()
         if self.env_type == 'pytorchDDP':
             model.to(torch.device('cuda', self.local_rank))
             model = DDP(model,
@@ -370,24 +372,25 @@ class Trainer():
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)
         else:
-            model.to(torch.device('cuda', self.local_rank))
+            model.cuda(torch.device('cuda', self.local_rank))
         """Train the model."""
         # Turn on training mode which enables dropout.
-        model.train()
         if self.fp16:
-            model = convert_network(model, torch.half)
+            model = FP16_Module(model)  
+  
+        model.train()
         param_groups = get_optimizer_param_groups(model)
 
         if hasattr(param_groups[0], 'params'):
             # for T5 Model
             param_groups = param_groups[0]['params']
 
-        if optimizer is None:
+        if optimizer is None and 'deepspeed' not in self.env_type:
             optimizer = get_optimizer(param_groups=param_groups,
                                       lr=self.lr,
                                       weight_decay=self.weight_decay,
                                       cpu_optimizer=True,
-                                      cpu_torch_adam=True,
+                                      cpu_torch_adam=False,
                                       fp16=self.fp16)
 
         # if lr_scheduler == None:
@@ -400,7 +403,7 @@ class Trainer():
 
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
-            model, _, __, ___ = deepspeed.initialize(
+            model, optimizer, __, ___ = deepspeed.initialize(
                 model=model,
                 # if huggingface t5: param_groups[0]['params']
                 model_parameters=param_groups,
@@ -447,7 +450,6 @@ class Trainer():
                         for x in batch if x not in ['uid', 'meta', 'mode']
                     }
                 elif 'pytorch' == self.env_type:
-
                     batch = {
                         x: batch[x].to(torch.device(self.pytorch_device))
                         for x in batch if x not in ['uid', 'meta', 'mode']
@@ -628,16 +630,6 @@ class Trainer():
     def forward_step(self, data, model, mems):
         """Simple forward step. """
         data['mems'] = mems
-        data['checkpoint_fn'] = None
-        if self.env_type == 'pytorchDDP' and self.checkpoint_activations:
-            raise Exception(
-                "Not support yet! `This option will cause RuntimeError: Expected to mark a variable ready only once.` "
-            )
-        if self.env_type == 'pytorch' and self.checkpoint_activations:
-            data['checkpoint_fn'] = torch_checkpoint
-        if self.env_type == 'deepspeed' and self.checkpoint_activations:
-            data['checkpoint_fn'] = deepspeed.checkpointing.checkpoint
-
         model_output = model(**data)
         logits = model_output['logits']
         loss = model_output['loss']

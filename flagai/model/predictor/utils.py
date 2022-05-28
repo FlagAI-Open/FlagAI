@@ -4,7 +4,7 @@ from typing import List
 import torch
 import numpy as np
 import torch.nn.functional as F
-
+import time
 join = os.path.join
 
 
@@ -568,57 +568,65 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
 
 def glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
                       repetition_penalty, temperature, device):
-    #tokenizer:GLMChineseSPTokenizer
-    #model input:
-    data = tokenizer.encode_plus(text)
-    input_ids = torch.tensor([data['input_ids']],
-                             device=device,
-                             dtype=torch.long)
-    position_ids = torch.tensor([data['position_ids']],
-                                device=device,
-                                dtype=torch.long)
-    attention_mask = torch.tensor(data['attention_mask'],
-                                  device=device,
-                                  dtype=torch.long)
-    #choosabel processor to overlay:
-    lp = [
-        TemperatureLogitsProcessor(temperature=temperature),
-        TopPLogitsProcessor(top_p=top_p),
-        RepetitionPenaltyLogitsProcessor(penalty=repetition_penalty),
-        TopKLogitsProcessor(top_k=top_k)
-    ]
-    list_processor = ListProcessor(lp)
+    if 'MASK]' in text:
+        return glm_generate_sample( model,  tokenizer, text,
+                            out_seq_length=out_max_length, top_k=top_k,
+                            temperature=temperature)
 
-    output_ids = []
-    end_id = tokenizer.command_name_map['eop'].Id
-    with torch.no_grad():
-        for step in range(out_max_length):
-            scores = model(
-                input_ids=input_ids,  #GLMModel
-                position_ids=position_ids,
-                attention_mask=attention_mask)[
-                    "logits"]  #[1,max_src_length,vocab_size]
-            logit_score = torch.log_softmax(scores[:, -1],
-                                            dim=-1)  #[1,vocab_size]
-            logit_score[:,
-                        tokenizer.CommandTokenIds(
-                            exception=["eop", "gMASK"])] = -float('Inf')
 
-            filtered_logits = list_processor(input_ids, logit_score)
-            prob = F.softmax(filtered_logits, dim=-1)
-            next_token = torch.multinomial(prob, num_samples=1)
-            if end_id == next_token.item():
-                break
-            output_ids.append(next_token.item())
-            input_ids = torch.cat((input_ids, next_token.long()), dim=1)
-            new_position_ids = torch.tensor([[[position_ids.size()[2]], [0]]],
-                                            device=device,
-                                            dtype=torch.long)
-            position_ids = torch.cat((position_ids, new_position_ids),
-                                     dim=2)  #shape:[1,2,inputsize]
-    if not output_ids:
-        print("None")
-    return tokenizer.DecodeIds(output_ids)
+
+    else:
+        #tokenizer:GLMChineseSPTokenizer
+        #model input:
+        data = tokenizer.encode_plus(text)
+        input_ids = torch.tensor([data['input_ids']],
+                                 device=device,
+                                 dtype=torch.long)
+        position_ids = torch.tensor([data['position_ids']],
+                                    device=device,
+                                    dtype=torch.long)
+        attention_mask = torch.tensor(data['attention_mask'],
+                                      device=device,
+                                      dtype=torch.long)
+        #choosabel processor to overlay:
+        lp = [
+            TemperatureLogitsProcessor(temperature=temperature),
+            TopPLogitsProcessor(top_p=top_p),
+            RepetitionPenaltyLogitsProcessor(penalty=repetition_penalty),
+            TopKLogitsProcessor(top_k=top_k)
+        ]
+        list_processor = ListProcessor(lp)
+
+        output_ids = []
+        end_id = tokenizer.command_name_map['eop'].Id
+        with torch.no_grad():
+            for step in range(out_max_length):
+                scores = model(
+                    input_ids=input_ids,  #GLMModel
+                    position_ids=position_ids,
+                    attention_mask=attention_mask)[
+                        "logits"]  #[1,max_src_length,vocab_size]
+                logit_score = torch.log_softmax(scores[:, -1],
+                                                dim=-1)  #[1,vocab_size]
+                logit_score[:,
+                            tokenizer.CommandTokenIds(
+                                exception=["eop", "gMASK"])] = -float('Inf')
+
+                filtered_logits = list_processor(input_ids, logit_score)
+                prob = F.softmax(filtered_logits, dim=-1)
+                next_token = torch.multinomial(prob, num_samples=1)
+                if end_id == next_token.item():
+                    break
+                output_ids.append(next_token.item())
+                input_ids = torch.cat((input_ids, next_token.long()), dim=1)
+                new_position_ids = torch.tensor([[[position_ids.size()[2]], [0]]],
+                                                device=device,
+                                                dtype=torch.long)
+                position_ids = torch.cat((position_ids, new_position_ids),
+                                         dim=2)  #shape:[1,2,inputsize]
+        if not output_ids:
+            print("None")
+        return tokenizer.DecodeIds(output_ids)
 
 
 def glm_beamsearch(model, tokenizer, text, out_max_length, beam_size):  #
@@ -697,9 +705,9 @@ def t5_predict_generate(model,
 
     with torch.no_grad():
         device = next(model.parameters()).device
-        decoder_input_ids = torch.tensor(decoder_input_ids, device=device)
+        decoder_input_ids = torch.tensor(decoder_input_ids, device=device, dtype=torch.long)
         if input_ids is not None:
-            input_ids = torch.tensor(input_ids, device=device)
+            input_ids = torch.tensor(input_ids, device=device, dtype=torch.long)
             if input_ids.ndim == 1:
                 input_ids = input_ids.view(1, -1)
 
@@ -786,6 +794,92 @@ def t5_beam_search(model,
                     encoder_hidden_state = encoder_hidden_state[flag]
 
         return output_ids[output_scores.argmax()]
+
+
+def glm_sample_sequence(model,  tokenizer, context_tokens, context_length,
+                    mems=None, end_tokens=None,out_seq_length=512,temperature=0.9,
+                    top_k=40):
+    tokens = context_tokens.new_full((1, 1), tokenizer.get_command('sop').Id)
+    counter = 0
+    if mems is None:
+        mems = []
+
+    last_beam_num = 1
+
+    while counter < out_seq_length:
+        position_ids = context_tokens.new_ones(last_beam_num, 2, 1)
+        position_ids[:, 0] = context_length
+        position_ids[:, 1] = counter + 1
+        attention_mask = context_tokens.new_zeros([1], device=context_tokens.device, dtype=torch.long)
+        last_token = tokens[:, -1:]
+        output_ = model(last_token, position_ids, attention_mask,mems=mems, return_memory=True)
+        mems = output_['hidden_states']
+        next_token_logits = output_['logits']
+        next_token_logits = next_token_logits[:, -1]
+        next_token_logits /= temperature
+        indices_to_remove = next_token_logits < torch.topk(next_token_logits, top_k)[0][..., -1, None]
+        next_token_logits[indices_to_remove] = -float('Inf')
+        log_probs = F.softmax(next_token_logits, dim=-1)
+        prev = torch.multinomial(log_probs, num_samples=1)[0]
+        is_end = prev.item() in end_tokens
+        if is_end:
+            break
+        prev = prev.view(1, 1)
+        tokens = prev if tokens is None else torch.cat((tokens, prev), dim=1)
+        counter += 1
+    return torch.cat((context_tokens, tokens), dim=1), mems
+
+
+
+def glm_generate_sample(model,  tokenizer,text, top_k=40,seq_length=512,out_seq_length=512,
+                     eod_token=50000,temperature=0.9, ):
+    device=torch.cuda.current_device()
+    model.eval()
+
+    generation_mask = '[gMASK]'
+    if 'MASK]' not in text:
+        text += ' ' + generation_mask
+    context_tokens = tokenizer.EncodeAsIds(text)
+    context_tokens = [tokenizer.get_command('ENC').Id] + context_tokens
+    if not text.endswith('[gMASK]'):
+        context_tokens = context_tokens + [tokenizer.get_command('eos').Id]
+    context_length = len(context_tokens)
+    context_length_tensor = torch.cuda.LongTensor([context_length])
+    context_length = context_length_tensor[0].item()
+    context_tokens_tensor = torch.cuda.LongTensor(context_tokens)
+    text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
+
+    start_time = time.time()
+    mems = []
+    tokens = context_tokens_tensor
+    tokens = tokens.view(1, -1).contiguous()
+    tokens = tokens.to(device)
+    attention_mask = torch.tensor([tokens.size(1)], device=device, dtype=torch.long)
+    position_ids = torch.arange(tokens.size(1), device=device, dtype=torch.long)
+    block_position_ids = torch.zeros(tokens.size(1), device=device, dtype=torch.long)
+    position_ids = torch.stack((position_ids, block_position_ids), dim=0)
+    position_ids = position_ids.unsqueeze(0)
+    mask_tokens = ['MASK', 'sMASK', 'gMASK']
+    mask_tokens = [tokenizer.get_command(token).Id for token in mask_tokens]
+    end_tokens = [tokenizer.get_command('eop').Id, eod_token]
+    mask_positions = []
+    for token in mask_tokens:
+        mask_positions += (context_tokens_tensor == token).nonzero(as_tuple=True)[0].tolist()
+    mask_positions.sort()
+    output_ = model(tokens, position_ids, attention_mask, return_memory=True)
+    mems=output_['hidden_states']
+    for mask_position in mask_positions:
+        position = mask_position
+        tokens, mems = glm_sample_sequence(model, tokenizer, tokens, position,
+                                         mems=mems, end_tokens=end_tokens,
+                                       out_seq_length=out_seq_length,temperature=temperature, top_k=top_k)
+    output_tokens_list = tokens.view(-1).contiguous()
+
+    decode_tokens = tokenizer.DecodeIds(output_tokens_list.tolist())
+
+
+    return decode_tokens
+
 
 
 def gpt_beam_search(model,

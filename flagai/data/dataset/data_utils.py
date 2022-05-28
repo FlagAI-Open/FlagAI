@@ -278,6 +278,7 @@ def build_sample(ids,
                  target=None,
                  logit_mask=None,
                  segment_ids=None,
+                 loss_mask=None,
                  prompt_ids=None,
                  meta=None):
     """Convert to numpy and return a sample consumed by the batch producer."""
@@ -305,14 +306,17 @@ def build_sample(ids,
     if logit_mask is not None:
         logit_mask_np = np.array(logit_mask, dtype=np.int64)
         sample['logit_mask'] = logit_mask_np
+    if loss_mask is not None:
+        loss_mask_np = np.array(loss_mask, dtype=np.int64)
+        sample['loss_mask'] = loss_mask_np
     if segment_ids is not None:
         segment_ids = np.array(segment_ids, dtype=np.int64)
         sample['segment_id'] = segment_ids
     if meta is not None:
         sample['meta'] = meta
-    #if prompt_ids is not None:
-    #    prompt_ids = np.array(prompt_ids, dtype=np.int64)
-    #    sample['prompt_pos'] = prompt_ids
+    if prompt_ids and prompt_ids is not None:
+       prompt_ids = np.array(prompt_ids, dtype=np.int64)
+       sample['prompt_pos'] = prompt_ids
     if unique_id is not None:
         sample['uid'] = unique_id
     return sample

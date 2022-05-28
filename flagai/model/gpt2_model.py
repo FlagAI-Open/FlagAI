@@ -11,7 +11,13 @@ if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import gather_from_model_parallel_region
     from flagai.mpu import get_cuda_rng_tracker
     from flagai.mpu.utils import divide
-
+if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+    from flagai.mpu import copy_to_model_parallel_region
+    from flagai.mpu.random import checkpoint 
+elif os.getenv('ENV_TYPE') == 'deepspeed':
+    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+else:
+    from torch.utils.checkpoint import checkpoint 
 
 class GPT2Stack(nn.Module):
     def __init__(self, config):
@@ -83,17 +89,31 @@ class GPT2Stack(nn.Module):
         all_self_attentions = () if output_attentions else None
         all_hidden_states = () if output_hidden_states else None
         for i, block in enumerate(self.h):
-
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states, )
+            if self.config['checkpoint_activations']:
+                def create_custom_forward(module):
+                    def custom_forward(*inputs):
+                        return module(*inputs)
+                    return custom_forward
 
-            outputs = block(
-                hidden_states,
-                attention_mask=attention_mask,
-                head_mask=None,
-                use_cache=use_cache,
-                output_attentions=output_attentions,
-            )
+                outputs = checkpoint(
+                    create_custom_forward(block),
+                    hidden_states,
+                    attention_mask,
+                    None,
+                    use_cache,
+                    output_attentions,
+                )
+            else:
+
+                outputs = block(
+                    hidden_states,
+                    attention_mask=attention_mask,
+                    head_mask=None,
+                    use_cache=use_cache,
+                    output_attentions=output_attentions,
+                )
 
             hidden_states = outputs[0]
             if use_cache is True:
