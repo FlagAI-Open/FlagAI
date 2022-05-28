@@ -184,7 +184,7 @@ for text_pair in test_data:
 * [GLM-large-ch用户完形填空问答](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
 * [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
 * [GLM-large-ch用于标题生成](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
-* [对 huggingface t5-3b 模型的支持 以及加速的tricks](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
+* [对 huggingface t5-11b 模型的支持 以及加速的tricks](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
 * [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
 * [RoBERTa-base-ch用于命名实体识别](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)

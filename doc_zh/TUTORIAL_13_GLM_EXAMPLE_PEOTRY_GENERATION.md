@@ -25,6 +25,7 @@
 cd ./examples/glm_poetry_generation
 python ./train.py
 ```
+这里使用`GLM-large-ch`作为样例,如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
 ### 1.准备训练数据
 1）定义文件读取函数，从文件中读取数据，得到src和tgt列表：
 ```python
