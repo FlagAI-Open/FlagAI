@@ -1,4 +1,4 @@
-# Seq2seq方法
+# 使用encoder/decoder/encoder-decoder模型进行文本生成
 
 ## 编码器模型
 我们提供了encoder模型来执行seq2seq任务，例如，Bert、Roberta、GLM等等。

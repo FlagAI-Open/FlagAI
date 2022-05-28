@@ -1,4 +1,4 @@
-# 转化model为Megatron-LM版本
+# 转化一个模型为Megatron-LM的模型并行版本
 三个步骤：
 - [1] 将`MLP`层转化为`column/rowParallel`版本
 - [2] 将`self-Attention` 中的两个`Linear layer`分别转化为`column/rowParallel `版本

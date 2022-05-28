@@ -1,4 +1,4 @@
-## AutoLoader
+## 使用 Autoloader 简化模型和分词器初始化过程
 
 ### 通过 AutoLoader 快速构建支持不同下游任务的大型模型。
 ![](./img/autoloader_map.png)
