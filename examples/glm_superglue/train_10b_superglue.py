@@ -1,30 +1,33 @@
-import torch.utils.data
-from torch.optim import Adam
-from flagai.schedulers import AnnealingLR
 from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMModel, GLMForSingleTokenCloze
-from flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer import GLMLargeEnWordPieceTokenizer
+from flagai.model.glm_model import GLMForSingleTokenCloze
+from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-trainer = Trainer(env_type='pytorch',
-                  pytorch_device=device,
+task_name = 'boolq'
+trainer = Trainer(env_type='deepspeed+mpu',
                   epochs=2,
-                  batch_size=8,
+                  batch_size=1,
                   eval_interval=1000,
-                  log_interval=500,
-                  save_dir="./glm_superglue_en")
+                  checkpoint_activations=False,
+                  fp16=True,
+                  log_interval=1,
+                  save_dir="./glm_superglue_en",
+                  master_ip='127.0.0.1',
+                  master_port=17755,
+                  num_nodes=1,
+                  num_gpus=2,
+                  hostfile='./hostfile',
+                  model_parallel_size=2,
+                  deepspeed_config='./deepspeed.json',
+                  training_script=__file__)
 
-model = GLMForSingleTokenCloze.from_pretrain(download_path="./state_dict",
-                                             model_name="GLM-large-en")
-
-optimizer = Adam(model.parameters())
+model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
+                                             model_name="GLM-10b-en")
 
 tokenizer = GLMLargeEnWordPieceTokenizer()
-task_name = 'boolq'
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='/mnt/datasets/yan/',
                                  dataset_type='train',
@@ -47,14 +50,7 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name)
-lr_scheduler = AnnealingLR(optimizer,
-                           start_lr=1e-5,
-                           warmup_iter=int(0.1 * 2 * len(train_dataset)),
-                           decay_style='linear',
-                           num_iters=2 * len(train_dataset))
 trainer.train(model,
-              optimizer=optimizer,
-              lr_scheduler=lr_scheduler,
               train_dataset=train_dataset,
               valid_dataset=valid_dataset,
               collate_fn=collate_fn,

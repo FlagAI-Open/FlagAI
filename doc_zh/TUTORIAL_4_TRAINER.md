@@ -2,11 +2,13 @@
 
 Trainer 类提供了API用于多种并行框架的训练。API 支持在多个 GPU上使用Pytorch DDP/Deepspeed进行分布式训练，同时支持Megatron-LM+Deepspeed的混合并行分布式训练，同时也通过 NVIDIA Apex 实现混合精度。
 ## 入门
-Trainer 包含支持上述功能的基本训练循环。 要自定义行为，您可以对它们进行子类化并覆盖forward_step方法：
+Trainer 包含支持上述功能的基本训练循环。Trainer使用分成两个步骤，初始化和调用. 参考 `examples/glm_superglue` 目录下的代码.
+
+## 自定义Trainer
+要自定义Trainer来快速支持自定义模型，您可以对它们进行子类化并覆盖forward_step方法：
 forward_step方法的返回是一个dict
 ```python
 from flagai.trainer import Trainer
-
 class MyTrainer(Trainer):
 
     def forward_step(self, data, model, mems):
@@ -37,7 +39,7 @@ trainer = MyTrainer(
     batch_size=4,
     eval_interval=100000,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     pytorch_device='cpu',
     load_dir=None,
     lr=1e-4)
@@ -52,33 +54,26 @@ trainer = MyTrainer(
     batch_size=1,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     pytorch_device='cuda:0',
     load_dir=None,
     lr=1e-4,
     fp16=True) # change to `True`
 ```
-## gradient recomputation(checkpoints)
-Do not save the Intermediate results in the forward stage. Now you may run t5-3b with batch size=1. Paper: Training Deep Nets with Sublinear Memory Cost【https://arxiv.org/abs/1604.06174v2】
-Now, we can train/finetune a t5-3b with gradient_accumulation_steps. 
+## 梯度重计算
+在前向过程中不保存中间变量，节约GPU显存.  Paper: [Training Deep Nets with Sublinear Memory Cost](https://arxiv.org/abs/1604.06174v2)
+
 ```python
-trainer = MyTrainer(
-    env_type='pytorch',
-    epochs=1,
-    batch_size=1,
-    eval_interval=10,
-    log_interval=10,
-    experiment_name='t5-3b',
-    pytorch_device='cuda:0',
-    load_dir=None,
-    lr=1e-4,
-    fp16=True
-    checkpoint_activations = True) # setting as `True`
+from transformers import T5ForConditionalGeneration, T5Tokenizer
+tokenizer = T5Tokenizer.from_pretrained('t5-11b')
+model = T5ForConditionalGeneration.from_pretrained('t5-11b')
+model.gradient_checkpointing = True
 ```
 ## 支持huggingface model
 FlagAI 项目的example目录位置：examples/t5_huggingface
-T5-3b paper Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer[https://arxiv.org/pdf/1910.10683.pdf]
-The example train T5-3b on a toy dataset.  You need  a device > 30G memory to run the example. If your have multiple devices,  please check out the following session for speedup.
+t5-11b paper: [Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer](https://arxiv.org/pdf/1910.10683.pdf)
+
+The example train t5-11b on a toy dataset.  You need  a device > 30G memory to run the example. If your have multiple devices,  please check out the following session for speedup.
 ```python
 import sys
 from flagai.trainer import Trainer
@@ -111,21 +106,21 @@ trainer = MyTrainer(
     batch_size=4,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     pytorch_device='cuda:0',
     load_dir=None,
     lr=1e-4,
     fp16=False)
 
 # using huggingface transformers to get tokenizer and models
-model_name = 't5-3b'
+model_name = 't5-11b'
 tokenizer = T5Tokenizer.from_pretrained(model_name)
 model = T5ForConditionalGeneration.from_pretrained(model_name)
 
 print("loading model & tokenizer is done!")
 src_dir = 'train_inputs.txt'
 tgt_dir = 'train_targets.txt'
-model_dir = "./t5-3b"  # 模型位置
+model_dir = "./t5-11b"  # 模型位置
 maxlen = 1024
 
 
@@ -227,7 +222,7 @@ trainer = MyTrainer(
     batch_size=4,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     load_dir=None,
     lr=1e-4
     # parameters for pytorchDDP
@@ -250,7 +245,7 @@ trainer = MyTrainer(
     batch_size=4,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     load_dir=None,
     lr=1e-4
     # parameters for pytorchDDP
@@ -277,7 +272,7 @@ trainer = MyTrainer(
     batch_size=8,
     eval_interval=10,
     log_interval=10,
-    experiment_name='t5-3b',
+    experiment_name='t5-11b',
     load_dir=None,
     lr=1e-4,
     # parallel settings
