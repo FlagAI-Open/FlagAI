@@ -213,20 +213,14 @@ for text_pair in test_data:
 # 贡献代码
 感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/BAAI-WuDao/Sailing/issues)以执行特定任务。
 
+# 联系我们
+欢迎扫码加入FlagAI用户群
+
+<img src="./flagai_wechat.png" width = "200" height = "200"  align=center />
+
 
 # [许可证](/LICENSE)
-```
-Copyright [2022] [BAAI]
+大部分的FlagAI项目是基于[Apache 2.0 license](LICENSE), 但是部分的代码是基于其他的协议:
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+* Megatron-LM 是基于协议[Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
+* GLM 是基于协议[MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
