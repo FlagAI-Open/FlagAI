@@ -705,9 +705,9 @@ def t5_predict_generate(model,
 
     with torch.no_grad():
         device = next(model.parameters()).device
-        decoder_input_ids = torch.tensor(decoder_input_ids, device=device)
+        decoder_input_ids = torch.tensor(decoder_input_ids, device=device, dtype=torch.long)
         if input_ids is not None:
-            input_ids = torch.tensor(input_ids, device=device)
+            input_ids = torch.tensor(input_ids, device=device, dtype=torch.long)
             if input_ids.ndim == 1:
                 input_ids = input_ids.view(1, -1)
 
