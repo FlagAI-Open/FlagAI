@@ -1,6 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License")
+# Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.model.t5_model import T5Model
 from flagai.data.tokenizer.t5.t5_pegasus_tokenizer import T5PegasusTokenizer
 from flagai.model.predictor.predictor import Predictor

@@ -1,6 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License")
+# Licensed under the Apache License, Version 2.0 (the "License")
 from sklearn.linear_model import HuberRegressor
 from torch.nn import Module
 import torch
