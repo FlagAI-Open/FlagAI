@@ -8,7 +8,6 @@ from flagai.test_utils import CollateArguments
 
 task_name = 'tnews'
 trainer = Trainer(env_type='deepspeed',
-                  pytorch_device=device,
                   epochs=2,
                   batch_size=1,
                   eval_interval=1000,
