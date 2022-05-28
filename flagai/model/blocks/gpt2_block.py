@@ -1,6 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License")
+# Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.model.layers.attentions import GPT2Attention
 from flagai.model.layers.feedforward import GPT2MLP
 from torch import nn

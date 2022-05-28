@@ -1,6 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License")
+# Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSeq2Seq
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer, GLMLargeChTokenizer
