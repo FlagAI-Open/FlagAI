@@ -17,7 +17,7 @@ FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensib
 * FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
 
-The code is partially based on [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
+The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
 
 
 <!-- toc -->
@@ -80,7 +80,7 @@ Host 127.0.0.1
 ```
 
 ## Quick Start
-We provide many models which are trained to perform different tasks. You can load these models by AutoLoader to make prediction.
+We provide many models which are trained to perform different tasks. You can load these models by AutoLoader to make prediction. See more in `FlagAI/quickstart`.
 ## Load model and tokenizer
 We provide the AutoLoad class to load the model and tokenizer quickly, for example:
 ```python
@@ -118,7 +118,7 @@ for text in test_data:
 * [Blank_Filling_QA with GLM ](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
 * [Title Generation with GLM ](/docs/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
 * [Poetry generation with GLM-large-ch](docs/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
-* [Using huggingface's t5-3b & tricks ](docs/TUTORIAL_14_HUGGINGFACE_T5.md)
+* [Using huggingface's t5-11b & tricks ](docs/TUTORIAL_14_HUGGINGFACE_T5.md)
 * [Title Generation with RoBerta-WWM](/docs/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [Semantic Matching with RoBerta-WWM](/docs/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
 * [NER with RoBerta-WWM](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
@@ -129,21 +129,18 @@ for text in test_data:
 
 This session explains how the base NLP classes work, how you can load pre-trained models to tag your
 text, how you can embed your text with different word or document embeddings, and how you can train your own
-language models, sequence labeling models, and text classification models. Let us know if anything is unclear.
+language models, sequence labeling models, and text classification models. Let us know if anything is unclear. See more in `FlagAI/examples`.
 
 
 
 ## Tutorials
 We provide a set of quick tutorials to get you started with the library:
-
-[//]: # (* [Tutorial 1: Background: Transformers]&#40;docs/TUTORIAL_1_BASICS.md&#41;)
 * [Tutorial 1: How to construct and use Tokenizer](/docs/TUTORIAL_1_TOKENIZER.md)
 * [Tutorial 2: Dataset Preprocessing Pipeline](/docs/TUTORIAL_2_DATASET.md)
 * [Tutorial 3: Major Function of Model Module](/docs/TUTORIAL_3_MODEL.md)
 * [Tutorial 4: Customize trainer for model and data-parallel training](/docs/TUTORIAL_4_TRAINER.md)
 * [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](/docs/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
 * [Tutorial 6: Use off-the-shelf inference Algorithms with Predictor](/docs/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
-
 * [Tutorial 7: Use FlagAI prompt-learning tool-kit to improve performance on SuperGLUE](/docs/TUTORIAL_7_PROMPT_LERANING.md)
 * [Tutorial 8: Setup environment for training models with multi-machine](/docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * [Tutorial 9: Text generation with encoder/decoder/encoder-decoder models](/docs/TUTORIAL_9_SEQ2SEQ_METHOD.md)

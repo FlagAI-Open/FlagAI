@@ -32,6 +32,12 @@ class Predictor:
 
         """
         self.tokenizer = tokenizer
+        if getattr(self.tokenizer, "token_end_id", None) is None:
+            setattr(self.tokenizer, "token_end_id", 1)
+
+        if getattr(self.tokenizer, "token_start_id", None) is None:
+            setattr(self.tokenizer, "token_start_id", 0)
+
         self.model = model
         self.model.eval()
         self.class_name = type(model).__name__

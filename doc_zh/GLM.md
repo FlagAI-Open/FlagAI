@@ -5,8 +5,13 @@
 目前，存在几种不同的预训练模型架构：仅实现编码器架构的自动编码模型（例如BERT），仅实现解码器的自回归模型（例如GPT），以及同时实现编码器和解码器的编码器-解码器模型（例如T5）。
 
 [**GLM模型**](https://arxiv.org/abs/2103.10360)与这些模型略有不同。它采用了一种自回归的空白填充方法， 并且在NLP领域三种主要的任务(自然语言理解，无条件生成，有条件生成)上都取得了不错的结果。
-<div align=center><img src="img/glm_example_1.png" width="600px"></div>
 
+| Framwork        | NLU | Cond.Gen. | Uncond.Gen |
+|-----------------|-----|-----------|------------|
+| Augoregressive  | -   | -         | ✅          |
+| Autoencoding    | ✅   | ×         | ×          |
+| Encoder-Decoder | -   | ✅         | -          |
+| GLM             | ✅   | ✅         | ✅          |
 GLM的主要功能包括：
 
 - 任务一：文本的一些区间会被屏蔽（参照自动编码的做法）。 这些区间将被随机重新排列，并以自动回归方式进行预测。屏蔽的区间覆盖原始文本的15%。
@@ -18,18 +23,23 @@ GLM的主要功能包括：
 
 ## GLM的表现
 
-1. 通过多任务预训练，GLM-Doc 和 GLM-Sent 的表现略逊于 GLM-Large，但仍优于 BERT-Large 和 UniLM-Large。
 
+### [SuperGLUE](https://super.gluebenchmark.com)
+单模型单任务微调在`dev`集上的效果，更多结果在[这里](https://github.com/THUDM/GLM)
 
-2. 在多任务模型中，GLM-Sent 平均优于 GLM-Doc 1.1%。将 GLM-Doc 的参数增加到 410M（1.25×BERT-Large）会得到比 GLM-Large 更好的性能。至于具有 515M 参数（1.5×BERT-Large）的 GLM 能表现得更好。
+|  Model | COPA | WSC | RTE | WiC | CB | MultiRC | BoolQ | ReCoRD |
+|  ----  | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| GLM-10b-ch  | 98.0 | 95.2 | 93.1 | 75.7 | 98.7/98.2 | 88.1/63.3 | 88.7 | 94.4/94.0 |
+| [RoBERTa-Large](https://github.com/pytorch/fairseq/tree/master/examples/roberta) | 94.0 | 91.3 | 86.6 | 75.6 | 98.2/- | 85.7/- | 86.9 |89.5/89.0|
+| [DeBERTa-XXLarge-v2](https://github.com/microsoft/DeBERTa/tree/master/experiments/superglue) | 97.0 | - | 93.5 | - | - | 87.8/63.6 | 88.3 | 94.1/93.7 |
 
-<div align=center><img src="img/glm_results2.png"></div>
+### [CLUE](https://www.cluebenchmarks.com)
+单模型单任务微调在CLUE数据集上的结果（测试还在进行中，这里列出了部分任务）。如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
 
-1. GLM-XXLarge 的平均得分为 79.297，在多项任务中得到显着提高。在选择的3个通用+2业务评估任务中，平均提升2.47pp。
-
-2. CLUE1.0中的任务中，除CMRC任务外，平均提升1.56pp，其中C3和OCNLI数据集提升明显（+9.9PP，+2.84PP）。
-
-<div align=center><img src="img/glm_performance.png"></div>
+|      模型      |  AFQMC | TNEWS1.0 | IFLYTEK | OCNLI_50K |   CSL  | CMRC2018 | CHID1.0 | C3 1.0 |
+|:--------------:|:------:|:--------:|:-------:|:---------:|:------:|:--------:|:-------:|:------:|
+| RoBERTa XLarge | 75.835 |   68.75  |  62.654 |   82.333  | 83.433 |   80.5   |  86.57  |  77.03 |
+|   GLM-10b-ch   |  75.42 |   69.94  |  62.15  |     85    |  86.17 |    70    |  87.009 | 88.335 |
 
 ## FlagAI支持的GLM预训练模型
 参考 [Tutorial 5: 使用AutoLoader工具快速构建模型](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)。
