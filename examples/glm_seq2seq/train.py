@@ -47,8 +47,8 @@ class TrainerTestCase(unittest.TestCase):
                                        dataset_type='dev',
                                        tokenizer=tokenizer)
         collate_fn = ConstructSeq2seqStrategy(cl_args,
-                                                tokenizer,
-                                                task_name=task_name)
+                                              tokenizer,
+                                              task_name=task_name)
         train_dataset.example_list = train_dataset.example_list[:20]
         valid_dataset.example_list = valid_dataset.example_list[:20]
 
@@ -59,6 +59,7 @@ class TrainerTestCase(unittest.TestCase):
                       train_dataset=train_dataset,
                       valid_dataset=valid_dataset,
                       metric_methods=DEFAULT_METRICS[task_name])
+
 
 def suite():
     suite = unittest.TestSuite()

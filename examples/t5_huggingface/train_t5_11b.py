@@ -16,17 +16,16 @@ class MyTrainer(Trainer):
         return output
 
 
-trainer = MyTrainer(
-    env_type='pytorch',
-    epochs=1,
-    batch_size=4,
-    eval_interval=100000,
-    log_interval=10,
-    experiment_name='t5-11b',
-    pytorch_device='cpu',
-    load_dir=None,
-    lr=1e-4,
-    fp16=False)
+trainer = MyTrainer(env_type='pytorch',
+                    epochs=1,
+                    batch_size=4,
+                    eval_interval=100000,
+                    log_interval=10,
+                    experiment_name='t5-11b',
+                    pytorch_device='cpu',
+                    load_dir=None,
+                    lr=1e-4,
+                    fp16=False)
 
 model_name = 't5-11b'
 tokenizer = T5Tokenizer.from_pretrained(model_name)
@@ -112,13 +111,13 @@ val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
 train_dataset = T5Seq2seqDataset(train_src,
-                                   train_tgt,
-                                   tokenizer=tokenizer,
-                                   maxlen=maxlen)
-val_dataset = T5Seq2seqDataset(val_src,
-                                 val_tgt,
+                                 train_tgt,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
+val_dataset = T5Seq2seqDataset(val_src,
+                               val_tgt,
+                               tokenizer=tokenizer,
+                               maxlen=maxlen)
 
 trainer.train(model,
               train_dataset=train_dataset,

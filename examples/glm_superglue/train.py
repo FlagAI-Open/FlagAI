@@ -61,6 +61,8 @@ class TrainerTestCase(unittest.TestCase):
                       train_dataset=train_dataset,
                       valid_dataset=valid_dataset,
                       metric_methods=metric_methods)
+
+
         # import torch
         # loader = torch.utils.data.DataLoader(train_dataset,
         #                                      batch_size=1,

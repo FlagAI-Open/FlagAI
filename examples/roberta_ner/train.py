@@ -10,7 +10,6 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
 train_path = "./data/china-people-daily-ner-corpus/example.train"
 valid_path = './data/china-people-daily-ner-corpus/example.dev'
 test_path = './data/china-people-daily-ner-corpus/example.test'
@@ -65,6 +64,7 @@ def load_data(filename):
 
             D.append(d)
     return D
+
 
 train_data = load_data(train_path)
 val_data = load_data(valid_path)

@@ -24,7 +24,6 @@ trainer = Trainer(
     save_dir="checkpoints_glm_title_generation",
     save_epoch=1,
     num_checkpoints=1,
-
 )
 
 src_dir = './data/train.src'
@@ -32,10 +31,11 @@ tgt_dir = './data/train.tgt'
 
 maxlen = 256
 auto_loader = AutoLoader("seq2seq",
-                        model_name="GLM-large-ch",
-                        model_dir="./state_dict/")
+                         model_name="GLM-large-ch",
+                         model_dir="./state_dict/")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
+
 
 def read_file():
     src = []
@@ -74,7 +74,7 @@ class GLMSeq2seqDataset(Dataset):
         source_text = self.sents_src[i]
         target_text = self.sents_tgt[i]
         data = self.tokenizer.encode_plus(source_text, target_text)
-    
+
         return data
 
     def __len__(self):
@@ -139,14 +139,17 @@ val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
 train_dataset = GLMSeq2seqDataset(train_src,
-                                   train_tgt,
-                                   tokenizer=tokenizer,
-                                   max_src_length=300,
-                                   max_tgt_length=200)
+                                  train_tgt,
+                                  tokenizer=tokenizer,
+                                  max_src_length=300,
+                                  max_tgt_length=200)
 val_dataset = GLMSeq2seqDataset(val_src,
-                                 val_tgt,
-                                 tokenizer=tokenizer,
-                                 max_src_length=300,
-                                 max_tgt_length=200)
+                                val_tgt,
+                                tokenizer=tokenizer,
+                                max_src_length=300,
+                                max_tgt_length=200)
 
-trainer.train(model, train_dataset=train_dataset, valid_dataset=val_dataset, collate_fn=my_collate_fn)
+trainer.train(model,
+              train_dataset=train_dataset,
+              valid_dataset=val_dataset,
+              collate_fn=my_collate_fn)

@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('/mnt/liuguang/FlagAI')
 from flagai.trainer import Trainer
 from flagai.model.t5_model import T5ForConditionalGeneration
@@ -7,10 +8,12 @@ from flagai.model.predictor.predictor import Predictor
 from torch.utils.data import Dataset
 import os
 import torch
+
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 # train_path = cur_dir + "/data/news.tsv"
 train_path = "/mnt/datasets/pens_dataset/train.tsv"
+
 
 class MyTrainer(Trainer):
 
@@ -24,24 +27,24 @@ class MyTrainer(Trainer):
         return output
 
 
-trainer = MyTrainer(
-    env_type='deepspeed',
-    epochs=1,
-    batch_size=1,
-    eval_interval=100000,
-    log_interval=1,
-    experiment_name='t5-11b',
-    load_dir=None,
-    lr=1e-4,
-    fp16=True,
-    master_ip='127.0.0.1',
-    master_port=17755,
-    num_nodes=1,
-    num_gpus=1,
-    hostfile='./hostfile',
-    model_parallel_size=1,
-    deepspeed_config='./deepspeed.json',
-    training_script=__file__)
+trainer = MyTrainer(env_type='deepspeed',
+                    epochs=1,
+                    batch_size=1,
+                    eval_interval=100000,
+                    log_interval=1,
+                    experiment_name='t5-11b',
+                    load_dir=None,
+                    lr=1e-4,
+                    fp16=True,
+                    master_ip='127.0.0.1',
+                    master_port=17755,
+                    num_nodes=1,
+                    num_gpus=1,
+                    hostfile='./hostfile',
+                    model_parallel_size=1,
+                    deepspeed_config='./deepspeed.json',
+                    training_script=__file__)
+
 
 def read_file():
     src = []
@@ -65,10 +68,12 @@ def read_file():
 
     return src, tgt
 
+
 model_name = '/mnt/t5-11b'
 tokenizer = T5Tokenizer.from_pretrained('t5-11b')
 
-model = T5ForConditionalGeneration.from_pretrain(download_path = '/mnt', model_name='t5-11b')
+model = T5ForConditionalGeneration.from_pretrain(download_path='/mnt',
+                                                 model_name='t5-11b')
 
 print("loading model & tokenizer is done!")
 
@@ -99,6 +104,8 @@ class T5Seq2seqDataset(Dataset):
 
     def __len__(self):
         return len(self.sents_src)
+
+
 #
 def t5_seq2seq_collate_fn(batch):
 
@@ -132,9 +139,9 @@ def t5_seq2seq_collate_fn(batch):
 train_src, train_tgt = read_file()
 
 train_dataset = T5Seq2seqDataset(train_src,
-                                   train_tgt,
-                                   tokenizer=tokenizer,
-                                   maxlen=maxlen)
+                                 train_tgt,
+                                 tokenizer=tokenizer,
+                                 maxlen=maxlen)
 
 trainer.train(model,
               train_dataset=train_dataset,
