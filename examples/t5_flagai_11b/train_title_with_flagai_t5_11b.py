@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License")
 import sys
 
 sys.path.append('/mnt/liuguang/FlagAI')
@@ -74,7 +77,7 @@ tokenizer = T5Tokenizer.from_pretrained('t5-11b')
 
 model = T5ForConditionalGeneration.from_pretrain(download_path='/mnt',
                                                  model_name='t5-11b')
-
+model.gradient_checkpointing = True
 print("loading model & tokenizer is done!")
 
 maxlen = 1024

@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License")
 def build_input_from_ids(text_a_ids=None,
                          text_b_ids=None,
                          answer_ids=None,
