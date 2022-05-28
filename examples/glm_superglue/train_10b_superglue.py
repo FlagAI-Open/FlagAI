@@ -8,30 +8,33 @@ from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 
+
+task_name = 'cb'
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 trainer = Trainer(env_type='pytorch',
                   pytorch_device=device,
                   epochs=2,
                   batch_size=8,
-                  eval_interval=1000,
-                  log_interval=500,
+                  eval_interval=100,
+                  log_interval=50,
                   save_dir="./glm_superglue_en")
 
-model = GLMForSingleTokenCloze.from_pretrain(download_path="./state_dict",
-                                             model_name="GLM-large-en")
+model = GLMForSingleTokenCloze.from_pretrain(model_name="GLM-large-en")
+
 
 optimizer = Adam(model.parameters())
 
 tokenizer = GLMLargeEnWordPieceTokenizer()
-task_name = 'boolq'
+
 train_dataset = SuperGlueDataset(task_name=task_name,
-                                 data_dir='/mnt/datasets/yan/',
+                                 data_dir='./datasets/',
                                  dataset_type='train',
                                  tokenizer=tokenizer,
                                  cloze_eval=True)
 valid_dataset = SuperGlueDataset(task_name=task_name,
-                                 data_dir='/mnt/datasets/yan/',
+                                 data_dir='./datasets/',
                                  dataset_type='dev',
                                  tokenizer=tokenizer,
                                  cloze_eval=True)

@@ -220,6 +220,102 @@ for data_iterator in loader:
 ```
 加载器构造好之后即可用于接下来的训练和预测过程。<br /><br /><br />
 
+### 自定义数据处理
+如果要处理不支持的数据集，需要您手动实现以下功能
+
+1. 在`flagai/data/dataset/superglue/control.py`文件里, 如下所示创建自定义的processor函数， 然后把它与自定义数据集名字的映射关系添加到control.py下的`PROCESSOR_DICT`字典里。
+
+其中最主要的函数是`_create_example`, 需要在这里读取对应的数据集，并如[之前](#统一数据集结构)所示初步处理成统一的结构。
+
+```python
+class ExampleProcessor(DataProcessor):
+
+    def get_train_examples(self, data_dir):
+        # Assign the filename of train set
+        return self._create_examples(os.path.join(data_dir, "train.tsv"), "train")
+
+    def get_dev_examples(self, data_dir, for_train=False):
+        # Assign the filename of dev set
+        return self._create_examples(os.path.join(data_dir, "dev.tsv"), "dev")
+
+    def get_test_examples(self, data_dir) -> List[InputExample]:
+        # Assign the filename of test set
+        return self._create_examples(os.path.join(data_dir, "test.tsv"), "test")
+
+    def get_labels(self):
+        # Return all label categories
+        return ["0", "1"]
+
+    @staticmethod
+    def _create_examples(path: str, set_type: str) -> List[InputExample]:
+        """
+        InputExample包含下列信息
+        text_a (str, required): 文本1
+        text_b (str, optional): 文本2
+        label (str, required): 标签
+        guid (str, required): 每一个InputExample的唯一序号
+        """
+        examples = []
+        df = read_tsv(path)
+
+        for idx, row in df.iterrows():
+            guid = f"{set_type}-{idx}"
+            text_a = punctuation_standardization(row['sentence'])
+            label = row.get('label', None)
+            example = InputExample(guid=guid, text_a=text_a, label=label)
+            examples.append(example)
+        return examples
+
+
+
+```
+2. 在`flagai/data/dataset/superglue/control.py`文件里, 如下所示创建自定义的pvp函数， 然后把它与自定义数据集名字的映射关系添加到control.py下的`PVPS`字典里。
+
+此函数的主要功能是如[之前](#将数据整理成模型的输入)所说的构建完形填空模板，其主要函数有
+
+`get_parts`: 构造完形填空文本
+
+`verbalize`：把数据集的标签映射到完形填空的选项上
+
+
+```python
+class ExamplePVP(PVP):
+    # 把标签映射到对应的含义文本上
+    VERBALIZER = {
+        "contradiction": [" No"],
+        "entailment": [" Yes"],
+        "neutral": [" Maybe"]
+    }
+
+    @staticmethod
+    def available_patterns():
+        # 输出所有可用的模板
+        return [0]
+
+    @property
+    def is_multi_token(self):
+        # 如果标签包含大于一个token，就输出True
+        return False
+
+    def get_parts(self, example: InputExample) -> FilledPattern:
+       # 把InputExample里面的元素通过设计组合成一个完形填空模板  
+
+        text_a = self.shortenable(example.text_a)
+        text_b = self.shortenable(" " + example.text_b)
+        parts_a, parts_b = [
+            None, text_a, None, ' question:', text_b,
+            ' true, false or neither?', None, ' answer:', [self.mask]
+        ], []
+        parts_a, parts_b = self.replace_prompt_tokens(parts_a, parts_b)
+        return parts_a, parts_b
+    
+    def verbalize(self, label) -> List[str]:
+        # 借用类里自定义的VERBALIZER完成初始标签到完形填空选项的映射
+        return [' true'] if label == 'entailment' else [
+            ' false'
+        ] if label == 'contradiction' else [' neither']
+
+```
 
 ## 数据处理：GLM预训练任务
 ### 预训练任务数据格式样例
@@ -300,9 +396,10 @@ datasets = create_dataset(tokenizer, should_split=True)
 | target_ids     | torch.Size([num_labels<sup>3</sup>]) | 全量标签列表                        | 被遮挡住的文本                                          |
 | logit_mask     | torch.Size([seq_length])             | 通过遮挡使得模型只会处理目标文本部分的loss       | 对于每个token, 如果是回答，则对应的地方为1，否则为0                   |                                                   
 | mode           | str                                  | 数据处理模式，取值范围：bert/sentence/gpt |                    |  
+
 <br /><br /><br />
 
-## 数据处理：生成任务微调
+## 数据处理：生成任务微调 
 ### 生成任务应用代码
 ```python 
 import torch.utils.data

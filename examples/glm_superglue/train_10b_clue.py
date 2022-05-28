@@ -7,6 +7,9 @@ from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeCh
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
+from flagai.data.dataset.superglue.control import MULTI_TOKEN_TASKS
+
+task_name = 'afqmc'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -14,34 +17,30 @@ trainer = Trainer(env_type='pytorch',
                   pytorch_device=device,
                   epochs=2,
                   batch_size=8,
-                  eval_interval=1000,
-                  log_interval=500,
+                  eval_interval=10,
+                  log_interval=50,
                   save_dir="./glm_superglue_ch")
 
-model = GLMForSingleTokenCloze.from_pretrain(download_path="./state_dict",
-                                             model_name="GLM-large-ch")
+model = GLMForSingleTokenCloze.from_pretrain(model_name="GLM-large-ch")
 
 optimizer = Adam(model.parameters(), lr=1e-5, weight_decay=1e-3)
 
 tokenizer = GLMLargeChTokenizer()
 
-task_name = 'afqmc'
 train_dataset = SuperGlueDataset(task_name=task_name,
-                                 data_dir='/mnt/datasets/yan/',
+                                 data_dir='./datasets/',
                                  dataset_type='train',
                                  tokenizer=tokenizer,
                                  cloze_eval=True)
 valid_dataset = SuperGlueDataset(task_name=task_name,
-                                 data_dir='/mnt/datasets/yan/',
+                                 data_dir='./datasets/',
                                  dataset_type='dev',
                                  tokenizer=tokenizer,
                                  cloze_eval=True)
 
 cl_args = CollateArguments()
 cl_args.cloze_eval = True
-
-if task_name in ['copa', 'wsc', 'record']:
-    cl_args.multi_token = True
+cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
 
 from flagai.data.dataset import ConstructSuperglueStrategy
 
