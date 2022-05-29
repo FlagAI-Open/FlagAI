@@ -1,10 +1,12 @@
+import os
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import GLMLargeChTokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
-import os
+from flagai.data.dataset import ConstructSuperglueStrategy
+
 
 task_name = 'tnews'
 trainer = Trainer(env_type='deepspeed',
@@ -44,8 +46,6 @@ valid_dataset = SuperGlueDataset(task_name=task_name,
 cl_args = CollateArguments()
 cl_args.cloze_eval = True
 cl_args.multi_token = False
-
-from flagai.data.dataset import ConstructSuperglueStrategy
 
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,

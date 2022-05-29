@@ -124,7 +124,8 @@ for text in test_data:
 * [NER with RoBerta-WWM](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
 * [Writing with GPT-2](/docs/TUTORIAL_18_GPT2_WRITING.md)
 * [Title generation with T5](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
-* [Supported tasks](/docs/TUTORIAL_20_SUPPORTED_TASKS.md)
+
+[//]: # (* [Supported tasks]&#40;/docs/TUTORIAL_20_SUPPORTED_TASKS.md&#41;)
 
 
 This session explains how the base NLP classes work, how you can load pre-trained models to tag your

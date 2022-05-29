@@ -31,10 +31,10 @@
 分类任务微调有着两种形式：一种是普通的微调，一种是提示学习的方法。提示学习需要为任务额外构建一个完形填空的模板，它更适用于低资源以及小样本的情况。接下来我们以提示学习为例来介绍分类任务中的数据处理方法：
 ### 分类任务应用代码
 ```python
-import torch.utils.data
-from flagai.data.dataset import SuperGlueDataset
+import torch
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import CollateArguments
+from flagai.data.dataset import SuperGlueDataset
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
 # 得到默认参数
@@ -133,7 +133,7 @@ FlagAI目前支持自动加载下列分类数据集：
 ```python
 example = dataset[3]  # 数据集里第3个样例
 ```
-比如说，上一步`CommitmentBank`的样例会被处理成如下的形式
+比如说，上一步`CommitmentBank`的样例会被处理成如下的形式:
 
 <div align=center><img src="img/dataset_figure_2.png" width="500px"></div>
 
