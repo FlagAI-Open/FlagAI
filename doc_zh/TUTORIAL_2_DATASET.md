@@ -345,12 +345,17 @@ class ExamplePVP(PVP):
 ```
 ### 预训练的任务处理实例代码
 ```python
+from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.dataset import BlockDataset
+from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
+from flagai.test_utils import PretrainDatasetArguments
+
 tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
                                 add_task_mask=True,
                                 add_decoder_mask=False,
                                 fix_command_token=True)
 
-ds_args = DatasetArguments()
+ds_args = PretrainDatasetArguments()
 
 tokenizer = GLMLargeChTokenizer(fix_command_token=True,
                                 add_block_symbols=True,
@@ -402,10 +407,10 @@ datasets = create_dataset(tokenizer, should_split=True)
 ## 数据处理：生成任务微调 
 ### 生成任务应用代码
 ```python 
-import torch.utils.data
+import torch
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import Seq2SeqCollateArguments
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
 # 得到默认参数
