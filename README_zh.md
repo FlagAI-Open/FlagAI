@@ -5,16 +5,16 @@
 
 --------------------------------------------------------------------------------
 
-FlagAI 是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。 目前，我们专注于 NLP 模型和任务。 在不久的将来，我们将支持其他模态。
+飞智是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。 目前，我们专注于 NLP 模型和任务。 在不久的将来，我们将支持其他模态。
 <br><br>
 
-* 现在它支持最高百亿参数的**WUDAO GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持**BERT**、**RoBERTa**、**GPT2**、**T5** 模型和 Huggingface Transformers 的模型。
+* 现在它支持最高百亿参数的**悟道GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持**BERT**、**RoBERTa**、**GPT2**、**T5** 模型和 Huggingface Transformers 的模型。
 
 * 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在您自己的数据集上对其进行微调(fine-tuning)或者应用[提示学习(prompt-tuning)](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)，然后在我们的模型中心与社区共享它们。 
 
 * 这些模型可以应用于文本，用于文本分类、信息提取、问答、摘要、文本生成等任务，尤其是中文。
 
-* FlagAI 由三个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
+* 飞智由三个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
 
 
 本项目的部分代码基于[GLM](https://github.com/THUDM/GLM),[Transformers](https://github.com/huggingface/transformers) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
@@ -30,7 +30,7 @@ FlagAI 是一个快速、易于使用和可扩展的大模型工具包。 我们
     - [语义相似度匹配任务示例](#语义相似度匹配任务示例)
 - [预训练模型以及样例](#预训练模型以及样例)
 - [教程](#教程)
-- [了解更多关于FlagAI](#了解更多关于FlagAI)
+- [了解更多关于飞智](#了解更多关于飞智)
 - [贡献代码](#贡献代码)
 - [许可证](#许可证)
 
@@ -204,7 +204,7 @@ for text_pair in test_data:
 * [Tutorial 4: 模型训练(支持并行化)](/doc_zh/TUTORIAL_4_TRAINER.md)
 * [Tutorial 5: 使用AutoLoader工具快速构建模型](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
 * [Tutorial 6: 使用Predictor工具进行预测](/doc_zh/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
-* [Tutorial 7: FlagAI提示学习功能](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)
+* [Tutorial 7: 飞智提示学习功能](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)
 * [Tutorial 8: 数据/模型并行的环境设置](/doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * [Tutorial 9: 使用**编码器/解码器/编解码**器模型进行文本生成](/doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
 * [Tutorial 10: 转化一个模型为Megatron-LM的模型并行版本](/doc_zh/TUTORIAL_10_MEGATRON.md)
@@ -214,13 +214,13 @@ for text_pair in test_data:
 感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/BAAI-WuDao/Sailing/issues)以执行特定任务。
 
 # 联系我们
-欢迎扫码加入FlagAI用户群
+欢迎扫码加入飞智用户群
 
 <img src="./flagai_wechat.png" width = "200" height = "200"  align=center />
 
 
 # [许可证](/LICENSE)
-大部分的FlagAI项目是基于[Apache 2.0 license](LICENSE), 但是部分的代码是基于其他的协议:
+大部分的飞智项目是基于[Apache 2.0 license](LICENSE), 但是部分的代码是基于其他的协议:
 
 * Megatron-LM 是基于协议[Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM 是基于协议[MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)

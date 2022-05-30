@@ -9,10 +9,10 @@ At present, there are three kinds of data preprocessing in the project, namely, 
 ### Application code
 
 ```python
-import torch.utils.data
-from flagai.data.dataset import SuperGlueDataset
+import torch
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import CollateArguments
+from flagai.data.dataset import SuperGlueDataset
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
 # get default parameters
@@ -279,10 +279,10 @@ Pre-training data processing also follows the same process, with the following d
 The code implementation is as follows:
 
 ```python 
-import torch.utils.data
+import torch
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import Seq2SeqCollateArguments
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
 # get default parameters

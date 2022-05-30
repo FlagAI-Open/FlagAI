@@ -8,10 +8,10 @@
 ## 数据处理：分类任务微调([prompt-learning模式](TUTORIAL_7_PROMPT_LEARNING.md))
 ### 应用代码
 ```python
-import torch.utils.data
-from flagai.data.dataset import SuperGlueDataset
+import torch
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import CollateArguments
+from flagai.data.dataset import SuperGlueDataset
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
 # 得到默认参数
@@ -49,7 +49,7 @@ dataset = SuperGlueDataset(task_name='cb',
 ```
 #### 1.加载数据集
 
-将`task_name`设置成数据集对应的简称后，运行以上代码，相关数据会在后台自动下载。FlagAI目前支持自动加载下列分类数据集：
+将`task_name`设置成数据集对应的简称后，运行以上代码，相关数据会在后台自动下载。飞智目前支持自动加载下列分类数据集：
 
 
 | 数据集名称                                     | 数据集简称    | 语言   | 所属评测基准   |
@@ -81,7 +81,7 @@ dataset = SuperGlueDataset(task_name='cb',
 | label     | 代表前提和假设关系的标签<br/>包含entailment,neutral和contradiction三种 | entailment                     |
 | idx       | 样例在数据集里的序号                                            | 10                             |
 
-目前所有FlagAI支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
+目前所有飞智支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
 
 #### 2. 统一数据集结构
 在这一步里，我们会统一不同数据集的数据结构，以方便接下来处理。此结构的细节如下：
@@ -274,10 +274,10 @@ datasets = create_dataset(tokenizer, should_split=True)
 ## 数据处理：生成任务微调
 代码实现如下所示：
 ```python 
-import torch.utils.data
+import torch
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import Seq2SeqCollateArguments
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
 # 得到默认参数

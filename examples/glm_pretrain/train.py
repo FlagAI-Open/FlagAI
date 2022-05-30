@@ -73,35 +73,8 @@ if __name__ == '__main__':
         collate_fn = ConstructBlockStrategy(
             tokenizer, 512, eod_token=tokenizer.get_command('eos').Id)
     metric_methods = DEFAULT_METRICS['pretrain']
-    # trainer.train(model,
-    #               collate_fn=collate_fn,
-    #               train_dataset=datasets[0],
-    #               valid_dataset=datasets[1],
-    #               metric_methods=metric_methods)
-    import torch
-
-    train_loader = torch.utils.data.DataLoader(datasets[0],
-                                               batch_size=16,
-                                               shuffle=False,
-                                               num_workers=1,
-                                               drop_last=False,
-                                               pin_memory=False,
-                                               collate_fn=collate_fn)
-    for data_iterator in train_loader:
-        dct = data_iterator
-        '''
-        input_ids torch.Size([16, 2, 256])
-        labels torch.Size([16])
-        position_ids torch.Size([16, 2, 2, 256])
-        attention_mask torch.Size([16, 2])
-        target_ids torch.Size([16, 2, 256])
-        logit_mask torch.Size([16, 2, 256])
-        loss_mask torch.Size([16, 2])
-
-        '''
-        for key, value in dct.items():
-            try:
-                print(key, value.size())
-            except:
-                print(key, len(value))
-        break
+    trainer.train(model,
+                  collate_fn=collate_fn,
+                  train_dataset=datasets[0],
+                  valid_dataset=datasets[1],
+                  metric_methods=metric_methods)
