@@ -11,7 +11,7 @@ class AutoLoaderTestCase(unittest.TestCase):
     def setUp(self) -> None:
 
         self.task_name = [
-            "seq2seq", "ner", "classification","poetry",
+            "seq2seq", "ner", "classification","poetry", "lm",
             "title-generation", "semantic-matching", "embedding"
         ]
         self.model_name = [
@@ -20,7 +20,7 @@ class AutoLoaderTestCase(unittest.TestCase):
         ]
 
 
-    def test_glm_large_en(self):
+    def test_GLM_large_en(self):
         for t_name  in self.task_name:
             m_name = 'GLM-large-en'
             
@@ -32,7 +32,7 @@ class AutoLoaderTestCase(unittest.TestCase):
             print(
                 f"task_name is {t_name}, model_name is {m_name}"
             )
-    def test_glm_large_ch(self):
+    def test_GLM_large_ch(self):
         for t_name  in self.task_name:
             m_name = 'GLM-large-ch'
             
@@ -95,8 +95,8 @@ class AutoLoaderTestCase(unittest.TestCase):
    
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(AutoLoaderTestCase('test_GLM-large-ch'))
-    suite.addTest(AutoLoaderTestCase('test_GLM-large-en'))
+    suite.addTest(AutoLoaderTestCase('test_GLM_large_ch'))
+    suite.addTest(AutoLoaderTestCase('test_GLM_large_en'))
     suite.addTest(AutoLoaderTestCase('test_BERT_base_en'))
     suite.addTest(AutoLoaderTestCase('test_RoBERTa_base_ch'))
     suite.addTest(AutoLoaderTestCase('test_T5_base_ch'))
