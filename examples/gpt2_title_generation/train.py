@@ -2,23 +2,19 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import sys
-
-sys.path.append('/data/liuguang/Sailing')
 import os
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
-from flagai.data.collate_utils import seq2seq_collate_fn
-from flagai.data.dataset.superglue.control import DEFAULT_METRICS
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+# device = torch.device("cpu")
 # single gpu
 trainer = Trainer(
     env_type="pytorch",
     experiment_name="roberta_seq2seq",
-    batch_size=1,
+    batch_size=8,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
@@ -27,7 +23,7 @@ trainer = Trainer(
     eval_interval=10000,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_seq2seq",
+    save_dir="checkpoints_gpt2_title-generation",
     checkpoint_activations=True,
     save_epoch=1,
 )
@@ -65,10 +61,10 @@ def read_file():
     return src, tgt
 
 
-class BertSeq2seqDataset(Dataset):
+class GPT2Seq2seqDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(BertSeq2seqDataset, self).__init__()
+        super(GPT2Seq2seqDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -80,8 +76,7 @@ class BertSeq2seqDataset(Dataset):
         data = self.tokenizer.encode_plus(src, tgt, max_length=self.maxlen)
 
         output = {
-            "input_ids": torch.LongTensor(data["input_ids"][:-1]),
-            "labels": torch.LongTensor(data["input_ids"][1:]),
+            "input_ids": data["input_ids"],
         }
         return output
 
@@ -89,6 +84,23 @@ class BertSeq2seqDataset(Dataset):
 
         return len(self.sents_src)
 
+    @staticmethod
+    def collate_fn(batch):
+        def padding(indice, max_length, pad_idx=0):
+            pad_indice = [
+                item + [pad_idx] * max(0, max_length - len(item)) for item in indice
+            ]
+            return torch.tensor(pad_indice)
+
+        input_ids = [data["input_ids"] for data in batch]
+        max_length = max([len(t) for t in input_ids])
+        input_ids = padding(input_ids, max_length)
+
+        data = {
+            "input_ids": input_ids,
+            "labels": input_ids
+        }
+        return data
 
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
@@ -100,11 +112,11 @@ train_tgt = sents_tgt[:train_size][:2000]
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = GPT2Seq2seqDataset(train_src,
                                    train_tgt,
                                    tokenizer=tokenizer,
                                    maxlen=maxlen)
-val_dataset = BertSeq2seqDataset(val_src,
+val_dataset = GPT2Seq2seqDataset(val_src,
                                  val_tgt,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
@@ -112,4 +124,5 @@ val_dataset = BertSeq2seqDataset(val_src,
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
-              metric_methods=[])
+              collate_fn=GPT2Seq2seqDataset.collate_fn,
+              )
