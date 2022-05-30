@@ -159,18 +159,7 @@ trainer = MyTrainer(
 Do not save the itermedia results in forward stage. Now you may run t5-11b with `batch size`=1.
 Now, we can train/finetune a t5-11b with `gradient_accumulation_steps`.
 ```python
-trainer = MyTrainer(
-    env_type='pytorch',
-    epochs=1,
-    batch_size=1,
-    eval_interval=10,
-    log_interval=10,
-    experiment_name='t5-11b',
-    pytorch_device='cuda:0',
-    load_dir=None,
-    lr=1e-4,
-    fp16=True
-    checkpoint_activations = True) # setting as `True`
+model.gradient_checkpointing = True
 ```  
 ### step3. data parallel (DDP)
 To multiply your batch size, we can use data paralle on multiple GPUs.
