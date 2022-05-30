@@ -13,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # single gpu
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="roberta_seq2seq",
+    experiment_name="gpt2_title-generation",
     batch_size=8,
     gradient_accumulation_steps=1,
     lr=2e-4,
