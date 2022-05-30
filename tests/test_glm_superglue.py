@@ -19,15 +19,13 @@ class TrainerTestCase(unittest.TestCase):
                 'boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc',
                 'tnews'
         ]:
-        # for task_name in ['copa'
-        # ]:
             trainer = Trainer(env_type='pytorch',
                               epochs=1,
-                              batch_size=4,
+                              batch_size=1,
                               eval_interval=100,
                               log_interval=50,
                               experiment_name='glm_large',
-                              pytorch_device='cuda',
+                              pytorch_device='cpu',
                               load_dir=None,
                               lr=1e-4,
                               save_epoch=10)
@@ -56,7 +54,7 @@ class TrainerTestCase(unittest.TestCase):
                                              data_dir='./datasets/',
                                              dataset_type='train',
                                              tokenizer=tokenizer)
-            train_dataset.example_list = train_dataset.example_list[:2]
+            train_dataset.example_list = train_dataset.example_list[:1]
             collate_fn = ConstructSuperglueStrategy(cl_args,
                                                     tokenizer,
                                                     task_name=task_name)
@@ -65,7 +63,7 @@ class TrainerTestCase(unittest.TestCase):
                                              data_dir='./datasets/',
                                              dataset_type='dev',
                                              tokenizer=tokenizer)
-            valid_dataset.example_list = valid_dataset.example_list[:2]
+            valid_dataset.example_list = valid_dataset.example_list[:1]
 
             metric_methods = DEFAULT_METRICS[task_name]
             trainer.train(model,

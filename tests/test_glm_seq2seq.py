@@ -20,11 +20,11 @@ class TrainerTestCase(unittest.TestCase):
         cl_args = Seq2SeqCollateArguments()
         trainer = Trainer(env_type='pytorch',
                           epochs=1,
-                          batch_size=2,
+                          batch_size=1,
                           eval_interval=100,
                           log_interval=50,
                           experiment_name='glm_large',
-                          pytorch_device='cuda',
+                          pytorch_device='cpu',
                           load_dir=None,
                           lr=1e-4)
         print("downloading...")
@@ -49,8 +49,8 @@ class TrainerTestCase(unittest.TestCase):
                                               tokenizer,
                                               task_name=task_name)
 
-        train_dataset.example_list = train_dataset.example_list[:2]
-        valid_dataset.example_list = valid_dataset.example_list[:2]
+        train_dataset.example_list = train_dataset.example_list[:1]
+        valid_dataset.example_list = valid_dataset.example_list[:1]
 
         model = GLMForSeq2Seq.from_pretrain(model_name=model_name,
                                             only_download_config=True)
