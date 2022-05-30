@@ -1,13 +1,12 @@
 # GLM example: Classical Chinese Poetry Generation
 
 ## Introduction to the Background of Classical Chinese Poetry
-There are two types of classical Chinese poetry: Jueju(绝句), Lvshi(律诗).
+There are two types of classical Chinese poetry: Jueju(绝句), Lvshi(律诗).The Jueju contains four lines in the whole poem. The Lvshi contains eight lines in the whole poem.Each line contains five or seven Chinese characters. There are four types in total, see the table below.
 
-The Jueju contains four lines in the whole poem. The five-character Jueju (wujue) has five characters per sentence, with a total of twenty characters; the seven-character Jueju (qijue) has seven characters per sentence, with a total of twenty-eight characters.
-
-There are eight lines in the Lvshi. The five-character Lvshi (wulv) has five characters per sentence, with a total of forty characters; the seven-character Lvshi (qilv) has seven characters per sentence, with a total of fifty-six characters.
-
-
+|     | Jueju | Lvshi |
+|  ----  | ---- | ---- |
+| five characters | wujue | wulv |
+| seven characters | qijue | qilv |
 
 ## Result show
 #### Input ancient poem title and type:
@@ -20,30 +19,47 @@ There are eight lines in the Lvshi. The five-character Lvshi (wulv) has five cha
 ```
 ## Model training（train.py）
 
-Modify the training data path (**src_dir**, **tgt_dir**) and **model_dir** before running the file. Input the code in commandline to train:
+Input the code in commandline to train:
 ```commandline
 cd ./examples/glm_poetry_generation
 python ./train.py
 ```
 ### 1.Prepare the training data
 1）Define the file reading function:
+
+The sample data is in FlagAI/examples/glm_poetry_generation/data/
+
+You need to define the data loading process in train.py, and get the list of **src** and **tgt**:
 ```python
 def read_file():
     src = []
     tgt = []
-
-    ##TODO read data file to load src and tgt, for example:
     ## src = ["春晓：五言绝句", "标题：五言律诗",......]
     ## tgt = ["春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。", "诗句...", ......]
     ## no matter what data you use, you need to construct the right src and tgt.
-  
+    with open(src_dir, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if "：" in line:
+                l = line.split("：")  #line eg:"初夏：五言绝句"
+                #if there are more than one '：', get title before the first '：'
+                title, style = l[0], l[-1]
+                if len(title) > 20:
+                    title = title[:20]  #cut the longer title
+                line = "：".join([title, style])
+            src.append(line)
+    with open(tgt_dir, 'r', encoding='utf-8') as f:
+        for line in f:
+            tgt.append(line.strip())
+    assert len(src) == len(tgt), 'lines not equal!'
+    return src, tgt
     return src,tgt
 ```
 2）Define the DataLoader:
 ```python
-class BertSeq2seqDataset(Dataset):
+class GLMPoetryDataset(Dataset):
     def __init__(self, sents_src, sents_tgt):
-        super(BertSeq2seqDataset, self).__init__()
+        super(GLMPoetryDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
 
@@ -107,7 +123,7 @@ class GLMPoetryDynamicCollateFN():
 train_src, train_tgt = read_file()
 print('-----------train data length:', len(train_src))
 my_collate_fn = GLMPoetryDynamicCollateFN(pad_id=tokenizer.get_command('pad').Id)
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = GLMPoetryDataset(train_src,
                                    train_tgt)
 ```
 ### 2.Load model and tokenizer
@@ -131,27 +147,19 @@ Instantiate the Trainer, and set the training parameters.
 ```python
 from flagai.trainer import Trainer
 trainer = Trainer(
-    env_type="pytorch",#pytorch or deepspeed
-    experiment_name="glm_seq2seq",
-    batch_size=64,#96
+    env_type="pytorch",
+    experiment_name="glm_poetry",
+    batch_size=4,
     gradient_accumulation_steps=1,
-    lr=2e-4,#2e-4
-    weight_decay=2e-8,#1e-3
+    lr=2e-4,
+    weight_decay=2e-8,
     epochs=100,
     log_interval=10,  
     tensorboard_dir="tbsummary",
     eval_interval=2000000,
-    load_dir="",
+    load_dir=None,
     save_dir="checkpoints_poetry",
     save_epoch=1,
-    num_checkpoints=1,
-    master_ip='127.0.0.1',
-    master_port=17750,
-    num_nodes=1,
-    num_gpus=2,
-    hostfile='./hostfile',
-    deepspeed_config='./deepspeed.json',
-    training_script=__file__,
 )
 ```
 Pass the model, data, and collate_fn into the trainer to start training:

@@ -1,5 +1,42 @@
 # 多机训练模型搭建环境
 
+- [多机训练模型搭建环境](#多机训练模型搭建环境)
+- [一.  Docker](#一--docker)
+  - [1.安装docker](#1安装docker)
+  - [2.Docker 换源](#2docker-换源)
+  - [3.安装显卡驱动（如已装可跳过）](#3安装显卡驱动如已装可跳过)
+  - [4.配置nvidia-docker源：](#4配置nvidia-docker源)
+  - [5.制作dockerfile](#5制作dockerfile)
+    - [a.拉取nvidia 基础镜像, 创建临时文件夹（容器内，镜像创建完成后，删除）](#a拉取nvidia-基础镜像-创建临时文件夹容器内镜像创建完成后删除)
+    - [b.配置apt 安装源,并安装一些linux 系统常用基础包](#b配置apt-安装源并安装一些linux-系统常用基础包)
+    - [c.  安装最新版git(创建镜像clone 安装包)](#c--安装最新版git创建镜像clone-安装包)
+    - [d. 安装  Mellanox OFED, 由于网络问题，推荐安装包下到本地后，再执行dockerfile](#d-安装--mellanox-ofed-由于网络问题推荐安装包下到本地后再执行dockerfile)
+    - [e. 安装 nv_peer_mem](#e-安装-nv_peer_mem)
+    - [f. 安装openmpi, 需先安装libevent 依赖包](#f-安装openmpi-需先安装libevent-依赖包)
+    - [g.安装 python](#g安装-python)
+    - [h.安装 magma-cuda](#h安装-magma-cuda)
+    - [i.配置路径](#i配置路径)
+    - [j.安装一些pip 包](#j安装一些pip-包)
+    - [k.安装mpi4py （需下载到本地安装，pip 安装可能因为版本兼容问题报错）](#k安装mpi4py-需下载到本地安装pip-安装可能因为版本兼容问题报错)
+    - [l.安装pytorch, 版本可替换， 需先下载项目到本地，国内安装容易因为网速原因，造成终止, pytorch git clone 过程中可能有些子包下载过程中会终止。可以多 git clone 几次](#l安装pytorch-版本可替换-需先下载项目到本地国内安装容易因为网速原因造成终止-pytorch-git-clone-过程中可能有些子包下载过程中会终止可以多-git-clone-几次)
+    - [m.安装apex](#m安装apex)
+    - [n.安装deepspeed](#n安装deepspeed)
+    - [o.安装NCCL(可选，pytorch 已自带)](#o安装nccl可选pytorch-已自带)
+    - [p.配置网络端口、公钥和ssh](#p配置网络端口公钥和ssh)
+  - [6.构建docker 镜像](#6构建docker-镜像)
+    - [a.方式一.  pull 镜像](#a方式一--pull-镜像)
+    - [b.方式二.  构建镜像](#b方式二--构建镜像)
+- [二. 在每个机器节点构建容器](#二-在每个机器节点构建容器)
+- [三. 互信机制设置](#三-互信机制设置)
+  - [1. 公钥生成默认docker 镜像创建时已生成，如不存在，则在shell 端输入](#1-公钥生成默认docker-镜像创建时已生成如不存在则在shell-端输入)
+  - [2.将各节点容器生成的公钥文件](#2将各节点容器生成的公钥文件)
+  - [3.免密登陆](#3免密登陆)
+  - [4.测试](#4测试)
+- [四.  分布式训练测试](#四--分布式训练测试)
+  - [a.配置hostfile（hostfile 中的V100-1 与~/.ssh/config 对应）:](#a配置hostfilehostfile-中的v100-1-与sshconfig-对应)
+  - [b. 配置glm 文件，各节点配置code 和数据，要求路径相同（也可共同访问云端共享文件）](#b-配置glm-文件各节点配置code-和数据要求路径相同也可共同访问云端共享文件)
+  - [c. cmd](#c-cmd)
+
 # 一.  Docker
 
 ## 1.安装docker
@@ -29,11 +66,12 @@ apt-get install -y docker-ce
 
 ## 2.Docker 换源
 
-### (https://xxxx.mirror.aliyuncs.com) 为自己的docker源仓库
+(https://xxxx.mirror.aliyuncs.com) 为自己的docker源仓库
 
 ```shell
 mkdir -p /etc/docker
-tee /etc/docker/daemon.json <<-'EOF'
+tee /etc/docker/daemon.json 
+-'EOF'
 {
   "registry-mirrors": ["https://xxxx.mirror.aliyuncs.com"]
 }
@@ -80,7 +118,7 @@ apt-get update
 apt-get install -y nvidia-docker2
 ````
 
-### 修改/etc/docker/daemon.json，添加相关信息
+修改/etc/docker/daemon.json，添加相关信息
 
 ```text
 "runtimes": {
@@ -90,7 +128,7 @@ apt-get install -y nvidia-docker2
    }
 }
 ```
-### /etc/docker/daemon.json最终内容
+/etc/docker/daemon.json最终内容
 
 ```json
 {
@@ -104,7 +142,7 @@ apt-get install -y nvidia-docker2
 }
 ```
 
-### 重启docker服务
+重启docker服务
 
 ```shell
 systemctl daemon-reload
