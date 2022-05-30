@@ -1,9 +1,9 @@
-## 自动加载器
+## 使用 Autoloader 简化模型和分词器初始化过程
 
-### 通过 AutoLoader 快速构建支持不同下游任务的大型模型和对应切词器。
+### 通过 AutoLoader 快速构建支持不同下游任务的大型模型。
 ![](./img/autoloader_map.png)
 
-AutoLoader 可以快速找到对应的预训练模型和切词器，只需输入 task_name 和 model_name 即可。
+AutoLoader 可以快速找到对应的预训练模型和分词器，只需输入 task_name 和 model_name 即可。
 
 以标题生成任务为例：
 
@@ -70,17 +70,17 @@ tokenizer = auto_loader.get_tokenizer()
 7. ...
 
 ### 所有支持的模型
-所有支持的模型都可以在 **model hub** 中找到。
+所有支持的模型都可以在 **[这里](./TUTORIAL_3_MODEL.md#所有支持模型)** 中找到。
 不同的模型适应不同的任务。
 
-#### Transfomrer 编码器:
+#### Transfomrer encoder:
 
 例如，model_name="GLM-large-ch" 或 "RoBERTa-base-ch" 这些模型支持上一节中提到的所有任务。
 
-#### Transformer 解码器:
+#### Transformer decoder:
 
 例如，model_name="GPT2-base-ch"，模型支持“seq2seq”相关任务。
 
-#### Transformer 编码器+解码器:
+#### Transformer encoder + decoder:
 
 例如model_name="t5-base-ch"，模型支持“seq2seq”相关任务。

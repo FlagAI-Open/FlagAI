@@ -1,4 +1,4 @@
-# 转化model为Megatron-LM版本
+# 转化一个模型为Megatron-LM的模型并行版本
 - [转化model为Megatron-LM版本](#转化model为megatron-lm版本)
   - [1.将MLP层转化为column/rowParallel版本](#1将mlp层转化为columnrowparallel版本)
   - [2.转化`self-Attention`](#2转化self-attention)
@@ -6,7 +6,7 @@
     - [2.2 将输出的`dense`层转化为`rowparallelLinear`](#22-将输出的dense层转化为rowparallellinear)
   - [3.将`cross-Attention`中的两个`Linear Layer `转化为`column/rowParallel`版本](#3将cross-attention中的两个linear-layer-转化为columnrowparallel版本)
 
-FlagAI支持了BERT，GLM，GPT2 以及T5模型的megatron-lm模型并行. 其主要的操作都是从`Megatron-LM`中拿出来的，放在了`mpu`模块中。
+飞智支持了BERT，GLM，GPT2 以及T5模型的megatron-lm模型并行. 其主要的操作都是从`Megatron-LM`中拿出来的，放在了`mpu`模块中。
 
 ## 1.将MLP层转化为column/rowParallel版本
 代码位置：`flagai/model/layers/embeddings_mpu.py` 

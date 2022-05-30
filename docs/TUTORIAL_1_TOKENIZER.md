@@ -13,7 +13,9 @@ input text `Jack is walking a dog.` is shown below:
 <div align=center><img src="img/tokenizer_example_1.png" width="500px"></div>
 
 It is noticeable that different tokenizers can have different ways to split text,
-and have different vocabulary files. An introduction to those algorithms can be viewed [here](tokenization.md).
+and have different vocabulary files. 
+
+[//]: # (An introduction to those algorithms can be viewed [here]&#40;tokenization.md&#41;.)
 
 Our projects currently support six tokenizers
 as listed below:

@@ -5,7 +5,7 @@ from flagai.trainer import Trainer
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 from torch.utils.data import Dataset
 import torch
-
+import os
 
 class MyTrainer(Trainer):
 
@@ -36,8 +36,9 @@ model = T5ForConditionalGeneration.from_pretrained(model_name)
 model.gradient_checkpointing = True
 
 print("loading model & tokenizer is done!")
-src_dir = './data/train.src'
-tgt_dir = './data/train.tgt'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = cur_dir + '/data/train.src'
+tgt_dir = cur_dir + '/data/train.tgt'
 maxlen = 1024
 
 

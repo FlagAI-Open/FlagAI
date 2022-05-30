@@ -1,4 +1,4 @@
-# 序列到序列生成方法
+# 使用encoder/decoder/encoder-decoder模型进行文本生成
 
 支持三种方式进行序列到序列任务的生成，包括
 1. 只用Encoder模型进行序列到序列的生成任务 

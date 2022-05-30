@@ -1,4 +1,4 @@
-# Trainer
+# 为模型和数据并行训练定制训练器
 - [Trainer](#trainer)
   - [入门](#入门)
   - [Trainer主要参数env_type](#trainer主要参数env_type)
@@ -100,9 +100,6 @@ FlagAI 项目的example目录位置：`examples/t5_huggingface
 t5-11b`
 
 ```python
-# Copyright © 2022 BAAI. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 from torch.utils.data import Dataset
@@ -112,7 +109,6 @@ import torch
 class MyTrainer(Trainer):
 
     def forward_step(self, data, model, mems):
-
         model_outputs = model(**data)
         output = {}
         output['loss'] = model_outputs.loss
@@ -238,7 +234,7 @@ trainer.train(model,
 ```
 
 ## 分布式训练
-为了加速模型训练，FlagAI支持三种模式的并行方式，但是在上述训练T5-11b的例子中，只能使用`deepspeed`框架的数据并行模式。
+为了加速模型训练，飞智支持三种模式的并行方式，但是在上述训练T5-11b的例子中，只能使用`deepspeed`框架的数据并行模式。
 
 ### deepspeed
 deepspeed主要在优化器方面做了优化，其提供了cpu-offload的optimizer，可以极大的降低gpu显存的占用。对deepspeed优化器的相关设置，需要提供`deepspeed.json`的配置文件 
@@ -311,7 +307,7 @@ trainer = MyTrainer(
 ```
 ### deepspeed + megatron-lm
 现在百亿级模型GLM-10-ch采用了`Megatron-LM`的模型并行技术加上`deepspeed`的数据并行技术。在模型参数scaling到10b以上级别，单卡的显存就很难将单个模型以及训练时的中间变量全部加载进来。为此，Megatron-LM提供了Tensor的切分方法，主要思想是将矩阵按照行/列进行切分。 FlagAI 将model转化为Megatron-LM版本。
-如下，FlagAI内部模型（GLM，T5，BERT【包括RoBERTa】，GPT2）支持了Megatron-LM，只要在配置文件中将环境变量修改为deepspeed+mpu，就能启动模型并行的功能。
+如下，飞智内部模型（GLM，T5，BERT【包括RoBERTa】，GPT2）支持了Megatron-LM，只要在配置文件中将环境变量修改为deepspeed+mpu，就能启动模型并行的功能。
 对于huggingface版本的模型，暂时没有提供模型并行的支持。
 ```python
 trainer = MyTrainer(
