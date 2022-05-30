@@ -9,7 +9,6 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = torch.device("cpu")
 # single gpu
 trainer = Trainer(
     env_type="pytorch",
@@ -121,8 +120,13 @@ val_dataset = GPT2Seq2seqDataset(val_src,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
 
+optimizer = torch.optim.Adam(model.parameters(),
+                             lr=1e-5,
+                             weight_decay=1e-5)
+
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
               collate_fn=GPT2Seq2seqDataset.collate_fn,
+              optimizer=optimizer
               )
