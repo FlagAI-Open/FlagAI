@@ -26,7 +26,7 @@
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
 tokenizer = GLMLargeEnWordPieceTokenizer()
 ```
-在这一步里，Modelhub中的词表文件将被自动下载到`cache_dir`参数中指定的路径。默认设置为分词器文件下的 ./vocab 目录。
+在这一步里，模型仓库中的词表文件将被自动下载到`cache_dir`参数中指定的路径。默认设置为分词器文件下的 ./vocab 目录。
 
 ## 应用分词器
 让我们使用一个分词器将原始文本编码成数字序列，然后将数字序列恢复成原始文本：
