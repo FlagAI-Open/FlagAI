@@ -30,7 +30,7 @@
 
 在命令行运行此命令：
 ```commandline
-cd .examples/glm_poetry_generation
+cd ./examples/glm_poetry_generation
 python ./train.py
 ```
 这里使用`GLM-large-ch`作为样例,如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
