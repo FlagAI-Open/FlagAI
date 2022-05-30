@@ -11,32 +11,24 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="roberta_seq2seq",
-    batch_size=1,
+    experiment_name="t5_title_generation",
+    batch_size=8,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=10,
+    epochs=1,
     log_interval=10,
     eval_interval=10000,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints",
+    save_dir="t5_title_generation",
     save_epoch=1,
-    num_checkpoints=1,
-    master_ip='127.0.0.1',
-    master_port=17750,
-    num_nodes=1,
-    num_gpus=2,
-    hostfile='./hostfile',
-    deepspeed_config='./deepspeed.json',
-    training_script=__file__,
 )
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/train.src'
 tgt_dir = cur_dir + '/data/train.tgt'
 maxlen = 256
-loader = AutoLoader("seq2seq", "T5-base-ch", model_dir="./state_dict/")
+loader = AutoLoader("title-generation", "T5-base-ch", model_dir="./state_dict/")
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 

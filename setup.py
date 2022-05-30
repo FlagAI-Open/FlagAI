@@ -8,7 +8,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="flagai",
-    version="v1.0.0-beta7",
+    version="v1.0.0-beta8",
     description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
