@@ -56,8 +56,8 @@ model_dir = "./state_dict/"
 # Autoloader can build the model and tokenizer automatically.
 # 'classification' is the task_name.
 auto_loader = AutoLoader("classification",
-                         model_dir,
-                         model_name="RoBERTa-base-ch")
+                         model_name="RoBERTa-base-ch",
+                         model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```

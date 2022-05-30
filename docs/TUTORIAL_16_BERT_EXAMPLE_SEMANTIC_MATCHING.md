@@ -49,7 +49,7 @@ def read_file(data_path):
 ### 2.Load model and tokenizer
 
 ```python
-from flash_tran.auto_model.auto_loader import AutoLoader
+from flagai.auto_model.auto_loader import AutoLoader
 
 # the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
 # or we will download these files from the model hub to this dir.
@@ -57,8 +57,8 @@ model_dir = "./state_dict/"
 # Autoloader can build the model and tokenizer automatically.
 # 'classification' is the task_name.
 auto_loader = AutoLoader("classification",
-                         model_dir,
-                         model_name="RoBERTa-base-ch")
+                         model_name="RoBERTa-base-ch",
+                         model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
