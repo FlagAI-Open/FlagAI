@@ -19,44 +19,55 @@ class MyTrainer(Trainer):
         return output
 
 
-trainer = MyTrainer(env_type='pytorch',
+trainer = MyTrainer(env_type='deepspeed',
                     epochs=1,
-                    batch_size=4,
+                    batch_size=1,
                     eval_interval=100000,
-                    log_interval=10,
+                    log_interval=1,
                     experiment_name='t5-11b',
-                    pytorch_device='cpu',
                     load_dir=None,
                     lr=1e-4,
-                    fp16=False)
+                    fp16=True,
+                    master_ip='127.0.0.1',
+                    master_port=17755,
+                    num_nodes=1,
+                    num_gpus=1,
+                    hostfile='./hostfile',
+                    model_parallel_size=1,
+                    deepspeed_config='./deepspeed.json',
+                    training_script=__file__)
 
 model_name = 't5-11b'
 tokenizer = T5Tokenizer.from_pretrained(model_name)
-model = T5ForConditionalGeneration.from_pretrained(model_name)
+model = T5ForConditionalGeneration.from_pretrained('/mnt/t5-11b')
 model.gradient_checkpointing = True
 
 print("loading model & tokenizer is done!")
-cur_dir = os.path.dirname(os.path.abspath(__file__))
-src_dir = cur_dir + '/data/train.src'
-tgt_dir = cur_dir + '/data/train.tgt'
-maxlen = 1024
+train_path = "../bert_title_generation_english/data/news.tsv"
 
+maxlen = 1024
 
 def read_file():
     src = []
     tgt = []
 
-    with open(src_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            src.append(line.strip('\n').lower())
+    index = 0
+    with open(train_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            index += 1
+            if index == 1:
+                continue
+            line = line.strip('\n').split('\t')
+            src_list = line[4].split(" ")
+            if len(src_list) > 510:
+                continue
 
-    with open(tgt_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            tgt.append(line.strip('\n').lower())
+            src.append(line[4])
+            tgt.append(line[3])
+            if index == 100000:
+                break
+
     return src, tgt
-
 
 class T5Seq2seqDataset(Dataset):
 

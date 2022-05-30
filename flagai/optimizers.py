@@ -2,9 +2,11 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
-from torch.optim import Adam
-from .fp16 import FP16_Module, FP16_Optimizer
-
+try:
+    from apex.optimizers import FusedAdam as Adam
+except:
+    from torch.optim import Adam
+from .fp16 import FP16_Optimizer
 
 
 def get_params_for_weight_decay_optimization(module):
@@ -91,10 +93,10 @@ def get_optimizer(param_groups,
         # Use FusedAdam.
         if optimizer == 'adam':
             optimizer = Adam(param_groups,
-                             lr=lr,
-                             weight_decay=weight_decay,
-                             betas=(adam_beta1, adam_beta2),
-                             eps=adam_eps)
+                            lr=lr,
+                            weight_decay=weight_decay,
+                            betas=(adam_beta1, adam_beta2),
+                            eps=adam_eps)
         elif optimizer == 'adafactor':
             from transformers import Adafactor
             optimizer = Adafactor(param_groups,
