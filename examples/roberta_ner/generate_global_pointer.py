@@ -21,7 +21,7 @@ auto_loader = AutoLoader(
     task_name,
     model_name="RoBERTa-base-ch",
     model_dir=model_dir,
-    classification_size=len(target),
+    class_num=len(target),
     inner_dim=64,
     only_download_config=True,
 )

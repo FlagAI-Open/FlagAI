@@ -30,7 +30,7 @@ train_path = cur_dir + "/data/train.tsv"
 model_dir = "./state_dict/"
 maxlen = 256
 
-auto_loader = AutoLoader("classification",
+auto_loader = AutoLoader("semantic-matching",
                          model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
                          class_num=len(target))
@@ -53,10 +53,10 @@ def read_corpus(data_path):
     return sents_src, sents_tgt
 
 
-class BertClsDataset(Dataset):
+class BertSemanticMatchDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt):
-        super(BertClsDataset, self).__init__()
+        super(BertSemanticMatchDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
 
@@ -95,8 +95,8 @@ def main():
     val_src = src[train_size:]
     val_tgt = tgt[train_size:]
 
-    train_dataset = BertClsDataset(train_src, train_tgt)
-    val_dataset = BertClsDataset(val_src, val_tgt)
+    train_dataset = BertSemanticMatchDataset(train_src, train_tgt)
+    val_dataset = BertSemanticMatchDataset(val_src, val_tgt)
 
     trainer.train(model,
                   train_dataset=train_dataset,

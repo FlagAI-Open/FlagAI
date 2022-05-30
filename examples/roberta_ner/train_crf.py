@@ -1,7 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from tqdm import tqdm
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
@@ -11,9 +10,9 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-train_path = "../data/china-people-daily-ner-corpus/example.train"
-valid_path = '../data/china-people-daily-ner-corpus/example.dev'
-test_path = '../data/china-people-daily-ner-corpus/example.test'
+train_path = "./data/china-people-daily-ner-corpus/example.train"
+valid_path = './data/china-people-daily-ner-corpus/example.dev'
+test_path = './data/china-people-daily-ner-corpus/example.test'
 
 task_name = "sequence-labeling-crf"
 model_dir = "./state_dict/"  # download path
@@ -23,7 +22,7 @@ target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 auto_loader = AutoLoader(task_name,
                          model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
-                         classification_size=len(target))
+                         class_num=len(target))
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
