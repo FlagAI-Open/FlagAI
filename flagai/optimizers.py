@@ -2,15 +2,9 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
-try:
-    from apex.optimizers import FusedAdam as Adam
-except:
-    from torch.optim import Adam
+from torch.optim import Adam
+from .fp16 import FP16_Module, FP16_Optimizer
 
-try:
-    from .fp16 import FP16_Module, FP16_Optimizer
-except:
-    pass
 
 
 def get_params_for_weight_decay_optimization(module):
