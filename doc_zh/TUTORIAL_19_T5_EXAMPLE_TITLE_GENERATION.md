@@ -52,7 +52,9 @@ def read_file():
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-loader = AutoLoader("seq2seq", "t5_base_ch", model_dir="./state_dict/")
+loader = AutoLoader(task_name="seq2seq", 
+                    model_name="T5-base-ch", 
+                    model_dir="./state_dict/")
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 ```
