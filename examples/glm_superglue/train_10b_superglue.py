@@ -4,10 +4,11 @@
 import os
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import GLM10bENBPETokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
+
 
 
 task_name = 'boolq'
@@ -32,14 +33,15 @@ trainer = Trainer(env_type='deepspeed+mpu',
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
                                              model_name="GLM-10b-en")
 
-tokenizer = GLMLargeEnWordPieceTokenizer()
+tokenizer = GLM10bENBPETokenizer()
+
 train_dataset = SuperGlueDataset(task_name=task_name,
-                                 data_dir='/mnt/datasets/yan/',
+                                 data_dir='./datasets/',
                                  dataset_type='train',
                                  tokenizer=tokenizer,
                                  cloze_eval=True)
 valid_dataset = SuperGlueDataset(task_name=task_name,
-                                 data_dir='/mnt/datasets/yan/',
+                                 data_dir='./datasets/',
                                  dataset_type='dev',
                                  tokenizer=tokenizer,
                                  cloze_eval=True)

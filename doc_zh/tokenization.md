@@ -1,5 +1,3 @@
-[TOC]
-
 # sub-word algorithm
 
 ## Tokenization
@@ -38,7 +36,7 @@
 
 ​		三种不同的切分方法效果对比如下：
 
-![3 different tokenization scheme: on rules, on punctuaction, on white spaces](tokenization.assets/tokenize.png)
+![3 different tokenization scheme: on rules, on punctuaction, on white spaces](img/tokenize.png)
 
 ​		上面说的三种分词方法，都是词级别的分词方法（word tokenization），简单来说，就是以词为单位对文本进行切分。尽管这是将文本切分为更小的单位的最直观的方式，但是这种方式在处理大量语料的时候会产生一个非常严重的问题——生成一个巨大的词表（因为大量的语料中会存在大量的只出现一次/少次的token）。
 
@@ -182,14 +180,17 @@
 
 ​		与 BPE 的主要区别在于，选择两个子词进行合并的规则：BPE 选择频数最高的相邻子词合并，而 WordPiece 使用的是通过语言模型来计算合并两个单词可能造成的影响，然后选择使得似然函数提升最大的字符对。这个提升是通过结合后的字符对减去结合前的字符对之和得到的。
 
-​		假设句子$S=（t1,t2,...,t_n）$由 n 个 token 组成，$t_i$表示第$i$个 token，假设各个 token 之间是相互独立的，则句子$S$的语言模型似然值等于所有子词概率的乘积
-$$
-logP(S) = \sum^n_{i=1}logP(t_i)
-$$
+​		假设句子$ S=（t1,t2,...,t_n）$由 n 个 token 组成，$t_i$表示第$i$个 token，假设各个 token 之间是相互独立的，则句子$S$的语言模型似然值等于所有子词概率的乘积
+
+<img src="https://render.githubusercontent.com/render/math?math={logP(S) = \sum^n_{i=1}logP(t_i)}} = -1">
+`$ logP(S) = \sum^n_{i=1}logP(t_i) $`
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{white}\L = -\sum_{j}[T_{j}ln(O_{j})] + \frac{\lambda W_{ij}^{2}}{2} \rightarrow \text{one-hot} \rightarrow -ln(O_{c}) + \frac{\lambda W_{ij}^{2}}{2}}">
+
 ​		假设把相邻位置的两个 token $x$ 和 $y$ 进行合并，合并后的 token 记为 $z$，此时句子 $S$ 的似然值变化可以表示为：
-$$
+`$
 logP(t_z)-(logP(t_x)+logP(t_y)) = log(\frac{P(t_z)}{P(t_x)P(T_y)})
-$$
+$`
 ​		也就是说，判断`tokenization`相较于`token` + `ization`是否更适合出现。选择能够提升语言模型概率最大的相邻子词加入词表。
 
 

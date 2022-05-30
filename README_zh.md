@@ -80,7 +80,7 @@ Host 127.0.0.1
 
 
 # 快速上手
-我们提供了精选的中英文预训练模型，以及经过训练可以执行不同任务的模型权重。 您可以通过 AutoLoader 加载这些模型以进行训练和预测。
+我们提供了精选的中英文预训练模型，以及经过训练可以执行不同任务的模型权重。 您可以通过 AutoLoader 加载这些模型以进行训练和预测。更多样例见 `FlagAI/quickstart`。
 
 ## 加载模型和分词器
 我们提供 `AutoLoad` 类来快速加载模型和分词器，例如：
@@ -190,24 +190,24 @@ for text_pair in test_data:
 * [RoBERTa-base-ch用于命名实体识别](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)
 * [GPT-2用于文本续写](/doc_zh/TUTORIAL_18_GPT2_WRITING.md)
 * [T5用于标题生成](/doc_zh/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
-* [所有支持的任务](doc_zh/TUTORIAL_20_SUPPORTED_TASKS.md)
+* [用GLM10b模型在TNEWS短文本分类数据集上微调](doc_zh/TUTORIAL_20_GLM_TNEWS.md)
 
 
-本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。
+本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。更多样例见 `FlagAI/examples`。
 
 
 # 教程
 我们提供了一组教程来帮助您快速上手使用本库：
-* [Tutorial 1: 构建和应用分词器](/doc_zh/TUTORIAL_1_TOKENIZER.md)
+* [Tutorial 1: 如何构建和应用分词器](/doc_zh/TUTORIAL_1_TOKENIZER.md)
 * [Tutorial 2: 数据集预处理流程](/doc_zh/TUTORIAL_2_DATASET.md)
 * [Tutorial 3: 模型的主要功能及相关结构](/doc_zh/TUTORIAL_3_MODEL.md)
-* [Tutorial 4: 模型训练(支持并行化)](/doc_zh/TUTORIAL_4_TRAINER.md)
-* [Tutorial 5: 使用AutoLoader工具快速构建模型](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
-* [Tutorial 6: 使用Predictor工具进行预测](/doc_zh/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
-* [Tutorial 7: 飞智提示学习功能](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)
-* [Tutorial 8: 数据/模型并行的环境设置](/doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* [Tutorial 9: 使用**编码器/解码器/编解码**器模型进行文本生成](/doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
-* [Tutorial 10: 转化一个模型为Megatron-LM的模型并行版本](/doc_zh/TUTORIAL_10_MEGATRON.md)
+* [Tutorial 4: 为模型和数据并行训练定制训练器](/doc_zh/TUTORIAL_4_TRAINER.md)
+* [Tutorial 5: 使用 Autoloader 简化模型和分词器初始化过程](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
+* [Tutorial 6: 将现成的推理算法与 Predictor 结合使用](/doc_zh/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
+* [Tutorial 7: 使用飞智提示学习工具包来提高在SuperGLUE任务上的表现](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)
+* [Tutorial 8: 多机训练模型搭建环境](/doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* [Tutorial 9: 使用encoder/decoder/encoder-decoder模型进行文本生成](/doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
+
 
 
 # 贡献代码

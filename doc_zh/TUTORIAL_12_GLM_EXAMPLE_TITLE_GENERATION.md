@@ -22,25 +22,24 @@
 
 ## 模型训练（train.py）
 
-运行前修改训练数据路径src_dir, tgt_dir, 模型路径model_dir。在命令行运行此命令：
+在命令行运行此命令：
 ```commandline
 cd ./examples/glm_title_generation
 python ./train.py
 ```
 
 ### 1.数据加载
-样例数据在 /examples/bert_title_generation/data/
+样例数据在 /examples/glm_title_generation/data/
 
+需要针对数据格式定义数据加载方法，例如：定义文件读取函数，从文件中读取数据，得到src和tgt列表：
 1）定义加载过程
 ```python
 def read_file():
     src = []
     tgt = []
-
-    ## read data file to load src and tgt, for example:
-    ## src = ["article_1", "article_2", "article_3" ......]
-    ## tgt = ["title_1", "title_2", "title_3" ......]
-    ## no matter what data you use, you need to construct the right src and tgt.
+    # src = ["article_1", "article_2", "article_3" ......]
+    # tgt = ["title_1", "title_2", "title_3" ......]
+    # 如果换为其他数据，修改处理方式即可，只需要构造好src以及对应tgt列表
     with open(src_dir, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
@@ -53,12 +52,12 @@ def read_file():
     return src,tgt
 ```
 
-2）定义数据集处理过程（Dataset）：
+2）定义数据集处理过程：
 ```python
-class GLMSeq2seqDataset(Dataset):
+class GLMTitleGenerationDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt):
-        super(GLMSeq2seqDataset, self).__init__()
+        super(GLMTitleGenerationDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
 
@@ -74,7 +73,7 @@ class GLMSeq2seqDataset(Dataset):
 
 3）定义数据迭代器（DataLoader）中的批处理函数（collate_fn），用于将一批（batch）数据填充（padding）成统一大小
 ```python
-class GLMSeq2seqDynamicCollateFN():
+class GLMTitleGenerationCollateFN():
     def __init__(self, pad_id):
         self.pad_id = pad_id
 
@@ -119,8 +118,8 @@ class GLMSeq2seqDynamicCollateFN():
 ```python
 train_src, train_tgt = read_file()
 print('-----------train data length:', len(train_src))
-my_collate_fn = GLMSeq2seqDynamicCollateFN(pad_id=tokenizer.get_command('pad').Id)
-train_dataset = GLMSeq2seqDataset(train_src,
+my_collate_fn = GLMTitleGenerationCollateFN(pad_id=tokenizer.get_command('pad').Id)
+train_dataset = GLMTitleGenerationDataset(train_src,
                                    train_tgt)
 ```
 ### 2.加载模型和分词器
@@ -128,12 +127,12 @@ train_dataset = GLMSeq2seqDataset(train_src,
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
-# or we will download these files from the model hub to this dir.
+# model_dir: 包含 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
+# 如果本地没有，则会在modelhub上进行查找并下载
+# Autoloader 能够自动构建模型与切词器
+# 'title-generation' 是task_name
 model_dir = "./state_dict/glm/"
-# Autoloader can build the model and tokenizer automatically.
-# 'seq2seq' is the task_name.
-AutoLoader("seq2seq",model_name="GLM-large-ch",model_dir=model_dir)
+AutoLoader("title-generation",model_name="GLM-large-ch",model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
@@ -149,7 +148,7 @@ from flagai.trainer import Trainer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="roberta_seq2seq",
+    experiment_name="glm-title-generation",
     batch_size=1,
     gradient_accumulation_steps=1,
     lr=2e-4,

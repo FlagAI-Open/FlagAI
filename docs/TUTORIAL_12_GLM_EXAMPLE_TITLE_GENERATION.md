@@ -22,14 +22,14 @@ The title generation task needs to input a piece of text, and the model outputs 
 
 ## Model Train（train.py）
 
-Modify the training data path src_dir, tgt_dir, and model path model_dir before running. Run this command at the command line:
+Run this command at the command line:
 ```commandline
-cd ./examples/glm_title_generation
+cd FlagAI/examples/glm_title_generation
 python ./train.py
 ```
 
 ### 1.Load data
-Sample data is at /examples/bert_title_generation/data/
+Sample data is at /examples/glm_title_generation/data/
 
 1）Define the load function
 ```python
@@ -37,10 +37,10 @@ def read_file():
     src = []
     tgt = []
 
-    ## read data file to load src and tgt, for example:
-    ## src = ["article_1", "article_2", "article_3" ......]
-    ## tgt = ["title_1", "title_2", "title_3" ......]
-    ## no matter what data you use, you need to construct the right src and tgt.
+    # read data file to load src and tgt, for example:
+    # src = ["article_1", "article_2", "article_3" ......]
+    # tgt = ["title_1", "title_2", "title_3" ......]
+    # no matter what data you use, you need to construct the right src and tgt.
     with open(src_dir, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
@@ -55,10 +55,10 @@ def read_file():
 
 2）Define the data loading process
 ```python
-class GLMSeq2seqDataset(Dataset):
+class GLMTitleGenerationDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt):
-        super(GLMSeq2seqDataset, self).__init__()
+        super(GLMTitleGenerationDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
 
@@ -74,7 +74,7 @@ class GLMSeq2seqDataset(Dataset):
 
 3) Define the batch function (collate_fn) in the data iterator (DataLoader) to pad a batch of data into a uniform size
 ```python
-class GLMSeq2seqDynamicCollateFN():
+class GLMTitleGenerationCollateFN():
     def __init__(self, pad_id):
         self.pad_id = pad_id
 
@@ -119,8 +119,8 @@ class GLMSeq2seqDynamicCollateFN():
 ```python
 train_src, train_tgt = read_file()
 print('-----------train data length:', len(train_src))
-my_collate_fn = GLMSeq2seqDynamicCollateFN(pad_id=tokenizer.get_command('pad').Id)
-train_dataset = GLMSeq2seqDataset(train_src,
+my_collate_fn = GLMTitleGenerationCollateFN(pad_id=tokenizer.get_command('pad').Id)
+train_dataset = GLMTitleGenerationDataset(train_src,
                                    train_tgt)
 ```
 ### 2.Load model and tokenizer
@@ -133,7 +133,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 model_dir = "./state_dict/glm/"
 # Autoloader can build the model and tokenizer automatically.
 # 'seq2seq' is the task_name.
-AutoLoader("seq2seq",model_name="GLM-large-ch",model_dir=model_dir)
+AutoLoader("title-generation",model_name="GLM-large-ch",model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
@@ -149,7 +149,7 @@ from flagai.trainer import Trainer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="roberta_seq2seq",
+    experiment_name="glm-title-generation",
     batch_size=1,
     gradient_accumulation_steps=1,
     lr=2e-4,
@@ -176,7 +176,7 @@ trainer.train(model,
 Modify the model configuration path model_dir and the trained model path model_save_path before running. Run this command at the command line:
 
 ```commandline
-cd ./examples/glm_title_generation
+cd FlagAI/examples/glm_title_generation
 python ./generate.py
 ```
 You can choose between random sampling based on probability screening (random sample) or beam search (beamsearch) two generation methods:
