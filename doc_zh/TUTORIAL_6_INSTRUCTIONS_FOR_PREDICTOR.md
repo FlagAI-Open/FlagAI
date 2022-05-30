@@ -1,4 +1,4 @@
-## Predictor
+## 预测器 Predictor
 
 ### 通过Predictor调用一行代码得到理想的预测结果
 
