@@ -1,4 +1,5 @@
 # 多机训练模型搭建环境
+
 - [多机训练模型搭建环境](#多机训练模型搭建环境)
 - [一.  Docker](#一--docker)
   - [1.安装docker](#1安装docker)
@@ -69,7 +70,8 @@ apt-get install -y docker-ce
 
 ```shell
 mkdir -p /etc/docker
-tee /etc/docker/daemon.json <<-'EOF'
+tee /etc/docker/daemon.json 
+-'EOF'
 {
   "registry-mirrors": ["https://xxxx.mirror.aliyuncs.com"]
 }

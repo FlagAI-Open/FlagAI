@@ -159,18 +159,7 @@ trainer = MyTrainer(
 在forward阶段不将中间结果保存。我们可以运行`batch size`=1的t5-11b。
 现在，我们可以用 `gradient_accumulation_steps` train/finetune 一个 t5-11b。
 ```python
-trainer = MyTrainer(
-    env_type='pytorch',
-    epochs=1,
-    batch_size=1,
-    eval_interval=10,
-    log_interval=10,
-    experiment_name='t5-11b',
-    pytorch_device='cuda:0',
-    load_dir=None,
-    lr=1e-4,
-    fp16=True
-    checkpoint_activations = True) # setting as `True`
+model.gradient_checkpointing = True
 ```  
 ### 第三步：数据并行(DDP)
 为了增加batch size，我们可以在多个GPU上使用数据并行。
