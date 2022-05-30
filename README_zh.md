@@ -17,7 +17,7 @@
 * 飞智由三个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
 
 
-本项目的部分代码基于[GLM](https://github.com/THUDM/GLM),[Transformers](https://github.com/huggingface/transformers) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples).
+本项目的部分代码基于[GLM](https://github.com/THUDM/GLM),[Transformers](https://github.com/huggingface/transformers) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 <!-- toc -->
 
