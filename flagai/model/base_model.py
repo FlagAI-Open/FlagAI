@@ -42,7 +42,7 @@ class BaseModel(Module):
     @classmethod
     def from_pretrain(cls,
                       download_path='./checkpoints/',
-                      model_name='RoBERT-base-ch',
+                      model_name='RoBERTa-base-ch',
                       only_download_config=False,
                       **kwargs):
         model_id = None
