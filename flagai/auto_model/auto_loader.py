@@ -19,6 +19,7 @@ class LazyImport(object):
 
 
 ALL_TASK = {
+    "bert_lm": ["flagai.model.bert_model", "BertModel"],
     "bert_seq2seq": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
@@ -32,7 +33,10 @@ ALL_TASK = {
     "bert_classification": ["flagai.model.bert_model", "BertForClsClassifier"],
     "bert_semantic-matching": ["flagai.model.bert_model", "BertForClsClassifier"],
     "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
+    "gpt2_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
+    "t5_lm": ["flagai.model.t5_model", "T5Model"],
+    "glm_lm": ["flagai.model.glm_model", "GLMModel"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_classification": ["flagai.model.glm_model", "GLMForSequenceClassification"],
@@ -68,8 +72,8 @@ TOKENIZER_DICT = {
 
 class AutoLoader:
     def __init__(self,
-                 task_name: str,
-                 model_name: str,
+                 task_name: str = "lm",
+                 model_name: str = "RoBERTa-base-ch",
                  model_dir: str = "./checkpoints/",
                  only_download_config: bool = False,
                  **kwargs):
@@ -101,6 +105,7 @@ class AutoLoader:
         """
         if model_name not in MODEL_DICT:
             print(f"The model_name: {model_name} is not be supported")
+            print(f"All supported models are {list(MODEL_DICT.keys())}")
             return
 
         brief_model_name = MODEL_DICT[model_name][2]
@@ -112,6 +117,8 @@ class AutoLoader:
                 f"For the model_name: {model_name}, task_name: {task_name} \
                 is not be supported."
             )
+            tasks = self.get_task_name(brief_model_name)
+            print(f"For the model_name: {model_name}, these tasks are be supported: {tasks}")
             return
 
         model_id = _get_model_id(f"{model_name}-{task_name}")
@@ -127,6 +134,7 @@ class AutoLoader:
                                     model_name=model_name_,
                                     only_download_config=only_download_config,
                                     **kwargs)
+
         model_id = _get_model_id(model_name)
         print("*"*20, task_name, model_id, model_name)
         if model_name == 'GLM-large-ch':
@@ -142,6 +150,12 @@ class AutoLoader:
                                     tokenizer_class[1])
         self.tokenizer = tokenizer_class(vocab_file)
 
+    def get_task_name(self, brief_model_name):
+        all_model_task = list(ALL_TASK.keys())
+        model_tasks = [t for t in all_model_task if brief_model_name in t]
+        tasks = [t.split("_")[-1] for t in model_tasks]
+        tasks = list(set(tasks))
+        return tasks
 
     def get_tokenizer(self):
         return self.tokenizer
