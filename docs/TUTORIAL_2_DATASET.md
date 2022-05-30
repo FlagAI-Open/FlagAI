@@ -296,7 +296,7 @@ The code implementation is as follows:
 import torch
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from flagai.test_utils import CollateArguments
+from flagai.test_utils import Seq2SeqCollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
 # get default parameters
