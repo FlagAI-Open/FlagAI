@@ -7,7 +7,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "ner-gp"
+task_name = "sequence-labeling-gp"
 model_dir = "./state_dict/"  # download dir
 
 # Note "./checkpoints_ner_gp/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_ner_gp.
