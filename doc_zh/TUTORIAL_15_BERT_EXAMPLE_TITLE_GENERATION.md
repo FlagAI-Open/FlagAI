@@ -52,7 +52,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 # 如果本地没有，则会在modelhub上进行查找并下载
 # Autoloader 能够自动构建模型与切词器
 # 'seq2seq' 是task_name
-auto_loader = AutoLoader(task_name="seq2seq",
+auto_loader = AutoLoader(task_name="title-generation",
                          model_dir="./state_dict/",
                          model_name="RoBERTa-base-ch")
 model = auto_loader.get_model()
