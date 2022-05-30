@@ -3,7 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import GLM10bENBPETokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
@@ -31,7 +31,7 @@ trainer = Trainer(env_type='deepspeed+mpu',
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
                                              model_name="GLM-10b-en")
 
-tokenizer = GLMLargeEnWordPieceTokenizer()
+tokenizer = GLM10bENBPETokenizer()
 
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='./datasets/',
