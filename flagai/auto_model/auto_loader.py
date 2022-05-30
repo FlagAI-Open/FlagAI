@@ -19,7 +19,6 @@ class LazyImport(object):
 
 
 ALL_TASK = {
-    "bert_lm": ["flagai.model.bert_model", "BertModel"],
     "bert_seq2seq": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
@@ -32,11 +31,8 @@ ALL_TASK = {
     "bert_embedding": ["flagai.model.bert_model", "BertForEmbedding"],
     "bert_classification": ["flagai.model.bert_model", "BertForClsClassifier"],
     "bert_semantic-matching": ["flagai.model.bert_model", "BertForClsClassifier"],
-    "gpt2_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
-    "t5_lm": ["flagai.model.t5_model", "T5Model"],
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
-    "glm_lm": ["flagai.model.glm_model", "GLMModel"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_classification": ["flagai.model.glm_model", "GLMForSequenceClassification"],
