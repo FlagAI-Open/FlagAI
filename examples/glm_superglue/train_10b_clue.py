@@ -23,7 +23,7 @@ trainer = Trainer(env_type='deepspeed',
                   num_gpus=2,
                   hostfile='./hostfile',
                   model_parallel_size=2,
-                  deepspeed_config=os.path.dirname(os.path.abspath(__file__))+'/deepspeed.json',
+                  deepspeed_config='./deepspeed.json',
                   training_script=__file__)
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
