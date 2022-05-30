@@ -10,11 +10,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_dir = "./state_dict/"
 
 # Note "./checkpoints_seq2seq/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_seq2seq.
-model_save_path = "./checkpoints_seq2seq/1000/mp_rank_00_model_states.pt"
+model_save_path = "./checkpoints_gpt2_title-generation/10/mp_rank_00_model_states.pt"
 maxlen = 256
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="RoBERTa-base-ch",
+    model_name="GPT2-base-ch",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()

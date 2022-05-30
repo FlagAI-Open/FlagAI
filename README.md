@@ -80,7 +80,7 @@ Host 127.0.0.1
 ```
 
 ## Quick Start
-We provide many models which are trained to perform different tasks. You can load these models by AutoLoader to make prediction.
+We provide many models which are trained to perform different tasks. You can load these models by AutoLoader to make prediction. See more in `FlagAI/quickstart`.
 ## Load model and tokenizer
 We provide the AutoLoad class to load the model and tokenizer quickly, for example:
 ```python
@@ -124,12 +124,13 @@ for text in test_data:
 * [NER with RoBerta-WWM](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
 * [Writing with GPT-2](/docs/TUTORIAL_18_GPT2_WRITING.md)
 * [Title generation with T5](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
-* [Supported tasks](/docs/TUTORIAL_20_SUPPORTED_TASKS.md)
+
+[//]: # (* [Supported tasks]&#40;/docs/TUTORIAL_20_SUPPORTED_TASKS.md&#41;)
 
 
 This session explains how the base NLP classes work, how you can load pre-trained models to tag your
 text, how you can embed your text with different word or document embeddings, and how you can train your own
-language models, sequence labeling models, and text classification models. Let us know if anything is unclear.
+language models, sequence labeling models, and text classification models. Let us know if anything is unclear. See more in `FlagAI/examples`.
 
 
 

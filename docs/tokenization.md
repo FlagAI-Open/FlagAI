@@ -1,5 +1,3 @@
-[TOC]
-
 # sub-word algorithm
 
 ## Tokenization
@@ -38,7 +36,7 @@
 
 ​		三种不同的切分方法效果对比如下：
 
-![3 different tokenization scheme: on rules, on punctuaction, on white spaces](tokenization.assets/tokenize.png)
+![3 different tokenization scheme: on rules, on punctuaction, on white spaces](img/tokenize.png)
 
 ​		上面说的三种分词方法，都是词级别的分词方法（word tokenization），简单来说，就是以词为单位对文本进行切分。尽管这是将文本切分为更小的单位的最直观的方式，但是这种方式在处理大量语料的时候会产生一个非常严重的问题——生成一个巨大的词表（因为大量的语料中会存在大量的只出现一次/少次的token）。
 
@@ -174,22 +172,20 @@
 
 ***
 
-
-
 ## WordPiece
 
 ​		WordPiece 算法最早发表于 [Japanese and Korean Voice Search (Schuster et al., 2012)](https://static.googleusercontent.com/media/research.google.com/ja//pubs/archive/37842.pdf)，它和 BPE 算法非常相似。也有一些预训练模型的分词器用的是这个算法，比如 BERT、DistilBERT 和 Electra。与 BPE 算法类似，WordPiece 算法也是初始化一个基础词表，然后每次从词表中选出两个子词合并成新的子词。
 
 ​		与 BPE 的主要区别在于，选择两个子词进行合并的规则：BPE 选择频数最高的相邻子词合并，而 WordPiece 使用的是通过语言模型来计算合并两个单词可能造成的影响，然后选择使得似然函数提升最大的字符对。这个提升是通过结合后的字符对减去结合前的字符对之和得到的。
 
-​		假设句子$S=（t1,t2,...,t_n）$由 n 个 token 组成，$t_i$表示第$i$个 token，假设各个 token 之间是相互独立的，则句子$S$的语言模型似然值等于所有子词概率的乘积
-$$
-logP(S) = \sum^n_{i=1}logP(t_i)
-$$
-​		假设把相邻位置的两个 token $x$ 和 $y$ 进行合并，合并后的 token 记为 $z$，此时句子 $S$ 的似然值变化可以表示为：
-$$
-logP(t_z)-(logP(t_x)+logP(t_y)) = log(\frac{P(t_z)}{P(t_x)P(T_y)})
-$$
+​		假设句子<img src="https://latex.codecogs.com/png.latex? S=(t1,t2,...,t_n)"> 由 n 个 token 组成，<img src="https://latex.codecogs.com/png.latex? t_i">表示第i个 token，假设各个 token 之间是相互独立的，则句子`S`的语言模型似然值等于所有子词概率的乘积
+
+<img src="https://latex.codecogs.com/png.latex? logP(S) = \sum^n_{i=1}logP(t_i)">
+
+​		假设把相邻位置的两个 token `x` 和 `y` 进行合并，合并后的 token 记为 `z`，此时句子 `S` 的似然值变化可以表示为：
+
+<img src="https://latex.codecogs.com/png.latex? logP(t_z)-(logP(t_x)+logP(t_y)) = log(\frac{P(t_z)}{P(t_x)P(T_y)})">
+
 ​		也就是说，判断`tokenization`相较于`token` + `ization`是否更适合出现。选择能够提升语言模型概率最大的相邻子词加入词表。
 
 
@@ -200,20 +196,20 @@ $$
 
 ​		并没有预训练模型单独使用 ULM 作为分词的算法，但是它常与 SentencePiece 一起使用。
 
-​		对于句子$S$，$\mathop{x}\limits ^{\rightarrow} = (x_1,x_2,...,x_m)$为句子的一个分词结果，由 m 个子词组成。所以，当前分词下句子$S$的似然值可以表示为：
-$$
-P(\mathop{x}\limits ^{\rightarrow}) = \prod^m_{i=1}P(x_i)
-$$
-​		对于句子$S$，挑选似然值最大的作为分词结果，则可以表示为：
-$$
-x^* = \mathop{argmax}\limits_{x \in U(x)}~P(\mathop{x}\limits ^{\rightarrow})
-$$
-​		这里的$U(x)$包含了句子的所有分词结果。在实际应用中，词表大小有上万个，直接罗列所有的分词组合不具有操作性。针对这个问题，可以通过维特比算法得到 $x^*$来解决。
+​		对于句子S，<img src="https://latex.codecogs.com/png.latex? \mathop{x}\limits ^{\rightarrow} = (x_1,x_2,...,x_m)">为句子的一个分词结果，由 m 个子词组成。所以，当前分词下句子$S$的似然值可以表示为：
 
-​		ULM 通过 EM 算法来估计每个子词的概率$P(x_i)$，假设当前词表为V，训练数据为|D|，则当前训练数据中所有句子的所有分词组合形成的概率相加，表示为：
-$$
-L = \sum^{|D|}_{s=1}log(P(X^{(s)}))=\sum^{|D|}_{s=1}log(\mathop{\sum_{x \in U(X^{(s)})}}P(x))
-$$
+<img src="https://latex.codecogs.com/png.latex? P(\mathop{x}\limits ^{\rightarrow}) = \prod^m_{i=1}P(x_i)">
+
+​		对于句子$S$，挑选似然值最大的作为分词结果，则可以表示为：
+
+<img src="https://latex.codecogs.com/png.latex? x^* = \mathop{argmax}\limits_{x \in U(x)}~P(\mathop{x}\limits ^{\rightarrow})">
+
+​		这里的$U(x)$包含了句子的所有分词结果。在实际应用中，词表大小有上万个，直接罗列所有的分词组合不具有操作性。针对这个问题，可以通过维特比算法得到 <img src="https://latex.codecogs.com/png.latex? x^*">来解决。
+
+​		ULM 通过 EM 算法来估计每个子词的概率<img src="https://latex.codecogs.com/png.latex? P(x_i)">，假设当前词表为V，训练数据为|D|，则当前训练数据中所有句子的所有分词组合形成的概率相加，表示为：
+
+<img src="https://latex.codecogs.com/png.latex? L = \sum^{|D|}_{s=1}log(P(X^{(s)}))=\sum^{|D|}_{s=1}log(\mathop{\sum_{x \in U(X^{(s)})}}P(x))">
+
 ​		在训练的开始阶段，ULM 初始化一个巨大的基础词表，然后针对当前词表，用上面的算法计算每个子词在训练数据上的概率，然后计算移除每个子词时，语言模型整体的损失上升了多少，记为这个子词的损失值。然后通过排序，按照一定比例移除掉词表中损失值最低的一部分子词（这个比例一般是10%或者20%），这些子词的损失值最低，意味着他们对语言模型的影响最小。每训练一步，都会移除掉部分的子词，直到词表大小达到预设值为止。（ULM 算法训练的过程中会保留基础的字符以保证任何词语都能被处理）。
 
 ​		训练完成的 UML 模型对一个句子给出多种的分词可能，比如说一个训练好的 ULM 分词器的词表如下：

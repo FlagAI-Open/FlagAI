@@ -5,13 +5,36 @@
 
 目前项目里存在三种数据预处理的情况，即对分类任务的微调，预训练, 以及对生成任务的微调。我们在接下来会分别展开。
 
-## 数据处理：分类任务微调([prompt-learning模式](TUTORIAL_7_PROMPT_LEARNING.md))
-### 应用代码
+<!-- toc -->
+
+- [1 分类任务微调](#分类任务微调)
+  - [1.1 应用代码](#分类任务应用代码)
+  - [1.2 初步读取并处理数据集](#初步读取并处理数据集)
+    - [1.2a 加载数据集](#加载数据集)
+    - [1.2b 统一数据集结构](#统一数据集结构)
+  - [1.3 将数据整理成模型的输入](#将数据整理成模型的输入)
+    - [1.3a 构建完形填空模板](#构建完形填空模板)
+    - [1.3b 分词并构造输入样例](#分词并构造输入样例)
+  - [1.4 创建加载器](#创建加载器)
+- [2 预训练](#预训练)
+  - [2.1 预训练任务数据格式样例](#预训练任务数据格式样例)
+  - [2.2 预训练的任务处理实例代码](#预训练的任务处理实例代码)
+- [3 生成任务微调](#生成任务微调)
+  - [3.1 生成任务应用代码](#生成任务应用代码)
+  - [3.2 生成任务里将数据整理成模型的输入](#生成任务里将数据整理成模型的输入)
+    - [3.2a 生成任务里构建填空模板](#生成任务里构建填空模板)
+    - [3.2b 生成任务里分词并构造输入样例](#生成任务里分词并构造输入样例)
+
+  
+
+## 分类任务微调
+分类任务微调有着两种形式：一种是普通的微调，一种是提示学习的方法。提示学习需要为任务额外构建一个完形填空的模板，它更适用于低资源以及小样本的情况。接下来我们以提示学习为例来介绍分类任务中的数据处理方法：
+### 分类任务应用代码
 ```python
-import torch.utils.data
-from flagai.data.dataset import SuperGlueDataset
+import torch
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import CollateArguments
+from flagai.data.dataset import SuperGlueDataset
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
 # 得到默认参数
@@ -47,10 +70,22 @@ dataset = SuperGlueDataset(task_name='cb',
                            dataset_type='train',
                            tokenizer=tokenizer)
 ```
-#### 1.加载数据集
 
-将`task_name`设置成数据集对应的简称后，运行以上代码，相关数据会在后台自动下载。FlagAI目前支持自动加载下列分类数据集：
 
+其中`SuperGlueDataset`是我们这一步的主函数，它的主要参数及其作用如下所示：
+
+`task_name`: 数据集的简称, FlagAI支持的数据集及其对应的简称如[加载数据集](#加载数据集)所示。
+
+`data_dir`: 数据集会被自动下载到`data_dir`对应的地址，默认为项目的`./dataset`目录。
+
+`dataset_type`: 可以为 train/dev/test, 分别代表要处理的是训练集/验证集/测试集
+
+`tokenizer`: 如[Tutorial1](/doc_zh/TUTORIAL_1_TOKENIZER.md)所介绍的构建完成的分词器
+
+
+#### 加载数据集
+
+FlagAI目前支持自动加载下列分类数据集：
 
 | 数据集名称                                     | 数据集简称    | 语言   | 所属评测基准   |
 |----------------------------------------------|----------|------|----------|
@@ -63,8 +98,6 @@ dataset = SuperGlueDataset(task_name='cb',
 | The Winograd Schema Challenge                | wsc      | 英文   | SuperGLUE |
 | Ant Financial Question Matching Corpus       | afqmc    | 中文   | CLUE     |
 | Short Text Classificaiton for News           | tnews    | 中文   | CLUE     |
-
-数据集会被自动下载到`data_dir`对应的地址，默认为项目的`./dataset`目录。
 
 下载好的数据集目录下会包含三个文件，对应训练集数据，验证集数据，以及测试集数据, 以`CommitmentBank`数据集为例，目录下的`train.jsonl`对应训练集，`val.jsonl`对应验证集，`test.jsonl`对应测试集。一般来说训练集和测试集会包含标签信息，而测试集则没有。这些数据文件在接下来的流程中会分开处理。
 
@@ -81,9 +114,9 @@ dataset = SuperGlueDataset(task_name='cb',
 | label     | 代表前提和假设关系的标签<br/>包含entailment,neutral和contradiction三种 | entailment                     |
 | idx       | 样例在数据集里的序号                                            | 10                             |
 
-目前所有FlagAI支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
+目前所有飞智支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
 
-#### 2. 统一数据集结构
+#### 统一数据集结构
 在这一步里，我们会统一不同数据集的数据结构，以方便接下来处理。此结构的细节如下：
 
 
@@ -97,17 +130,16 @@ dataset = SuperGlueDataset(task_name='cb',
 | meta   | an optional dictionary to store arbitrary meta information                        | dict |
 | ids    | an optional numeric index                                                    | int  |
 
-例如上一步`CommitmentBank`的样例会被处理成如下的形式
-
-<div align=center><img src="img/dataset_figure_2.png" width="500px"></div>
-
-需要注意的是如果因为数据结构太复杂，导致text_a和text_b无法塞下背景文本信息的话，可以把剩下的信息放在`meta`里。
-
-当数据集被构造好以后，可以直接在代码里通过索引的方式查看其中某个样例：
-
+如果想要查看某个样例的数据结构，也可以直接在代码里通过索引的方式得到：
 ```python
 example = dataset[3]  # 数据集里第3个样例
 ```
+比如说，上一步`CommitmentBank`的样例会被处理成如下的形式:
+
+<div align=center><img src="img/dataset_figure_2.png" width="500px"></div>
+
+需要注意的是如果因为数据结构太复杂，导致text_a和text_b无法塞下背景文本信息的话，剩下的信息会被放在`meta`里。
+
 
 ### 将数据整理成模型的输入
 
@@ -118,7 +150,7 @@ collate_fn = ConstructSuperglueStrategy(cl_args,
                                         task_name=task_name)
 ```
 
-#### 1.构建完形填空模板
+#### 构建完形填空模板
 
 一个完形填空模板包含了背景文本，空位，以及在提供给空位的选项。模型需要找到正确的选项，并填进空位里。
 
@@ -128,7 +160,7 @@ collate_fn = ConstructSuperglueStrategy(cl_args,
 
 可以看到，大体上可以分成两步：第一步是组合已有的文本，使其看上去符合完形填空格式；第二步是将原始的标签文本转化为新的标签，作为可能会填入空位的选项。        
 
-#### 2.分词并构造输入样例
+#### 分词并构造输入样例
 接下来，我们需要构造模型的输入，第一步是分词，而接下来则需要分成两种情况：
 
 第一种情况下，数据集包含的标签类别是有限的，比如`CommitmentBank`数据集里只会存在`entailment/contradiction/neutral`三种标签文本。第二类情况里每一段完型填空都会给出不同的选项(一般是一段长文本)。比如在一些阅读理解数据集里，每一个选项都是一段对于文本的不同理解。这两类情况的处理方法如下所示：
@@ -148,7 +180,7 @@ collate_fn = ConstructSuperglueStrategy(cl_args,
 
 <sup>1</sup>: seq_length代表规定的每个输入向量的最大长度
 
-<sup>2</sup>: 特殊字符添加流程：在句首添加[CLS]符号，句尾添加[EOS]符号，直到长度达到seq_length, 如果完形填空输出的文本有两段，则在中间添加[SEP]符号
+<sup>2</sup>: 特殊字符添加流程如下图所示：在句首添加[CLS]符号，句尾添加[EOS]符号，直到长度达到seq_length。
 <div align=center><img src="img/dataset_example_4.png" width="500px"></div>
 
 <sup>3</sup>: num_labels代表完形填空问题中选项的个数
@@ -189,9 +221,105 @@ for data_iterator in loader:
 ```
 加载器构造好之后即可用于接下来的训练和预测过程。<br /><br /><br />
 
+### 自定义数据处理
+如果要处理不支持的数据集，需要您手动实现以下功能
+
+1. 在`flagai/data/dataset/superglue/control.py`文件里, 如下所示创建自定义的processor函数， 然后把它与自定义数据集名字的映射关系添加到control.py下的`PROCESSOR_DICT`字典里。
+
+其中最主要的函数是`_create_example`, 需要在这里读取对应的数据集，并如[之前](#统一数据集结构)所示初步处理成统一的结构。
+
+```python
+class ExampleProcessor(DataProcessor):
+
+    def get_train_examples(self, data_dir):
+        # Assign the filename of train set
+        return self._create_examples(os.path.join(data_dir, "train.tsv"), "train")
+
+    def get_dev_examples(self, data_dir, for_train=False):
+        # Assign the filename of dev set
+        return self._create_examples(os.path.join(data_dir, "dev.tsv"), "dev")
+
+    def get_test_examples(self, data_dir) -> List[InputExample]:
+        # Assign the filename of test set
+        return self._create_examples(os.path.join(data_dir, "test.tsv"), "test")
+
+    def get_labels(self):
+        # Return all label categories
+        return ["0", "1"]
+
+    @staticmethod
+    def _create_examples(path: str, set_type: str) -> List[InputExample]:
+        """
+        InputExample包含下列信息
+        text_a (str, required): 文本1
+        text_b (str, optional): 文本2
+        label (str, required): 标签
+        guid (str, required): 每一个InputExample的唯一序号
+        """
+        examples = []
+        df = read_tsv(path)
+
+        for idx, row in df.iterrows():
+            guid = f"{set_type}-{idx}"
+            text_a = punctuation_standardization(row['sentence'])
+            label = row.get('label', None)
+            example = InputExample(guid=guid, text_a=text_a, label=label)
+            examples.append(example)
+        return examples
+
+
+
+```
+2. 在`flagai/data/dataset/superglue/control.py`文件里, 如下所示创建自定义的pvp函数， 然后把它与自定义数据集名字的映射关系添加到control.py下的`PVPS`字典里。
+
+此函数的主要功能是如[之前](#将数据整理成模型的输入)所说的构建完形填空模板，其主要函数有
+
+`get_parts`: 构造完形填空文本
+
+`verbalize`：把数据集的标签映射到完形填空的选项上
+
+
+```python
+class ExamplePVP(PVP):
+    # 把标签映射到对应的含义文本上
+    VERBALIZER = {
+        "contradiction": [" No"],
+        "entailment": [" Yes"],
+        "neutral": [" Maybe"]
+    }
+
+    @staticmethod
+    def available_patterns():
+        # 输出所有可用的模板
+        return [0]
+
+    @property
+    def is_multi_token(self):
+        # 如果标签包含大于一个token，就输出True
+        return False
+
+    def get_parts(self, example: InputExample) -> FilledPattern:
+       # 把InputExample里面的元素通过设计组合成一个完形填空模板  
+
+        text_a = self.shortenable(example.text_a)
+        text_b = self.shortenable(" " + example.text_b)
+        parts_a, parts_b = [
+            None, text_a, None, ' question:', text_b,
+            ' true, false or neither?', None, ' answer:', [self.mask]
+        ], []
+        parts_a, parts_b = self.replace_prompt_tokens(parts_a, parts_b)
+        return parts_a, parts_b
+    
+    def verbalize(self, label) -> List[str]:
+        # 借用类里自定义的VERBALIZER完成初始标签到完形填空选项的映射
+        return [' true'] if label == 'entailment' else [
+            ' false'
+        ] if label == 'contradiction' else [' neither']
+
+```
 
 ## 数据处理：GLM预训练任务
-预训练任务数据格式样例：
+### 预训练任务数据格式样例
 ```text
 {
     "RECORDS": [
@@ -216,14 +344,19 @@ for data_iterator in loader:
     ]
 }
 ```
-预训练的任务处理实例代码:
+### 预训练的任务处理实例代码
 ```python
+from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.dataset import BlockDataset
+from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
+from flagai.test_utils import PretrainDatasetArguments
+
 tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
                                 add_task_mask=True,
                                 add_decoder_mask=False,
                                 fix_command_token=True)
 
-ds_args = DatasetArguments()
+ds_args = PretrainDatasetArguments()
 
 tokenizer = GLMLargeChTokenizer(fix_command_token=True,
                                 add_block_symbols=True,
@@ -261,23 +394,24 @@ datasets = create_dataset(tokenizer, should_split=True)
 3. 预训练的时候，collate function会随机按照三种不同的模式处理数据: bert模式（遮挡随机区间），sentence模式(按照完整句子进行遮挡)以及gpt模式（只遮挡一段长区间）。模型的输入相比一般生成任务也会多一个`mode`键。
 4. 预训练不用添加模板，直接按下表构建模型输入即可
 
-| 键值             | 维度                                   | 含义         | 构造方法                                             |
-|----------------|--------------------------------------|------------|--------------------------------------------------|
-| input_ids      | torch.Size([seq_length<sup>1</sup>]) | 输入矩阵       | 由上一步的模板文本，加上一些特殊字符组成                             |
-| position_ids   | torch.Size([2， seq_length])          | 位置编码         | 参考[GLM流程](GLM.md)，第一行代表token的绝对位置，第二行代表遮挡部分的相对位置 |
-| attention_mask | torch.Size([1])                      | 分隔符位置         | 对于生成类的模式，得到源文本结束的位置；否则得到输入文本结束的位置                                          |
-| target_ids     | torch.Size([num_labels<sup>3</sup>]) | 全量标签列表     | 被遮挡住的文本                                          |
-| logit_mask     | torch.Size([seq_length])             | 通过遮挡使得模型只会处理目标文本部分的loss | 对于每个token, 如果是回答，则对应的地方为1，否则为0                   |                                                   
-| mode           | str                                  | 数据处理模式 |                    |  
+| 键值             | 维度                                   | 含义                            | 构造方法                                             |
+|----------------|--------------------------------------|-------------------------------|--------------------------------------------------|
+| input_ids      | torch.Size([seq_length<sup>1</sup>]) | 输入矩阵                          | 由上一步的模板文本，加上一些特殊字符组成                             |
+| position_ids   | torch.Size([2， seq_length])          | 位置编码                          | 参考[GLM流程](GLM.md)，第一行代表token的绝对位置，第二行代表遮挡部分的相对位置 |
+| attention_mask | torch.Size([1])                      | 分隔符位置                         | 对于生成类的模式，得到源文本结束的位置；否则得到输入文本结束的位置                                          |
+| target_ids     | torch.Size([num_labels<sup>3</sup>]) | 全量标签列表                        | 被遮挡住的文本                                          |
+| logit_mask     | torch.Size([seq_length])             | 通过遮挡使得模型只会处理目标文本部分的loss       | 对于每个token, 如果是回答，则对应的地方为1，否则为0                   |                                                   
+| mode           | str                                  | 数据处理模式，取值范围：bert/sentence/gpt |                    |  
+
 <br /><br /><br />
 
-## 数据处理：生成任务微调
-代码实现如下所示：
+## 数据处理：生成任务微调 
+### 生成任务应用代码
 ```python 
-import torch.utils.data
+import torch
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import Seq2SeqCollateArguments
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
 # 得到默认参数
@@ -308,9 +442,9 @@ loader = torch.utils.data.DataLoader(dataset,
                                     collate_fn=collate_fn)
 ```
 
-### 初步读取并处理数据集
+### 生成任务里初步读取并处理数据集
 
-目前支持[CMRC2018](https://www.clue.ai/introduce.html)任务，CMRC是一个阅读理解类的任务，需要根据背景文本来回答一系列提问，其数据结构示例如下：
+以[CMRC2018](https://www.clue.ai/introduce.html)为例，CMRC是一个阅读理解类的任务，需要根据背景文本来回答一系列提问，其数据结构示例如下：
 
 ```text
 {'paragraphs': 
@@ -340,7 +474,7 @@ dataset = Seq2SeqDataset(task_name='cmrc', data_dir='./datasets/',
                             dataset_type='train', tokenizer=tokenizer) 
 ```
 
-### 将数据整理成模型的输入
+### 生成任务里将数据整理成模型的输入
 
 代码如下所示。与生成任务相比，同样是构造模板以及模型输入，区别在于构造的方式不一样
 ```python 
@@ -349,12 +483,12 @@ collate_fn = ConstructSeq2seqStrategy(cl_args,
                                         task_name=task_name) 
 ```
 
-#### 1.构建填空模板
+#### 生成任务里构建填空模板
 由于是阅读理解任务，所以在模板里需要体现出是针对指定的阅读理解问题进行回答的，参考如下构建方式
 <div align=center><img src="img/dataset_figure_4.png" width="500px"></div>
 
 
 
-#### 2.分词并构造输入样例
+#### 生成任务里分词并构造输入样例
 与预训练类似，区别在于没有mode这个键值。
 

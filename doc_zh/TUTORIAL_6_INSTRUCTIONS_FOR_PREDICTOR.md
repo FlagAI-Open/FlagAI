@@ -1,4 +1,4 @@
-## Predictor
+## 将现成的推理算法与 Predictor 结合使用
 
 ### 通过Predictor调用一行代码得到理想的预测结果
 

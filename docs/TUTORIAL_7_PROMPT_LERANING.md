@@ -19,32 +19,6 @@ We can design a meaningful cloze template as below
 
 <div align=center><img src="img/prompt_figure_1.png" width="500px"></div>
 
-And we can implement the template through the following code:
-
-```python
-def get_parts(self, example: InputExample):  
-    '''A simplified version of the actual code'''
-    # Construct the template
-    cloze_ids = [
-        example.text_a,' question: is it true, false or neither that',
-         example.text_b, ' answer:', [self.mask]]
-    return cloze_ids
-```
-
-The label in various datasets can have multiple types including boolean, integer and string. We need to implement a verbalizer that maps the labels to the text string of choices in cloze question. For example, here the 'entailment', 'contradiction' and 'neutral' labels can be mapped to 'true' ,'false' and 'neither', and each time the answer to be filled is always selected among those choices. 
-
-Verbalizer is essentially a mapping relationship, and we can define it in a Python dictionary as shown below:
-
-```python
-VERBALIZER = {
-    "contradiction": [" false"],
-    "entailment": [" true"],
-    "neutral": [" neither"]
-}
-def verbalize(self, label) -> List[str]:
-    return CbPVP.VERBALIZER[label]
-```
-
 ### Prefix Prompts
 Instead of designing a prompt in real natural language, prefix prompts directly modifies the embedding space. It inserts a sequence of task-specific vectors and freezes the LM parameters. An advantage of prefix prompts is that embeddings of templates are no longer limited by parameters in pre-trained LMs. 
 
@@ -54,10 +28,10 @@ Here is an example that compares prefix tuning and fine-tuning in the embedding 
 
 
 ## Reference
-[Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing](https://arxiv.org/abs/2107.13586)
+Liu, P. (2021, July 28). Pre-train, Prompt, and Predict: A Systematic Survey of Prompting. . . arXiv.Org. https://arxiv.org/abs/2107.13586 
 
-[OpenPrompt: An Open-source Framework for Prompt-learning](https://arxiv.org/abs/2111.01998)
+Ding, N. (2021, November 3). OpenPrompt: An Open-source Framework for Prompt-learning. arXiv.Org. https://arxiv.org/abs/2111.01998
 
-[Exploiting Cloze Questions for Few Shot Text Classification and Natural Language Inference](https://arxiv.org/abs/2001.07676)
+Schick, T. (2020, January 21). Exploiting Cloze Questions for Few Shot Text Classification and. . . arXiv.Org. https://arxiv.org/abs/2001.07676
 
-[Prefix-Tuning: Optimizing Continuous Prompts for Generation](https://arxiv.org/abs/2101.00190)
+Li, X. L. (2021, January 1). Prefix-Tuning: Optimizing Continuous Prompts for Generation. arXiv.Org. https://arxiv.org/abs/2101.00190

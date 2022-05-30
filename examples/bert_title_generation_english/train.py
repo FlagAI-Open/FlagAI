@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
-from flagai.data.collate_utils import seq2seq_collate_fn
+from flagai.data.collate_utils import seq2seq_collate_fn as title_generation_collate_fn
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -15,28 +15,28 @@ train_path = cur_dir + "/data/news.tsv"
 # single gpu
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="roberta_seq2seq",
-    batch_size=8,
+    experiment_name="bert-title-generation",
+    batch_size=1,
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-3,
-    epochs=10,
-    log_interval=100,
+    epochs=1,
+    log_interval=1,
     eval_interval=10000,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_seq2seq",
+    save_dir="checkpoints-bert-title-generation-en",
     checkpoint_activations=True,
     save_epoch=1,
-)
+    fp16 = False)
 
-model_dir = "../state_dict/"  # 模型位置
+model_dir = "../state_dict/"  # download_path for the model 
 
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 256
 
 auto_loader = AutoLoader(
-    "seq2seq",
+    "title-generation",
     model_name="BERT-base-en",
     model_dir=model_dir,
 )
@@ -57,8 +57,8 @@ def read_file():
             line = line.strip('\n').split('\t')
             src_list = line[4].split(" ")
             if len(src_list) > 510:
-                continue
-
+                src_list = src_list[:510]
+                line[4]=" ".join(src_list)
             src.append(line[4])
             tgt.append(line[3])
             if index == 100000:
@@ -67,10 +67,10 @@ def read_file():
     return src, tgt
 
 
-class BertSeq2seqDataset(Dataset):
+class BertTitleGenerationDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(BertSeq2seqDataset, self).__init__()
+        super(BertTitleGenerationDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -97,13 +97,14 @@ class BertSeq2seqDataset(Dataset):
 
 sents_src, sents_tgt = read_file()
 
-print(sents_src[10])
-print(sents_tgt[10])
+print(sents_src[0])
+print(sents_tgt[0])
 
 print(len(sents_src))
 
 data_len = len(sents_tgt)
-train_size = int(data_len * 0.9)
+train_size = data_len
+# train_size = int(data_len * 0.9)
 
 train_src = sents_src[:train_size]
 train_tgt = sents_tgt[:train_size]
@@ -111,18 +112,18 @@ train_tgt = sents_tgt[:train_size]
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = BertTitleGenerationDataset(train_src,
                                    train_tgt,
                                    tokenizer=tokenizer,
                                    maxlen=maxlen)
-val_dataset = BertSeq2seqDataset(val_src,
-                                 val_tgt,
-                                 tokenizer=tokenizer,
-                                 maxlen=maxlen)
+# val_dataset = BertTitleGenerationDataset(val_src,
+#                                  val_tgt,
+#                                  tokenizer=tokenizer,
+#                                  maxlen=maxlen)
 
 trainer.train(
     model,
     train_dataset=train_dataset,
-    valid_dataset=val_dataset,
-    collate_fn=seq2seq_collate_fn,
+    # valid_dataset=val_dataset,
+    collate_fn=title_generation_collate_fn,
 )

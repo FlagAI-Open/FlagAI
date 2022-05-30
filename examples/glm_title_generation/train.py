@@ -6,8 +6,6 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.glm_model import GLMModel, GLMForSeq2Seq
-from flagai.data.tokenizer import GLMLargeChTokenizer
 from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -29,8 +27,9 @@ trainer = Trainer(
     num_checkpoints=1,
 )
 
-src_dir = './data/train.src'
-tgt_dir = './data/train.tgt'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = cur_dir + '/data/train.src'
+tgt_dir = cur_dir + '/data/train.tgt'
 
 maxlen = 256
 auto_loader = AutoLoader("seq2seq",

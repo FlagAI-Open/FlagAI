@@ -13,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # single gpu
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="roberta_seq2seq",
+    experiment_name="roberta_title-generation",
     batch_size=8,
     gradient_accumulation_steps=1,
     lr=2e-4,
@@ -31,13 +31,13 @@ trainer = Trainer(
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/train.src'
 tgt_dir = cur_dir + '/data/train.tgt'
-model_dir = "./state_dict/"  # 模型位置
+model_dir = "./state_dict" 
 
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 256
 
 auto_loader = AutoLoader(
-    "seq2seq",
+    "title-generation",
     model_name="RoBERTa-base-ch",
     model_dir=model_dir,
 )
@@ -62,10 +62,10 @@ def read_file():
     return src, tgt
 
 
-class BertSeq2seqDataset(Dataset):
+class BertTitleGenerationDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(BertSeq2seqDataset, self).__init__()
+        super(BertTitleGenerationDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -96,11 +96,11 @@ train_tgt = sents_tgt[:train_size][:2000]
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = BertTitleGenerationDataset(train_src,
                                    train_tgt,
                                    tokenizer=tokenizer,
                                    maxlen=maxlen)
-val_dataset = BertSeq2seqDataset(val_src,
+val_dataset = BertTitleGenerationDataset(val_src,
                                  val_tgt,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)

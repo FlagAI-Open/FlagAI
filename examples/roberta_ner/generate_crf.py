@@ -20,7 +20,7 @@ maxlen = 256
 auto_loader = AutoLoader(task_name,
                          model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
-                         classification_size=len(target))
+                         class_num=len(target))
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
