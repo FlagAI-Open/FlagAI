@@ -58,6 +58,7 @@ trainer = Trainer(
     save_dir="checkpoints_poetry",
     save_epoch=1,
     num_checkpoints=1,
+    pytorch_device='cuda',
     master_ip='127.0.0.1',
     master_port=17750,
     num_nodes=1,

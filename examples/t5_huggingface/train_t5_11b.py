@@ -5,7 +5,7 @@ from flagai.trainer import Trainer
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 from torch.utils.data import Dataset
 import torch
-
+import os
 
 class MyTrainer(Trainer):
 
@@ -44,6 +44,7 @@ model.gradient_checkpointing = True
 
 print("loading model & tokenizer is done!")
 train_path = "../bert_title_generation_english/data/news.tsv"
+
 maxlen = 1024
 
 def read_file():

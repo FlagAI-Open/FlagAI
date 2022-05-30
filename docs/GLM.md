@@ -9,12 +9,14 @@ The **GLM model**, proposed in [GLM: General Language Model Pretraining
 with Autoregressive Blank Infilling](https://arxiv.org/abs/2103.10360), is based on a slightly different strategy: autoregressive blank infilling. 
 
 It claims to perform well in the three main categories of NLP taks: classification, unconditional generation, and conditional generation tasks.
+
 | Framwork        | NLU | Cond.Gen. | Uncond.Gen |
 |-----------------|-----|-----------|------------|
 | Augoregressive  | -   | -         | ✅          |
 | Autoencoding    | ✅   | ×         | ×          |
 | Encoder-Decoder | -   | ✅         | -          |
 | GLM             | ✅   | ✅         | ✅          |
+
 The key features of GLM include:
 
 - First task: Several spans of the text are masked following the idea of autoencoding. Those spans will be randomly rearranged and be predicted in an autoregressive manner. The masked spans covers 15% original tokens.
