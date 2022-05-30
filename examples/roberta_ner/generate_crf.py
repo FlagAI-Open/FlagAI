@@ -7,7 +7,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence-labeling-crf"
+task_name = "ner-crf"
 model_dir = "./state_dict/"  # download dir
 
 # Note "./checkpoints_ner_crf/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_ner_crf.
@@ -20,7 +20,7 @@ maxlen = 256
 auto_loader = AutoLoader(task_name,
                          model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
-                         classification_size=len(target))
+                         class_num=len(target))
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 

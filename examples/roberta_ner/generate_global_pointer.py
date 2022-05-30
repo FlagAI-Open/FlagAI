@@ -7,7 +7,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "sequence-labeling-gp"
+task_name = "ner-gp"
 model_dir = "./state_dict/"  # download dir
 
 # Note "./checkpoints_ner_gp/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_ner_gp.
@@ -21,7 +21,7 @@ auto_loader = AutoLoader(
     task_name,
     model_name="RoBERTa-base-ch",
     model_dir=model_dir,
-    classification_size=len(target),
+    class_num=len(target),
     inner_dim=64,
     only_download_config=True,
 )

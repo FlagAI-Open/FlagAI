@@ -12,10 +12,10 @@ model_save_path = "./checkpoints_semantic_matching/11250/mp_rank_00_model_states
 
 maxlen = 256
 
-auto_loader = AutoLoader("classification",
+auto_loader = AutoLoader("semantic-matching",
                          model_name="RoBERTa-base-ch",
                          only_download_config=True,
-                         classification_size=2)
+                         class_num=2)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 

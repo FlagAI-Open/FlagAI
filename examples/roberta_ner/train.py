@@ -1,25 +1,21 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import os
-
-from tqdm import tqdm
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 from flagai.data.collate_utils import bert_sequence_label_collate_fn
-from flagai.model.predictor.predictor import Predictor
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = "cpu"#torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 train_path = "./data/china-people-daily-ner-corpus/example.train"
 valid_path = './data/china-people-daily-ner-corpus/example.dev'
 test_path = './data/china-people-daily-ner-corpus/example.test'
 
-task_name = "sequence-labeling"
+task_name = "ner"
 
-model_dir = "./state_dict/"  # 模型位置
+model_dir = "./state_dict"
 maxlen = 256
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 save_dir = "./checkpoints_ner/"

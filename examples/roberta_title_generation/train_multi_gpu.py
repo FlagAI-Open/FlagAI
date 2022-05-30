@@ -45,7 +45,7 @@ os.makedirs(model_dir, exist_ok=True)
 maxlen = 256
 
 auto_loader = AutoLoader(
-    "seq2seq",
+    "title-generation",
     model_name="RoBERTa-base-ch",
     model_dir=model_dir,
 )
@@ -70,10 +70,10 @@ def read_file():
     return src, tgt
 
 
-class BertSeq2seqDataset(Dataset):
+class BertTitleGenerationDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(BertSeq2seqDataset, self).__init__()
+        super(BertTitleGenerationDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -103,11 +103,11 @@ train_tgt = sents_tgt[:train_size][:2000]
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = BertTitleGenerationDataset(train_src,
                                    train_tgt,
                                    tokenizer=tokenizer,
                                    maxlen=maxlen)
-val_dataset = BertSeq2seqDataset(val_src,
+val_dataset = BertTitleGenerationDataset(val_src,
                                  val_tgt,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)

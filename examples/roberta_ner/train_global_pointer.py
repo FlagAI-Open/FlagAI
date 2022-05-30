@@ -12,11 +12,11 @@ import numpy as np
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-train_path = "../data/china-people-daily-ner-corpus/example.train"
-valid_path = '../data/china-people-daily-ner-corpus/example.dev'
-test_path = '../data/china-people-daily-ner-corpus/example.test'
+train_path = "./data/china-people-daily-ner-corpus/example.train"
+valid_path = './data/china-people-daily-ner-corpus/example.dev'
+test_path = './data/china-people-daily-ner-corpus/example.test'
 
-task_name = "sequence-labeling-gp"
+task_name = "ner-gp"
 model_dir = "./state_dict/"
 
 target = ["LOC", "ORG", "PER"]
@@ -69,7 +69,7 @@ print(f"target is {target}")
 auto_loader = AutoLoader(task_name,
                          model_name="RoBERTa-base-ch",
                          model_dir=model_dir,
-                         classification_size=len(target),
+                         class_num=len(target),
                          inner_dim=64)
 
 model = auto_loader.get_model()
