@@ -24,7 +24,7 @@
 
 在命令行运行此命令：
 ```commandline
-cd FlagAI/examples/glm_title_generation
+cd ./examples/glm_title_generation
 python ./train.py
 ```
 
