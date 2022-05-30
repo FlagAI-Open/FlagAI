@@ -19,21 +19,18 @@
 乔 布 斯 宣 布 iphone 8 年 后 将 成 为 个 人 电 脑
 雅 虎 拟 剥 离 阿 里 巴 巴 15 ％ 股 权
 ```
-## Usage
+## 使用
 
-### 1.Load data
-The sample data is in /examples/bert_title_generation/data/
+### 1. 数据加载
+样例数据位于 /examples/bert_title_generation/data/
 
-You need to define the data loading process in train.py. For example:
+需要在 ```trianer.py```文件中定义数据读取过程，例如：
 ```python
 def read_file():
     src = []
     tgt = []
-
-    ## read data file to load src and tgt, for example:
-    ## src = ["article_1", "article_2", "article_3" ......]
-    ## tgt = ["title_1", "title_2", "title_3" ......]
-    ## no matter what data you use, you need to construct the right src and tgt.
+    
+    ## 如果换为其他数据，修改处理方式即可，只需要构造好src以及对应tgt列表
     with open(src_dir, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
@@ -46,28 +43,28 @@ def read_file():
     return src,tgt
 ```
 
-### 2.Load model and tokenizer
+### 2. 加载模型与切词器
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
-# or we will download these files from the model hub to this dir.
-# Autoloader can build the model and tokenizer automatically.
-# 'seq2seq' is the task_name.
-auto_loader = AutoLoader("seq2seq",
+# model_dir: 包含 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
+# 如果本地没有，则会在modelhub上进行查找并下载
+# Autoloader 能够自动构建模型与切词器
+# 'seq2seq' 是task_name
+auto_loader = AutoLoader(task_name="title-generation",
                          model_dir="./state_dict/",
                          model_name="RoBERTa-base-ch")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
 
-### 3. Train
-Then input this code in commandline to train:
+### 3. 训练
+在命令行中输入如下代码进行训练：
 ```commandline
 python ./train.py
 ```
-Modify the training configuration by this code:
+通过如下代码调整训练配置：
 ```python
 from flagai.trainer import Trainer
 import torch
@@ -83,7 +80,7 @@ trainer = Trainer(env_type="pytorch",
                   save_epoch=1
                   )
 ```
-Divide the training set validation set and create the dataset:
+通过如下代码划分训练集验证集，并定义Dataset：
 ```python
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
@@ -98,15 +95,14 @@ train_dataset = BertSeq2seqDataset(train_src, train_tgt, tokenizer=tokenizer, ma
 val_dataset = BertSeq2seqDataset(val_src, val_tgt, tokenizer=tokenizer, maxlen=maxlen)
 ```
 
-### Generation
-If you have already trained a model, in order to see the results more intuitively, rather than the loss of the validation set.
-You can run the generation file.
-First to modify the path of saved model.
+### 生成
+如果你已经训练好了一个模型，为了更直观的看到结果，可以对一些测试样例进行生成
+首先去修改一下模型保存位置：
 ```python
 model_save_path = "./checkpoints/1001/mp_rank_00_model_states.pt" ## 1001 is example, you need modify the number.
 ```
+运行对应的生成脚本：
 ```commandline
 python ./generate.py
 ```
-Then you can see the generation result.
-
+然后便可以看到生成结果。
