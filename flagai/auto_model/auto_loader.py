@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 import importlib
 import os
 from  flagai.model.file_utils import _get_model_id, _get_vocab_path

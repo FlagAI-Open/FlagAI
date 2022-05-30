@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 import os
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
@@ -18,7 +21,7 @@ trainer = Trainer(env_type='deepspeed',
                   log_interval=1,
                   save_dir="./glm_superglue_en",
                   master_ip='127.0.0.1',
-                  master_port=17237,
+                  master_port=17235,
                   num_nodes=1,
                   num_gpus=2,
                   hostfile='./hostfile',
@@ -31,7 +34,6 @@ model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models
 
 
 tokenizer =  GLMLargeChTokenizer()
-
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='./datasets/',
                                  dataset_type='train',

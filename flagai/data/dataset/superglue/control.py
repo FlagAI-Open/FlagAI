@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.data.dataset.superglue.processor import *
 from flagai.data.dataset.superglue.pvp import *
 

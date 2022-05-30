@@ -42,7 +42,7 @@ model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
 查看 https://github.com/BAAI-Open/FlagAI/blob/master/quickstart/ner_ch.py 了解更多.
-## All supported tasks and models
+## 所有支持的任务和模型
 
 ![model_and_task_table](../docs/img/model_task_table.png)
  **task_name** 参数支持:
@@ -69,8 +69,8 @@ tokenizer = auto_loader.get_tokenizer()
 6. chinese-word-segmentation (todo)
 7. ...
 
-## 所有支持的模型
-所有支持的模型都可以在 **model hub** 中找到。
+### 所有支持的模型
+所有支持的模型都可以在 **[这里](./TUTORIAL_3_MODEL.md#所有支持模型)** 中找到。
 不同的模型适应不同的任务。
 
 #### Transfomrer encoder:

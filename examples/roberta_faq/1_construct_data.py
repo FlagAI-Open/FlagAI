@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 # construct data
 # data from https://github.com/murufeng/ChineseNlpCorpus
 import torch

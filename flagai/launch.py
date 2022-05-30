@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 # Copyright 2020 The Microsoft DeepSpeed Team
 """
 sailing runner is the main front-end to launching multi-worker

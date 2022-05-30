@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 # coding=utf-8
 # Copyright (c) 2019, NVIDIA CORPORATION.  All rights reserved.
 #
@@ -29,11 +32,12 @@ if __name__ == "__main__":
     # Random seeds for reproducability.
     # Model,
     model = GLMModel.from_pretrain(model_name='GLM-large-ch', download_path="./state_dict/")
-    tokenizer = GLMLargeChTokenizer(vocab_path='./state_dict/GLM-large-ch/cog-pretrain.model',
+    #tokenizer = GLMLargeChTokenizer(vocab_path='./state_dict/GLM-large-ch/cog-pretrain.model',
+    tokenizer = GLMLargeChTokenizer(
                                     add_block_symbols=True,
                                     add_task_mask=True,
                                     add_decoder_mask=False,
-                                    fix_command_token=False)
+                                    fix_command_token=True)
 
     model.cuda(torch.cuda.current_device())
 

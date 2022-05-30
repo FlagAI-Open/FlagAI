@@ -1,15 +1,16 @@
 # 转化一个模型为Megatron-LM的模型并行版本
-三个步骤：
-- [1] 将`MLP`层转化为`column/rowParallel`版本
-- [2] 将`self-Attention` 中的两个`Linear layer`分别转化为`column/rowParallel `版本
-- [3] 将`cross-Attention`中的两个`Linear Layer` 转化为`column/rowParallel`版本
+- [转化model为Megatron-LM版本](#转化model为megatron-lm版本)
+  - [1.将MLP层转化为column/rowParallel版本](#1将mlp层转化为columnrowparallel版本)
+  - [2.转化`self-Attention`](#2转化self-attention)
+    - [2.1 将`x` proj 到  `q, k, v` 的`linear `层，转化为 `columnParalleLinear`](#21-将x-proj-到--q-k-v-的linear-层转化为-columnparallelinear)
+    - [2.2 将输出的`dense`层转化为`rowparallelLinear`](#22-将输出的dense层转化为rowparallellinear)
+  - [3.将`cross-Attention`中的两个`Linear Layer `转化为`column/rowParallel`版本](#3将cross-attention中的两个linear-layer-转化为columnrowparallel版本)
 
-`parallel`版本中主要的操作都是从`Megatron-LM`中拿出来的，放在了`mpu`模块中。
+飞智支持了BERT，GLM，GPT2 以及T5模型的megatron-lm模型并行. 其主要的操作都是从`Megatron-LM`中拿出来的，放在了`mpu`模块中。
 
 ## 1.将MLP层转化为column/rowParallel版本
-代码位置：`flagai/model/layers/embeddings_mpu.py` 【名字有点奇怪】
-核心思想
-将两个1linear1层的1forward1过程，按照特定顺序进行拆分（先列后行）：
+代码位置：`flagai/model/layers/embeddings_mpu.py` 
+核心思想:将两个`linear`层的`forward`过程，按照特定顺序进行拆分（先列后行）：
 ```python
 intermediate_parallel = self.dense_h_to_4h(hidden_states)
 intermediate_parallel = gelu(intermediate_parallel)
@@ -38,178 +39,10 @@ self.hidden_size_per_attention_head = divide(hidden_size,
 self.num_attention_heads_per_partition = divide(
     num_attention_heads, world_size)
 ```
-下面是两个`parallel linear`的代码实现
-### ColumnParallelLinear
-```python
 
-class ColumnParallelLinear(torch.nn.Module):
-    """Linear layer with column parallelism.
+## 2.转化`self-Attention` 
+`self-attention`中的两个Linear layer分别转化为`column/rowParallel` 版本
 
-    The linear layer is defined as Y = XA + b. A is parallelized along
-    its second dimension as A = [A_1, ..., A_p].
-
-    Arguments:
-        input_size: first dimension of matrix A.
-        output_size: second dimension of matrix A.
-        bias: If true, add bias
-        gather_output: If true, call all-gether on output and make Y avaiable
-                       to all GPUs, otherwise, every GPU will have its output
-                       which is Y_i = XA_i
-        init_method: method to initialize weights. Note that bias is always set
-                     to zero.
-        stride: For the strided linear layers.
-        keep_master_weight_for_test: This was added for testing and should be
-                                     set to False. It returns the master weights
-                                     used for initialization.
-    """
-
-    def __init__(self,
-                 input_size,
-                 output_size,
-                 bias=True,
-                 gather_output=True,
-                 init_method=init.xavier_normal_,
-                 stride=1,
-                 keep_master_weight_for_test=False):
-        super(ColumnParallelLinear, self).__init__()
-
-        # Keep input parameters
-        self.input_size = input_size
-        self.output_size = output_size
-        self.gather_output = gather_output
-        # Divide the weight matrix along the last dimension.
-        world_size = get_model_parallel_world_size()
-        self.output_size_per_partition = divide(output_size, world_size)
-
-        # Parameters.
-        # Note: torch.nn.functional.linear performs XA^T + b and as a result
-        # we allocate the transpose.
-        self.weight = Parameter(
-            torch.Tensor(self.output_size_per_partition, self.input_size))
-        self.weight.model_parallel = True
-        if bias:
-            self.bias = Parameter(torch.Tensor(self.output_size_per_partition))
-            self.bias.model_parallel = True
-            # Always initialize bias to zero.
-            with torch.no_grad():
-                self.bias.zero_()
-        else:
-            self.register_parameter('bias', None)
-
-        # Initialize weight.
-        self.master_weight = _initialize_affine_weight(
-            self.weight,
-            self.output_size,
-            self.input_size,
-            self.output_size_per_partition,
-            0,
-            init_method,
-            stride=stride,
-            return_master_weight=keep_master_weight_for_test)
-
-    def forward(self, input_):
-        # Set up backprop all-reduce.
-        input_parallel = copy_to_model_parallel_region(input_)
-        # Matrix multiply.
-        output_parallel = F.linear(input_parallel, self.weight, self.bias)
-        if self.gather_output:
-            # All-gather across the partitions.
-            output = gather_from_model_parallel_region(output_parallel)
-            # gather_from_model_parallel_region 是mpu中提供的功能
-        else:
-            output = output_parallel
-        return output
-```
-### RowParallelLinear
-```python
-class RowParallelLinear(torch.nn.Module):
-    """Linear layer with row parallelism.
-
-    The linear layer is defined as Y = XA + b. A is parallelized along
-    its first dimension and X along its second dimension as:
-               -   -
-              | A_1 |
-              | .   |
-          A = | .   |        X = [X_1, ..., X_p]
-              | .   |
-              | A_p |
-               -   -
-    Arguments:
-        input_size: first dimension of matrix A.
-        output_size: second dimension of matrix A.
-        bias: If true, add bias. Note that bias is not parallelized.
-        input_is_parallel: If true, we assume that the input is already
-                           split across the GPUs and we do not split
-                           again.
-        init_method: method to initialize weights. Note that bias is always set
-                     to zero.
-        stride: For the strided linear layers.
-        keep_master_weight_for_test: This was added for testing and should be
-                                     set to False. It returns the master weights
-                                     used for initialization.
-    """
-
-    def __init__(self,
-                 input_size,
-                 output_size,
-                 bias=True,
-                 input_is_parallel=False,
-                 init_method=init.xavier_normal_,
-                 stride=1,
-                 keep_master_weight_for_test=False):
-        super(RowParallelLinear, self).__init__()
-
-        # Keep input parameters
-        self.input_size = input_size
-        self.output_size = output_size
-        self.input_is_parallel = input_is_parallel
-        # Divide the weight matrix along the last dimension.
-        world_size = get_model_parallel_world_size()
-        self.input_size_per_partition = divide(input_size, world_size)
-
-        # Parameters.
-        # Note: torch.nn.functional.linear performs XA^T + b and as a result
-        # we allocate the transpose.
-        self.weight = Parameter(
-            torch.Tensor(self.output_size, self.input_size_per_partition))
-        self.weight.model_parallel = True
-        if bias:
-            self.bias = Parameter(torch.Tensor(self.output_size))
-            # Always initialize bias to zero.
-            with torch.no_grad():
-                self.bias.zero_()
-        else:
-            self.register_parameter('bias', None)
-
-        # Initialize weight.
-        self.master_weight = _initialize_affine_weight(
-            self.weight,
-            self.output_size,
-            self.input_size,
-            self.input_size_per_partition,
-            1,
-            init_method,
-            stride=stride,
-            return_master_weight=keep_master_weight_for_test)
-
-    def forward(self, input_):
-        # Set up backprop all-reduce.
-        if self.input_is_parallel:
-            input_parallel = input_
-        else:
-            input_parallel = scatter_to_model_parallel_region(input_)
-        # Matrix multiply.
-        output_parallel = F.linear(input_parallel, self.weight)
-        # All-reduce across all the partitions.
-        output_ = reduce_from_model_parallel_region(output_parallel)
-        # reduce_from_model_parallel_region 是mpu提供的功能
-        if self.bias is not None:
-            output = output_ + self.bias
-        else:
-            output = output_
-        return output
-```
-## 2.将`self-Attention` 中的两个Linear layer分别转化为`column/rowParallel` 版本
 代码位置：`flagai/model/layers/attentions_mpu.py`
 ### 2.1 将`x` proj 到  `q, k, v` 的`linear `层，转化为 `columnParalleLinear`
 ### 2.2 将输出的`dense`层转化为`rowparallelLinear`
