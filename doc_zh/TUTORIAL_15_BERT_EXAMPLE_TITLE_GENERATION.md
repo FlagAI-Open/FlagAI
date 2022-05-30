@@ -29,11 +29,8 @@
 def read_file():
     src = []
     tgt = []
-
-    ## read data file to load src and tgt, for example:
-    ## src = ["article_1", "article_2", "article_3" ......]
-    ## tgt = ["title_1", "title_2", "title_3" ......]
-    ## no matter what data you use, you need to construct the right src and tgt.
+    
+    ## 如果换为其他数据，修改处理方式即可，只需要构造好src以及对应tgt列表
     with open(src_dir, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
@@ -51,11 +48,11 @@ def read_file():
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
-# or we will download these files from the model hub to this dir.
-# Autoloader can build the model and tokenizer automatically.
-# 'seq2seq' is the task_name.
-auto_loader = AutoLoader("seq2seq",
+# model_dir: 包含 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
+# 如果本地没有，则会在modelhub上进行查找并下载
+# Autoloader 能够自动构建模型与切词器
+# 'seq2seq' 是task_name
+auto_loader = AutoLoader(task_name="seq2seq",
                          model_dir="./state_dict/",
                          model_name="RoBERTa-base-ch")
 model = auto_loader.get_model()
