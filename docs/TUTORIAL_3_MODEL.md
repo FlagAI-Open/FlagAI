@@ -48,7 +48,7 @@ We can use `from_pretrain` to automatically download following models
 | flagai.model.glm_model.GLMModel | ** GLM-10b-ch** | chinese | encoder |
 | flagai.model.glm_model.GLMModel | **GLM-large-ch** | chinese | encoder |
 | flagai.model.bert_model.BertModel | **RoBERTa-base-ch** | chinese | encoder |
-| flagai.model.gpt2_model.GPT2Model | **GPT2_base_ch** | chinese | decoder |
+| flagai.model.gpt2_model.GPT2Model | **GPT2-base-ch** | chinese | decoder |
 | flagai.model.t5_model.T5Model | **T5-base-ch** | chinese | enc2dec |
 | flagai.model.t5_model.T5Model | **T5-base-en** | chinese | enc2dec |
 | flagai.model.bert_model.BertModel | **BERT-base-en** | english | encoder |

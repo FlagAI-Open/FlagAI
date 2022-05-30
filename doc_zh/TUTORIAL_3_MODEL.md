@@ -39,13 +39,13 @@ model = GLMModel.from_pretrain(download_path="./state_dict", model_name="GLM-lar
 ## 所有支持模型
 这些模型都可以通过`from_pretrain` 从model_hub下载。
 
-| ClassName                         | ModelName       | Language | Model Type |
-|-----------------------------------|-----------------|----------|------------|
+| ClassName                         | ModelName           | Language | Model Type |
+|-----------------------------------|---------------------|----------|------------|
 | flagai.model.glm_model.GLMModel   | **GLM-10b-ch**      | chinese  | encoder    |
-| flagai.model.glm_model.GLMModel   | **GLM-large-ch**   | chinese  | encoder    |
+| flagai.model.glm_model.GLMModel   | **GLM-large-ch**    | chinese  | encoder    |
 | flagai.model.bert_model.BertModel | **RoBERTa-base-ch** | chinese  | encoder    |
-| flagai.model.gpt2_model.GPT2Model | **GPT2_base_ch**    | chinese  | decoder    |
-| flagai.model.t5_model.T5Model     | **T5-base-ch**     | chinese  | enc2dec    |
+| flagai.model.gpt2_model.GPT2Model | **GPT2-base-ch**    | chinese  | decoder    |
+| flagai.model.t5_model.T5Model     | **T5-base-ch**      | chinese  | enc2dec    |
 | flagai.model.t5_model.T5Model     | **T5-base-en**      | chinese  | enc2dec    |
 | flagai.model.bert_model.BertModel | **BERT-base-en**    | english  | encoder    |
 | flagai.model.glm_model.GLMModel   | **GLM-large-en**    | english  | encoder    |
