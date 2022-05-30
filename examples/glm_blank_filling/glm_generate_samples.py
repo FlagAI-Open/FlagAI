@@ -14,11 +14,7 @@ if __name__ == "__main__":
     # Model,
     model = GLMModel.from_pretrain(model_name='GLM-large-ch',
                                    download_path="./state_dict/")
-    tokenizer = GLMLargeChTokenizer(
-        add_block_symbols=True,
-        add_task_mask=True,
-        add_decoder_mask=False,
-        fix_command_token=False)
+    tokenizer = GLMLargeChTokenizer()
 
     model.cuda(torch.cuda.current_device())
 
