@@ -1,7 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import os
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import GLM10bENBPETokenizer
@@ -12,7 +11,6 @@ from flagai.test_utils import CollateArguments
 
 
 task_name = 'boolq'
-cur_dir = os.path.dirname(os.path.abspath(__file__))
 trainer = Trainer(env_type='deepspeed+mpu',
                   epochs=2,
                   batch_size=1,
