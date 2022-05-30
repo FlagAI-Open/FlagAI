@@ -1,15 +1,23 @@
 # GLM 例子：古诗生成
 
 ## 古诗背景介绍
-中国古代近体诗有两种体裁：绝句和律诗。
+中国古代近体诗有两种体裁：绝句和律诗。绝句规定全诗四句。律诗规定全诗八句。每句话含五个或七个汉字，称为五言或七言。总共有四种类型，见下表。
 
-绝句规定全诗四句。其中五言绝句（五绝）为每句五个字，共二十个字；七言绝句（七绝）为每句七个字，共二十八个字。
+|     | 绝句 | 律诗 |
+|  ----  | ---- | ---- |
+| 五言 | 五言绝句 | 五言律诗 |
+| 七言 | 七言绝句 | 七言律诗 |
 
-律诗规定全诗八句。其中五言律诗（五律）为每句五个字，共四十个字；七言律诗（七律）为每句七个字，共五十六个字。
+一个五言绝句的示例：
 
-绝句在格律上虽讲究押韵，但对平仄和对仗要求不严。律诗在格律上要求严谨，押韵严格、讲究平仄和要求对仗。
+**静夜思** 李白
 
-## 结果展示
+床前明月光，疑是地上霜。
+
+举头望明月，低头思故乡。
+
+
+## 生成结果展示
 #### 输入古诗标题与体裁
 ```
 "桃花：七言绝句"
@@ -20,31 +28,47 @@
 ```
 ## 模型训练（train.py）
 
-运行前修改训练数据路径src_dir, tgt_dir, 模型路径model_dir。在命令行运行此命令：
+在命令行运行此命令：
 ```commandline
-cd ./examples/glm_poetry_generation
+cd FlagAI/examples/glm_poetry_generation
 python ./train.py
 ```
 这里使用`GLM-large-ch`作为样例,如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
 ### 1.准备训练数据
-1）定义文件读取函数，从文件中读取数据，得到src和tgt列表：
+1）从文件中读取数据
+
+样例数据在 FlagAI/examples/glm_poetry_generation/data/
+
+需要在 train.py 中定义数据加载过程，得到src和tgt列表：
 ```python
 def read_file():
     src = []
     tgt = []
-
-    ##TODO read data file to load src and tgt, for example:
-    ## src = ["春晓：五言绝句", "标题：五言律诗",......]
-    ## tgt = ["春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。", "诗句...", ......]
-    ## no matter what data you use, you need to construct the right src and tgt.
-  
-    return src,tgt
+    # src = ["春晓：五言绝句", "标题：五言律诗",......]
+    # tgt = ["春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。", "诗句...", ......]
+    # 如果换为其他数据，修改处理方式即可，只需要构造好src以及对应tgt列表
+    with open(src_dir, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if "：" in line:
+                l = line.split("：")  #line eg:"初夏：五言绝句"
+                #if there are more than one '：', get title before the first '：'
+                title, style = l[0], l[-1]
+                if len(title) > 20:
+                    title = title[:20]  #cut the longer title
+                line = "：".join([title, style])
+            src.append(line)
+    with open(tgt_dir, 'r', encoding='utf-8') as f:
+        for line in f:
+            tgt.append(line.strip())
+    assert len(src) == len(tgt), 'lines not equal!'
+    return src, tgt
 ```
 2）定义数据迭代器（DataLoader）：
 ```python
-class BertSeq2seqDataset(Dataset):
+class GLMPoetryDataset(Dataset):
     def __init__(self, sents_src, sents_tgt):
-        super(BertSeq2seqDataset, self).__init__()
+        super(GLMPoetryDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
 
@@ -58,9 +82,9 @@ class BertSeq2seqDataset(Dataset):
     def __len__(self):
         return len(self.sents_src)
 ```
-其中tokenizer.encode_plus()方法将源、目标字符串转换为GLM模型的输入token id等数据
+其中tokenizer.encode_plus()方法将源、目标字符串转换为GLM模型的输入token索引、位置编码等数据
 
-3）定义数据迭代器（DataLoader）中的批处理函数（collate_fn），用于将一批（batch）数据填充（padding）成统一大小
+3）定义数据迭代器（DataLoader）中的collate_fn，用于将一批（batch）数据填充（padding）成统一大小
 ```python
 class GLMPoetryDynamicCollateFN():
     def __init__(self, pad_id):
@@ -108,7 +132,7 @@ class GLMPoetryDynamicCollateFN():
 train_src, train_tgt = read_file()
 print('-----------train data length:', len(train_src))
 my_collate_fn = GLMPoetryDynamicCollateFN(pad_id=tokenizer.get_command('pad').Id)
-train_dataset = BertSeq2seqDataset(train_src,
+train_dataset = GLMPoetryDataset(train_src,
                                    train_tgt)
 ```
 ### 2.加载模型和分词器
@@ -116,12 +140,12 @@ train_dataset = BertSeq2seqDataset(train_src,
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 
-# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
-# or we will download these files from the model hub to this dir.
-model_dir = "./state_dict/glm/"
-# Autoloader can build the model and tokenizer automatically.
-# 'seq2seq' is the task_name.
-AutoLoader("seq2seq",model_name="GLM-large-ch",model_dir=model_dir)
+# model_dir: 包含 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
+# 如果本地没有，则会在modelhub上进行查找并下载
+# Autoloader 能够自动构建模型与切词器
+# 'poetry' 是task_name
+model_dir = "./state_dict/"
+AutoLoader("poetry",model_name="GLM-large-ch",model_dir=model_dir)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
@@ -132,30 +156,22 @@ tokenizer = auto_loader.get_tokenizer()
 ```python
 from flagai.trainer import Trainer
 trainer = Trainer(
-    env_type="pytorch",#pytorch or deepspeed
-    experiment_name="glm_seq2seq",
-    batch_size=64,#96
+    env_type="pytorch",
+    experiment_name="glm_poetry",
+    batch_size=4,
     gradient_accumulation_steps=1,
-    lr=2e-4,#2e-4
-    weight_decay=2e-8,#1e-3
+    lr=2e-4,
+    weight_decay=2e-8,
     epochs=100,
     log_interval=10,  
     tensorboard_dir="tbsummary",
     eval_interval=2000000,
-    load_dir="",
+    load_dir=None,
     save_dir="checkpoints_poetry",
     save_epoch=1,
-    num_checkpoints=1,
-    master_ip='127.0.0.1',
-    master_port=17750,
-    num_nodes=1,
-    num_gpus=2,
-    hostfile='./hostfile',
-    deepspeed_config='./deepspeed.json',
-    training_script=__file__,
 )
 ```
-将模型、数据、批处理函数输入训练器开始训练：
+将模型、数据、collate_fn输入训练器开始训练：
 ```python
 trainer.train(model,
               train_dataset=train_dataset,
@@ -166,9 +182,9 @@ trainer.train(model,
 
 
 ## 生成（generate.py）
-运行前修改模型配置路径model_dir，训练好的模型路径model_save_path。在命令行运行此命令：
+在命令行运行此命令：
 ```commandline
-cd ./examples/glm_poetry_generation
+cd FlagAI/examples/glm_poetry_generation
 python ./generate.py
 ```
 可选择基于概率筛选的随机抽样（random sample）或集束搜索（beamsearch）两种生成方式：
