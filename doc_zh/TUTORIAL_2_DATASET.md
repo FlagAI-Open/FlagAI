@@ -71,6 +71,7 @@ dataset = SuperGlueDataset(task_name='cb',
                            tokenizer=tokenizer)
 ```
 
+
 其中`SuperGlueDataset`是我们这一步的主函数，它的主要参数及其作用如下所示：
 
 `task_name`: 数据集的简称, FlagAI支持的数据集及其对应的简称如[加载数据集](#加载数据集)所示。
@@ -113,7 +114,7 @@ FlagAI目前支持自动加载下列分类数据集：
 | label     | 代表前提和假设关系的标签<br/>包含entailment,neutral和contradiction三种 | entailment                     |
 | idx       | 样例在数据集里的序号                                            | 10                             |
 
-目前所有FlagAI支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
+目前所有飞智支持数据集的具体结构可以在[这里](DATASET_EXAMPLE.md)查看。
 
 #### 统一数据集结构
 在这一步里，我们会统一不同数据集的数据结构，以方便接下来处理。此结构的细节如下：

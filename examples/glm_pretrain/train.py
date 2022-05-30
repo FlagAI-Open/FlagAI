@@ -66,4 +66,3 @@ if __name__ == '__main__':
                   train_dataset=datasets[0],
                   valid_dataset=datasets[1],
                   metric_methods=metric_methods)
-

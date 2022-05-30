@@ -6,8 +6,6 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.glm_model import GLMModel, GLMForSeq2Seq
-from flagai.data.tokenizer import GLMLargeChTokenizer
 from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -93,11 +93,11 @@ tokenizer = T5Tokenizer.from_pretrained('t5-11b')
 model = T5ForConditionalGeneration.from_pretrained('t5-11b')
 model.gradient_checkpointing = True
 ```
+
 为了展示FlagAI的Trainer的扩展能力，下面我们用训练T5-11b模型作为例子。**注意**: 百亿规模以上的模型权重在20G+，单块显卡需要V100 及以上的硬件。
 
 ## 完整的用Trainer训练huggingface t5-11b例子
-FlagAI 项目的example目录位置：`examples/t5_huggingface
-t5-11b`
+FlagAI 项目的example目录位置：`examples/t5_huggingface`
 
 ```python
 from flagai.trainer import Trainer
@@ -306,7 +306,9 @@ trainer = MyTrainer(
 )
 ```
 ### deepspeed + megatron-lm
+
 现在百亿级模型GLM-10-ch采用了`Megatron-LM`的模型并行技术加上`deepspeed`的数据并行技术。在模型参数scaling到10b以上级别，单卡的显存就很难将单个模型以及训练时的中间变量全部加载进来。为此，Megatron-LM提供了Tensor的切分方法，主要思想是将矩阵按照行/列进行切分。 FlagAI 将model转化为Megatron-LM版本。
+
 如下，飞智内部模型（GLM，T5，BERT【包括RoBERTa】，GPT2）支持了Megatron-LM，只要在配置文件中将环境变量修改为deepspeed+mpu，就能启动模型并行的功能。
 对于huggingface版本的模型，暂时没有提供模型并行的支持。
 ```python

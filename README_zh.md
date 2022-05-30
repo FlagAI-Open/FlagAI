@@ -30,7 +30,7 @@
     - [语义相似度匹配任务示例](#语义相似度匹配任务示例)
 - [预训练模型以及样例](#预训练模型以及样例)
 - [教程](#教程)
-- [了解更多关于FlagAI](#了解更多关于FlagAI)
+- [了解更多关于飞智](#了解更多关于飞智)
 - [贡献代码](#贡献代码)
 - [许可证](#许可证)
 
@@ -207,20 +207,20 @@ for text_pair in test_data:
 * [Tutorial 7: 使用飞智提示学习工具包来提高在SuperGLUE任务上的表现](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)
 * [Tutorial 8: 多机训练模型搭建环境](/doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * [Tutorial 9: 使用encoder/decoder/encoder-decoder模型进行文本生成](/doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
-* [Tutorial 10: 转化一个模型为Megatron-LM的模型并行版本](/doc_zh/TUTORIAL_10_MEGATRON.md)
+
 
 
 # 贡献代码
 感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/BAAI-WuDao/Sailing/issues)以执行特定任务。
 
 # 联系我们
-欢迎扫码加入FlagAI用户群
+欢迎扫码加入飞智用户群
 
 <img src="./flagai_wechat.png" width = "200" height = "200"  align=center />
 
 
 # [许可证](/LICENSE)
-大部分的FlagAI项目是基于[Apache 2.0 license](LICENSE), 但是部分的代码是基于其他的协议:
+大部分的飞智项目是基于[Apache 2.0 license](LICENSE), 但是部分的代码是基于其他的协议:
 
 * Megatron-LM 是基于协议[Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM 是基于协议[MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)

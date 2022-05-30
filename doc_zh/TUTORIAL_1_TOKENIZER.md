@@ -43,7 +43,7 @@ recoverd_text = tokenizer.DecodeIds(encoded_ids) # 将数字序列恢复为文�
 ### 1. 在`/flagai/tokenizer`目录下建立一个新的目录
 
 ### 2. 使用Hugging Face transformer支持的分词器来帮助创建
-FlagAI支持借用Hugging Face里的分词器来创建新的分词器，以T5Tokenizer为例
+飞智支持借用Hugging Face里的分词器来创建新的分词器，以T5Tokenizer为例
 ```python
 from transformers import T5Tokenizer
 from ..tokenizer import Tokenizer
