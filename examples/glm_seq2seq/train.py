@@ -8,7 +8,6 @@ from flagai.data.dataset import Seq2SeqDataset
 from flagai.test_utils import Seq2SeqCollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, CH_TASKS
 from flagai.data.dataset import ConstructSeq2seqStrategy
-import unittest
 
 
 # Compared with original seq2seq, seq2seq dataset is used
@@ -28,10 +27,7 @@ trainer = Trainer(env_type='pytorch',
 print("downloading...")
 
 if task_name in CH_TASKS:
-    tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=True)
+    tokenizer = GLMLargeChTokenizer()
     model_name = 'GLM-large-ch'
 else:
     tokenizer = GLMLargeEnWordPieceTokenizer(
