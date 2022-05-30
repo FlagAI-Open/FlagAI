@@ -310,7 +310,8 @@ class PVP(ABC):
                             ids = [
                                 idx if idx != prompt_id else 0 for idx in ids
                             ]
-                            prompt_list.append(prompt_pos)
+                            if prompt_pos:
+                                prompt_list.append(prompt_pos)
                             ids_list.append(ids)
                             positions_list.append(position_ids)
                             sep_list.append(sep)

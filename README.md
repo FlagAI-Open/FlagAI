@@ -31,8 +31,8 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
     - [Semantic matching task](#semantic-matching-task)
 - [Pretrained Models and examples](#pretrained-models-and-examples)
 - [Tutorials](#tutorials)
-- [Learn More About FlagAI](#learn-more-about-FlagAI)
 - [Contributing](#contributing)
+- [Contact us](#contact-us)
 - [License](#license)
 
 <!-- tocstop -->

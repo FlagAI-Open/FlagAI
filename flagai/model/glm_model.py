@@ -339,7 +339,6 @@ class GLMModel(BaseModel):
         attention_dropout_prob = config["attention_dropout_prob"]
         output_dropout_prob = config["output_dropout_prob"]
         max_sequence_length = config["max_sequence_length"]
-        # max_sequence_length = 512
         max_memory_length = config["max_memory_length"]
         checkpoint_activations = config["checkpoint_activations"]
         checkpoint_num_layers = config["checkpoint_num_layers"]
