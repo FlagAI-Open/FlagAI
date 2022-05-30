@@ -1,3 +1,4 @@
+
 from flagai.data.tokenizer import GLMLargeChTokenizer
 from flagai.model.glm_model import GLMForSeq2Seq
 from flagai.trainer import Trainer
@@ -5,20 +6,7 @@ from flagai.data.dataset import ConstructBlockStrategy
 from flagai.data.dataset import BlockDataset
 from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS
-
-
-class DatasetArguments:
-
-    def __init__(self):
-        self.task_mask = True  # Distinguished the generation and gap-sentence mask
-        self.block_mask_prob = 0.1
-        self.block_lm = True  # Whether do masking
-        self.masked_lm = False  # Whether do simple masking (same symbol among masks)
-
-        self.pre_tokenize = True
-        self.no_lazy_loader = True
-        self.half_lazy_loader = False
-        self.sentinel_token = False
+from flagai.test_utils import PretrainDatasetArguments
 
 
 if __name__ == '__main__':
@@ -36,7 +24,7 @@ if __name__ == '__main__':
 
     model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
 
-    ds_args = DatasetArguments()
+    ds_args = PretrainDatasetArguments()
 
     tokenizer = GLMLargeChTokenizer()
 
@@ -70,35 +58,9 @@ if __name__ == '__main__':
         collate_fn = ConstructBlockStrategy(
             tokenizer, 512, eod_token=tokenizer.get_command('eos').Id)
     metric_methods = DEFAULT_METRICS['pretrain']
-    # trainer.train(model,
-    #               collate_fn=collate_fn,
-    #               train_dataset=datasets[0],
-    #               valid_dataset=datasets[1],
-    #               metric_methods=metric_methods)
-    import torch
+    trainer.train(model,
+                  collate_fn=collate_fn,
+                  train_dataset=datasets[0],
+                  valid_dataset=datasets[1],
+                  metric_methods=metric_methods)
 
-    train_loader = torch.utils.data.DataLoader(datasets[0],
-                                               batch_size=16,
-                                               shuffle=False,
-                                               num_workers=1,
-                                               drop_last=False,
-                                               pin_memory=False,
-                                               collate_fn=collate_fn)
-    for data_iterator in train_loader:
-        dct = data_iterator
-        '''
-        input_ids torch.Size([16, 2, 256])
-        labels torch.Size([16])
-        position_ids torch.Size([16, 2, 2, 256])
-        attention_mask torch.Size([16, 2])
-        target_ids torch.Size([16, 2, 256])
-        logit_mask torch.Size([16, 2, 256])
-        loss_mask torch.Size([16, 2])
-
-        '''
-        for key, value in dct.items():
-            try:
-                print(key, value.size())
-            except:
-                print(key, len(value))
-        break

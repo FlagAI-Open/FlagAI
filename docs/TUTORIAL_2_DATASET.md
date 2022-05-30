@@ -5,14 +5,16 @@ The process of constructing a dataset is the data preprocessing process of NLP. 
 
 At present, there are three kinds of data preprocessing in the project, namely, fine-tuning for classification tasks, pre-training, and fine-tuning for generation tasks. We will expand on them separately in the following.
 
-## Data processing: fine-tuning for classification tasks ([prompt-learning mode](TUTORIAL_7_PROMPT_LEARNING.md))
+## Data processing: fine-tuning for classification tasks 
+
+There are two forms of tuning for classification tasks: one is fine-tuning, and the other is the [prompt-tuning](/docs/TUTORIAL_7_PROMPT_LEARNING.md). Prompt-tuning requires an additional cloze template for the task, which is more suitable for limited data. Let's take prompt learning as an example to introduce the data processing method in classification tasks:
 ### Application code
 
 ```python
-import torch.utils.data
-from flagai.data.dataset import SuperGlueDataset
+import torch
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-from tests.test_dataset_new_superglue import CollateArguments
+from flagai.data.dataset import SuperGlueDataset
+from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
 # get default parameters
@@ -49,23 +51,34 @@ dataset = SuperGlueDataset(task_name='cb',
                            dataset_type='train',
                            tokenizer=tokenizer)
 ```
-#### 1. Load the dataset
+`SuperGlueDataset`is the function in this step，and its major parameters are introduced below：
 
-After setting `task_name` to the abbreviation of the task name, the relevant data will be automatically downloaded in the background. FlagAI currently supports automatic loading of the following classification datasets:
+`task_name`: Identifier of dataset, Supported datasets and their identifiers are given at the table in [1.Load the dataset](#1.Load the dataset).
 
-| dataset name                                 | short name| Language | Benchmark   |
-|----------------------------------------------|----------|------|----------|
-| Broadcoverage Diagnostics                    | boolq    | Eng   | SuperGLUE |
-| CommitmentBank                               | cb       | Eng   | SuperGLUE |
-| Choice of Plausible Alternatives             | copa     | Eng   | SuperGLUE |
-| Multi-Sentence Reading Comprehension         | muiltirc | Eng   | SuperGLUE |
-| Recognizing Textual Entailment               | rte      | Eng   | SuperGLUE |
-| Words in Context                             | wic      | Eng   | SuperGLUE |                                                   
-| The Winograd Schema Challenge                | wsc      | Eng   | SuperGLUE |
-| Ant Financial Question Matching Corpus       | afqmc    | Zh    | CLUE     |
-| Short Text Classificaiton for News           | tnews    | Zh    | CLUE     |
+`data_dir`: Data will be automatically downloaded to `data_dir` directory, which is `./dataset` by default.
 
-The dataset will be automatically downloaded to the address corresponding to `data_dir`, which defaults to the `./dataset` directory of the project.
+`dataset_type`: It can be train/dev/test, which represents train/validation/test set is going to be preprocessed.
+
+`tokenizer`: Constructed tokenizer as introduced in [Tutorial1](/docs/TUTORIAL_1_TOKENIZER.md).
+
+
+
+
+#### 1.Load the dataset
+
+FlagAI currently supports automatic loading of the following classification datasets:
+
+| dataset name                                 | Identifier | Language | Benchmark   |
+|----------------------------------------------|------------|------|----------|
+| Broadcoverage Diagnostics                    | boolq      | Eng   | SuperGLUE |
+| CommitmentBank                               | cb         | Eng   | SuperGLUE |
+| Choice of Plausible Alternatives             | copa       | Eng   | SuperGLUE |
+| Multi-Sentence Reading Comprehension         | muiltirc   | Eng   | SuperGLUE |
+| Recognizing Textual Entailment               | rte        | Eng   | SuperGLUE |
+| Words in Context                             | wic        | Eng   | SuperGLUE |                                                   
+| The Winograd Schema Challenge                | wsc        | Eng   | SuperGLUE |
+| Ant Financial Question Matching Corpus       | afqmc      | Zh    | CLUE     |
+| Short Text Classificaiton for News           | tnews      | Zh    | CLUE     |
 
 The downloaded dataset directory will contain three files, corresponding to the training set data, the validation set data, and the test set data. Take the CommitmentBank dataset as an example, the `train.jsonl` in the directory corresponds to the training set, `val.jsonl `corresponds to the validation set, `test.jsonl` corresponds to the test set. Generally, the training set and test set contain label information, but the test set does not. These data files will be processed separately in the next process.
 
@@ -98,18 +111,19 @@ In this step, we will unify the data structures of different datasets to facilit
 | meta   | an optional dictionary to store arbitrary meta information                        | dict |
 | ids    | an optional numeric index                                                    | int  |
 
-For example, the example of CommitBank in the previous step will be processed into the following form
+When the dataset is built, you can view one of the samples directly in the code by indexing:
+
+```python
+example = dataset[3]  # The third example in dataset 
+```
+
+For instance, the example of CommitBank in the previous step will be processed into the following form
 
 <div align=center><img src="img/dataset_figure_2.png" width="500px"></div>
 
 Noted that if text_a and text_b cannot be filled with background text information because the data structure is too complex, you can put the rest of the information in meta.
 
-When the dataset is constructed, you can view one of the samples directly in the code by indexing:
 
-
-```python
-example = dataset[3]  # The third example in dataset 
-```
 
 ### Organize the data into input to the model
 
@@ -148,7 +162,7 @@ In the first case, the label categories contained in the dataset are limited. Fo
 
 <sup>1</sup>: seq_length represents the specified maximum length of each input vector
 
-<sup>2</sup>: The process of adding special characters: add the [CLS] symbol at the beginning of the sentence and the [EOS] symbol at the end of the sentence until the length reaches seq_length. If the text output by cloze has two paragraphs, it will be in the middle Add [SEP] symbol
+<sup>2</sup>: As illustrated in the following figure, the process of adding special characters: add the [CLS] symbol at the beginning of the sentence and the [EOS] symbol at the end of the sentence until the length reaches seq_length. If the text output by cloze has two paragraphs, it will be in the middle Add [SEP] symbol
 <div align=center><img src="img/dataset_figure_5.png" width="500px"></div>
 
 <sup>3</sup>: num_labels represents the number of options in the cloze problem

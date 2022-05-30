@@ -389,7 +389,7 @@ class Trainer():
             optimizer = get_optimizer(param_groups=param_groups,
                                       lr=self.lr,
                                       weight_decay=self.weight_decay,
-                                      cpu_optimizer=True,
+                                      cpu_optimizer=False,
                                       cpu_torch_adam=False,
                                       fp16=self.fp16)
 
@@ -565,7 +565,6 @@ class Trainer():
             step_output = self.forward_step(data, model, mems)
             self.timers('forward').stop()
             lm_loss = step_output['loss']
-
             if 'deepspeed' not in self.env_type:
                 lm_loss /= self.gradient_accumulation_steps
 
@@ -580,7 +579,6 @@ class Trainer():
             if 'deepspeed' in self.env_type:
                 reduced_loss.data = reduced_loss.data / \
                     (self.world_size / self.model_parallel_size)
-
             if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
                 lm_loss_total += reduced_loss
                 count += 1
@@ -622,6 +620,7 @@ class Trainer():
                 mems = []
             if single_step:
                 break
+
         # if train_args.deepspeed:
         if 'deepspeed' in self.env_type:
             lm_loss_total = lm_loss_total / count
