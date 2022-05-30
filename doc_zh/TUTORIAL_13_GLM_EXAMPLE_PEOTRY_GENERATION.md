@@ -30,7 +30,7 @@
 
 在命令行运行此命令：
 ```commandline
-cd FlagAI/examples/glm_poetry_generation
+cd .examples/glm_poetry_generation
 python ./train.py
 ```
 这里使用`GLM-large-ch`作为样例,如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
@@ -184,7 +184,7 @@ trainer.train(model,
 ## 生成（generate.py）
 在命令行运行此命令：
 ```commandline
-cd FlagAI/examples/glm_poetry_generation
+cd ./examples/glm_poetry_generation
 python ./generate.py
 ```
 可选择基于概率筛选的随机抽样（random sample）或集束搜索（beamsearch）两种生成方式：
