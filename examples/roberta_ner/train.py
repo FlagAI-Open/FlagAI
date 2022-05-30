@@ -7,7 +7,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 from flagai.data.collate_utils import bert_sequence_label_collate_fn
 
-device = "cpu"#torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 train_path = "./data/china-people-daily-ner-corpus/example.train"
 valid_path = './data/china-people-daily-ner-corpus/example.dev'
