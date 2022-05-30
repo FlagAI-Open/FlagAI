@@ -21,7 +21,7 @@ There are two types of classical Chinese poetry: Jueju(绝句), Lvshi(律诗).Th
 
 Input the code in commandline to train:
 ```commandline
-cd FlagAI/examples/glm_poetry_generation
+cd ./examples/glm_poetry_generation
 python ./train.py
 ```
 ### 1.Prepare the training data
@@ -175,7 +175,7 @@ trainer.train(model,
 ## Generate（generate.py）
 Modify the model configuration path **model_dir** and the saved model path **model_save_path** before running. Run the command at the command line:
 ```commandline
-cd FlagAI/examples/glm_poetry_generation
+cd ./examples/glm_poetry_generation
 python ./generate.py
 ```
 You can choose between two generation methods: random sampling based on probability screening or beam search
