@@ -392,7 +392,7 @@ class Trainer():
             optimizer = get_optimizer(param_groups=param_groups,
                                       lr=self.lr,
                                       weight_decay=self.weight_decay,
-                                      cpu_optimizer=True,
+                                      cpu_optimizer=False,
                                       cpu_torch_adam=False,
                                       fp16=self.fp16)
 
