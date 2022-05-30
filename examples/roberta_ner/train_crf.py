@@ -14,7 +14,7 @@ train_path = "./data/china-people-daily-ner-corpus/example.train"
 valid_path = './data/china-people-daily-ner-corpus/example.dev'
 test_path = './data/china-people-daily-ner-corpus/example.test'
 
-task_name = "ner-crf"
+task_name = "sequence-labeling-crf"
 model_dir = "./state_dict/"  # download path
 maxlen = 256
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
