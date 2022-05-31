@@ -16,13 +16,30 @@ PROCESSOR_DICT = {
     "copa": CopaProcessor,
     "multirc": MultiRcProcessor,
     "record": RecordProcessor,
-    "ax-g": AxGProcessor,
-    "ax-b": AxBProcessor,
     "afqmc": AFQMCProcessor,
     "tnews": TNewsProcessor,
-    'cluewsc': CLUEWSCProcessor,
     'wanke': WankeProcessor,
     "cmrc": CMRCProcessor,
+
+    "ax-g": AxGProcessor,
+    "ax-b": AxBProcessor,
+    "cola": ColaProcessor,
+    "sst2": Sst2Processor,
+    "mrpc": MrpcProcessor,
+    "qqp": QqpProcessor,
+    "mnli": MnliProcessor,
+    "mnli-mm": MnliMismatchedProcessor,
+    "qnli": QnliProcessor,
+    "xstance-de": lambda: XStanceProcessor("de"),
+    "xstance-fr": lambda: XStanceProcessor("fr"),
+    "xstance": XStanceProcessor,
+    "race": RaceProcessor,
+    "agnews": AgnewsProcessor,
+    "yahoo": YahooAnswersProcessor,
+    "yelp-polarity": YelpPolarityProcessor,
+    "yelp-full": YelpFullProcessor,
+    "squad": SquadProcessor,
+    'cluewsc': CLUEWSCProcessor,
 }
 
 PVPS = {
@@ -105,14 +122,28 @@ urls = {
     'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/BoolQ.zip',
     'record':
     'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/ReCoRD.zip',
-    'axg':
+    'ax-g':
     'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/AX-g.zip',
     "afqmc":
     "https://storage.googleapis.com/cluebenchmark/tasks/afqmc_public.zip",
     "tnews":
     "https://storage.googleapis.com/cluebenchmark/tasks/tnews_public.zip",
+    "cola":
+    "https://dl.fbaipublicfiles.com/glue/data/CoLA.zip",
     "cmrc":
-    "https://storage.googleapis.com/cluebenchmark/tasks/cmrc2018_public.zip"
+    "https://storage.googleapis.com/cluebenchmark/tasks/cmrc2018_public.zip",
+    "sst2":
+    "https://dl.fbaipublicfiles.com/glue/data/SST-2.zip",
+    "mrpc":
+    "https://www.microsoft.com/en-us/download/details.aspx?id=52398",
+    "qqp":
+    "https://dl.fbaipublicfiles.com/glue/data/QQP-clean.zip",
+    "mnli":
+    "https://dl.fbaipublicfiles.com/glue/data/MNLI.zip",
+    "mnli-mm":
+    "https://dl.fbaipublicfiles.com/glue/data/MNLI.zip",
+    "qnli":
+    "https://dl.fbaipublicfiles.com/glue/data/QNLIv2.zip",
 }
 
 MULTI_TOKEN_TASKS = ['copa', 'record', 'cmrc', 'wsc']

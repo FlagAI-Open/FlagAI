@@ -66,19 +66,38 @@ dataset = SuperGlueDataset(task_name='cb',
 
 #### 1.Load the dataset
 
-FlagAI currently supports automatic loading of the following classification datasets:
+FlagAI currently supports the following classification datasets:
 
-| dataset name                                 | Identifier | Language | Benchmark   |
-|----------------------------------------------|------------|------|----------|
-| Broadcoverage Diagnostics                    | boolq      | Eng   | SuperGLUE |
-| CommitmentBank                               | cb         | Eng   | SuperGLUE |
-| Choice of Plausible Alternatives             | copa       | Eng   | SuperGLUE |
-| Multi-Sentence Reading Comprehension         | muiltirc   | Eng   | SuperGLUE |
-| Recognizing Textual Entailment               | rte        | Eng   | SuperGLUE |
-| Words in Context                             | wic        | Eng   | SuperGLUE |                                                   
-| The Winograd Schema Challenge                | wsc        | Eng   | SuperGLUE |
-| Ant Financial Question Matching Corpus       | afqmc      | Zh    | CLUE     |
-| Short Text Classificaiton for News           | tnews      | Zh    | CLUE     |
+| dataset name                                 | Identifier | Language | Benchmark   | Auto-Download | Fully tested |
+|------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----|----------------------------------------------------|---------------|-------------|
+| [Broadcoverage Diagnostics](https://github.com/google-research-datasets/boolean-questions)                                               | boolq         | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
+| [CommitmentBank](https://github.com/mcdm/CommitmentBank)                                                                                 | cb            | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
+| [Choice of Plausible Alternatives](https://people.ict.usc.edu/~gordon/copa.html)                                                         | copa          | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
+| [Multi-Sentence Reading Comprehension](https://cogcomp.org/multirc/ )                                                                    | muiltirc      | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
+| [Recognizing Textual Entailment](https://aclweb.org/aclwiki/Recognizing_Textual_Entailment )                                             | rte           | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
+| [Words in Context](https://pilehvar.github.io/wic/ )                                                                                     | wic           | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |                                                   
+| [The Winograd Schema Challenge](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html )                                       | wsc           | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
+| [Ant Financial Question Matching Corpus](https://tianchi.aliyun.com/dataset/dataDetail?dataId=106411 )                                   | afqmc         | Chinese  | [CLUE](https://www.clue.ai/index.html)             | ✅             | ✅           |
+| [Short Text Classificaiton for News](https://metatext.io/datasets/toutiao-text-classification-for-news-titles-(tnews)-(clue-benchmark) ) | tnews         | Chinese  | [CLUE](https://www.clue.ai/index.html)             | ✅             | ✅           |
+| [Broadcoverage Diagnostics](https://gluebenchmark.com/diagnostics)                                                                       | ax-b          | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ❌           |
+| [Winogender Schema Diagnostics](https://github.com/rudinger/winogender-schemas)                                                          | ax-g          | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ❌           |
+| [The Corpus of Linguistic Acceptability](https://nyu-mll.github.io/CoLA/)                                                                | cola          | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
+| [The Stanford Sentiment Treebank](https://nlp.stanford.edu/sentiment/index.html)                                                         | sst2          | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
+| [Microsoft Research Paraphrase Corpus](https://microsoft.com/en-us/download/details.aspx?id=52398)                                       | mrpc          | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
+| [Quora Question Pairs](https://data.quora.com/First-Quora-Dataset-Release-Question-Pairs)                                                | qqp           | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
+| [MultiNLI Matched](http://www.nyu.edu/projects/bowman/multinli/)                                                                         | mnli          | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
+| [MultiNLI Mismatched](http://www.nyu.edu/projects/bowman/multinli/)                                                                      | mnli-mm       | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
+| [Question NLI](https://rajpurkar.github.io/SQuAD-explorer/)                                                                              | qnli          | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
+| [X-Stance](https://github.com/ZurichNLP/xstance)                                                                                         | xstance       | English  |                                                    | ❌             | ❌           |
+| [X-Stance (German)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-de    | English  |                                                    | ❌             | ❌           |
+| [X-Stance (French)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-fr    | English  |                                                    | ❌             | ❌           |
+| [RACE](https://www.cs.cmu.edu/~glai1/data/race/)                                                                                         | race          | English  |                                                    | ❌             | ❌           |
+| [AG News](https://www.kaggle.com/datasets/amananandrai/ag-news-classification-dataset)                                                   | agnews        | English  |                                                    | ❌             | ❌           |
+| [Yahoo Answers](https://www.kaggle.com/datasets/jarupula/yahoo-answers-dataset)                                                          | yahoo         | English  |                                                    | ❌             | ❌           |
+| [Yelp Review Polarity](https://www.kaggle.com/datasets/irustandi/yelp-review-polarity)                                                   | yelp-polarity | English  |                                                    | ❌             | ❌           |
+| [Yelp Open Dataset](https://www.yelp.com/dataset)                                                                                        | yelp-full     | English  |                                                    | ❌             | ❌           |
+| [squad](The Stanford Question Answering Dataset)                                                                                         | squad         | English  |                                                    | ❌             | ❌           |
+| [CLUEWSC2020](https://github.com/CLUEbenchmark/CLUEWSC2020)                                                                              | cluewsc       | Chinese  | [CLUE](https://www.clue.ai/index.html)             | ❌             | ❌           |
 
 The downloaded dataset directory will contain three files, corresponding to the training set data, the validation set data, and the test set data. Take the CommitmentBank dataset as an example, the `train.jsonl` in the directory corresponds to the training set, `val.jsonl `corresponds to the validation set, `test.jsonl` corresponds to the test set. Generally, the training set and test set contain label information, but the test set does not. These data files will be processed separately in the next process.
 
