@@ -82,7 +82,18 @@ class AutoLoaderTestCase(unittest.TestCase):
                 f"task_name is {t_name}, model_name is {m_name}"
             )
     def test_T5_base_ch(self):
-        for t_name  in self.task_name:
+        for t_name in self.task_name:
+            m_name = 'cpm-large-ch-generation'
+            loader = AutoLoader(task_name=t_name,
+                                model_name=m_name,
+                                class_num=3,
+                                inner_dim=32,
+                                only_download_config=True)
+            print(
+                f"task_name is {t_name}, model_name is {m_name}"
+            )
+    def test_CPM_large_ch(self):
+        for t_name in self.task_name:
             m_name = 'T5-base-ch'
             loader = AutoLoader(task_name=t_name,
                                 model_name=m_name,
@@ -92,6 +103,7 @@ class AutoLoaderTestCase(unittest.TestCase):
             print(
                 f"task_name is {t_name}, model_name is {m_name}"
             )
+
    
 def suite():
     suite = unittest.TestSuite()
@@ -101,6 +113,7 @@ def suite():
     suite.addTest(AutoLoaderTestCase('test_RoBERTa_base_ch'))
     suite.addTest(AutoLoaderTestCase('test_T5_base_ch'))
     suite.addTest(AutoLoaderTestCase('test_GPT2_base_ch'))
+    suite.addTest(AutoLoaderTestCase('test_CPM_large_ch'))
     return suite
 
 
