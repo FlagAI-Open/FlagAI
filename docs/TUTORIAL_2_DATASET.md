@@ -346,6 +346,19 @@ loader = torch.utils.data.DataLoader(dataset,
                                     collate_fn=collate_fn)
 ```
 
+### Supported Tasks
+| Supported Tasks                                                                                    | Identifier       | Language | Auto-download | Fully-tested |
+|----------------------------------------------------------------------------------------------------|------------------|----------|---------------|--------------|
+| [Reading Comprehension for Simplified Chinese](https://hfl-rc.github.io/cmrc2018/)                 | cmrc             | 中文       | ✅             | ✅            |
+| [English Gigaword](https://catalog.ldc.upenn.edu/LDC2003T05)                                       | gigaword         | 英文       | ❌             | ❌            |
+| [CNN/Daily Mail](https://paperswithcode.com/dataset/cnn-daily-mail-1)                              | cnn_dm           | 英文       | ❌             | ❌            |
+| Lang-8 and HSK                                                                                     | lang8_hsk        | 中文       | ❌             | ❌            |
+| [XSum](https://paperswithcode.com/dataset/xsum)                                                    | xsum             | 英文       | ❌             | ❌            |
+| [squad](The Stanford Question Answering Dataset)                                                   | squad_generation | 英文       | ❌             | ❌            |                                                   
+| [The Winograd Schema Challenge](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html ) | wsc              | 英文       | ✅             | ❌            |
+
+
+
 ### Initially read and process the dataset
 
 Currently, [CMRC2018](https://www.clue.ai/introduce.html) task is supported. CMRC is a reading comprehension task that needs to answer a series of questions based on the background text. An example of its data structure is as follows:

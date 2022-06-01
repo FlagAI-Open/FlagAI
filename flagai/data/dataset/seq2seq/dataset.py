@@ -157,7 +157,7 @@ class WSCProcessor:
         if split == "train":
             filename = "train.jsonl"
         elif split == "dev":
-            filename = "dev.jsonl"
+            filename = "val.jsonl"
         elif split == "test":
             filename = "test.jsonl"
         else:

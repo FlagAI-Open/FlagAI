@@ -12,7 +12,7 @@ from flagai.data.dataset import ConstructSeq2seqStrategy
 
 # Compared with original seq2seq, seq2seq dataset is used
 # task_name :['cmrc',xxxx]
-task_name = "cmrc"
+task_name = "wsc"
 
 cl_args = Seq2SeqCollateArguments()
 trainer = Trainer(env_type='pytorch',
@@ -30,8 +30,7 @@ if task_name in CH_TASKS:
     tokenizer = GLMLargeChTokenizer()
     model_name = 'GLM-large-ch'
 else:
-    tokenizer = GLMLargeEnWordPieceTokenizer(
-        tokenizer_model_type='bert-base-chinese')
+    tokenizer = GLMLargeEnWordPieceTokenizer()
     model_name = 'GLM-large-en'
 
 train_dataset = Seq2SeqDataset(task_name=task_name,
@@ -54,4 +53,4 @@ trainer.train(model,
               collate_fn=collate_fn,
               train_dataset=train_dataset,
               valid_dataset=valid_dataset,
-              metric_methods=DEFAULT_METRICS[task_name])
+              metric_methods=[])
