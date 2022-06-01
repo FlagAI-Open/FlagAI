@@ -8,7 +8,6 @@ from flagai.data.tokenizer import GLM10bENBPETokenizer
 from flagai.data.tokenizer import T5BPETokenizer
 from flagai.data.tokenizer import ROBERTATokenizer
 from flagai.data.tokenizer import BertWordPieceTokenizer
-from flagai.data.tokenizer import CPMTokenizer
 from flagai.auto_model.auto_loader import AutoLoader
 
 class TokenizerTestCase(unittest.TestCase):
