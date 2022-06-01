@@ -69,7 +69,7 @@ dataset = SuperGlueDataset(task_name='cb',
 FlagAI currently supports the following classification datasets:
 
 | dataset name                                 | Identifier | Language | Benchmark   | Auto-Download | Fully tested |
-|------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----|----------------------------------------------------|---------------|-------------|
+|------------------------------------------------------------------------------------------------------------------------------------------|---------------|----------|----------------------------------------------------|---------------|-------------|
 | [Broadcoverage Diagnostics](https://github.com/google-research-datasets/boolean-questions)                                               | boolq         | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
 | [CommitmentBank](https://github.com/mcdm/CommitmentBank)                                                                                 | cb            | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
 | [Choice of Plausible Alternatives](https://people.ict.usc.edu/~gordon/copa.html)                                                         | copa          | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
@@ -89,8 +89,8 @@ FlagAI currently supports the following classification datasets:
 | [MultiNLI Mismatched](http://www.nyu.edu/projects/bowman/multinli/)                                                                      | mnli-mm       | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
 | [Question NLI](https://rajpurkar.github.io/SQuAD-explorer/)                                                                              | qnli          | English  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
 | [X-Stance](https://github.com/ZurichNLP/xstance)                                                                                         | xstance       | English  |                                                    | ❌             | ❌           |
-| [X-Stance (German)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-de    | English  |                                                    | ❌             | ❌           |
-| [X-Stance (French)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-fr    | English  |                                                    | ❌             | ❌           |
+| [X-Stance (German)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-de    | German   |                                                    | ❌             | ❌           |
+| [X-Stance (French)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-fr    | French   |                                                    | ❌             | ❌           |
 | [RACE](https://www.cs.cmu.edu/~glai1/data/race/)                                                                                         | race          | English  |                                                    | ❌             | ❌           |
 | [AG News](https://www.kaggle.com/datasets/amananandrai/ag-news-classification-dataset)                                                   | agnews        | English  |                                                    | ❌             | ❌           |
 | [Yahoo Answers](https://www.kaggle.com/datasets/jarupula/yahoo-answers-dataset)                                                          | yahoo         | English  |                                                    | ❌             | ❌           |
@@ -349,13 +349,14 @@ loader = torch.utils.data.DataLoader(dataset,
 ### Supported Tasks
 | Supported Tasks                                                                                    | Identifier       | Language | Auto-download | Fully-tested |
 |----------------------------------------------------------------------------------------------------|------------------|----------|---------------|--------------|
-| [Reading Comprehension for Simplified Chinese](https://hfl-rc.github.io/cmrc2018/)                 | cmrc             | 中文       | ✅             | ✅            |
-| [English Gigaword](https://catalog.ldc.upenn.edu/LDC2003T05)                                       | gigaword         | 英文       | ❌             | ❌            |
-| [CNN/Daily Mail](https://paperswithcode.com/dataset/cnn-daily-mail-1)                              | cnn_dm           | 英文       | ❌             | ❌            |
-| Lang-8 and HSK                                                                                     | lang8_hsk        | 中文       | ❌             | ❌            |
-| [XSum](https://paperswithcode.com/dataset/xsum)                                                    | xsum             | 英文       | ❌             | ❌            |
-| [squad](The Stanford Question Answering Dataset)                                                   | squad_generation | 英文       | ❌             | ❌            |                                                   
-| [The Winograd Schema Challenge](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html ) | wsc              | 英文       | ✅             | ❌            |
+| [Reading Comprehension for Simplified Chinese](https://hfl-rc.github.io/cmrc2018/)                 | cmrc             | Chinese       | ✅             | ✅            |
+| [The Winograd Schema Challenge](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html ) | wsc              | English       | ✅             | ✅            |
+| [English Gigaword](https://catalog.ldc.upenn.edu/LDC2003T05)                                       | gigaword         | English       | ❌             | ❌            |
+| [CNN/Daily Mail](https://paperswithcode.com/dataset/cnn-daily-mail-1)                              | cnn_dm           | English       | ❌             | ❌            |
+| Lang-8 and HSK                                                                                     | lang8_hsk        | Chinese       | ❌             | ❌            |
+| [XSum](https://paperswithcode.com/dataset/xsum)                                                    | xsum             | English       | ❌             | ❌            |
+| [squad](The Stanford Question Answering Dataset)                                                   | squad_generation | English       | ❌             | ❌            |                                                   
+
 
 
 

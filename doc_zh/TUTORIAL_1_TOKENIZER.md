@@ -9,16 +9,17 @@
 
 值得注意的是，不同的分词器可以有不同的文本分割方式，并且有不同的词表文件,  相关算法的介绍可以在 [这里](tokenization.md) 查看。
 
-目前我们支持下列六个分词器:
+目前我们支持下列七个分词器:
 
-| 分词器                         | 语言  |
-|-----------------------------|-----|
+| 分词器                          | 语言  |
+|------------------------------|-----|
 | GLMLargeEnWordPieceTokenizer | 英文  |
-| GLMLargeChTokenizer         | 中文  |
-| GLM10bENBPETokenizer        | 英文  |
-| T5BPETokenizer              | 中文  |
-| ROBERTATokenizer            | 中文  |
-| BertWordPieceTokenizer      | 中文  |
+| GLMLargeChTokenizer          | 中文  |
+| GLM10bENBPETokenizer         | 英文  |
+| T5BPETokenizer               | 中文  |
+| ROBERTATokenizer             | 中文  |
+| BertWordPieceTokenizer       | 中文  |
+| CPMTokenizer                 | 中文  |
 
 
 ## 加载分词器

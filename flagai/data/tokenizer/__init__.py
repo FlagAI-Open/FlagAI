@@ -4,3 +4,4 @@ from .glm_10b_en.glm_10b_en_bpe_tokenizer import GLM10bENBPETokenizer
 from .t5.t5_tokenizer import T5BPETokenizer
 from .roberta.roberta_tokenizer import ROBERTATokenizer
 from .bert.bert_tokenizer import BertWordPieceTokenizer
+from .cpm_1.cpm1_tokenizer import CPMTokenizer
