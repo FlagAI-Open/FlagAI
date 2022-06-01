@@ -28,6 +28,7 @@ as listed below:
 | T5BPETokenizer               | Chinese  |
 | ROBERTATokenizer             | Chinese  |
 | BertWordPieceTokenizer       | Chinese  | 
+| CPMTokenizer                 | Chinese  |
 
 
 

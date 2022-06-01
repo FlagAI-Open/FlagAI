@@ -12,7 +12,7 @@ from flagai.data.dataset import ConstructSeq2seqStrategy
 
 # Compared with original seq2seq, seq2seq dataset is used
 # task_name :['cmrc',xxxx]
-task_name = "wsc"
+task_name = "cmrc"
 
 cl_args = Seq2SeqCollateArguments()
 trainer = Trainer(env_type='pytorch',
