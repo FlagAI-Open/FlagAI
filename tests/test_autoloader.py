@@ -4,8 +4,6 @@
 from flagai.auto_model.auto_loader import AutoLoader
 import unittest
 
-
-
 class AutoLoaderTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
