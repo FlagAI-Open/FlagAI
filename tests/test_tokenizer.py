@@ -67,7 +67,8 @@ class TokenizerTestCase(unittest.TestCase):
     def test_tokenizer_cpm1(self):
         loader = AutoLoader(task_name="lm",
                             model_name="CPM-large-ch-generation",
-                            model_dir="./state_dict/")
+                            model_dir="./state_dict/",
+                            only_download_config=True)
         tokenizer = loader.get_tokenizer()
         self.assertEqual(tokenizer.encode("day"), [8, 8275], '')
         self.assertEqual(tokenizer.encode("fried chicken makes me happy"),
