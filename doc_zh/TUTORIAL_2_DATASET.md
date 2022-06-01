@@ -21,6 +21,7 @@
   - [2.2 预训练的任务处理实例代码](#预训练的任务处理实例代码)
 - [3 生成任务微调](#生成任务微调)
   - [3.1 生成任务应用代码](#生成任务应用代码)
+  - [3.1 生成任务支持数据集](#生成任务支持数据集)
   - [3.2 生成任务里将数据整理成模型的输入](#生成任务里将数据整理成模型的输入)
     - [3.2a 生成任务里构建填空模板](#生成任务里构建填空模板)
     - [3.2b 生成任务里分词并构造输入样例](#生成任务里分词并构造输入样例)
@@ -87,36 +88,37 @@ dataset = SuperGlueDataset(task_name='cb',
 
 FlagAI目前支持下列分类数据集：
 
-| 数据集名称                                                                                                                                    | 数据集简称         | 语言  | 所属评测基准                                             | 可自动下载 | 已测试通过 |
-|------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----|----------------------------------------------------|---------------|-------------|
-| [Broadcoverage Diagnostics](https://github.com/google-research-datasets/boolean-questions)                                               | boolq         | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
-| [CommitmentBank](https://github.com/mcdm/CommitmentBank)                                                                                 | cb            | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
-| [Choice of Plausible Alternatives](https://people.ict.usc.edu/~gordon/copa.html)                                                         | copa          | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
-| [Multi-Sentence Reading Comprehension](https://cogcomp.org/multirc/ )                                                                    | muiltirc      | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
-| [Recognizing Textual Entailment](https://aclweb.org/aclwiki/Recognizing_Textual_Entailment )                                             | rte           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
-| [Words in Context](https://pilehvar.github.io/wic/ )                                                                                     | wic           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |                                                   
-| [The Winograd Schema Challenge](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html )                                       | wsc           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
-| [Ant Financial Question Matching Corpus](https://tianchi.aliyun.com/dataset/dataDetail?dataId=106411 )                                   | afqmc         | 中文  | [CLUE](https://www.clue.ai/index.html)             | ✅             | ✅           |
-| [Short Text Classificaiton for News](https://metatext.io/datasets/toutiao-text-classification-for-news-titles-(tnews)-(clue-benchmark) ) | tnews         | 中文  | [CLUE](https://www.clue.ai/index.html)             | ✅             | ✅           |
-| [Broadcoverage Diagnostics](https://gluebenchmark.com/diagnostics)                                                                       | ax-b          | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ❌           |
-| [Winogender Schema Diagnostics](https://github.com/rudinger/winogender-schemas)                                                          | ax-g          | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ❌           |
-| [The Corpus of Linguistic Acceptability](https://nyu-mll.github.io/CoLA/)                                                                | cola          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
-| [The Stanford Sentiment Treebank](https://nlp.stanford.edu/sentiment/index.html)                                                         | sst2          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
-| [Microsoft Research Paraphrase Corpus](https://microsoft.com/en-us/download/details.aspx?id=52398)                                       | mrpc          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
-| [Quora Question Pairs](https://data.quora.com/First-Quora-Dataset-Release-Question-Pairs)                                                | qqp           | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
-| [MultiNLI Matched](http://www.nyu.edu/projects/bowman/multinli/)                                                                         | mnli          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
-| [MultiNLI Mismatched](http://www.nyu.edu/projects/bowman/multinli/)                                                                      | mnli-mm       | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
-| [Question NLI](https://rajpurkar.github.io/SQuAD-explorer/)                                                                              | qnli          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅             | ❌           |
-| [X-Stance](https://github.com/ZurichNLP/xstance)                                                                                         | xstance       | 英文  |                                                    | ❌             | ❌           |
-| [X-Stance (German)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-de    | 英文  |                                                    | ❌             | ❌           |
-| [X-Stance (French)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-fr    | 英文  |                                                    | ❌             | ❌           |
-| [RACE](https://www.cs.cmu.edu/~glai1/data/race/)                                                                                         | race          | 英文  |                                                    | ❌             | ❌           |
-| [AG News](https://www.kaggle.com/datasets/amananandrai/ag-news-classification-dataset)                                                   | agnews        | 英文  |                                                    | ❌             | ❌           |
-| [Yahoo Answers](https://www.kaggle.com/datasets/jarupula/yahoo-answers-dataset)                                                          | yahoo         | 英文  |                                                    | ❌             | ❌           |
-| [Yelp Review Polarity](https://www.kaggle.com/datasets/irustandi/yelp-review-polarity)                                                   | yelp-polarity | 英文  |                                                    | ❌             | ❌           |
-| [Yelp Open Dataset](https://www.yelp.com/dataset)                                                                                        | yelp-full     | 英文  |                                                    | ❌             | ❌           |
-| [squad](The Stanford Question Answering Dataset)                                                                                         | squad         | 英文  |                                                    | ❌             | ❌           |
-| [CLUEWSC2020](https://github.com/CLUEbenchmark/CLUEWSC2020)                                                                              | cluewsc       | 中文  | [CLUE](https://www.clue.ai/index.html)             | ❌             | ❌           |
+| 数据集名称                                                                                                                                    | 数据集简称         | 语言  | 所属评测基准                                             | 支持提示学习 | 可自动下载 | 已测试通过 |
+|------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----|----------------------------------------------------|-------|---------------|-------------|
+| [CommitmentBank](https://github.com/mcdm/CommitmentBank)                                                                                 | cb            | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| [Choice of Plausible Alternatives](https://people.ict.usc.edu/~gordon/copa.html)                                                         | copa          | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| [Multi-Sentence Reading Comprehension](https://cogcomp.org/multirc/ )                                                                    | muiltirc      | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| [Recognizing Textual Entailment](https://aclweb.org/aclwiki/Recognizing_Textual_Entailment )                                             | rte           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| [Words in Context](https://pilehvar.github.io/wic/ )                                                                                     | wic           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |                                                   
+| [The Winograd Schema Challenge](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html )                                       | wsc           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| [Broadcoverage Diagnostics](https://github.com/google-research-datasets/boolean-questions)                                               | boolq         | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| [Reading Comprehension with Commonsense Reasoning](https://sheng-z.github.io/ReCoRD-explorer/)                                           | record        | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| [Ant Financial Question Matching Corpus](https://tianchi.aliyun.com/dataset/dataDetail?dataId=106411 )                                   | afqmc         | 中文  | [CLUE](https://www.clue.ai/index.html)             | ✅     | ✅             | ✅           |
+| [Short Text Classificaiton for News](https://metatext.io/datasets/toutiao-text-classification-for-news-titles-(tnews)-(clue-benchmark) ) | tnews         | 中文  | [CLUE](https://www.clue.ai/index.html)             | ✅     | ✅             | ✅           |
+| [Broadcoverage Diagnostics](https://gluebenchmark.com/diagnostics)                                                                       | ax-b          | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ❌           |
+| [Winogender Schema Diagnostics](https://github.com/rudinger/winogender-schemas)                                                          | ax-g          | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ❌           |
+| [The Corpus of Linguistic Acceptability](https://nyu-mll.github.io/CoLA/)                                                                | cola          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅     | ✅             | ❌           |
+| [The Stanford Sentiment Treebank](https://nlp.stanford.edu/sentiment/index.html)                                                         | sst2          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅     | ✅             | ❌           |
+| [Microsoft Research Paraphrase Corpus](https://microsoft.com/en-us/download/details.aspx?id=52398)                                       | mrpc          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅     | ✅             | ❌           |
+| [Quora Question Pairs](https://data.quora.com/First-Quora-Dataset-Release-Question-Pairs)                                                | qqp           | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅     | ✅             | ❌           |
+| [MultiNLI Matched](http://www.nyu.edu/projects/bowman/multinli/)                                                                         | mnli          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅     | ✅             | ❌           |
+| [MultiNLI Mismatched](http://www.nyu.edu/projects/bowman/multinli/)                                                                      | mnli-mm       | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ❌     | ✅             | ❌           |
+| [Question NLI](https://rajpurkar.github.io/SQuAD-explorer/)                                                                              | qnli          | 英文  | [GLUE](https://gluebenchmark.com/tasks)            | ✅     | ✅             | ❌           |
+| [X-Stance](https://github.com/ZurichNLP/xstance)                                                                                         | xstance       | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [X-Stance (German)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-de    | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [X-Stance (French)](https://github.com/ZurichNLP/xstance)                                                                                | xstance-fr    | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [RACE](https://www.cs.cmu.edu/~glai1/data/race/)                                                                                         | race          | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [AG News](https://www.kaggle.com/datasets/amananandrai/ag-news-classification-dataset)                                                   | agnews        | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [Yahoo Answers](https://www.kaggle.com/datasets/jarupula/yahoo-answers-dataset)                                                          | yahoo         | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [Yelp Review Polarity](https://www.kaggle.com/datasets/irustandi/yelp-review-polarity)                                                   | yelp-polarity | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [Yelp Open Dataset](https://www.yelp.com/dataset)                                                                                        | yelp-full     | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [squad](The Stanford Question Answering Dataset)                                                                                         | squad         | 英文  |                                                    | ✅     | ❌             | ❌           |
+| [CLUEWSC2020](https://github.com/CLUEbenchmark/CLUEWSC2020)                                                                              | cluewsc       | 中文  | [CLUE](https://www.clue.ai/index.html)             | ✅     | ❌             | ❌           |
 
 
 下载好的数据集目录下会包含三个文件，对应训练集数据，验证集数据，以及测试集数据, 以`CommitmentBank`数据集为例，目录下的`train.jsonl`对应训练集，`val.jsonl`对应验证集，`test.jsonl`对应测试集。一般来说训练集和测试集会包含标签信息，而测试集则没有。这些数据文件在接下来的流程中会分开处理。
@@ -461,6 +463,20 @@ loader = torch.utils.data.DataLoader(dataset,
                                     pin_memory=False,
                                     collate_fn=collate_fn)
 ```
+
+
+### 生成任务支持数据集
+| 数据集名称                                                                                              | 数据集简称            | 语言  | 可自动下载 | 已测试通过 |
+|----------------------------------------------------------------------------------------------------|------------------|-----|---------------|-------------|
+| [Reading Comprehension for Simplified Chinese](https://hfl-rc.github.io/cmrc2018/)                 | cmrc             | 中文  | ✅             | ✅           |
+| [English Gigaword](https://catalog.ldc.upenn.edu/LDC2003T05)                                       | gigaword         | 英文  | ❌             | ❌           |
+| [CNN/Daily Mail](https://paperswithcode.com/dataset/cnn-daily-mail-1)                              | cnn_dm           | 英文  | ❌             | ❌           |
+| Lang-8 and HSK                                                                                     | lang8_hsk        | 中文  | ❌             | ❌           |
+| [XSum](https://paperswithcode.com/dataset/xsum)                                                    | xsum             | 英文  | ❌             | ❌           |
+| [squad](The Stanford Question Answering Dataset)                                                   | squad_generation | 英文  | ❌             | ❌           |                                                   
+| [The Winograd Schema Challenge](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html ) | wsc              | 英文  | ✅             | ❌           |
+
+
 
 ### 生成任务里初步读取并处理数据集
 
