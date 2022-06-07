@@ -65,24 +65,28 @@ python ./train.py
 The configuration support multi-gpus training.
 Modify the training configuration by this code:
 ```python
-import torch
-from torch.utils.data import Dataset
 from flagai.trainer import Trainer
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(
-    env_type="pytorch",
-    experiment_name="t5_title_generation",
-    batch_size=8,
+    env_type="deepspeed",
+    experiment_name="t5_seq2seq",
+    batch_size=1,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=1,
+    epochs=10,
     log_interval=10,
     eval_interval=10000,
     load_dir=None,
-    pytorch_device=device,
-    save_dir="t5_title_generation",
+    save_dir="checkpoints",
     save_epoch=1,
+    num_checkpoints=1,
+    master_ip='127.0.0.1',
+    master_port=17750,
+    num_nodes=1,
+    num_gpus=2,
+    hostfile='./hostfile',
+    deepspeed_config='./deepspeed.json',
+    training_script=__file__,
 )
 ```
 Divide the training set validation set and create the dataset:
