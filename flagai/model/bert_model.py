@@ -29,11 +29,11 @@ from torch import nn
 from typing import List
 import os
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu.random import checkpoint 
+    from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:
-    from torch.utils.checkpoint import checkpoint 
+    from torch.utils.checkpoint import checkpoint
 
 def init_bert_weights(module):
     """ Initialize the weights.
@@ -106,7 +106,8 @@ class BertModel(BaseModel):
         self.type_vocab_size = config["type_vocab_size"]
         self.layernorm_epsilon = config.get("layernorm_epsilon", None)
         if self.layernorm_epsilon is None:
-            self.layernorm_epsilon = config.get("layer_norm_eps", 0.000001)
+            self.layer_norm_eps = config.get("layer_norm_eps", 0.000001)
+            self.layernorm_epsilon = self.layer_norm_eps
         self.hidden_dropout_prob = config["hidden_dropout_prob"]
         self.num_hidden_layers = config["num_hidden_layers"]
         self.num_attention_heads = config["num_attention_heads"]
@@ -119,10 +120,10 @@ class BertModel(BaseModel):
                                          self.layernorm_epsilon,
                                          self.hidden_dropout_prob)
         self.encoder = BertStack(config,
-            self.num_hidden_layers, hidden_size, self.num_attention_heads,
-            self.attention_probs_dropout_prob, self.initializer_range,
-            self.layernorm_epsilon, self.hidden_dropout_prob,
-            intermediate_size, self.hidden_act)
+                                 self.num_hidden_layers, hidden_size, self.num_attention_heads,
+                                 self.attention_probs_dropout_prob, self.initializer_range,
+                                 self.layernorm_epsilon, self.hidden_dropout_prob,
+                                 intermediate_size, self.hidden_act)
         self.pooler = BertPooler(hidden_size)
 
         self.apply(init_bert_weights)
@@ -223,10 +224,10 @@ class BertModel(BaseModel):
                 if "value.bias" in k:
                     checkpoint_converted[
                         f"encoder.layer.{index}.attention.self.query_key_value.weight"] = torch.cat(
-                            save_qkv_weight, dim=0)
+                        save_qkv_weight, dim=0)
                     checkpoint_converted[
                         f"encoder.layer.{index}.attention.self.query_key_value.bias"] = torch.cat(
-                            save_qkv_bias, dim=0)
+                        save_qkv_bias, dim=0)
                     save_qkv_weight = []
                     save_qkv_bias = []
                     index += 1
@@ -396,6 +397,7 @@ class BertForMaskLM(BaseModel):
         sequence_out, decoder_out = self.cls(encoder_out[-1])
 
         return_data["logits"] = decoder_out
+        return_data["hidden_states"] = sequence_out
 
         if labels is not None:
             return_data["loss"] = self.compute_loss(**{
