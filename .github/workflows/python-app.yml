@@ -15,7 +15,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: self-hosted
 
     steps:
     - uses: actions/checkout@v3
@@ -25,6 +25,7 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
+        python -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         python -m pip install torch
