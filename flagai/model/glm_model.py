@@ -30,8 +30,11 @@ from flagai.model.utils import normal_init_method
 from torch.nn import LayerNorm
 
 print_rank_0 = print
+
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import copy_to_model_parallel_region
+    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region
+    from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
+
     from flagai.mpu.random import checkpoint 
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
@@ -430,31 +433,50 @@ class GLMModel(BaseModel):
                                               return_memory=return_memory,
                                               detach_memory=detach_memory)
         logits, hidden_layers = transformer_output
+
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            logits_parallel = copy_to_model_parallel_region(logits)
+        else:
+            logits_parallel = logits
+
         if self.output_predict:
             # Parallel logits.
-            if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
-                logits_parallel = copy_to_model_parallel_region(logits)
+            logits_parallel = F.linear(logits_parallel, self.word_embeddings.weight)
 
-            logits_parallel = F.linear(logits, self.word_embeddings.weight)
-            if self.parallel_output:  # Put in different GPUs
-                return {
-                    'logits': logits_parallel,
-                    "hidden_states": hidden_layers
-                }
             if 'labels' in kwargs:
                 labels = kwargs['labels']
-                loss = F.cross_entropy(logits_parallel.contiguous().float(),
-                                       labels.long())
-                return {
-                    'logits': logits_parallel,
-                    'loss': loss,
-                    'hidden_states': hidden_layers
-                }
+                if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+                    loss = vocab_parallel_cross_entropy(logits.contiguous().float(),
+                                                        labels).mean()
+                else :
+
+                    loss = F.cross_entropy(logits_parallel.contiguous().float(),
+                                           labels.long())
+
+                if self.parallel_output:  # Put in different GPUs
+                    return {
+                        'logits': logits_parallel,
+                        'loss': loss,
+                        'hidden_states': hidden_layers
+                    }
+                else :
+                    return {
+                        "logits": gather_from_model_parallel_region(logits_parallel),
+                        "loss": loss,
+                        "hidden_states": hidden_layers
+                    }
             else:
-                return {
-                    'logits': logits_parallel,
-                    'hidden_states': hidden_layers
-                }
+                if self.parallel_output:  # Put in different GPUs
+                    return {
+                        'logits': logits_parallel,
+                        'hidden_states': hidden_layers
+                    }
+                else :
+                    return {
+                        "logits": gather_from_model_parallel_region(logits_parallel),
+                        "hidden_states": hidden_layers
+                    }
+
         else:
             return {'logits': logits, 'hidden_states': hidden_layers}
 
