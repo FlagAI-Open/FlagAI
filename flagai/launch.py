@@ -3,7 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 # Copyright 2020 The Microsoft DeepSpeed Team
 """
-sailing runner is the main front-end to launching multi-worker
+FlagAI runner is the main front-end to launching multi-worker
 training jobs with DeepSpeed. By default this uses pdsh to parallel
 ssh into multiple worker nodes and launch all the necessary processes
 per rank for training.

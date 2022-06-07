@@ -1,5 +1,6 @@
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
+[![Python application](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml)
 [English](README.md)
 
 --------------------------------------------------------------------------------
@@ -211,7 +212,7 @@ for text_pair in test_data:
 
 
 # 贡献代码
-感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/BAAI-WuDao/Sailing/issues)以执行特定任务。
+感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/BAAI-Open/FlagAI/issues)以执行特定任务。
 
 # 联系我们
 欢迎扫码加入飞智用户群

@@ -1,5 +1,6 @@
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
+[![Python application](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml)
 [简体中文](README_zh.md)
 
 --------------------------------------------------------------------------------
@@ -150,7 +151,7 @@ We provide a set of quick tutorials to get you started with the library:
 
 Thanks for your interest in contributing! There are many ways to get involved;
 start with our [contributor guidelines](CONTRIBUTING.md) and then
-check these [open issues](https://github.com/BAAI-WuDao/Sailing/issues) for specific tasks.
+check these [open issues](https://github.com/BAAI-Open/FlagAI/issues) for specific tasks.
 
 ## Contact us
 Scan wechat QR code 

@@ -68,11 +68,9 @@ The configuration support multi-gpus training.
 Modify the training configuration by this code:
 ```python
 from flagai.trainer import Trainer
-import torch
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 trainer = Trainer(
-    env_type="deepspeed+mpu",
-    experiment_name="roberta_seq2seq",
+    env_type="deepspeed",
+    experiment_name="t5_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
     lr=2e-4,
@@ -81,7 +79,6 @@ trainer = Trainer(
     log_interval=10,
     eval_interval=10000,
     load_dir=None,
-    pytorch_device=device,
     save_dir="checkpoints",
     save_epoch=1,
     num_checkpoints=1,
@@ -89,8 +86,8 @@ trainer = Trainer(
     master_port=17750,
     num_nodes=1,
     num_gpus=2,
-    hostfile='/data/liuguang/test_Sailing/Sailing/examples/bert_title_generation/hostfile',
-    deepspeed_config='/data/liuguang/test_Sailing/Sailing/examples/bert_title_generation/deepspeed.json',
+    hostfile='./hostfile',
+    deepspeed_config='./deepspeed.json',
     training_script=__file__,
 )
 ```
@@ -99,14 +96,24 @@ Divide the training set validation set and create the dataset:
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
 train_size = int(data_len * 0.8)
-train_src = sents_src[: train_size]
-train_tgt = sents_tgt[: train_size]
+train_src = sents_src[:train_size][:2000]
+train_tgt = sents_tgt[:train_size][:2000]
 
-val_src = sents_src[train_size: ]
-val_tgt = sents_tgt[train_size: ]
+val_src = sents_src[train_size:]
+val_tgt = sents_tgt[train_size:]
 
-train_dataset = BertSeq2seqDataset(train_src, train_tgt, tokenizer=tokenizer, maxlen=maxlen)
-val_dataset = BertSeq2seqDataset(val_src, val_tgt, tokenizer=tokenizer, maxlen=maxlen)
+train_dataset = T5Seq2seqDataset(train_src,
+                                 train_tgt,
+                                 tokenizer=tokenizer,
+                                 max_src_length=300,
+                                 max_tgt_length=200)
+val_dataset = T5Seq2seqDataset(val_src,
+                               val_tgt,
+                               tokenizer=tokenizer,
+                               max_src_length=300,
+                               max_tgt_length=200)
+
+trainer.train(model, train_dataset=train_dataset, valid_dataset=val_dataset)
 ```
 
 ### Generation
