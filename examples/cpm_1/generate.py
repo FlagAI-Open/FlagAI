@@ -9,7 +9,7 @@ if __name__ == '__main__':
     床前明月光，'''
 
     loader = AutoLoader(task_name="lm",
-                        model_name="CPM-large-ch-generation",
+                        model_name="CPM-large-ch",
                         model_dir="./state_dict/")
 
     model = loader.get_model()
