@@ -93,7 +93,7 @@ class AutoLoaderTestCase(unittest.TestCase):
 
     def test_CPM_large_ch(self):
         for t_name in self.task_name:
-            m_name = 'CPM-large-ch-generation'
+            m_name = 'CPM-large-ch'
             loader = AutoLoader(task_name=t_name,
                                 model_name=m_name,
                                 class_num=3,
