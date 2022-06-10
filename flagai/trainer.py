@@ -707,8 +707,8 @@ class Trainer():
                 step_output = forward_step_func(data_iterator,
                                                 model,
                                                 mems=mems)
-                lm_loss, mems = step_output['loss'], step_output[
-                    'hidden_states']
+                lm_loss= step_output['loss']
+                # mems = step_output['hidden_states']
                 '''when contiguous memory optimizations are enabled, the buffers
                 allocated by the optimizations are deallocated during backward pass
                 in the absence of backward pass the buffers should be reset after each
