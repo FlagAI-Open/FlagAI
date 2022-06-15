@@ -115,6 +115,7 @@ class Trainer():
         gradient_accumulation_steps=1,  # 'Data Loader batch size'
         weight_decay=0.0,  # 'weight decay coefficient for L2 regularization'
         lr=1e-3,
+        warm_up=0.1,
         epochs=0,  # 'Number of finetunning epochs. Zero results in evaluation only.'
         save_epoch=1,  # 'number of epochs between saves')
         eval_interval=1,
@@ -164,6 +165,7 @@ class Trainer():
         self.clip_grad = clip_grad
         self.seed = seed
         self.fp16 = fp16
+        self.warm_up = warm_up
 
         self.log_interval = log_interval
         self.eval_interval = eval_interval
@@ -291,6 +293,7 @@ class Trainer():
             return torch.utils.data.DataLoader(dataset,
                                                batch_size=self.batch_size,
                                                collate_fn=collate_fn,
+                                               num_workers=4,
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
@@ -305,7 +308,7 @@ class Trainer():
             return torch.utils.data.DataLoader(dataset,
                                                batch_size=self.batch_size,
                                                sampler=sampler,
-                                               num_workers=1,
+                                               num_workers=4,
                                                drop_last=False,
                                                pin_memory=False,
                                                collate_fn=collate_fn)
@@ -396,13 +399,13 @@ class Trainer():
                                       cpu_torch_adam=False,
                                       fp16=self.fp16)
 
-        # if lr_scheduler == None:
-        #     lr_scheduler = AnnealingLR(
-        #         optimizer,
-        #         start_lr=self.lr,
-        #         warmup_iter=int(0.2* self.epochs * len(train_dataloader)),
-        #         decay_style='linear',
-        #         num_iters=self.epochs * len(train_dataloader))
+        if lr_scheduler == None and 'deepspeed' not in self.env_type:
+            lr_scheduler = AnnealingLR(
+                optimizer,
+                start_lr=self.lr,
+                warmup_iter=int(self.warm_up* self.epochs * len(train_dataloader)),
+                decay_style='linear',
+                num_iters=self.epochs * len(train_dataloader))
 
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
@@ -708,7 +711,7 @@ class Trainer():
                                                 model,
                                                 mems=mems)
                 lm_loss= step_output['loss']
-                # mems = step_output['hidden_states']
+                # mem = step_output['hidden_states']
                 '''when contiguous memory optimizations are enabled, the buffers
                 allocated by the optimizations are deallocated during backward pass
                 in the absence of backward pass the buffers should be reset after each
@@ -740,7 +743,7 @@ class Trainer():
                                          group=mpu.get_data_parallel_group())
         elif self.env_type == 'deepspeed':
             torch.distributed.all_reduce(
-                loss_data, group=deepspeed.utils.get_data_parallel_group())
+                loss_data)
         elif self.env_type == 'pytorchDDP':
             torch.distributed.all_reduce(loss_data)
         loss_data = loss_data.tolist()

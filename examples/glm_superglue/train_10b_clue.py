@@ -10,27 +10,19 @@ from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
 
-
-task_name = 'tnews'
-trainer = Trainer(env_type='deepspeed',
-                  epochs=2,
-                  batch_size=4,
-                  eval_interval=10,
-                  checkpoint_activations=False,
-                  fp16=True,
-                  log_interval=1,
+task_name = 'afqmc'
+trainer = Trainer(env_type="pytorch",
+                  batch_size=16,
+                  epochs=10,
+                  log_interval=100,
+                  eval_interval=500,
+                  load_dir=None,
+                  pytorch_device="cuda",
                   save_dir="./glm_superglue_en",
-                  master_ip='127.0.0.1',
-                  master_port=17235,
-                  num_nodes=1,
-                  num_gpus=2,
-                  hostfile='./hostfile',
-                  model_parallel_size=2,
-                  deepspeed_config='./deepspeed.json',
-                  training_script=__file__)
+                  save_epoch=1)
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
-                                             model_name="glm-10b-ch")
+                                             model_name="GLM-large-ch")
 
 
 tokenizer =  GLMLargeChTokenizer()

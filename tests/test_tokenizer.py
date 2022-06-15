@@ -80,7 +80,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_ch'))
     suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_en'))
-    #suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
     suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
     suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
     suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
