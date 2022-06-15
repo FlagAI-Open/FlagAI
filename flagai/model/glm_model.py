@@ -755,7 +755,6 @@ class GLMForSingleTokenCloze(BaseModel):
                                position_ids,
                                attention_mask,
                                prompt_pos=prompt_pos,
-                               #labels=kwargs['labels'],
                                mems=kwargs['mems'])
         outputs, mems = model_out['logits'], model_out['hidden_states']
 

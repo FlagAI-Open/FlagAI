@@ -12,6 +12,14 @@
       "allgather_bucket_size": 5e7,
       "cpu_offload": true 
     },
+    "scheduler": {
+      "type": "WarmupLR",
+      "params": {
+          "warmup_min_lr": 0,
+          "warmup_max_lr": 1e-5,
+          "warmup_num_steps": 2000
+      }
+   },
     "zero_allow_untested_optimizer": true,
     "fp16": {
       "enabled": true,
@@ -23,8 +31,8 @@
     "optimizer": {
       "type": "Adam",
       "params": {
-        "lr": 0.0004,
-        "weight_decay": 0.01,
+        "lr": 1e-5,
+        "weight_decay": 0.1,
         "betas": [
           0.9,
           0.98

@@ -10,24 +10,23 @@ from flagai.test_utils import CollateArguments
 
 
 
-task_name = 'AFQMC'
-trainer = Trainer(env_type='pytorch',
-                  pytorch_device='cuda:1'，
+task_name = 'qqp'
+trainer = Trainer(env_type='deepspeed',
+                  pytorch_device='cuda:1',
                   epochs=10,
-                  batch_size=16,
-                  eval_interval=1000,
-                  log_interval=50,
+                  batch_size=36,
+                  eval_interval=80,
+                  log_interval=4,
                   checkpoint_activations=False,
                   fp16=True,
                   warm_up=0.1,
-                  log_interval=1,
                   save_dir="./glm_superglue_en",
                   master_ip='127.0.0.1',
                   master_port=17755,
                   num_nodes=1,
-                  num_gpus=2,
+                  num_gpus=4,
                   hostfile='./hostfile',
-                  model_parallel_size=2,
+                  model_parallel_size=1,
                   deepspeed_config='./deepspeed.json',
                   training_script=__file__)
 
@@ -64,5 +63,4 @@ trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=valid_dataset,
               collate_fn=collate_fn,
-              lr_scheduler=lr_scheduler,
               metric_methods=[["acc", accuracy_metric]])

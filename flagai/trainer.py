@@ -293,6 +293,7 @@ class Trainer():
             return torch.utils.data.DataLoader(dataset,
                                                batch_size=self.batch_size,
                                                collate_fn=collate_fn,
+                                               num_workers=4,
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
@@ -307,7 +308,7 @@ class Trainer():
             return torch.utils.data.DataLoader(dataset,
                                                batch_size=self.batch_size,
                                                sampler=sampler,
-                                               num_workers=1,
+                                               num_workers=4,
                                                drop_last=False,
                                                pin_memory=False,
                                                collate_fn=collate_fn)
@@ -398,7 +399,7 @@ class Trainer():
                                       cpu_torch_adam=False,
                                       fp16=self.fp16)
 
-        if lr_scheduler == None:
+        if lr_scheduler == None and 'deepspeed' not in self.env_type:
             lr_scheduler = AnnealingLR(
                 optimizer,
                 start_lr=self.lr,
@@ -709,8 +710,8 @@ class Trainer():
                 step_output = forward_step_func(data_iterator,
                                                 model,
                                                 mems=mems)
-                lm_loss, mems = step_output['loss'], step_output[
-                    'hidden_states']
+                lm_loss= step_output['loss']
+                # mem = step_output['hidden_states']
                 '''when contiguous memory optimizations are enabled, the buffers
                 allocated by the optimizations are deallocated during backward pass
                 in the absence of backward pass the buffers should be reset after each
@@ -742,7 +743,7 @@ class Trainer():
                                          group=mpu.get_data_parallel_group())
         elif self.env_type == 'deepspeed':
             torch.distributed.all_reduce(
-                loss_data, group=deepspeed.utils.get_data_parallel_group())
+                loss_data)
         elif self.env_type == 'pytorchDDP':
             torch.distributed.all_reduce(loss_data)
         loss_data = loss_data.tolist()

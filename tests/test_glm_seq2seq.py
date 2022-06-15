@@ -24,8 +24,8 @@ class TrainerTestCase(unittest.TestCase):
                           eval_interval=100,
                           log_interval=50,
                           experiment_name='glm_large',
-                          pytorch_device='cpu',
-                          load_dir=None,
+                          fp16=True,
+                          pytorch_device='cuda',
                           lr=1e-4)
         print("downloading...")
 

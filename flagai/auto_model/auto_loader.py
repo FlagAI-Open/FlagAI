@@ -53,7 +53,7 @@ MODEL_DICT = {
     "GLM-large-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
     "GLM-large-en": ["flagai.model.glm_model", "GLMModel", "glm"],
     "GPT2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2"],
-    "CPM-large-ch-generation": ["flagai.model.gpt2_model", "GPT2Model", "cpm"],
+    "CPM-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm"],
 }
 
 TOKENIZER_DICT = {
@@ -70,7 +70,7 @@ TOKENIZER_DICT = {
         "GLMLargeEnTokenizer"
     ],
     "GPT2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "CPM-large-ch-generation": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"]
+    "CPM-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"]
 }
 
 
@@ -145,7 +145,7 @@ class AutoLoader:
             vocab_file = os.path.join(download_path,'cog-pretrained.model')
             if not os.path.exists(vocab_file):
                 vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
-        elif model_name == "CPM-large-ch-generation":
+        elif model_name == "CPM-large-ch":
             # two files to load
             vocab_file_1 = os.path.join(download_path, "vocab.json")
             vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
@@ -160,7 +160,7 @@ class AutoLoader:
         tokenizer_class = TOKENIZER_DICT[model_name]
         tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
                                     tokenizer_class[1])
-        if model_name == "CPM-large-ch-generation":
+        if model_name == "CPM-large-ch":
             self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
         else :
             self.tokenizer = tokenizer_class(vocab_file)
