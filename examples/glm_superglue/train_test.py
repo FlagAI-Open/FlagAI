@@ -9,30 +9,33 @@ from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 
 
-task_name = 'qqp'
+
+task_name = 'AFQMC'
 trainer = Trainer(env_type='pytorch',
-                 pytorch_device="cuda",
-                  epochs=2,
-                  batch_size=1,
+                  pytorch_device='cuda:1'，
+                  epochs=10,
+                  batch_size=16,
                   eval_interval=1000,
+                  log_interval=50,
                   checkpoint_activations=False,
                   fp16=True,
+                  warm_up=0.1,
                   log_interval=1,
-                  save_dir="./glm_superglue_en")
-                  # master_ip='127.0.0.1',
-                  # master_port=17755,
-                  # num_nodes=1,
-                  # num_gpus=2,
-                  # hostfile='./hostfile',
-                  # model_parallel_size=2,
-                  # deepspeed_config='./deepspeed.json',
-                  # training_script=__file__)
+                  save_dir="./glm_superglue_en",
+                  master_ip='127.0.0.1',
+                  master_port=17755,
+                  num_nodes=1,
+                  num_gpus=2,
+                  hostfile='./hostfile',
+                  model_parallel_size=2,
+                  deepspeed_config='./deepspeed.json',
+                  training_script=__file__)
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
                                              model_name="GLM-large-en")
-                                             
-tokenizer = GLMLargeEnWordPieceTokenizer()
 
+#tokenizer = GLM10bENBPETokenizer()
+tokenizer = GLMLargeEnWordPieceTokenizer()
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='./datasets/',
                                  dataset_type='train',
@@ -55,8 +58,11 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name)
+
+
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=valid_dataset,
               collate_fn=collate_fn,
+              lr_scheduler=lr_scheduler,
               metric_methods=[["acc", accuracy_metric]])

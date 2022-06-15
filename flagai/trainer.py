@@ -115,6 +115,7 @@ class Trainer():
         gradient_accumulation_steps=1,  # 'Data Loader batch size'
         weight_decay=0.0,  # 'weight decay coefficient for L2 regularization'
         lr=1e-3,
+        warm_up=0.1,
         epochs=0,  # 'Number of finetunning epochs. Zero results in evaluation only.'
         save_epoch=1,  # 'number of epochs between saves')
         eval_interval=1,
@@ -164,6 +165,7 @@ class Trainer():
         self.clip_grad = clip_grad
         self.seed = seed
         self.fp16 = fp16
+        self.warm_up = warm_up
 
         self.log_interval = log_interval
         self.eval_interval = eval_interval
@@ -396,13 +398,13 @@ class Trainer():
                                       cpu_torch_adam=False,
                                       fp16=self.fp16)
 
-        # if lr_scheduler == None:
-        #     lr_scheduler = AnnealingLR(
-        #         optimizer,
-        #         start_lr=self.lr,
-        #         warmup_iter=int(0.2* self.epochs * len(train_dataloader)),
-        #         decay_style='linear',
-        #         num_iters=self.epochs * len(train_dataloader))
+        if lr_scheduler == None:
+            lr_scheduler = AnnealingLR(
+                optimizer,
+                start_lr=self.lr,
+                warmup_iter=int(self.warm_up* self.epochs * len(train_dataloader)),
+                decay_style='linear',
+                num_iters=self.epochs * len(train_dataloader))
 
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed

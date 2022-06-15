@@ -65,7 +65,7 @@ class TokenizerTestCase(unittest.TestCase):
 
     def test_tokenizer_cpm1(self):
         loader = AutoLoader(task_name="lm",
-                            model_name="CPM-large-ch-generation",
+                            model_name="CPM-large-ch",
                             model_dir="./state_dict/",
                             only_download_config=True)
         tokenizer = loader.get_tokenizer()
@@ -80,7 +80,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_ch'))
     suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_en'))
-    #suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
     suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
     suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
     suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
