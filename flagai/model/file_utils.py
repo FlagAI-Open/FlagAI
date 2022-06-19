@@ -76,8 +76,8 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
 
 def _get_config_path(download_path, config_name, model_id, rank=0):
     dic_download = {'model_id': model_id, 'checkpoint_name': config_name}
-    config_requests = requests.post('https://model.baai.ac.cn/api/downloadCode',
-                                    json=dic_download)
+    config_requests = requests.post(
+        'https://model.baai.ac.cn/api/downloadCode', json=dic_download)
     config_requests.encoding = "utf-8"
     if json.loads(config_requests.text)['code'] == '40002':
         file_list = json.loads(config_requests.text)['files']

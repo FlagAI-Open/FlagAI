@@ -159,7 +159,7 @@ trainer = Trainer(
     eval_interval=2000000,
     load_dir=None,
     save_dir="checkpoints_poetry",
-    save_epoch=1,
+    save_interval=1,
 )
 ```
 Pass the model, data, and collate_fn into the trainer to start training:

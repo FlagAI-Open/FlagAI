@@ -13,6 +13,7 @@ __all__ = ['f_similar', 'f_weighting']
 
 
 class similarFunction(Function):
+
     @staticmethod
     def forward(ctx, x_ori, x_loc, kH, kW, casual_mask=False):
         ctx.save_for_backward(x_ori, x_loc)
@@ -38,6 +39,7 @@ class similarFunction(Function):
 
 
 class weightingFunction(Function):
+
     @staticmethod
     def forward(ctx, x_ori, x_weight, kH, kW, casual_mask=False):
         ctx.save_for_backward(x_ori, x_weight)

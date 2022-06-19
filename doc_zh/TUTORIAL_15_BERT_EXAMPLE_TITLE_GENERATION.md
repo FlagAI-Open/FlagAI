@@ -77,7 +77,7 @@ trainer = Trainer(env_type="pytorch",
                   epochs=10, log_interval=10, eval_interval=10000,
                   load_dir=None, pytorch_device=device,
                   save_dir="checkpoints",
-                  save_epoch=1
+                  save_interval=1
                   )
 ```
 通过如下代码划分训练集验证集，并定义Dataset：

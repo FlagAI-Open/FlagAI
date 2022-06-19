@@ -35,6 +35,7 @@ elif os.getenv('ENV_TYPE') == 'deepspeed':
 else:
     from torch.utils.checkpoint import checkpoint
 
+
 def init_bert_weights(module):
     """ Initialize the weights.
     """
@@ -50,10 +51,11 @@ def init_bert_weights(module):
 
 
 class BertStack(torch.nn.Module):
-    def __init__(self, config,num_hidden_layers, hidden_size, num_attention_heads,
-                 attention_probs_dropout_prob, initializer_range,
-                 layernorm_epsilon, hidden_dropout_prob, intermediate_size,
-                 hidden_act):
+
+    def __init__(self, config, num_hidden_layers, hidden_size,
+                 num_attention_heads, attention_probs_dropout_prob,
+                 initializer_range, layernorm_epsilon, hidden_dropout_prob,
+                 intermediate_size, hidden_act):
         super(BertStack, self).__init__()
         self.config = config
         self.layer = torch.nn.ModuleList([
@@ -67,22 +69,22 @@ class BertStack(torch.nn.Module):
     def forward(self,
                 hidden_states,
                 attention_mask,
-                output_all_encoded_layers=True
-                ):
+                output_all_encoded_layers=True):
         all_encoder_layers = []
 
         for i, layer_module in enumerate(self.layer):
 
             if self.config['checkpoint_activations']:
+
                 def create_custom_forward(module):
+
                     def custom_forward(*inputs):
                         return module(*inputs)
 
                     return custom_forward
 
-                hidden_states = checkpoint(
-                    create_custom_forward(layer_module), hidden_states,
-                    attention_mask)
+                hidden_states = checkpoint(create_custom_forward(layer_module),
+                                           hidden_states, attention_mask)
             else:
                 hidden_states = layer_module(hidden_states, attention_mask)
 
@@ -93,6 +95,7 @@ class BertStack(torch.nn.Module):
 
 
 class BertModel(BaseModel):
+
     def __init__(self, config, **kwargs):
 
         super(BertModel, self).__init__(config, **kwargs)
@@ -119,11 +122,11 @@ class BertModel(BaseModel):
                                          self.type_vocab_size,
                                          self.layernorm_epsilon,
                                          self.hidden_dropout_prob)
-        self.encoder = BertStack(config,
-                                 self.num_hidden_layers, hidden_size, self.num_attention_heads,
-                                 self.attention_probs_dropout_prob, self.initializer_range,
-                                 self.layernorm_epsilon, self.hidden_dropout_prob,
-                                 intermediate_size, self.hidden_act)
+        self.encoder = BertStack(
+            config, self.num_hidden_layers, hidden_size,
+            self.num_attention_heads, self.attention_probs_dropout_prob,
+            self.initializer_range, self.layernorm_epsilon,
+            self.hidden_dropout_prob, intermediate_size, self.hidden_act)
         self.pooler = BertPooler(hidden_size)
 
         self.apply(init_bert_weights)
@@ -224,10 +227,10 @@ class BertModel(BaseModel):
                 if "value.bias" in k:
                     checkpoint_converted[
                         f"encoder.layer.{index}.attention.self.query_key_value.weight"] = torch.cat(
-                        save_qkv_weight, dim=0)
+                            save_qkv_weight, dim=0)
                     checkpoint_converted[
                         f"encoder.layer.{index}.attention.self.query_key_value.bias"] = torch.cat(
-                        save_qkv_bias, dim=0)
+                            save_qkv_bias, dim=0)
                     save_qkv_weight = []
                     save_qkv_bias = []
                     index += 1
@@ -236,6 +239,7 @@ class BertModel(BaseModel):
 
 
 class Predictions(nn.Module):
+
     def __init__(self, vocab_size, hidden_size, layer_nrom_eps, hidden_act):
         super().__init__()
         self.transform = BertPredictionHeadTransform(hidden_size,
@@ -251,6 +255,7 @@ class Predictions(nn.Module):
 
 
 class CLS(nn.Module):
+
     def __init__(self, vocab_size, hidden_size, layer_norm_eps, hidden_act):
         super().__init__()
         self.predictions = Predictions(vocab_size, hidden_size, layer_norm_eps,
@@ -261,6 +266,7 @@ class CLS(nn.Module):
 
 
 class BertPredictionHeadTransform(nn.Module):
+
     def __init__(self, hidden_size, layer_norm_eps, hidden_act):
         super().__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
@@ -306,6 +312,7 @@ def load_extend_layer_weight(self, checkpoints, extend_layer: List[str]):
 
 
 class BertForSeq2seq(BaseModel):
+
     def __init__(self, config, **kwargs):
         super(BertForSeq2seq, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -350,11 +357,12 @@ class BertForSeq2seq(BaseModel):
         seq_len = input_shape[1]
         a_mask = self.make_unilm_mask(token_type_ids, seq_len)
 
-        encoder_out, pooler_out = self.model(input_ids,
-                                             token_type_ids,
-                                             a_mask,
-                                             True,
-                                             )
+        encoder_out, pooler_out = self.model(
+            input_ids,
+            token_type_ids,
+            a_mask,
+            True,
+        )
         sequence_out, decoder_out = self.cls(encoder_out[-1])
 
         return_data["logits"] = decoder_out
@@ -375,6 +383,7 @@ class BertForSeq2seq(BaseModel):
 
 
 class BertForMaskLM(BaseModel):
+
     def __init__(self, config, **kwargs):
         super(BertForMaskLM, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -389,11 +398,12 @@ class BertForMaskLM(BaseModel):
         attention_mask = data.get("attention_mask", None)
 
         return_data = {}
-        encoder_out, pooler_out = self.model(input_ids,
-                                             token_type_ids,
-                                             attention_mask,
-                                             True,
-                                             )
+        encoder_out, pooler_out = self.model(
+            input_ids,
+            token_type_ids,
+            attention_mask,
+            True,
+        )
         sequence_out, decoder_out = self.cls(encoder_out[-1])
 
         return_data["logits"] = decoder_out
@@ -421,6 +431,7 @@ class BertForMaskLM(BaseModel):
 
 
 class BertForClsClassifier(BaseModel):
+
     def __init__(self, config, **kwargs):
         super(BertForClsClassifier, self).__init__(config, **kwargs)
         assert config['class_num'] != -1 and config['class_num'] is not None
@@ -435,11 +446,8 @@ class BertForClsClassifier(BaseModel):
         labels = data.get("labels", None)
 
         return_data = {}
-        sequence_out, pooler_out = self.model(input_ids,
-                                              token_type_ids,
-                                              None,
-                                              True
-                                              )
+        sequence_out, pooler_out = self.model(input_ids, token_type_ids, None,
+                                              True)
         out = self.out_layer(pooler_out)
         return_data["logits"] = out
         return_data["hidden_states"] = sequence_out
@@ -468,6 +476,7 @@ class BertForClsClassifier(BaseModel):
 
 
 class BertForSequenceLabeling(BaseModel):
+
     def __init__(self, config, **kwargs):
         super(BertForSequenceLabeling, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -488,11 +497,8 @@ class BertForSequenceLabeling(BaseModel):
         padding_mask = (input_ids > 0).float()
 
         return_data = {}
-        sequence_out, pooler_out = self.model(input_ids,
-                                              token_type_ids,
-                                              None,
-                                              True
-                                              )
+        sequence_out, pooler_out = self.model(input_ids, token_type_ids, None,
+                                              True)
         sequence_out = sequence_out[-1]
 
         logits = self.final_dense(sequence_out)
@@ -517,6 +523,7 @@ class BertForSequenceLabeling(BaseModel):
 class BertForSequenceLabelingCRF(BaseModel):
     """
     """
+
     def __init__(self, config, **kwargs):
         super(BertForSequenceLabelingCRF, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -536,11 +543,8 @@ class BertForSequenceLabelingCRF(BaseModel):
         padding_mask = (input_ids > 0).float()
 
         return_data = {}
-        sequence_out, pooler_out = self.model(input_ids,
-                                              token_type_ids,
-                                              None,
-                                              True
-                                              )
+        sequence_out, pooler_out = self.model(input_ids, token_type_ids, None,
+                                              True)
         sequence_out = sequence_out[-1]
 
         logits = self.final_dense(sequence_out)
@@ -567,6 +571,7 @@ class BertForSequenceLabelingCRF(BaseModel):
 class BertForSequenceLabelingGP(BaseModel):
     """
     """
+
     def __init__(self, config, **kwargs):
         super(BertForSequenceLabelingGP, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -580,11 +585,8 @@ class BertForSequenceLabelingGP(BaseModel):
         token_type_ids = data.get("segment_ids", None)
         padding_mask = (input_ids > 0).float()
         labels = data.get("labels", None)
-        sequence_out, pooler_out = self.model(input_ids,
-                                              token_type_ids,
-                                              None,
-                                              True
-                                              )
+        sequence_out, pooler_out = self.model(input_ids, token_type_ids, None,
+                                              True)
         sequence_out = sequence_out[-1]
 
         gp_out = self.gp(sequence_out, padding_mask)
@@ -603,6 +605,7 @@ class BertForSequenceLabelingGP(BaseModel):
 
 
 class BertForEmbedding(BaseModel):
+
     def __init__(self, config, **kwargs):
         super(BertForEmbedding, self).__init__(config, **kwargs)
         self.model = BertModel(config)
@@ -613,11 +616,8 @@ class BertForEmbedding(BaseModel):
         token_type_ids = data["segment_ids"]
 
         return_data = {}
-        sequence_out, pooler_out = self.model(input_ids,
-                                              token_type_ids,
-                                              None,
-                                              True
-                                              )
+        sequence_out, pooler_out = self.model(input_ids, token_type_ids, None,
+                                              True)
         out = sequence_out[-1]
         return_data["logits"] = out
         return_data["hidden_states"] = sequence_out

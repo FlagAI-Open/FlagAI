@@ -93,10 +93,10 @@ def get_optimizer(param_groups,
         # Use FusedAdam.
         if optimizer == 'adam':
             optimizer = Adam(param_groups,
-                            lr=lr,
-                            weight_decay=weight_decay,
-                            betas=(adam_beta1, adam_beta2),
-                            eps=adam_eps)
+                             lr=lr,
+                             weight_decay=weight_decay,
+                             betas=(adam_beta1, adam_beta2),
+                             eps=adam_eps)
         elif optimizer == 'adafactor':
             from transformers import Adafactor
             optimizer = Adafactor(param_groups,

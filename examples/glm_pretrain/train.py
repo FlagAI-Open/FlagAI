@@ -23,7 +23,7 @@ if __name__ == '__main__':
                       pytorch_device='cuda',
                       load_dir=None,
                       lr=1e-4,
-                      save_epoch=10)
+                      save_interval=10)
 
     model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
 

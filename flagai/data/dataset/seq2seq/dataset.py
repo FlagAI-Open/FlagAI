@@ -84,6 +84,7 @@ def blanklm_detokenize(string, is_target=False):
 
 
 class SummmaryProcessor:
+
     def __init__(self, task_name, data_dir, tokenizer):
         self.task_name = task_name
         self.data_dir = data_dir
@@ -149,6 +150,7 @@ class SummmaryProcessor:
 
 
 class WSCProcessor:
+
     def __init__(self, data_dir, tokenizer):
         self.data_dir = data_dir
         self.tokenizer = tokenizer
@@ -190,6 +192,7 @@ class WSCProcessor:
 
 
 class CMRCProcessor:
+
     def __init__(self, data_dir, tokenizer):
         self.data_dir = data_dir
         self.tokenizer = tokenizer
@@ -242,6 +245,7 @@ class CMRCProcessor:
 
 
 class SQuADProcessor:
+
     def __init__(self, data_dir, tokenizer):
         self.data_dir = data_dir
         self.tokenizer = tokenizer
@@ -298,6 +302,7 @@ class SQuADProcessor:
 
 
 class XSumProcessor:
+
     def __init__(self, data_dir, tokenizer):
         self.data_dir = data_dir
         self.tokenizer = tokenizer
@@ -372,6 +377,7 @@ from flagai.data.dataset.superglue.control import SuperGlueProcessor
 
 
 class Seq2SeqDataset(torch.utils.data.Dataset):
+
     def __init__(self,
                  task_name='lang8_hsk',
                  data_dir='./data',
@@ -547,6 +553,7 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
 
 
 class ExtractionDataset(torch.utils.data.Dataset):
+
     def __init__(self, args, split, tokenizer):
         self.args = args
         task = args.task.lower()
@@ -670,6 +677,7 @@ class ExtractionDataset(torch.utils.data.Dataset):
 
 
 class BlankLMDataset(torch.utils.data.Dataset):
+
     def __init__(self, args, split, tokenizer):
         self.args = args
         task, data_dir = args.task.lower(), args.data_dir

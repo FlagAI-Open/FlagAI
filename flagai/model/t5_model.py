@@ -33,11 +33,11 @@ from flagai.model.layers.feedforward import T5DenseReluDense, T5DenseGatedGeluDe
 from flagai.data.tokenizer.t5.t5_tokenizer import T5JiebaTokenizer
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import copy_to_model_parallel_region
-    from flagai.mpu.random import checkpoint 
+    from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:
-    from torch.utils.checkpoint import checkpoint 
+    from torch.utils.checkpoint import checkpoint
 # Warning message for FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
 __HEAD_MASK_WARNING_MSG = """
 The input argument `head_mask` was split into two arguments `head_mask` and `decoder_head_mask`. Currently,
@@ -52,6 +52,7 @@ class T5PreTrainedModel(BaseModel):
     An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
     models.
     """
+
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
         # super(T5PreTrainedModel, self).__init__(config, **kwargs)
@@ -62,7 +63,8 @@ class T5PreTrainedModel(BaseModel):
 
     def _init_weights(self, module):
         """ Initialize the weights """
-        factor = self.config['initializer_factor']  # Used for testing weights initialization
+        factor = self.config[
+            'initializer_factor']  # Used for testing weights initialization
         if isinstance(module, T5LayerNorm):
             module.weight.data.fill_(factor * 1.0)
 
@@ -142,6 +144,7 @@ class T5PreTrainedModel(BaseModel):
 
 
 class T5Stack(nn.Module):
+
     def __init__(self, config, embed_tokens=None):
         super().__init__()
         self.config = config
@@ -261,6 +264,7 @@ class T5Stack(nn.Module):
             if self.config['checkpoint_activations']:
 
                 def create_custom_forward(module):
+
                     def custom_forward(*inputs):
                         return module(*inputs)
 
@@ -751,7 +755,9 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
             decoder_config['num_layers'] = config['num_decoder_layers']
         self.decoder = T5Stack(decoder_config, self.shared)
 
-        self.lm_head = nn.Linear(config['d_model'], config['vocab_size'], bias=False)
+        self.lm_head = nn.Linear(config['d_model'],
+                                 config['vocab_size'],
+                                 bias=False)
         self.init_weights()
 
         # Model parallel
@@ -779,23 +785,23 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         return self.decoder
 
     def forward(
-            self,
-            input_ids=None,
-            attention_mask=None,
-            decoder_input_ids=None,
-            decoder_attention_mask=None,
-            head_mask=None,
-            decoder_head_mask=None,
-            encoder_outputs=None,
-            past_key_values=None,
-            inputs_embeds=None,
-            decoder_inputs_embeds=None,
-            labels=None,
-            use_cache=True,
-            output_attentions=None,
-            output_hidden_states=None,
-            return_dict=True,
-            mems=None,
+        self,
+        input_ids=None,
+        attention_mask=None,
+        decoder_input_ids=None,
+        decoder_attention_mask=None,
+        head_mask=None,
+        decoder_head_mask=None,
+        encoder_outputs=None,
+        past_key_values=None,
+        inputs_embeds=None,
+        decoder_inputs_embeds=None,
+        labels=None,
+        use_cache=True,
+        output_attentions=None,
+        output_hidden_states=None,
+        return_dict=True,
+        mems=None,
     ):
         r"""
         labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`):
@@ -837,11 +843,11 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         elif return_dict and not isinstance(encoder_outputs, dict):
             encoder_outputs = {
                 "last_hidden_state":
-                    encoder_outputs[0],
+                encoder_outputs[0],
                 "hidden_states":
-                    encoder_outputs[1] if len(encoder_outputs) > 1 else None,
+                encoder_outputs[1] if len(encoder_outputs) > 1 else None,
                 "attentions":
-                    encoder_outputs[2] if len(encoder_outputs) > 2 else None,
+                encoder_outputs[2] if len(encoder_outputs) > 2 else None,
             }
 
         hidden_states = encoder_outputs['last_hidden_state']
@@ -996,6 +1002,7 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
 
         return checkpoint
 
+
 class T5EncoderModel(T5PreTrainedModel):
     authorized_missing_keys = [
         r"encoder\.embed_tokens\.weight",
@@ -1047,7 +1054,8 @@ class T5EncoderModel(T5PreTrainedModel):
             >>> outputs = model(input_ids=input_ids)
             >>> last_hidden_states = outputs.last_hidden_state
         """
-        return_dict = return_dict if return_dict is not None else self.config['use_return_dict']
+        return_dict = return_dict if return_dict is not None else self.config[
+            'use_return_dict']
 
         encoder_outputs = self.encoder(
             input_ids=input_ids,
@@ -1104,6 +1112,7 @@ class T5Config():
         use_cache (`bool`, *optional*, defaults to `True`):
             Whether or not the model should return the last key/values attentions (not used by all models).
     """
+
     def __init__(self,
                  vocab_size=32128,
                  d_model=512,
@@ -1286,6 +1295,7 @@ class T5SmallUERConfig:
 
 
 class T5UERModel(nn.Module):
+
     def __init__(self, word2idx, size="base"):
         super().__init__()
         self.device = torch.device("cpu")

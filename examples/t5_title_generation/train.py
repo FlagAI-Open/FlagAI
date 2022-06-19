@@ -22,7 +22,7 @@ trainer = Trainer(
     load_dir=None,
     pytorch_device=device,
     save_dir="t5_title_generation",
-    save_epoch=1,
+    save_interval=1,
 )
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/train.src'

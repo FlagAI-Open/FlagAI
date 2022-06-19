@@ -45,6 +45,7 @@ class BertWordPieceTokenizer(Tokenizer):
     Loads a pretrained WordPiece tokenizer from `cache_dir` for tokenization
     in BERT training. Default to bert-large-uncased tokenizer.
     """
+
     def __init__(self, tokenizer_model_type=None, cache_dir=None):
         # default to bert-large-uncased tokenizer
         if tokenizer_model_type not in PRETRAINED_VOCAB_ARCHIVE_MAP:
@@ -86,6 +87,7 @@ class BertWordPieceTokenizer(Tokenizer):
         truncation=True,
         max_length=None,
     ):
+
         def get_input_ids(text):
             tokens = self.text_tokenizer.tokenize(text)
             return self.text_tokenizer.convert_tokens_to_ids(tokens)

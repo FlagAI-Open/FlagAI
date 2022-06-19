@@ -39,7 +39,7 @@ trainer = Trainer(env_type="pytorch",
                   load_dir=None,
                   pytorch_device=device,
                   save_dir=save_dir,
-                  save_epoch=1)
+                  save_interval=1)
 
 
 def load_data(filename):

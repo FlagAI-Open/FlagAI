@@ -108,6 +108,7 @@ class GLM10bENTokenizer(object):
     GPT-2 BPE tokenizer. Peculiarities:
         - Byte-level BPE
     """
+
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path, *inputs, **kwargs):
         """

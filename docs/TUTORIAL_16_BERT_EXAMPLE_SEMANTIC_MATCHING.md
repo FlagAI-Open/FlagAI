@@ -81,7 +81,7 @@ trainer = Trainer(env_type="pytorch",
                   epochs=10, log_interval=100, eval_interval=500,
                   load_dir=None, pytorch_device=device,
                   save_dir="checkpoints_semantic_matching",
-                  save_epoch=1
+                  save_interval=1
                   )
 ```
 Divide the training set validation set and create the dataset:

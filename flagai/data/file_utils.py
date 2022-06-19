@@ -135,6 +135,7 @@ def s3_request(func):
     Wrapper function for s3 requests in order to create more helpful error
     messages.
     """
+
     @wraps(func)
     def wrapper(url, *args, **kwargs):
         try:

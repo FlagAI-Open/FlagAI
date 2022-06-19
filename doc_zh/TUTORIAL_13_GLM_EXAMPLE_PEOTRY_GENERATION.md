@@ -168,7 +168,7 @@ trainer = Trainer(
     eval_interval=2000000,
     load_dir=None,
     save_dir="checkpoints_poetry",
-    save_epoch=1,
+    save_interval=1,
 )
 ```
 将模型、数据、collate_fn输入训练器开始训练：

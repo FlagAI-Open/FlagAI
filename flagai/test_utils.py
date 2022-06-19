@@ -101,6 +101,7 @@ def build_input_from_ids(text_a_ids=None,
 
 
 class CollateArguments:
+
     def __init__(self):
         self.cloze_eval = True
         self.pretrained_bert = False
@@ -126,6 +127,7 @@ class CollateArguments:
 
 
 class Seq2SeqCollateArguments:
+
     def __init__(self):
         self.cloze_eval = True
         self.pretrained_bert = False
@@ -167,4 +169,3 @@ class PretrainDatasetArguments:
         self.no_lazy_loader = True
         self.half_lazy_loader = False
         self.sentinel_token = False
-

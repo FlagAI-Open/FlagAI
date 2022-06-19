@@ -17,6 +17,7 @@ def bert_sequence_label_gp_collate_fn(batch):
     """
     Dynamic padding
     """
+
     def sequence_padding(inputs,
                          length=None,
                          value=0,

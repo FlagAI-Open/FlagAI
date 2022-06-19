@@ -37,6 +37,7 @@ class PVP(ABC):
     This class contains functions to apply patterns and verbalizers as required by PET. Each task requires its own
     custom implementation of a PVP.
     """
+
     def __init__(self,
                  args,
                  tokenizer,
@@ -557,6 +558,7 @@ class PVP(ABC):
 
 
 class CopaPVP(PVP):
+
     @staticmethod
     def available_patterns():
         return [0, 1]
@@ -703,6 +705,7 @@ class CopaPVP(PVP):
 
 
 class WscPVP(PVP):
+
     @staticmethod
     def available_patterns():
         return [0, 1, 2]
@@ -861,6 +864,7 @@ class WscPVP(PVP):
 
 
 class RecordPVP(PVP):
+
     @property
     def is_multi_token(self):
         return True
@@ -883,6 +887,7 @@ class RecordPVP(PVP):
 
 
 class RacePVP(PVP):
+
     @property
     def is_multi_token(self):
         return True
@@ -1538,6 +1543,7 @@ class QnliPVP(PVP):
 
 
 class SquadPVP(PVP):
+
     @property
     def is_multi_token(self):
         return True
@@ -1611,6 +1617,7 @@ class CLUEWSCPVP(PVP):
 
 
 class CMRCPVP(PVP):
+
     @staticmethod
     def available_patterns():
         return [0, 1]

@@ -28,6 +28,7 @@ from typing import List
 
 
 class T5BPETokenizer(Tokenizer):
+
     def __init__(self, tokenizer_model_type="t5-base", cache_dir=None):
 
         self.text_tokenizer = T5Tokenizer.from_pretrained(tokenizer_model_type,
@@ -50,6 +51,7 @@ class T5BPETokenizer(Tokenizer):
 
 
 class T5KGBPETokenizer(Tokenizer):
+
     def __init__(self, tokenizer_model_type="t5-base", cache_dir=None):
         """初始化
         """
@@ -187,6 +189,7 @@ class T5KGBPETokenizer(Tokenizer):
 
 
 class T5JiebaTokenizer(T5BPETokenizer):
+
     def __init__(self,
                  token_dict,
                  pre_tokenizer=lambda x: jieba.cut(x, HMM=False)):

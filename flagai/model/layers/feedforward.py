@@ -65,6 +65,7 @@ def _initialize_affine_weight(weight,
 
 
 class GPT2MLP(nn.Module):
+
     def __init__(self,
                  n_state,
                  config,
@@ -98,6 +99,7 @@ class GPT2MLP(nn.Module):
 
 
 class T5DenseReluDense(nn.Module):
+
     def __init__(self, config):
         super().__init__()
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
@@ -124,6 +126,7 @@ class T5DenseReluDense(nn.Module):
 
 
 class T5DenseGatedGeluDense(nn.Module):
+
     def __init__(self, config):
         super().__init__()
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
@@ -162,6 +165,7 @@ class T5DenseGatedGeluDense(nn.Module):
 
 
 class T5LayerFF(nn.Module):
+
     def __init__(self, config):
         super().__init__()
         if config['feed_forward_proj'] == "relu":
@@ -185,6 +189,7 @@ class T5LayerFF(nn.Module):
 
 
 class MLPForward(torch.nn.Module):
+
     def __init__(
         self,
         hidden_size,
@@ -229,6 +234,7 @@ class MLPForward(torch.nn.Module):
 
 
 class BertPooler(nn.Module):
+
     def __init__(self, hidden_size):
         super(BertPooler, self).__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
@@ -263,6 +269,7 @@ class ColumnParallelLinear(torch.nn.Module):
                                      set to False. It returns the master weights
                                      used for initialization.
     """
+
     def __init__(self,
                  input_size,
                  output_size,
@@ -346,6 +353,7 @@ class RowParallelLinear(torch.nn.Module):
                                      set to False. It returns the master weights
                                      used for initialization.
     """
+
     def __init__(self,
                  input_size,
                  output_size,

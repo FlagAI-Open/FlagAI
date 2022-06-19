@@ -1,31 +1,40 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import os
+import sys
+sys.path.append('/mnt/liuguang/FlagAI')
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.model.bert_model import BertForClsClassifier
+from flagai.data.tokenizer import GLM10bENBPETokenizer, GLMLargeEnWordPieceTokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
-from flagai.data.dataset import ConstructSuperglueStrategy
 
-task_name = 'afqmc'
-trainer = Trainer(env_type="pytorch",
-                  batch_size=16,
-                  epochs=10,
-                  log_interval=100,
+
+
+task_name = 'qqp'
+trainer = Trainer(env_type='pytorch',
+                  pytorch_device='cuda',
+                  epochs=2,
+                  batch_size=128+256,
                   eval_interval=500,
-                  load_dir=None,
-                  pytorch_device="cuda",
-                  save_dir="./glm_superglue_en",
-                  save_interval=1)
+                  log_interval=10,
+                  save_interval=1e5,
+                  lr=1e-5,
+                  weight_decay=0.1,
+                  checkpoint_activations=True,
+                  gradient_accumulation_steps=10,
+                  fp16=True,
+                  warm_up=0.1,
+                  save_dir="./glm_large_qqp_pytorch")
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
-                                             model_name="GLM-large-ch")
+                                             model_name="GLM-large-en")
 
+#tokenizer = GLM10bENBPETokenizer()
+tokenizer = GLMLargeEnWordPieceTokenizer()
 
-tokenizer =  GLMLargeChTokenizer()
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='./datasets/',
                                  dataset_type='train',
@@ -36,10 +45,12 @@ valid_dataset = SuperGlueDataset(task_name=task_name,
                                  dataset_type='dev',
                                  tokenizer=tokenizer,
                                  cloze_eval=True)
-
 cl_args = CollateArguments()
 cl_args.cloze_eval = True
-cl_args.multi_token = False
+if task_name in ['copa', 'wsc', 'record']:
+    cl_args.multi_token = True
+
+from flagai.data.dataset import ConstructSuperglueStrategy
 
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,

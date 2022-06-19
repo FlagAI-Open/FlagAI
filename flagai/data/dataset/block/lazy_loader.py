@@ -63,6 +63,7 @@ def exists_scatter(path, scatter_num=64, data_type='data'):
 
 
 class LazyWriter:
+
     def __init__(self,
                  path,
                  data_type,
@@ -117,6 +118,7 @@ class ProcessorTokenizer:
     callable class that runs a preprocessing, as well as tokenization step,
     on input text.
     """
+
     def __init__(self, tokenizer, process_fn=None):
         self.tokenizer = tokenizer
         self.process_fn = process_fn
@@ -147,6 +149,7 @@ class LazyLoader(object):
         data_type2
         data_type2.len.pkl
     """
+
     def __init__(self,
                  path,
                  data_type='data',

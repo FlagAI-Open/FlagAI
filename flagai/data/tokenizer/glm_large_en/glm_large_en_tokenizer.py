@@ -26,6 +26,7 @@ class GLMLargeEnWordPieceTokenizer(GLMTokenizer):
     Loads a pretrained WordPiece tokenizer from `cache_dir` for tokenization
     in BERT training. Default to bert-large-uncased tokenizer.
     """
+
     def __init__(self,
                  tokenizer_model_type='GLM-large-en',
                  cache_dir=None,
