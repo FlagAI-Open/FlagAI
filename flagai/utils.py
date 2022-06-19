@@ -179,16 +179,16 @@ def save_checkpoint(iteration,
     # model state_dict
     if "deepspeed" in env_type or "pytorchDDP" in env_type:
         model = model.module
-    if only_changed_parameters:
-        requires_grad_dict = {}
-        for name, parameter in model.named_parameters():
-            requires_grad_dict[name] = parameter.requires_grad
-        state_dict = {
-            key: value
-            for key, value in state_dict.items() if requires_grad_dict[key]
-        }
-    else:
-        state_dict = model.state_dict()
+    # if only_changed_parameters:
+    #     requires_grad_dict = {}
+    #     for name, parameter in model.named_parameters():
+    #         requires_grad_dict[name] = parameter.requires_grad
+    #     state_dict = {
+    #         key: value
+    #         for key, value in state_dict.items() if requires_grad_dict[key]
+    #     }
+    # else:
+    state_dict = model.state_dict()
     sd['module'] = state_dict
 
     # Optimizer stuff.
@@ -279,10 +279,10 @@ def load_optim(optimizer, lr_scheduler, sd):
             lr_scheduler.load_state_dict(sd['lr_scheduler'])
         log_dist('global rank 0 is loading optimizer & lr_scheduler')
     except KeyError:
-        log_dist('Unable to load optimizer from checkpoint {}, exiting. '
+        log_dist('Unable to load optimizer from checkpoint, exiting. '
                  'Specify --no-load-optim or --finetune to prevent '
                  'attempting to load the optimizer '
-                 'state.'.format(checkpoint_name))
+                 'state.')
 
 
 def load_rng(sd):
@@ -297,8 +297,8 @@ def load_rng(sd):
             mpu.get_cuda_rng_tracker().set_states(sd['rng_tracker_states'])
         log_dist('global rank 0 is loading rng states')
     except KeyError:
-        log_dist('Unable to load random state from checkpoint {}, exiting. '
+        log_dist('Unable to load random state from checkpoint, exiting. '
                  'Specify --no-load-rng or --finetune to prevent '
                  'attempting to load the random '
-                 'state.'.format(checkpoint_name))
-    log_dist('  successfully loaded {}'.format(checkpoint_name))
+                 'state.')
+    log_dist('  successfully loaded rng checkpoints')
