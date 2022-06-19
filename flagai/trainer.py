@@ -20,7 +20,7 @@ import numpy as np
 import torch.distributed as dist
 from flagai.logger import log_dist
 from torch.utils.tensorboard import SummaryWriter
-from flagai.utils import load_checkpoint, save_checkpoint
+from flagai.utils import load_checkpoint, save_checkpoint, load_optim, load_rng
 from flagai.schedulers import AnnealingLR
 from flagai.optimizers import get_optimizer, get_optimizer_param_groups
 from flagai.fp16 import FP16_Module
@@ -117,7 +117,7 @@ class Trainer():
         lr=1e-3,
         warm_up=0.1,
         epochs=0,  # 'Number of finetunning epochs. Zero results in evaluation only.'
-        save_epoch=1,  # 'number of epochs between saves')
+        save_interval=1,  # 'number of epochs between saves')
         eval_interval=1,
         log_interval=1,
         seed=1234,  # 'random seed'
@@ -129,7 +129,8 @@ class Trainer():
         save_dir='checkpoints',  # 'Output directory to save checkpoints to.')
         save_optim=False,  # save current optimizer.')
         save_rng=False,  # save current rng state.')
-        load_dir='checkpoints/99',  # Path to a directory containing a model checkpoint.')
+        load_dir=None,  # Path to a directory containing a model checkpoint.')
+        load_type='latest', # latest, best
         load_optim=False,  # not load optimizer when loading checkpoint.')
         # ' not load rng state when loading checkpoint.')):
         load_rng=False,
@@ -172,10 +173,11 @@ class Trainer():
 
         # model checkpointing
         self.save_dir = save_dir
-        self.save_epoch = save_epoch
+        self.save_interval = save_interval
         self.save_optim = save_optim
         self.save_rng = save_rng
         self.load_dir = load_dir
+        self.load_type = load_type
         self.load_optim = load_optim
         self.load_rng = load_rng
         self.tb_writer = SummaryWriter(
@@ -262,7 +264,7 @@ class Trainer():
             log_dist(
                 "init method {}, rank {}, device {}, local_rank {}.".format(
                     init_method, self.rank, device, self.local_rank))
-            torch.distributed.init_process_group(backend='nccl',
+            torch.distributed.init_process_group(backend='nccl', # gloo
                                                  world_size=self.world_size,
                                                  rank=self.rank,
                                                  init_method=init_method)
@@ -294,28 +296,33 @@ class Trainer():
                                                batch_size=self.batch_size,
                                                collate_fn=collate_fn,
                                                num_workers=4,
+                                               prefetch_factor=4,
+                                               pin_memory=True,
+                                               drop_last = False,
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
                 num_replicas = self.world_size // mpu.get_model_parallel_world_size(
                 )
                 rank = self.rank // mpu.get_model_parallel_world_size()
+                sampler = torch.utils.data.distributed.DistributedSampler(
+                dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
             else:
                 num_replicas = self.world_size
                 rank = self.rank
-            sampler = torch.utils.data.distributed.DistributedSampler(
-                dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
+                sampler = torch.utils.data.distributed.DistributedSampler(
+                dataset, rank=rank, shuffle=shuffle)
             return torch.utils.data.DataLoader(dataset,
                                                batch_size=self.batch_size,
                                                sampler=sampler,
                                                num_workers=4,
                                                drop_last=False,
                                                pin_memory=False,
+                                               prefetch_factor=4,
                                                collate_fn=collate_fn)
 
     def train(self,
               model=None,
-              model_input_keys=None,
               optimizer=None,
               lr_scheduler=None,
               train_dataset=None,
@@ -366,15 +373,21 @@ class Trainer():
                                                    False)
         else:
             valid_dataloader = valid_dataset
-
+        
+        if self.load_dir:
+            log_dist("loading checkpoints form {}".format(self.load_dir))
+            sd = load_checkpoint(model,   
+                            load_dir = self.load_dir,
+                            load_type = self.load_type)
         if self.fp16:
             model.half()
+        if self.checkpoint_activations:
+            model.config['checkpoint_activations'] = self.checkpoint_activations
         if self.env_type == 'pytorchDDP':
             model.to(torch.device('cuda', self.local_rank))
             model = DDP(model,
                         device_ids=[self.local_rank],
-                        output_device=self.local_rank,
-                        find_unused_parameters=True)
+                        find_unused_parameters=False)
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)
         else:
@@ -398,18 +411,17 @@ class Trainer():
                                       cpu_optimizer=False,
                                       cpu_torch_adam=False,
                                       fp16=self.fp16)
-
-        if lr_scheduler == None and 'deepspeed' not in self.env_type:
+            
+        if lr_scheduler == None and optimizer!=None and 'deepspeed' not in self.env_type and self.epochs>0:
             lr_scheduler = AnnealingLR(
                 optimizer,
                 start_lr=self.lr,
                 warmup_iter=int(self.warm_up* self.epochs * len(train_dataloader)),
-                decay_style='linear',
+                decay_style='cosine',
                 num_iters=self.epochs * len(train_dataloader))
-
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
-            model, optimizer, __, ___ = deepspeed.initialize(
+            model, optimizer, _, lr_scheduler = deepspeed.initialize(
                 model=model,
                 # if huggingface t5: param_groups[0]['params']
                 model_parameters=param_groups,
@@ -418,35 +430,31 @@ class Trainer():
                 mpu=mpu if self.env_type == 'deepspeed+mpu' else None,
                 config=self.deepspeed_config,
                 dist_init_required=True)
-
+        if self.load_optim:
+            load_optim(optimizer,lr_scheduler,sd)
+        if self.load_rng:
+            load_rng(sd)
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
+        self.accumulate_count = 0
         best_iteration = 0
+        best_loss = float('inf')
         # For each remaining epoch
         self.timers('interval time').start()
         # self.eval_metrics = eval_metrics
         # self.do_eval = valid_dataset!=None
         self.metric_methods = metric_methods
-        log_dist("loading checkpoints form {}".format(self.load_dir))
-        if self.load_dir:
-            load_checkpoint(model,
-                            optimizer,
-                            lr_scheduler,
-                            self.load_dir,
-                            use_deepspeed=self.env_type != 'pytorch',
-                            load_optim=self.load_optim,
-                            load_rng=self.load_rng)
+
         for epoch in range(self.epochs):
-            log_dist('working on epoch {} ...'.format(epoch), [0])
+            #log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
             if self.env_type == 'deepspeed+mpu':
-                if mpu.get_model_parallel_rank(
-                ) == 0:  # TODO using env to decide
-                    train_dataloader.sampler.set_epoch(self.seed + epoch)
-            elif self.env_type == 'deepspeed':
-                if dist.get_rank() == 0:
-                    train_dataloader.sampler.set_epoch(self.seed + epoch)
+                if mpu.get_model_parallel_rank() == 0:  # TODO using env to decide
+                    train_dataloader.sampler.set_epoch(self.rank+ epoch)
+            elif self.env_type != 'pytorch':
+                train_dataloader.sampler.set_epoch(self.rank + epoch)
+
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
                 # Train for one step.
@@ -460,12 +468,22 @@ class Trainer():
                         x: batch[x].to(torch.device(self.pytorch_device))
                         for x in batch if x not in ['uid', 'meta', 'mode']
                     }
-                lm_loss, skipped_iter, _ = self.train_step(batch,
-                                                           model,
-                                                           model_input_keys,
-                                                           optimizer,
-                                                           lr_scheduler,
-                                                           single_step=True)
+                if self.env_type=='pytorchDDP': 
+                    lm_loss, _ = self.train_step_pytorchDDP(batch,
+                                        model,
+                                        optimizer,
+                                        lr_scheduler)
+                elif self.env_type=='pytorch':
+                    lm_loss, _ = self.train_step_pytorch(batch,
+                                        model,
+                                        optimizer,
+                                        lr_scheduler)
+                else:
+                    lm_loss, _ = self.train_step(batch,
+                        model,
+                        optimizer,
+                        lr_scheduler,
+                        single_step=True)   
                 total_lm_loss += lm_loss.data.detach().float()
 
                 # Logging.
@@ -492,7 +510,7 @@ class Trainer():
                         self.iteration + 1
                 ) % self.eval_interval == 0 and valid_dataloader is not None:
                     self.timers.log(
-                        ['forward', 'backward', 'allreduce', 'optimizer'],
+                        ['forward', 'backward', 'optimizer'],
                         normalizer=self.eval_interval)
                     prefix = 'epoch {}'.format(epoch)
                     eval_dict = self.evaluate_and_print_results(
@@ -511,31 +529,31 @@ class Trainer():
                             self.tb_writer.add_scalar(
                                 'eval_metrics/%s' % (name), score,
                                 self.iteration + 1)
-                    # if eval_score > best_score:
-                    #     save_checkpoint(self.iteration, model, optimizer, lr_scheduler, only_changed_parameters=True,
-                    #                     save_dir=self.save_dir, use_deepspeed='pytorch' != self.env_type,
-                    #                     save_optim=self.save_optim, save_rng=self.save_rng)
-                self.iteration += 1
-
-            # Checkpointing at the end of each epoch.
-            if self.save_dir and (epoch + 1) % self.save_epoch == 0:
-                if 'deepspeed' == self.env_type and dist.get_rank() != 0:
-                    pass
-                if 'deepspeed+mpu' == self.env_type and mpu.get_model_parallel_group(
-                ) != 0:
-                    pass
-                if 'pytorchDDP' == self.env_type and dist.get_rank() != 0:
-                    pass
-                else:
-                    save_checkpoint(self.iteration,
+                        if eval_loss < best_loss:
+                            best_loss = eval_loss
+                            best_iteration = self.iteration
+                            save_checkpoint(self.iteration,
+                                    best_iteration,
                                     model,
                                     optimizer,
                                     lr_scheduler,
-                                    use_deepspeed='pytorch'
-                                    not in self.env_type,
                                     save_optim=self.save_optim,
                                     save_dir=self.save_dir,
                                     save_rng=self.save_rng)
+                if self.save_dir and (self.iteration + 1) % self.save_interval == 0 and \
+                    self.iteration!=best_iteration:
+                    save_checkpoint(self.iteration,
+                                    best_iteration,
+                                    model,
+                                    optimizer,
+                                    lr_scheduler,
+                                    save_optim=self.save_optim,
+                                    save_dir=self.save_dir,
+                                    save_rng=self.save_rng)
+                self.iteration += 1
+
+                # Checkpointing at the end of each epoch.
+   
 
         # Evaluation #todo add train_args
         if self.eval_interval and (
@@ -548,22 +566,120 @@ class Trainer():
                 model=model,
                 forward_step_func=self.forward_step,
                 verbose=False)
-        return best_iteration
+    
+    def train_step_pytorch(self,
+                            data,
+                            model,
+                            optimizer,
+                            lr_scheduler,
+                            mems=None):
+        """Single training step."""
+            # Forward model for one step.
+        self.timers('forward').start()
+        step_output = self.forward_step(data, model, mems)
+        self.timers('forward').stop()
+
+        # accumulate gradients
+        lm_loss = step_output['loss']
+        lm_loss /= self.gradient_accumulation_steps
+        
+        reduced_loss = lm_loss.detach().clone().view(1)
+
+        # skip the iter while loss has NAN
+        if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
+            # Calculate gradients, reduce across processes, and clip.
+            self.timers('backward').start()
+            lm_loss.backward()
+            
+            torch.nn.utils.clip_grad_norm_(model.parameters(), self.clip_grad) 
+            self.timers('backward').stop()
+
+            # Update parameters.
+            self.timers('optimizer').start()
+            if (self.accumulate_count+1) % self.gradient_accumulation_steps==0:
+                optimizer.step()
+                optimizer.zero_grad()
+            if lr_scheduler:
+                lr_scheduler.step()
+            self.timers('optimizer').stop()
+        
+        else:
+            log_dist("Found NaN loss, skip backward", [0])
+            del lm_loss, reduced_loss
+            mems = None
+        return reduced_loss, mems 
+
+    def train_step_pytorchDDP(self,
+                            data,
+                            model,
+                            optimizer,
+                            lr_scheduler,
+                            mems=None):
+        """Single training step."""
+       
+        from contextlib import nullcontext
+        if self.fp16:
+            no_sync = model.module.no_sync
+        else:
+            no_sync = model.no_sync
+        mycontext = no_sync if (self.accumulate_count +1 ) % self.gradient_accumulation_steps!=0 else nullcontext
+        
+        with mycontext():
+            # Forward model for one step.
+            self.timers('forward').start()
+            step_output = self.forward_step(data, model, mems)
+            self.timers('forward').stop()
+
+            # accumulate gradients
+            lm_loss = step_output['loss']
+            lm_loss /= self.gradient_accumulation_steps
+            # reduce sum of losses
+            reduced_loss = lm_loss.detach().clone().view(1)
+            dist.all_reduce(reduced_loss.data) 
+            reduced_loss.data = reduced_loss.data / self.world_size 
+            
+            # skip the iter while loss has NAN
+            if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
+                # Calculate gradients, reduce across processes, and clip.
+                self.timers('backward').start()
+                lm_loss.backward()
+                
+                torch.nn.utils.clip_grad_norm_(model.parameters(), self.clip_grad) 
+                self.timers('backward').stop()
+
+                # Update parameters.
+                self.timers('optimizer').start()
+                if self.accumulate_count % self.gradient_accumulation_steps==0:
+                    # if hasattr(optimizer, 'backward'):
+                    #     print("optimizer.backward(loss, update_master_grads=False)")
+                    #     optimizer.backward(loss, update_master_grads=False)
+                    # else:
+                    optimizer.step()
+                    optimizer.zero_grad()
+                if lr_scheduler:
+                    lr_scheduler.step()
+                dist.barrier()
+                self.timers('optimizer').stop()
+            
+            else:
+                log_dist("Found NaN loss, skip backward", [0])
+                del lm_loss, reduced_loss
+                mems = None
+        return reduced_loss, mems
+
 
     def train_step(self,
                    data,
                    model,
-                   model_input_keys,
                    optimizer,
                    lr_scheduler,
                    mems=None,
-                   single_step=False):
+                   single_step=False
+                  ):
         """Single training step."""
         lm_loss_total, count = 0.0, 0
         mems = [] if mems is None else mems
-        # if not train_args.deepspeed:
-        if 'deepspeed' not in self.env_type:
-            optimizer.zero_grad()
+
         while True:
             skipped_iter, complete = 0, False
             # Forward model for one step.
@@ -571,8 +687,6 @@ class Trainer():
             step_output = self.forward_step(data, model, mems)
             self.timers('forward').stop()
             lm_loss = step_output['loss']
-            if 'deepspeed' not in self.env_type:
-                lm_loss /= self.gradient_accumulation_steps
 
             reduced_loss = lm_loss.detach().clone().view(1)
             if self.env_type == 'deepspeed+mpu':
@@ -581,7 +695,7 @@ class Trainer():
             elif self.env_type == 'deepspeed':
                 torch.distributed.all_reduce(
                     reduced_loss.data
-                )  # group=deepspeed.utils.get_data_parallel_group())
+                )  
             if 'deepspeed' in self.env_type:
                 reduced_loss.data = reduced_loss.data / \
                     (self.world_size / self.model_parallel_size)
@@ -606,17 +720,6 @@ class Trainer():
                             skipped_iter = 1
                     else:
                         model.step()
-                else:
-                    if count == self.gradient_accumulation_steps:
-                        optimizer.step()
-                        complete = True
-                        # Update learning rate.
-                        if not (self.fp16 and hasattr(optimizer, 'overflow')
-                                and optimizer.overflow):
-                            if lr_scheduler:
-                                lr_scheduler.step()
-                        else:
-                            skipped_iter = 1
                 self.timers('optimizer').stop()
                 if complete:
                     break
@@ -626,13 +729,10 @@ class Trainer():
                 mems = []
             if single_step:
                 break
+        lm_loss_total = lm_loss_total / count
+        return lm_loss_total,  mems
 
-        # if train_args.deepspeed:
-        if 'deepspeed' in self.env_type:
-            lm_loss_total = lm_loss_total / count
-        return lm_loss_total, skipped_iter, mems
-
-    def forward_step(self, data, model, mems):
+    def forward_step(self, data, model, mems=None):
         """Simple forward step. """
         data['mems'] = mems
         model_output = model(**data)
@@ -665,6 +765,8 @@ class Trainer():
                 optimizer.backward(loss, update_master_grads=False)
             else:
                 loss.backward()
+                if self.env_type == 'pytorchDDP':
+                    optimizer.step()
 
         # if self.train_args.deepspeed or self.train_args.DDP_impl == 'torch':
         self.timers('allreduce').reset()
@@ -672,6 +774,49 @@ class Trainer():
             torch.nn.utils.clip_grad_norm_(model.parameters(), self.clip_grad)
         return lm_loss
 
+    def _gather_all(self, input_):
+
+        # Bypass the function if we are using only 1 GPU.
+        if torch.distributed.get_world_size() == 1:
+            return input_
+        # Size and dimension.
+        last_dim = input_.dim() - 1
+        rank = torch.distributed.get_rank()
+        world_size = torch.distributed.get_world_size()
+
+        tensor_list = [torch.empty_like(input_,device=input_.device) for _ in range(world_size)]
+        tensor_list[rank] = input_
+       
+        torch.distributed.all_gather(tensor_list, input_)
+
+
+        # Note: torch.cat already creates a contiguous tensor.
+        if last_dim>=0:
+            output = torch.cat(tensor_list, dim=0).contiguous()
+        else:
+            output = torch.mean(torch.FloatTensor(tensor_list))
+
+        return output
+    def _gather_all_mpu(self, input_):
+        group = mpu.get_model_parallel_group()
+
+        # Bypass the function if we are using only 1 GPU.
+        if torch.distributed.get_world_size(group=group) == 1:
+            return input_
+        # Size and dimension.
+        last_dim = input_.dim() - 1
+        rank = torch.distributed.get_rank(group=group)
+        world_size = torch.distributed.get_world_size(group=group)
+      
+        tensor_list = [torch.empty_like(input_,device=input_.device) for _ in range(world_size)]
+        tensor_list[rank] = input_
+        torch.distributed.all_gather(tensor_list, input_, group=group)
+
+        # Note: torch.cat already creates a contiguous tensor.
+        output = torch.cat(tensor_list, dim=last_dim).contiguous()
+
+        return output 
+   
     def evaluate(self,
                  data_loader=None,
                  model=None,
@@ -680,19 +825,33 @@ class Trainer():
         """Evaluation."""
         # Turn on evaluation mode which disables dropout.
         model.eval()
-        total_lm_loss = 0.
-        total_samples = 0.
-        # metric = 0.
-        mems = []
+
+        # Turn off checkpoint_activations
+        tmp_checkpoint_activations = None
+        if self.env_type =='pytorch' and self.fp16 is False:
+            tmp_checkpoint_activations = model.config['checkpoint_activations']
+            model.config['checkpoint_activations'] = False
+        elif self.fp16 is False:
+            tmp_checkpoint_activations = model.module.config['checkpoint_activations']
+            model.module.config['checkpoint_activations'] = False
+        else:
+            tmp_checkpoint_activations = model.module.module.config['checkpoint_activations']
+            model.module.module.config['checkpoint_activations'] = False
+
+        mems = None
         metrics = [0. for _ in range(len(self.metric_methods))]
+
         with torch.no_grad():
             assert data_loader is not None, "val loader is not None."
+            all_logits = []
+            all_labels =[]
+            all_losses = []
             for data_iterator in data_loader:
                 # Forward evaluation.
 
                 meta = data_iterator.get('meta', None)
 
-                if 'deepspeed' in self.env_type:
+                if 'deepspeed'  in self.env_type or 'DDP' in self.env_type:
                     data_iterator = {
                         x: data_iterator[x].to(
                             torch.device('cuda', self.local_rank))
@@ -709,9 +868,7 @@ class Trainer():
                     }
                 step_output = forward_step_func(data_iterator,
                                                 model,
-                                                mems=mems)
-                lm_loss= step_output['loss']
-                # mem = step_output['hidden_states']
+                                                mems)
                 '''when contiguous memory optimizations are enabled, the buffers
                 allocated by the optimizations are deallocated during backward pass
                 in the absence of backward pass the buffers should be reset after each
@@ -719,43 +876,48 @@ class Trainer():
                 if 'deepspeed' in self.env_type and self.deepspeed_activation_checkpointing:
                     deepspeed.checkpointing.reset()
                 logits = step_output['logits']
-                batch_size = data_iterator['input_ids'].size()[0]
-                lm_loss = lm_loss.data.detach().float().item()
-                total_lm_loss += lm_loss
-                total_samples += batch_size
+                lm_loss= step_output['loss']
+                labels = data_iterator['labels']
+                all_logits.append(logits)
+                all_labels.append(labels)
+                all_losses.append(lm_loss.view(1))
 
-                for i in range(len(self.metric_methods)):
-                    eval_method = self.metric_methods[i][1]
-                    metrics[i] += eval_method(logits,
-                                              data_iterator['labels'],
-                                              meta=meta)
+            all_logits = torch.cat(all_logits,dim=0)
+            all_labels = torch.cat(all_labels,dim=0)
+            all_losses = torch.cat(all_losses,dim=0)
+            
+            if self.env_type == 'pytorchDDP' or  self.env_type=='deepspeed':
+                all_logits = self._gather_all(all_logits)
+                all_labels = self._gather_all(all_labels)
+                all_losses = self._gather_all(all_losses)
+                
+              
+            elif self.env_type=='deepspeed+mpu':
+                all_logits = self._gather_all_mpu(all_logits)
+                all_labels = self._gather_all_mpu(all_labels)
+                all_losses = self._gather_all_mpu(all_losses)
+
+            if all_losses.device!=torch.device('cpu'):
+                all_losses = all_losses.cpu().detach().numpy()[0]
+
+            for i in range(len(self.metric_methods)):
+                eval_method = self.metric_methods[i][1]
+                metrics[i] += eval_method(all_logits, all_labels, meta=meta)
 
         # Move model back to the train mode.
         model.train()
-        if torch.cuda.is_available():
-            loss_data = torch.cuda.FloatTensor([total_lm_loss, total_samples] +
-                                               metrics)
+        # recover the settings for checkpoint_activations
+        if self.env_type == 'pytorch' and self.fp16 is False:
+            model.config['checkpoint_activations'] = tmp_checkpoint_activations 
+        elif self.fp16 is False:
+            model.module.config['checkpoint_activations'] = tmp_checkpoint_activations  
         else:
-            loss_data = torch.FloatTensor([total_lm_loss, total_samples] +
-                                          metrics)
-        if self.env_type == 'deepspeed+mpu':
-            torch.distributed.all_reduce(loss_data,
-                                         group=mpu.get_data_parallel_group())
-        elif self.env_type == 'deepspeed':
-            torch.distributed.all_reduce(
-                loss_data)
-        elif self.env_type == 'pytorchDDP':
-            torch.distributed.all_reduce(loss_data)
-        loss_data = loss_data.tolist()
-        total_lm_loss = loss_data[0] / loss_data[1]
+            model.module.module.config['checkpoint_activations'] = tmp_checkpoint_activations  
         metric_dct = {}
-
         for i in range(len(self.metric_methods)):
             metric_name = self.metric_methods[i][0]
-            metric = loss_data[2 + i] * 100. / loss_data[1]
-            metric_dct.update({metric_name: metric})
-        metric_dct.update({"loss": total_lm_loss})
-        # return {"loss": total_lm_loss}.update(metric_dct)
+            metric_dct.update({metric_name: metrics[i]})
+        metric_dct.update({"loss": all_losses})
         return metric_dct
 
     def report_iteration_metrics(self, optimizer, lr, loss, elapsed_time, step,

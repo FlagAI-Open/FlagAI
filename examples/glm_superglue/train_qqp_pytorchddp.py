@@ -1,6 +1,8 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import sys
+sys.path.append('/mnt/liuguang/FlagAI')
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import GLM10bENBPETokenizer, GLMLargeEnWordPieceTokenizer
@@ -8,26 +10,24 @@ from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 
-
-
 task_name = 'qqp'
-trainer = Trainer(env_type='deepspeed',
-                  pytorch_device='cuda:1',
-                  epochs=10,
-                  batch_size=36,
-                  eval_interval=80,
-                  log_interval=4,
-                  checkpoint_activations=False,
+trainer = Trainer(env_type='pytorchDDP',
+                  epochs=2,
+                  batch_size=456,
+                  eval_interval=1e5,
+                  log_interval=10,
+                  save_interval = 1e5,
+                  gradient_accumulation_steps=20,
+                  checkpoint_activations=True,
                   fp16=True,
                   warm_up=0.1,
-                  save_dir="./glm_superglue_en",
+                  weight_decay=0.1,
+                  save_dir="./qqp",
                   master_ip='127.0.0.1',
-                  master_port=17755,
+                  master_port=17887,
                   num_nodes=1,
-                  num_gpus=4,
+                  num_gpus=2,
                   hostfile='./hostfile',
-                  model_parallel_size=1,
-                  deepspeed_config='./deepspeed.json',
                   training_script=__file__)
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",

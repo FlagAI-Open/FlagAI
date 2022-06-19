@@ -29,7 +29,7 @@ def accuracy_metric(predictions, labels, meta=None):
                 count += label == 1
             else:
                 count += label == 0
-    return count
+    return 100.0*count/len(labels)
 
 
 def f1_metric(predictions, labels, meta=None):
