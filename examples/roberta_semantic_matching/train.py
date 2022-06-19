@@ -23,7 +23,7 @@ trainer = Trainer(env_type="pytorch",
                   load_dir=None,
                   pytorch_device=device,
                   save_dir="checkpoints_semantic_matching",
-                  save_epoch=1)
+                  save_interval=1)
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 train_path = cur_dir + "/data/train.tsv"

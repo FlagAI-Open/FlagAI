@@ -29,7 +29,7 @@ class TrainerTestCase(unittest.TestCase):
                               load_dir=None,
                               fp16=True,
                               lr=1e-4,
-                              save_epoch=10)
+                              save_interval=10)
             print("downloading...")
 
             cl_args = CollateArguments()

@@ -19,7 +19,7 @@ trainer = Trainer(env_type="pytorch",
                   load_dir=None,
                   pytorch_device="cuda",
                   save_dir="./glm_superglue_en",
-                  save_epoch=1)
+                  save_interval=1)
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
                                              model_name="GLM-large-ch")

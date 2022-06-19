@@ -160,7 +160,7 @@ trainer = Trainer(
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints",
-    save_epoch=1,
+    save_interval=1,
     num_checkpoints=1,
 
 )
