@@ -29,6 +29,7 @@ from flagai.utils import Timers
 from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from flagai.fp16 import DynamicLossScaler
+
 """
 The Trainer class, to easily train a pytorh model on a new task.
 """
@@ -380,10 +381,17 @@ class Trainer():
             sd = load_checkpoint(model,   
                             load_dir = self.load_dir,
                             load_type = self.load_type)
+
+        """Train the model."""
+        # Turn on training mode which enables dropout.
+        model.train()
+        if self.fp16 and self.env_type=='pytorchDDP':
+            log_dist("Warning: The pytorchDDP plus FP16 may not working togather!!!")
         if self.fp16:
             model.half()
         if self.checkpoint_activations:
             model.config['checkpoint_activations'] = self.checkpoint_activations
+
         if self.env_type == 'pytorchDDP':
             model.to(torch.device('cuda', self.local_rank))
             model = DDP(model,
@@ -393,33 +401,32 @@ class Trainer():
             model.to(self.pytorch_device)
         else:
             model.cuda(torch.device('cuda', self.local_rank))
-        """Train the model."""
-        # Turn on training mode which enables dropout.
         if self.fp16:
             model = FP16_Module(model)  
-  
-        model.train()
+
         param_groups = get_optimizer_param_groups(model)
 
         if hasattr(param_groups[0], 'params'):
             # for T5 Model
             param_groups = param_groups[0]['params']
 
-        if optimizer is None and 'deepspeed' not in self.env_type:
+        if optimizer is None and 'deepspeed' not in self.env_type and self.epochs>0:
             optimizer = get_optimizer(param_groups=param_groups,
                                       lr=self.lr,
                                       weight_decay=self.weight_decay,
                                       cpu_optimizer=False,
                                       cpu_torch_adam=False,
-                                      fp16=self.fp16)
+                                      fp16=self.fp16,
+                                      optimizer='adam' if not self.fp16 else 'adafactor'
+                                      )
             
         if lr_scheduler == None and optimizer!=None and 'deepspeed' not in self.env_type and self.epochs>0:
             lr_scheduler = AnnealingLR(
                 optimizer,
                 start_lr=self.lr,
                 warmup_iter=int(self.warm_up* self.epochs * len(train_dataloader)),
-                decay_style='cosine',
-                num_iters=self.epochs * len(train_dataloader))
+                decay_style='linear',
+                num_iters= self.epochs * len(train_dataloader))
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
             model, optimizer, _, lr_scheduler = deepspeed.initialize(
@@ -604,7 +611,7 @@ class Trainer():
                     optimizer.zero_grad()
                 else:
                     optimizer.step()
-                    model.zero_grad()
+                    optimizer.zero_grad()
                 self.accumulate_count = 0
             else:
                 self.accumulate_count+=1
@@ -646,8 +653,8 @@ class Trainer():
             lm_loss /= self.gradient_accumulation_steps
             # reduce sum of losses
             reduced_loss = lm_loss.detach().clone().view(1)
-            dist.all_reduce(reduced_loss.data) 
-            reduced_loss.data = reduced_loss.data / self.world_size 
+            # dist.all_reduce(reduced_loss.data) 
+            # reduced_loss.data = reduced_loss.data / self.world_size 
             
             # skip the iter while loss has NAN
             if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
@@ -669,7 +676,7 @@ class Trainer():
                     if self.fp16:
                         optimizer.update_master_grads()
                         optimizer.step()
-                        optimizer.zero_grad()
+                        model.zero_grad()
                     else:
                         optimizer.step()
                         model.zero_grad()
@@ -935,7 +942,7 @@ class Trainer():
             log_string += ' loss scale {:.1f} |'.format(
                 optimizer.cur_scale if 'deepspeed' in self.env_type else
                 hasattr(optimizer, 'loss_scale') and optimizer.loss_scale)
-        log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
+        # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
         log_dist(log_string, [0])
 
     def report_evaluate_metrics(self, prefix, loss, ppl, gpt_loss, bert_loss,
