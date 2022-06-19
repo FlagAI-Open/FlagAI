@@ -29,6 +29,7 @@ class tofp16(nn.Module):
         def forward(self, input):
             return input.half()
     """
+
     def __init__(self):
         super(tofp16, self).__init__()
 
@@ -92,6 +93,7 @@ class FP16Model(nn.Module):
     """
     Convert model to half precision in a batchnorm-safe way.
     """
+
     def __init__(self, network):
         super(FP16Model, self).__init__()
         self.network = convert_network(network, dtype=torch.half)

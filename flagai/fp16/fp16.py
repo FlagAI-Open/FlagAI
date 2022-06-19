@@ -41,6 +41,7 @@ def conversion_helper(val, conversion):
 
 def fp32_to_fp16(val):
     """Convert fp32 `val` to fp16"""
+
     def half_conversion(val):
         val_typecheck = val
         if isinstance(val_typecheck, (Parameter, Variable)):
@@ -54,6 +55,7 @@ def fp32_to_fp16(val):
 
 def fp16_to_fp32(val):
     """Convert fp16 `val` to fp32"""
+
     def float_conversion(val):
         val_typecheck = val
         if isinstance(val_typecheck, (Parameter, Variable)):
@@ -66,6 +68,7 @@ def fp16_to_fp32(val):
 
 
 class FP16_Module(nn.Module):
+
     def __init__(self, module):
         super(FP16_Module, self).__init__()
         self.add_module('module', module.half())
@@ -180,6 +183,7 @@ class FP16_Optimizer(object):
     Pytorch DistributedDataParallel or Apex DistributedDataParallel, :class:`FP16_Optimizer`
     should still work as intended.
     """
+
     def __init__(self,
                  init_optimizer,
                  static_loss_scale=1.0,
@@ -483,6 +487,7 @@ class FP16_Optimizer(object):
         return retval
 
     def _step_with_closure(self, closure):
+
         def wrapped_closure():
             # helpful for debugging
             # print("Calling wrapped_closure, first_closure_call_this_step = {}"

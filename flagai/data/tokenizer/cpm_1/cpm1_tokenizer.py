@@ -29,11 +29,13 @@ except ImportError:
     def lru_cache():
         return lambda func: func
 
+
 class CPMTokenizer(object):
+
     def __init__(self, vocab_file, model_file, max_length=None):
         self.max_len = max_length if max_length is not None else int(1e12)
         self.encoder = json.load(open(vocab_file))
-        self.decoder = {v:k for k,v in self.encoder.items()}
+        self.decoder = {v: k for k, v in self.encoder.items()}
 
         self.sp = spm.SentencePieceProcessor(model_file=model_file)
         self.translator = str.maketrans(" \n", "\u2582\u2583")
@@ -55,7 +57,10 @@ class CPMTokenizer(object):
 
     def tokenize(self, text):
         """ Tokenize a string. """
-        seg_list = [x.translate(self.translator) for x in jieba.cut(text, cut_all=False)]
+        seg_list = [
+            x.translate(self.translator)
+            for x in jieba.cut(text, cut_all=False)
+        ]
         new_seg = " ".join(seg_list)
         return self.sp.encode(new_seg)
 
@@ -65,7 +70,8 @@ class CPMTokenizer(object):
 
     def decode(self, tokens):
         text = self.sp.decode(tokens)
-        text = text.replace(' ', '').replace('\u2582', ' ').replace('\u2583', '\n')
+        text = text.replace(' ', '').replace('\u2582',
+                                             ' ').replace('\u2583', '\n')
         return text
 
     def encode_plus(self, text, max_length=None):

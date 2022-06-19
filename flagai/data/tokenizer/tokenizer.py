@@ -34,6 +34,7 @@ def prep_command_tokens(tokenlist, token_format=token_format):
 
 
 class CommandToken(object):
+
     def __init__(self, name, token, Id, lstrip=False, rstrip=False):
         self.name = name
         self.token = token
@@ -69,6 +70,7 @@ def prep_type_tokens(tokenlist, token_format=token_format):
 
 
 class TypeToken(object):
+
     def __init__(self, name, token, Id):
         self.name = name
         self.token = token
@@ -104,6 +106,7 @@ class GLMTokenizer(object):
 
     Token types are stored in a separate mapping of size `len(type_tokens)`.
     """
+
     def __init__(self, text_tokenizer, command_tokens=None, type_tokens=None):
         # set text tokenizer
         self.text_tokenizer = text_tokenizer
@@ -377,6 +380,7 @@ class Tokenizer(object):
 
     Token types are stored in a separate mapping of size `len(type_tokens)`.
     """
+
     def __init__(self, text_tokenizer):
         # set text tokenizer
         self.text_tokenizer = text_tokenizer
@@ -456,6 +460,7 @@ class TextTokenizer(object):
     """
     Interface for text tokenizer
     """
+
     def __init__(self):
         if not hasattr(self, 'num_text_tokens'):
             self.num_text_tokens = 0

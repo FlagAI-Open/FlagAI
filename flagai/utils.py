@@ -50,10 +50,13 @@ def get_spare_port(args):
     port = port.item()
     return port
 
+
 class Timers:
     """Group of timers."""
+
     class Timer:
         """Timer."""
+
         def __init__(self, name):
             self.name_ = name
             self.elapsed_ = 0.0
@@ -131,13 +134,12 @@ def report_memory(name):
     log_dist(string)
 
 
-def get_checkpoint_name(checkpoints_path,
-                        iteration):
+def get_checkpoint_name(checkpoints_path, iteration):
     # TODO 根据不同的env_type来设置
     iteration = int(iteration)
     d = '{:d}'.format(iteration)
     env_type = os.getenv("ENV_TYPE")
-    if env_type=="deepspeed+mpu":
+    if env_type == "deepspeed+mpu":
         filename = 'pytorch_model_{:02d}.bin'.format(
             mpu.get_model_parallel_rank())
     else:
@@ -170,8 +172,8 @@ def save_checkpoint(iteration,
     # Only rank zer0 of the data parallel writes to the disk.
     checkpoint_name = get_checkpoint_name(save_dir, str(iteration))
     log_dist(
-        'global rank {} is saving checkpoint at iteration {:7d} to {}'.
-        format(0, iteration, checkpoint_name))
+        'global rank {} is saving checkpoint at iteration {:7d} to {}'.format(
+            0, iteration, checkpoint_name))
     sd = {'iteration': iteration}
 
     # model state_dict
@@ -202,8 +204,10 @@ def save_checkpoint(iteration,
         sd['torch_rng_state'] = torch.get_rng_state()
         sd['cuda_rng_state'] = torch.cuda.get_rng_state()
         sd['rng_tracker_states'] = mpu.get_cuda_rng_tracker().get_states()
-    if env_type=='pytorch' or (env_type!='deepspeed+mpu' and dist.get_rank()==0) or (
-         env_type=='deepspeed+mpu' and mpu.get_data_parallel_group()==0):
+    if env_type == 'pytorch' or (env_type != 'deepspeed+mpu'
+                                 and dist.get_rank() == 0) or (
+                                     env_type == 'deepspeed+mpu'
+                                     and mpu.get_data_parallel_group() == 0):
         ensure_directory_exists(checkpoint_name)
         config_path = os.path.join(save_dir, str(iteration), 'config.json')
 
@@ -212,15 +216,15 @@ def save_checkpoint(iteration,
             log_dist('  successfully saved {}'.format(config_path))
         torch.save(sd, checkpoint_name)
         log_dist('  successfully saved {}'.format(checkpoint_name))
-    
+
         tracker_filename = get_checkpoint_tracker_filename(save_dir)
         with open(tracker_filename, 'w') as f:
-            f.write(str(iteration)+'\t'+str(best_iteration))
+            f.write(str(iteration) + '\t' + str(best_iteration))
     # Wait so everyone is done (necessary)
-    if barrier and dist.is_initialized() :
+    if barrier and dist.is_initialized():
         torch.distributed.barrier()
     # And update the latest iteration
-    
+
 
 def get_checkpoint_iteration(load_path):
     # Read the tracker file and set the iteration.
@@ -234,38 +238,37 @@ def get_checkpoint_iteration(load_path):
             log_dist('Try to directly load the checkpoint from the directory')
             return load_dir, iteration, -1, True
     else:
-        log_dist('read the metadata file {} '.format(
-            tracker_filename))
+        log_dist('read the metadata file {} '.format(tracker_filename))
         with open(tracker_filename, 'r', encoding='utf8') as infile:
             iteration, best_iteration = infile.readline().strip().split('\t')
         return load_path, iteration, best_iteration, True
     log_dist('    will not load any checkpoints and will start from '
-                'random')
+             'random')
     return load_path, -1, -1, False
 
 
-def load_checkpoint(model,
-                    load_dir="checkpoints",
-                    load_type = 'latest'):
+def load_checkpoint(model, load_dir="checkpoints", load_type='latest'):
     """Load a model checkpoint."""
-    
-    load_dir, iteration, best_iteration, success = get_checkpoint_iteration(load_dir)
+
+    load_dir, iteration, best_iteration, success = get_checkpoint_iteration(
+        load_dir)
 
     if not success:
         return 0
-  
+
     # Checkpoint.
-    if load_type=='latest':
+    if load_type == 'latest':
         checkpoint_name = get_checkpoint_name(load_dir, iteration)
     else:
         checkpoint_name = get_checkpoint_name(load_dir, best_iteration)
-    
+
     log_dist('global rank {} is loading checkpoint {}'.format(
         0, checkpoint_name))
     sd = torch.load(checkpoint_name, map_location='cpu')
     model.load_state_dict(sd['module'], strict=False)
     del sd['module']
     return sd
+
 
 def load_optim(optimizer, lr_scheduler, sd):
     # Optimizer.
@@ -276,11 +279,12 @@ def load_optim(optimizer, lr_scheduler, sd):
             lr_scheduler.load_state_dict(sd['lr_scheduler'])
         log_dist('global rank 0 is loading optimizer & lr_scheduler')
     except KeyError:
-        log_dist(
-            'Unable to load optimizer from checkpoint {}, exiting. '
-            'Specify --no-load-optim or --finetune to prevent '
-            'attempting to load the optimizer '
-            'state.'.format(checkpoint_name))
+        log_dist('Unable to load optimizer from checkpoint {}, exiting. '
+                 'Specify --no-load-optim or --finetune to prevent '
+                 'attempting to load the optimizer '
+                 'state.'.format(checkpoint_name))
+
+
 def load_rng(sd):
     # rng states.
     env_type = os.getenv('ENV_TYPE')
@@ -289,13 +293,12 @@ def load_rng(sd):
         np.random.set_state(sd['np_rng_state'])
         torch.set_rng_state(sd['torch_rng_state'])
         torch.cuda.set_rng_state(sd['cuda_rng_state'])
-        if env_type=='deepspeed+mpu':
+        if env_type == 'deepspeed+mpu':
             mpu.get_cuda_rng_tracker().set_states(sd['rng_tracker_states'])
         log_dist('global rank 0 is loading rng states')
     except KeyError:
-        log_dist(
-            'Unable to load random state from checkpoint {}, exiting. '
-            'Specify --no-load-rng or --finetune to prevent '
-            'attempting to load the random '
-            'state.'.format(checkpoint_name))
+        log_dist('Unable to load random state from checkpoint {}, exiting. '
+                 'Specify --no-load-rng or --finetune to prevent '
+                 'attempting to load the random '
+                 'state.'.format(checkpoint_name))
     log_dist('  successfully loaded {}'.format(checkpoint_name))

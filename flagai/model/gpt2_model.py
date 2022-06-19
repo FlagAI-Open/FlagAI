@@ -16,13 +16,15 @@ if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.utils import divide
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import copy_to_model_parallel_region
-    from flagai.mpu.random import checkpoint 
+    from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:
-    from torch.utils.checkpoint import checkpoint 
+    from torch.utils.checkpoint import checkpoint
+
 
 class GPT2Stack(nn.Module):
+
     def __init__(self, config):
         self.config = config
         super().__init__()
@@ -95,9 +97,12 @@ class GPT2Stack(nn.Module):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states, )
             if self.config['checkpoint_activations']:
+
                 def create_custom_forward(module):
+
                     def custom_forward(*inputs):
                         return module(*inputs)
+
                     return custom_forward
 
                 outputs = checkpoint(
@@ -137,6 +142,7 @@ class GPT2Stack(nn.Module):
 
 
 class GPT2Model(BaseModel):
+
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
         self.config = config

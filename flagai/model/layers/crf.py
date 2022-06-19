@@ -9,6 +9,7 @@ import torch.nn.functional as F
 class CRFLayer(nn.Module):
     """
     """
+
     def __init__(self, output_dim):
         super(CRFLayer, self).__init__()
 

@@ -13,6 +13,7 @@ print_rank_0 = print
 
 
 class LMDataset(torch.utils.data.Dataset):
+
     def __init__(self, args, documents, tokenizer, num_original_tokens,
                  num_tokenized_tokens):
         self.args = args
@@ -102,6 +103,7 @@ class LMDataset(torch.utils.data.Dataset):
 
 
 class LambadaDataset(torch.utils.data.Dataset):
+
     def __init__(self, args, tokenizer, strict=True):
         data_path = args.valid_data[0]
         print_rank_0(

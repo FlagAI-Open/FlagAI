@@ -102,46 +102,31 @@ DEFAULT_METRICS = {
 }
 
 urls = {
-    'axb':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/AX-b.zip',
-    'cb':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/CB.zip',
-    'copa':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/COPA.zip',
+    'axb': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/AX-b.zip',
+    'cb': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/CB.zip',
+    'copa': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/COPA.zip',
     'multirc':
     'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/MultiRC.zip',
-    'rte':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/RTE.zip',
-    'wic':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/WiC.zip',
-    'wsc':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/WSC.zip',
-    'boolq':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/BoolQ.zip',
+    'rte': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/RTE.zip',
+    'wic': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/WiC.zip',
+    'wsc': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/WSC.zip',
+    'boolq': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/BoolQ.zip',
     'record':
     'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/ReCoRD.zip',
-    'ax-g':
-    'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/AX-g.zip',
+    'ax-g': 'https://dl.fbaipublicfiles.com/glue/superglue/data/v2/AX-g.zip',
     "afqmc":
     "https://storage.googleapis.com/cluebenchmark/tasks/afqmc_public.zip",
     "tnews":
     "https://storage.googleapis.com/cluebenchmark/tasks/tnews_public.zip",
-    "cola":
-    "https://dl.fbaipublicfiles.com/glue/data/CoLA.zip",
+    "cola": "https://dl.fbaipublicfiles.com/glue/data/CoLA.zip",
     "cmrc":
     "https://storage.googleapis.com/cluebenchmark/tasks/cmrc2018_public.zip",
-    "sst2":
-    "https://dl.fbaipublicfiles.com/glue/data/SST-2.zip",
-    "mrpc":
-    "https://www.microsoft.com/en-us/download/details.aspx?id=52398",
-    "qqp":
-    "https://dl.fbaipublicfiles.com/glue/data/QQP-clean.zip",
-    "mnli":
-    "https://dl.fbaipublicfiles.com/glue/data/MNLI.zip",
-    "mnli-mm":
-    "https://dl.fbaipublicfiles.com/glue/data/MNLI.zip",
-    "qnli":
-    "https://dl.fbaipublicfiles.com/glue/data/QNLIv2.zip",
+    "sst2": "https://dl.fbaipublicfiles.com/glue/data/SST-2.zip",
+    "mrpc": "https://www.microsoft.com/en-us/download/details.aspx?id=52398",
+    "qqp": "https://dl.fbaipublicfiles.com/glue/data/QQP-clean.zip",
+    "mnli": "https://dl.fbaipublicfiles.com/glue/data/MNLI.zip",
+    "mnli-mm": "https://dl.fbaipublicfiles.com/glue/data/MNLI.zip",
+    "qnli": "https://dl.fbaipublicfiles.com/glue/data/QNLIv2.zip",
 }
 
 MULTI_TOKEN_TASKS = ['copa', 'record', 'cmrc', 'wsc']
@@ -150,6 +135,7 @@ CH_TASKS = ['afqmc', 'tnews', 'cmrc', 'wanke']
 
 
 class SuperGlueProcessor:
+
     def __init__(self):
         self.processdict = PROCESSOR_DICT
 
@@ -209,6 +195,7 @@ class SuperGlueProcessor:
 
 
 class ExampleProcessor(DataProcessor):
+
     def get_train_examples(self, data_dir):
         # Assign the filename of train set
         return self._create_examples(os.path.join(data_dir, "train.tsv"),

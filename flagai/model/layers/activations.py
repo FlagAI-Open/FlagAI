@@ -26,6 +26,7 @@ class NewGELUActivation(nn.Module):
     Implementation of the GELU activation function currently in Google BERT repo (identical to OpenAI GPT). Also see
     the Gaussian Error Linear Units paper: https://arxiv.org/abs/1606.08415
     """
+
     def forward(self, input: Tensor) -> Tensor:
         return 0.5 * input * (1.0 + torch.tanh(
             math.sqrt(2.0 / math.pi) *
@@ -39,6 +40,7 @@ class GELUActivation(nn.Module):
     torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3)))) This is now written in C in nn.functional
     Also see the Gaussian Error Linear Units paper: https://arxiv.org/abs/1606.08415
     """
+
     def __init__(self, use_gelu_python: bool = False):
         super().__init__()
         if version.parse(
@@ -58,6 +60,7 @@ class FastGELUActivation(nn.Module):
     """
     Applies GELU approximation that is slower than QuickGELU but more accurate. See: https://github.com/hendrycks/GELUs
     """
+
     def forward(self, input: Tensor) -> Tensor:
         return 0.5 * input * (1.0 +
                               torch.tanh(input * 0.7978845608 *
@@ -68,6 +71,7 @@ class QuickGELUActivation(nn.Module):
     """
     Applies GELU approximation that is fast but somewhat inaccurate. See: https://github.com/hendrycks/GELUs
     """
+
     def forward(self, input: Tensor) -> Tensor:
         return input * torch.sigmoid(1.702 * input)
 
@@ -82,6 +86,7 @@ class ClippedGELUActivation(nn.Module):
     For information: OpenAI GPT's gelu is slightly different (and gives slightly different results): 0.5 * x * (1 +
     torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3)))). See https://arxiv.org/abs/1606.08415
     """
+
     def __init__(self, min: float, max: float):
         if min > max:
             raise ValueError(
@@ -103,6 +108,7 @@ class SiLUActivation(nn.Module):
     Activation Function (Ramachandran et al., https://arxiv.org/abs/1710.05941v1) where the SiLU was experimented with
     later.
     """
+
     def __init__(self):
         super().__init__()
         if version.parse(torch.__version__) < version.parse("1.7"):
@@ -122,6 +128,7 @@ class MishActivation(nn.Module):
     See Mish: A Self-Regularized Non-Monotonic Activation Function (Misra., https://arxiv.org/abs/1908.08681). Also
     visit the official repository for the paper: https://github.com/digantamisra98/Mish
     """
+
     def __init__(self):
         super().__init__()
         if version.parse(torch.__version__) < version.parse("1.9"):
@@ -140,6 +147,7 @@ class LinearActivation(nn.Module):
     """
     Applies the linear activation function, i.e. forwarding input directly to output.
     """
+
     def forward(self, input: Tensor) -> Tensor:
         return input
 

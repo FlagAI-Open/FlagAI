@@ -36,11 +36,11 @@ if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region
     from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
 
-    from flagai.mpu.random import checkpoint 
+    from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:
-    from torch.utils.checkpoint import checkpoint 
+    from torch.utils.checkpoint import checkpoint
 
 
 class GLMStack(torch.nn.Module):
@@ -77,6 +77,7 @@ class GLMStack(torch.nn.Module):
                                             scaling for the output weights (
                                             output of self attention and mlp).
     """
+
     def __init__(
         self,
         config,
@@ -211,7 +212,9 @@ class GLMStack(torch.nn.Module):
                     m = m.masked_fill(mask.unsqueeze(1).expand_as(m), 1)
                 if memory_length > 0:
                     m = m.expand(batch_size, -1, -1)
-                    m = torch.cat((hidden_states.new_ones((batch_size, seq_length, memory_length)), m), dim=2)
+                    m = torch.cat((hidden_states.new_ones(
+                        (batch_size, seq_length, memory_length)), m),
+                                  dim=2)
                 m = m.unsqueeze(1)
                 return m
 
@@ -256,6 +259,7 @@ class GLMStack(torch.nn.Module):
             mem_layers = []
 
         def custom(start, end):
+
             def custom_forward(*inputs):
                 layers_ = self.layers[start:end]
                 x_, inputs = inputs[0], inputs[1:]
@@ -277,20 +281,22 @@ class GLMStack(torch.nn.Module):
             num_layers = len(self.layers)
             chunk_length = self.checkpoint_num_layers
             while l < num_layers:
-                args = [hidden_states, attention_mask] if not self.use_decoder_layer else [hidden_states,
-                                                                            encoder_states,
-                                                                            attention_mask]
+                args = [hidden_states, attention_mask
+                        ] if not self.use_decoder_layer else [
+                            hidden_states, encoder_states, attention_mask
+                        ]
                 if self.relative_encoding:
                     args += [position_embeddings, self.r_w_bias, self.r_r_bias]
                 if memory_states:
-                    args += memory_states[l: l + chunk_length]
+                    args += memory_states[l:l + chunk_length]
                 hidden_states = checkpoint(custom(l, l + chunk_length), *args)
                 l += chunk_length
         else:
             for i, layer in enumerate(self.layers):
-                args = [hidden_states, attention_mask] if not self.use_decoder_layer else [hidden_states,
-                                                                                           encoder_states,
-                                                                                           attention_mask]
+                args = [hidden_states, attention_mask
+                        ] if not self.use_decoder_layer else [
+                            hidden_states, encoder_states, attention_mask
+                        ]
                 if self.relative_encoding:
                     args += [position_embeddings, self.r_w_bias, self.r_r_bias]
                 mem_i = memory_states[i] if memory_states else None
@@ -331,6 +337,7 @@ class GLMModel(BaseModel):
     The output of the forward method are the logits (parallel or
     serial depending on the `parallel_output` flag.
     """
+
     def __init__(self, config, **kwargs):
 
         super(GLMModel, self).__init__(config, **kwargs)
@@ -364,7 +371,7 @@ class GLMModel(BaseModel):
         self.word_embeddings = VocabParallelEmbedding(vocab_size,
                                                       hidden_size,
                                                       init_method=init_method)
-     
+
         # Transformer
         self.transformer = GLMStack(
             config,
@@ -383,7 +390,8 @@ class GLMModel(BaseModel):
             block_position_encoding=block_position_encoding)
 
         if spell_length is not None:
-            self.prompt_spell = PromptSpell(spell_length, self.hidden_size, spell_func)
+            self.prompt_spell = PromptSpell(spell_length, self.hidden_size,
+                                            spell_func)
         if tune_prefix_layers != None:
             log_dist("the model is freezed!")
             self.freeze_transformer(tune_prefix_layers=tune_prefix_layers)
@@ -443,17 +451,18 @@ class GLMModel(BaseModel):
 
         if self.output_predict:
             # Parallel logits.
-            logits_parallel = F.linear(logits_parallel, self.word_embeddings.weight)
+            logits_parallel = F.linear(logits_parallel,
+                                       self.word_embeddings.weight)
 
             if 'labels' in kwargs:
                 labels = kwargs['labels']
                 if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
-                    loss = vocab_parallel_cross_entropy(logits.contiguous().float(),
-                                                        labels).mean()
-                else :
+                    loss = vocab_parallel_cross_entropy(
+                        logits.contiguous().float(), labels).mean()
+                else:
 
-                    loss = F.cross_entropy(logits_parallel.contiguous().float(),
-                                           labels.long())
+                    loss = F.cross_entropy(
+                        logits_parallel.contiguous().float(), labels.long())
 
                 if self.parallel_output:  # Put in different GPUs
                     return {
@@ -461,11 +470,14 @@ class GLMModel(BaseModel):
                         'loss': loss,
                         'hidden_states': hidden_layers
                     }
-                else :
+                else:
                     return {
-                        "logits": gather_from_model_parallel_region(logits_parallel),
-                        "loss": loss,
-                        "hidden_states": hidden_layers
+                        "logits":
+                        gather_from_model_parallel_region(logits_parallel),
+                        "loss":
+                        loss,
+                        "hidden_states":
+                        hidden_layers
                     }
             else:
                 if self.parallel_output:  # Put in different GPUs
@@ -473,10 +485,12 @@ class GLMModel(BaseModel):
                         'logits': logits_parallel,
                         'hidden_states': hidden_layers
                     }
-                else :
+                else:
                     return {
-                        "logits": gather_from_model_parallel_region(logits_parallel),
-                        "hidden_states": hidden_layers
+                        "logits":
+                        gather_from_model_parallel_region(logits_parallel),
+                        "hidden_states":
+                        hidden_layers
                     }
 
         else:
@@ -502,6 +516,7 @@ class GLMModel(BaseModel):
 
 
 class GLMForMultiTokenCloze(BaseModel):
+
     def __init__(self,
                  config,
                  take_softmax=True,
@@ -623,6 +638,7 @@ class GLMForMultiTokenCloze(BaseModel):
 
 
 class GLMForMultiTokenClozeFast(BaseModel):
+
     def __init__(self,
                  config,
                  take_softmax=True,
@@ -716,6 +732,7 @@ class GLMForMultiTokenClozeFast(BaseModel):
 
 
 class GLMForSingleTokenCloze(BaseModel):
+
     def __init__(self, config, take_softmax=False, **kwargs):
         super().__init__(config, **kwargs)
         self.config = config
@@ -819,6 +836,7 @@ class GLMForSingleTokenCloze(BaseModel):
 
 
 class GLMForSequenceClassification(BaseModel):
+
     def __init__(self, config, hidden_dropout=0.1, pool_token='cls', **kwargs):
         super().__init__(config, **kwargs)
         self.config = config
@@ -903,6 +921,7 @@ class GLMForSequenceClassification(BaseModel):
 
 
 class GLMForSeq2Seq(BaseModel):
+
     def __init__(self, config, take_softmax=True, **kwargs):
         super().__init__(config, **kwargs)
         self.config = config

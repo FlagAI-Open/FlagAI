@@ -156,6 +156,7 @@ from torch.utils.data import Dataset
 
 
 class PromptDataset(Dataset):
+
     def __init__(self,
                  prompt_loader,
                  text_loader,

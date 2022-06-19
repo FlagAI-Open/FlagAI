@@ -42,6 +42,7 @@ if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
 
 
 class GPT2Attention(nn.Module):
+
     def __init__(self,
                  nx,
                  n_ctx,
@@ -176,6 +177,7 @@ class GPT2Attention(nn.Module):
 
 
 class T5Attention(nn.Module):
+
     def __init__(self, config, has_relative_attention_bias=False):
         super().__init__()
         self.is_decoder = config['is_decoder']
@@ -416,6 +418,7 @@ class T5Attention(nn.Module):
 
 
 class T5LayerSelfAttention(nn.Module):
+
     def __init__(self, config, has_relative_attention_bias=False):
         super().__init__()
         self.SelfAttention = T5Attention(
@@ -451,6 +454,7 @@ class T5LayerSelfAttention(nn.Module):
 
 
 class T5LayerCrossAttention(nn.Module):
+
     def __init__(self, config):
         super().__init__()
         self.EncDecAttention = T5Attention(config,
@@ -491,6 +495,7 @@ class T5LayerCrossAttention(nn.Module):
 
 class ParallelCrossAttention(torch.nn.Module):
     """Parallel cross-attention layer for Transformer"""
+
     def __init__(self,
                  hidden_size,
                  num_attention_heads,
@@ -629,6 +634,7 @@ class ParallelSelfAttention(torch.nn.Module):
         b: batch size
         s: sequence length
     """
+
     def __init__(self,
                  hidden_size,
                  num_attention_heads,
@@ -854,6 +860,7 @@ class BertParallelSelfAttention(torch.nn.Module):
         b: batch size
         s: sequence length
     """
+
     def __init__(self,
                  hidden_size,
                  num_attention_heads,
@@ -956,6 +963,7 @@ class BertParallelSelfAttention(torch.nn.Module):
 
 
 class BertSelfOutput(torch.nn.Module):
+
     def __init__(self, hidden_size, initializer_range, layernorm_epsilon,
                  hidden_dropout_prob):
         super(BertSelfOutput, self).__init__()
@@ -981,6 +989,7 @@ class BertSelfOutput(torch.nn.Module):
 
 
 class BertAttention(torch.nn.Module):
+
     def __init__(self, hidden_size, num_attention_heads,
                  attention_probs_dropout_prob, initializer_range,
                  layernorm_epsilon, hidden_dropout_prob):

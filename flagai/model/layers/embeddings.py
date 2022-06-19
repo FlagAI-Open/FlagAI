@@ -42,12 +42,14 @@ from flagai.model.utils import normal_init_method
 
 
 class PositionalEmbedding(torch.nn.Module):
+
     def __init__(self, hidden_size):
         super(PositionalEmbedding, self).__init__()
 
         self.hidden_size = hidden_size
 
-        inv_freq = 1 / (10000**(torch.arange(0.0, hidden_size, 2.0) / hidden_size))
+        inv_freq = 1 / (10000
+                        **(torch.arange(0.0, hidden_size, 2.0) / hidden_size))
         self.register_buffer('inv_freq', inv_freq)
 
     def forward(self, pos_seq, bsz=None):
@@ -63,6 +65,7 @@ class WordEmbedding(nn.Module):
     """
     input embeddin only has word embedding
     """
+
     def __init__(self, args, vocab_size):
         super(WordEmbedding, self).__init__()
         self.remove_embedding_layernorm = args.remove_embedding_layernorm
@@ -134,6 +137,7 @@ class VocabParallelEmbedding(torch.nn.Module):
         embedding_dim: size of hidden state.
         init_method: method to initialize weights.
     """
+
     def __init__(self,
                  num_embeddings,
                  embedding_dim,
@@ -205,6 +209,7 @@ class ParallelEmbedding(torch.nn.Module):
         embedding_dim: size of hidden state.
         init_method: method to initialize weights.
     """
+
     def __init__(self,
                  num_embeddings,
                  embedding_dim,
@@ -264,6 +269,7 @@ class ParallelEmbedding(torch.nn.Module):
 class BertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings.
     """
+
     def __init__(self, vocab_size, hidden_size, initializer_range,
                  max_position_embeddings, type_vocab_size, layernorm_epsilon,
                  hidden_dropout_prob):

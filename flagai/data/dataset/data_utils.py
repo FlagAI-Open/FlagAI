@@ -45,6 +45,7 @@ def clean_text(text):
 
 class InputExample(object):
     """A raw input example consisting of one or two segments of text and a label"""
+
     def __init__(self,
                  guid,
                  text_a,
@@ -318,8 +319,8 @@ def build_sample(ids,
     if meta is not None:
         sample['meta'] = meta
     if prompt_ids and prompt_ids is not None:
-       prompt_ids = np.array(prompt_ids, dtype=np.int64)
-       sample['prompt_pos'] = prompt_ids
+        prompt_ids = np.array(prompt_ids, dtype=np.int64)
+        sample['prompt_pos'] = prompt_ids
     if unique_id is not None:
         sample['uid'] = unique_id
     return sample

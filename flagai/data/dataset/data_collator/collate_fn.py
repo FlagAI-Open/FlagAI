@@ -80,6 +80,7 @@ def my_collate(batch):
 
 
 class ConstructSuperglueStrategy:
+
     def __init__(self, args, tokenizer, task_name):
         # pattern_id, seq_length, num_prompt_tokens, multi_token, segment_length, fast_decode, dataset_type, cloze_val=True
         self.tokenizer = tokenizer
@@ -111,6 +112,7 @@ class ConstructSuperglueStrategy:
 
 
 class ConstructSeq2seqStrategy:
+
     def __init__(self, args, tokenizer, task_name):
         # pattern_id, seq_length, num_prompt_tokens, multi_token, segment_length, fast_decode, dataset_type, cloze_val=True
         self.tokenizer = tokenizer
@@ -126,7 +128,7 @@ class ConstructSeq2seqStrategy:
         sop_id = self.tokenizer.get_command('sop').Id
         eop_id = self.tokenizer.get_command('eop').Id
         if self.task_name in [
-            "gigaword", "cnn_dm", "cnn_dm_original", "xsum", "lang8_hsk"
+                "gigaword", "cnn_dm", "cnn_dm_original", "xsum", "lang8_hsk"
         ]:
             source_text, target_text = example.text_a, example.text_b
             source_tokens = self.tokenizer.EncodeAsIds(" " + source_text)
@@ -134,7 +136,7 @@ class ConstructSeq2seqStrategy:
                       ] + self.tokenizer.EncodeAsIds(" Content:")
             if len(source_tokens) > self.args.max_src_length - len(prompt):
                 source_tokens = source_tokens[:self.args.max_src_length -
-                                               len(prompt)]
+                                              len(prompt)]
             source_tokens = prompt + source_tokens
         elif self.task_name == "squad_generation":
             source_text = example.text_a
@@ -145,14 +147,15 @@ class ConstructSeq2seqStrategy:
             answer_tokens = self.tokenizer.EncodeAsIds(" Answer: " + answer)
             if len(source_tokens
                    ) > self.args.max_src_length - len(answer_tokens) - 2:
-                max_src_length = self.args.max_src_length - len(answer_tokens) - 2
+                max_src_length = self.args.max_src_length - len(
+                    answer_tokens) - 2
                 answer_pattern = self.tokenizer.EncodeAsIds(" " + answer)
 
                 def sub_finder(mylist, pattern):
                     matches = []
                     for i in range(len(mylist)):
                         if mylist[i] == pattern[0] and mylist[
-                                                       i:i + len(pattern)] == pattern:
+                                i:i + len(pattern)] == pattern:
                             matches.append(i)
                     return matches
 
@@ -164,7 +167,7 @@ class ConstructSeq2seqStrategy:
                     start_index = max(answer_indices[0] - max_src_length // 2,
                                       0)
                     source_tokens = source_tokens[start_index:start_index +
-                                                              max_src_length]
+                                                  max_src_length]
             source_tokens = [cls_id] + source_tokens + [mask_id
                                                         ] + answer_tokens
         elif self.task_name in ["cmrc"]:
@@ -175,9 +178,11 @@ class ConstructSeq2seqStrategy:
             source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip())
             question_tokens = self.tokenizer.EncodeAsIds("问题：" + question +
                                                          "答案：")
-            max_src_length = self.args.max_src_length - len(question_tokens) - 2
+            max_src_length = self.args.max_src_length - len(
+                question_tokens) - 2
             if max_src_length <= 0:
-                question_tokens = question_tokens[self.args.max_src_length // 4]
+                question_tokens = question_tokens[self.args.max_src_length //
+                                                  4]
             source_tokens = [cls_id] + question_tokens + [
                 mask_id
             ] + source_tokens[:max_src_length]
@@ -189,18 +194,20 @@ class ConstructSeq2seqStrategy:
             source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip())
             question_tokens = self.tokenizer.EncodeAsIds("what does " +
                                                          question + "mean: ")
-            max_src_length = self.args.max_src_length - len(question_tokens) - 2
+            max_src_length = self.args.max_src_length - len(
+                question_tokens) - 2
             if max_src_length <= 0:
                 print(question)
-                question_tokens = question_tokens[self.args.max_src_length // 4]
+                question_tokens = question_tokens[self.args.max_src_length //
+                                                  4]
             source_tokens = [cls_id] + question_tokens + [
                 mask_id
             ] + source_tokens[:max_src_length]
         else:
             raise NotImplementedError
         if len(source_tokens) < self.args.max_src_length:
-            source_tokens = source_tokens + [pad_id] * (self.args.max_src_length -
-                                                        len(source_tokens))
+            source_tokens = source_tokens + [pad_id] * (
+                self.args.max_src_length - len(source_tokens))
         sep = len(source_tokens)
         position_ids = list(range(len(source_tokens)))
         block_position_ids = [0] * len(source_tokens)
@@ -225,11 +232,11 @@ class ConstructSeq2seqStrategy:
             block_position_ids += list(range(1, len(target_tokens) + 1))
         position_ids = [position_ids, block_position_ids]
         sample = build_sample(ids=tokens,
-                                positions=position_ids,
-                                target=target_ids,
-                                masks=sep,
-                                loss_mask=loss_mask,
-                                unique_id=example.guid)
+                              positions=position_ids,
+                              target=target_ids,
+                              masks=sep,
+                              loss_mask=loss_mask,
+                              unique_id=example.guid)
         return sample
 
     def __call__(self, examples):
@@ -241,6 +248,7 @@ class ConstructSeq2seqStrategy:
 
 
 class ConstructBlockStrategy:
+
     def __init__(self,
                  tokenizer,
                  max_seq_length,
@@ -718,7 +726,8 @@ class ConstructBlockStrategy:
                 multiple_doc = index_in_list(
                     sample['input_ids'],
                     self.tokenizer.get_command('eos').Id) not in [
-                        -1, len(sample['input_ids']) - 1]
+                        -1, len(sample['input_ids']) - 1
+                    ]
                 if multiple_doc or rng.random() < self.infill_prob:
                     division = len(sample['input_ids']) - generation_length
                     tokens, loss_masks = sample['input_ids'], sample[

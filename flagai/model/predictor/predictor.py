@@ -18,6 +18,7 @@ from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeCh
 
 
 class Predictor:
+
     def __init__(self,
                  model: Union[BertModel, GPT2Model, BertForSequenceLabelingGP,
                               BertForSequenceLabelingCRF, BertForClsClassifier,

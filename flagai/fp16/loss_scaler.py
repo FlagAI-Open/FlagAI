@@ -39,6 +39,7 @@ class LossScaler:
     Args:
         scale (float, optional, default=1.0):  The loss scale.
     """
+
     def __init__(self, scale=1):
         self.cur_scale = scale
 
@@ -90,6 +91,7 @@ class DynamicLossScaler:
         scale_factor (float, optional, default=2.0):  Factor used when adjusting the loss scale. If an overflow is encountered, the loss scale is readjusted to loss scale/``scale_factor``.  If ``scale_window`` consecutive iterations take place without an overflow, the loss scale is readjusted to loss_scale*``scale_factor``.
         scale_window (int, optional, default=1000):  Number of consecutive iterations without an overflow to wait before increasing the loss scale.
     """
+
     def __init__(self,
                  init_scale=2**32,
                  scale_factor=2.,
@@ -121,13 +123,14 @@ class DynamicLossScaler:
         # Since each model parallel GPU carries only part of the model,
         # make sure overflow flag is synced across all the model parallel GPUs
         overflow_gpu = torch.cuda.ByteTensor([overflow])
-        if os.getenv('ENV_TYPE')=='deepspeed+mpu':
+        if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
             torch.distributed.all_reduce(overflow_gpu,
-                                        op=torch.distributed.ReduceOp.MAX,
-                                        group=mpu.get_model_parallel_group())
-        elif os.getenv('ENV_TYPE')=='deepspeed' or os.getenv('ENV_TYPE')=='pytorchDDP':
-             torch.distributed.all_reduce(overflow_gpu,
-                                        op=torch.distributed.ReduceOp.MAX) 
+                                         op=torch.distributed.ReduceOp.MAX,
+                                         group=mpu.get_model_parallel_group())
+        elif os.getenv('ENV_TYPE') == 'deepspeed' or os.getenv(
+                'ENV_TYPE') == 'pytorchDDP':
+            torch.distributed.all_reduce(overflow_gpu,
+                                         op=torch.distributed.ReduceOp.MAX)
         overflow = overflow_gpu[0].item()
         return bool(overflow)
 

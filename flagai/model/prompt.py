@@ -6,26 +6,31 @@ import torch
 
 
 class PromptSpell(torch.nn.Module):
+
     def __init__(self, spell_length, hidden_size, spell_func):
         super(PromptSpell, self).__init__()
         self.spell_length = spell_length
         self.hidden_size = hidden_size
-        self.spell_embeddings = torch.nn.Embedding(self.spell_length, self.hidden_size)
+        self.spell_embeddings = torch.nn.Embedding(self.spell_length,
+                                                   self.hidden_size)
         self.spell_func = spell_func
         if self.spell_func == "lstm":
-            self.lstm_head = torch.nn.LSTM(input_size=self.hidden_size,
-                                           hidden_size=self.hidden_size,
-                                           num_layers=2,
-                                           # dropout=self.lstm_dropout,
-                                           bidirectional=True,
-                                           batch_first=True)  # .to(torch.device("cuda"))
-            self.mlp_head = torch.nn.Sequential(torch.nn.Linear(2 * self.hidden_size, self.hidden_size),
-                                                torch.nn.ReLU(),
-                                                torch.nn.Linear(self.hidden_size, self.hidden_size))
+            self.lstm_head = torch.nn.LSTM(
+                input_size=self.hidden_size,
+                hidden_size=self.hidden_size,
+                num_layers=2,
+                # dropout=self.lstm_dropout,
+                bidirectional=True,
+                batch_first=True)  # .to(torch.device("cuda"))
+            self.mlp_head = torch.nn.Sequential(
+                torch.nn.Linear(2 * self.hidden_size, self.hidden_size),
+                torch.nn.ReLU(),
+                torch.nn.Linear(self.hidden_size, self.hidden_size))
         elif self.spell_func == "mlp":
-            self.mlp_head = torch.nn.Sequential(torch.nn.Linear(self.hidden_size, self.hidden_size),
-                                                torch.nn.ReLU(),
-                                                torch.nn.Linear(self.hidden_size, self.hidden_size))
+            self.mlp_head = torch.nn.Sequential(
+                torch.nn.Linear(self.hidden_size, self.hidden_size),
+                torch.nn.ReLU(),
+                torch.nn.Linear(self.hidden_size, self.hidden_size))
         elif self.spell_func != "none":
             raise NotImplementedError("Prompt function " + self.spell_func)
 
@@ -41,7 +46,8 @@ class PromptSpell(torch.nn.Module):
                     task_token = random.choice(task_tokens)
                     task_embedding = word_embeddings[task_token]
                     ratio = random.random()
-                    target_embedding = word_embedding * ratio + task_embedding * (1 - ratio)
+                    target_embedding = word_embedding * ratio + task_embedding * (
+                        1 - ratio)
                 self.spell_embeddings.weight.data[i] = target_embedding
 
     def forward(self):

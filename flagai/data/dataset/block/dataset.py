@@ -21,6 +21,7 @@ SPLIT_TYPES = [TRAIN_SET, DEV_SET, TEST_SET, TRUE_DEV_SET, UNLABELED_SET]
 
 
 class BlockDataset(Dataset):
+
     def __init__(self,
                  ds,
                  tokenizer,

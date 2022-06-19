@@ -231,4 +231,3 @@ def launch_dist(launcher='distributed_deepspeed',
             subprocess.Popen(run_cmd, shell=True)
     else:
         raise Exception('No aviable launcher')
-
