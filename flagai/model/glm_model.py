@@ -20,6 +20,7 @@ import os
 import torch
 from torch import nn
 import torch.nn.functional as F
+from flagai.logger import log_dist
 from flagai.model.blocks.glm_block import GLMBlock
 from flagai.model.utils import scaled_init_method, divide, unscaled_init_method
 from flagai.model.layers.embeddings import VocabParallelEmbedding
@@ -363,7 +364,7 @@ class GLMModel(BaseModel):
         self.word_embeddings = VocabParallelEmbedding(vocab_size,
                                                       hidden_size,
                                                       init_method=init_method)
-
+     
         # Transformer
         self.transformer = GLMStack(
             config,
@@ -384,6 +385,7 @@ class GLMModel(BaseModel):
         if spell_length is not None:
             self.prompt_spell = PromptSpell(spell_length, self.hidden_size, spell_func)
         if tune_prefix_layers != None:
+            log_dist("the model is freezed!")
             self.freeze_transformer(tune_prefix_layers=tune_prefix_layers)
 
     def freeze_transformer(self, tune_prefix_layers=None):
@@ -740,7 +742,6 @@ class GLMForSingleTokenCloze(BaseModel):
                 position_ids=None,
                 attention_mask=None,
                 target_ids=None,
-                logit_mask=None,
                 prompt_pos=None,
                 **kwargs):
         '''

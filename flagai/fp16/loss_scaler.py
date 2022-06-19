@@ -15,7 +15,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import os
 import torch
 from flagai import mpu
 
@@ -121,9 +121,13 @@ class DynamicLossScaler:
         # Since each model parallel GPU carries only part of the model,
         # make sure overflow flag is synced across all the model parallel GPUs
         overflow_gpu = torch.cuda.ByteTensor([overflow])
-        torch.distributed.all_reduce(overflow_gpu,
-                                     op=torch.distributed.ReduceOp.MAX,
-                                     group=mpu.get_model_parallel_group())
+        if os.getenv('ENV_TYPE')=='deepspeed+mpu':
+            torch.distributed.all_reduce(overflow_gpu,
+                                        op=torch.distributed.ReduceOp.MAX,
+                                        group=mpu.get_model_parallel_group())
+        elif os.getenv('ENV_TYPE')=='deepspeed' or os.getenv('ENV_TYPE')=='pytorchDDP':
+             torch.distributed.all_reduce(overflow_gpu,
+                                        op=torch.distributed.ReduceOp.MAX) 
         overflow = overflow_gpu[0].item()
         return bool(overflow)
 

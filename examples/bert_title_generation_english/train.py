@@ -1,6 +1,8 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import sys
+sys.path.append('/mnt/liuguang/FlagAI')
 import os
 import torch
 from torch.utils.data import Dataset
@@ -16,18 +18,18 @@ train_path = cur_dir + "/data/news.tsv"
 trainer = Trainer(
     env_type="pytorch",
     experiment_name="bert-title-generation",
-    batch_size=1,
+    batch_size=2,
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-3,
-    epochs=1,
+    epochs=100,
     log_interval=1,
     eval_interval=10000,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints-bert-title-generation-en",
     checkpoint_activations=True,
-    save_epoch=1,
+    save_interval=1000,
     fp16 = False)
 
 model_dir = "../state_dict/"  # download_path for the model 

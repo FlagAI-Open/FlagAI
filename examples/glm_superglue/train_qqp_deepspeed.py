@@ -13,11 +13,11 @@ from flagai.test_utils import CollateArguments
 task_name = 'qqp'
 trainer = Trainer(env_type='deepspeed',
                   epochs=2,
-                  batch_size=512+16,
-                  eval_interval=1e5,
+                  batch_size=512,
+                  eval_interval=100,
                   log_interval=10,
                   save_interval = 1e5,
-                  gradient_accumulation_steps=20,
+                  gradient_accumulation_steps=5,
                   checkpoint_activations=True,
                   fp16=True,
                   warm_up=0.1,
@@ -58,6 +58,8 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name)
+# train_dataset.example_list = train_dataset.example_list[:160]
+# valid_dataset.example_list = valid_dataset.example_list[:160]
 
 
 trainer.train(model,

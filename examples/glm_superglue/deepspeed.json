@@ -31,7 +31,7 @@
     "optimizer": {
       "type": "Adam",
       "params": {
-        "lr": 1e-5,
+        "lr": 2e-4,
         "weight_decay": 0.1,
         "betas": [
           0.9,

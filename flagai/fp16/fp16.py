@@ -76,6 +76,9 @@ class FP16_Module(nn.Module):
     def named_parameters(self, prefix: str = '', recurse: bool = True):
         return self.module.named_parameters(prefix=prefix, recurse=recurse)
 
+    def parameters(self):
+        return self.module.parameters()
+
     def state_dict(self, destination=None, prefix='', keep_vars=False):
         return self.module.state_dict(destination, prefix, keep_vars)
 

@@ -12,6 +12,7 @@ try:
 except Exception:
     pass
 from re import I
+from attr import has
 import torch
 import argparse
 import os
@@ -111,15 +112,15 @@ class Trainer():
         env_type='pytorch',
         pytorch_device='cpu',  # "cuda:0" etc.
         experiment_name="glm_large",  # "The experiment name for summary and checkpoint"
-        batch_size=4,  # 'Data Loader batch size'
+        batch_size=1,  # 'Data Loader batch size'
         gradient_accumulation_steps=1,  # 'Data Loader batch size'
-        weight_decay=0.0,  # 'weight decay coefficient for L2 regularization'
+        weight_decay=0.1,  # 'weight decay coefficient for L2 regularization'
         lr=1e-3,
         warm_up=0.1,
         epochs=0,  # 'Number of finetunning epochs. Zero results in evaluation only.'
-        save_interval=1,  # 'number of epochs between saves')
-        eval_interval=1,
-        log_interval=1,
+        save_interval=1000,  # 'number of epochs between saves')
+        eval_interval=100,
+        log_interval=100,
         seed=1234,  # 'random seed'
         fp16=False,
         clip_grad=1.0,
@@ -479,7 +480,7 @@ class Trainer():
                                         optimizer,
                                         lr_scheduler)
                 else:
-                    lm_loss, _ = self.train_step(batch,
+                    lm_loss, _ = self.train_step_deepspeed(batch,
                         model,
                         optimizer,
                         lr_scheduler,
@@ -566,6 +567,7 @@ class Trainer():
                 model=model,
                 forward_step_func=self.forward_step,
                 verbose=False)
+
     
     def train_step_pytorch(self,
                             data,
@@ -578,27 +580,34 @@ class Trainer():
         self.timers('forward').start()
         step_output = self.forward_step(data, model, mems)
         self.timers('forward').stop()
-
         # accumulate gradients
         lm_loss = step_output['loss']
         lm_loss /= self.gradient_accumulation_steps
-        
         reduced_loss = lm_loss.detach().clone().view(1)
-
         # skip the iter while loss has NAN
         if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
             # Calculate gradients, reduce across processes, and clip.
             self.timers('backward').start()
-            lm_loss.backward()
-            
+            if self.fp16 and hasattr(optimizer,'backward'):
+                optimizer.backward(lm_loss, update_master_grads=False, retain_graph=True)
+            else:
+                lm_loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), self.clip_grad) 
             self.timers('backward').stop()
 
             # Update parameters.
             self.timers('optimizer').start()
             if (self.accumulate_count+1) % self.gradient_accumulation_steps==0:
-                optimizer.step()
-                optimizer.zero_grad()
+                if self.fp16:
+                    optimizer.update_master_grads()
+                    optimizer.step()
+                    optimizer.zero_grad()
+                else:
+                    optimizer.step()
+                    model.zero_grad()
+                self.accumulate_count = 0
+            else:
+                self.accumulate_count+=1
             if lr_scheduler:
                 lr_scheduler.step()
             self.timers('optimizer').stop()
@@ -607,6 +616,7 @@ class Trainer():
             log_dist("Found NaN loss, skip backward", [0])
             del lm_loss, reduced_loss
             mems = None
+            reduced_loss = None
         return reduced_loss, mems 
 
     def train_step_pytorchDDP(self,
@@ -622,7 +632,8 @@ class Trainer():
             no_sync = model.module.no_sync
         else:
             no_sync = model.no_sync
-        mycontext = no_sync if (self.accumulate_count +1 ) % self.gradient_accumulation_steps!=0 else nullcontext
+        
+        mycontext = no_sync if (self.accumulate_count +1)  != self.gradient_accumulation_steps else nullcontext
         
         with mycontext():
             # Forward model for one step.
@@ -642,33 +653,42 @@ class Trainer():
             if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
                 # Calculate gradients, reduce across processes, and clip.
                 self.timers('backward').start()
-                lm_loss.backward()
-                
-                torch.nn.utils.clip_grad_norm_(model.parameters(), self.clip_grad) 
+            
+                if self.fp16 and hasattr(optimizer, 'backward'):
+                    log_dist("The optimizer has backward function")
+                    optimizer.backward(lm_loss, update_master_grads=False, retain_graph=True)
+                else:
+                    lm_loss.backward()
+       
+                torch.nn.utils.clip_grad_norm_(model.module.parameters(), self.clip_grad) 
                 self.timers('backward').stop()
 
                 # Update parameters.
                 self.timers('optimizer').start()
-                if self.accumulate_count % self.gradient_accumulation_steps==0:
-                    # if hasattr(optimizer, 'backward'):
-                    #     print("optimizer.backward(loss, update_master_grads=False)")
-                    #     optimizer.backward(loss, update_master_grads=False)
-                    # else:
-                    optimizer.step()
-                    optimizer.zero_grad()
+                if (self.accumulate_count+1) % self.gradient_accumulation_steps==0:
+                    if self.fp16:
+                        optimizer.update_master_grads()
+                        optimizer.step()
+                        optimizer.zero_grad()
+                    else:
+                        optimizer.step()
+                        model.zero_grad()
+                    self.accumulate_count = 0
+                else:
+                    self.accumulate_count+=1
                 if lr_scheduler:
                     lr_scheduler.step()
-                dist.barrier()
                 self.timers('optimizer').stop()
-            
+                dist.barrier()
             else:
                 log_dist("Found NaN loss, skip backward", [0])
                 del lm_loss, reduced_loss
                 mems = None
+                reduced_loss = None
         return reduced_loss, mems
 
 
-    def train_step(self,
+    def train_step_deepspeed(self,
                    data,
                    model,
                    optimizer,
@@ -677,60 +697,50 @@ class Trainer():
                    single_step=False
                   ):
         """Single training step."""
-        lm_loss_total, count = 0.0, 0
-        mems = [] if mems is None else mems
+        
+        # Forward model for one step.
+        if (self.accumulate_count+1) % self.gradient_accumulation_steps==0:
+            model.set_gradient_accumulation_boundary(True)
+        else:
+            model.set_gradient_accumulation_boundary(False)
+        self.timers('forward').start()
+        step_output = self.forward_step(data, model, mems)
+        self.timers('forward').stop()
+        lm_loss = step_output['loss']
+        reduced_loss = lm_loss.detach().clone().view(1)
 
-        while True:
-            skipped_iter, complete = 0, False
-            # Forward model for one step.
-            self.timers('forward').start()
-            step_output = self.forward_step(data, model, mems)
-            self.timers('forward').stop()
-            lm_loss = step_output['loss']
-
-            reduced_loss = lm_loss.detach().clone().view(1)
-            if self.env_type == 'deepspeed+mpu':
-                torch.distributed.all_reduce(
-                    reduced_loss.data, group=mpu.get_data_parallel_group())
-            elif self.env_type == 'deepspeed':
-                torch.distributed.all_reduce(
-                    reduced_loss.data
-                )  
-            if 'deepspeed' in self.env_type:
-                reduced_loss.data = reduced_loss.data / \
-                    (self.world_size / self.model_parallel_size)
-            if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
-                lm_loss_total += reduced_loss
-                count += 1
-                # Calculate gradients, reduce across processes, and clip.
-                self.timers('backward').start()
-                self.backward_step(optimizer, model, lm_loss)
-                self.timers('backward').stop()
-                # Update parameters.
-                self.timers('optimizer').start()
-                # if train_args.deepspeed:
-                if 'deepspeed' in self.env_type:
-                    if model.is_gradient_accumulation_boundary():
-                        model.step()
-                        complete = True
-                        if not (self.fp16 and optimizer.overflow):
-                            if lr_scheduler:
-                                lr_scheduler.step()
-                        else:
-                            skipped_iter = 1
-                    else:
-                        model.step()
-                self.timers('optimizer').stop()
-                if complete:
-                    break
+        if self.env_type == 'deepspeed+mpu':
+            torch.distributed.all_reduce(
+                reduced_loss.data, group=mpu.get_data_parallel_group())
+        elif self.env_type == 'deepspeed':
+            torch.distributed.all_reduce(
+                reduced_loss.data
+            )  
+        if 'deepspeed' in self.env_type:
+            reduced_loss.data = reduced_loss.data / \
+                (self.world_size / self.model_parallel_size)
+        if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
+            # Calculate gradients, reduce across processes, and clip.
+            self.timers('backward').start()
+            model.backward(lm_loss)
+            self.timers('backward').stop()
+            # Update parameters.
+            self.timers('optimizer').start()
+            model.step()            
+            if lr_scheduler:
+                lr_scheduler.step()
+            self.timers('optimizer').stop()
+            if (self.accumulate_count+1) % self.gradient_accumulation_steps==0:
+                self.accumulate_count = 0
             else:
-                log_dist("Found NaN loss, skip backward", [0])
-                del lm_loss, reduced_loss
-                mems = []
-            if single_step:
-                break
-        lm_loss_total = lm_loss_total / count
-        return lm_loss_total,  mems
+                self.accumulate_count+=1 
+            dist.barrier()
+        else:
+            log_dist("Found NaN loss, skip backward", [0])
+            del lm_loss, reduced_loss
+            mems = []
+            reduced_loss = None
+        return reduced_loss,  mems
 
     def forward_step(self, data, model, mems=None):
         """Simple forward step. """
@@ -823,20 +833,17 @@ class Trainer():
                  forward_step_func=None,
                  verbose=False):
         """Evaluation."""
-        # Turn on evaluation mode which disables dropout.
-        model.eval()
 
         # Turn off checkpoint_activations
         tmp_checkpoint_activations = None
-        if self.env_type =='pytorch' and self.fp16 is False:
-            tmp_checkpoint_activations = model.config['checkpoint_activations']
-            model.config['checkpoint_activations'] = False
-        elif self.fp16 is False:
-            tmp_checkpoint_activations = model.module.config['checkpoint_activations']
-            model.module.config['checkpoint_activations'] = False
-        else:
-            tmp_checkpoint_activations = model.module.module.config['checkpoint_activations']
-            model.module.module.config['checkpoint_activations'] = False
+        tmp_model = model
+        while hasattr(tmp_model,'module'):
+            tmp_model = tmp_model.module
+        # Turn on evaluation mode which disables dropout.
+        tmp_model.eval()
+        if hasattr(tmp_model,'config') and 'checkpoint_activations' in tmp_model.config: 
+            tmp_checkpoint_activations = tmp_model.config['checkpoint_activations']
+            tmp_model.config['checkpoint_activations'] = False
 
         mems = None
         metrics = [0. for _ in range(len(self.metric_methods))]
@@ -905,14 +912,11 @@ class Trainer():
                 metrics[i] += eval_method(all_logits, all_labels, meta=meta)
 
         # Move model back to the train mode.
-        model.train()
+        # model.train()
+        tmp_model.train()
         # recover the settings for checkpoint_activations
-        if self.env_type == 'pytorch' and self.fp16 is False:
-            model.config['checkpoint_activations'] = tmp_checkpoint_activations 
-        elif self.fp16 is False:
-            model.module.config['checkpoint_activations'] = tmp_checkpoint_activations  
-        else:
-            model.module.module.config['checkpoint_activations'] = tmp_checkpoint_activations  
+        if hasattr(tmp_model, 'config') and 'checkpoint_activations' in tmp_model.config: 
+            tmp_model.config['checkpoint_activations'] = tmp_checkpoint_activations 
         metric_dct = {}
         for i in range(len(self.metric_methods)):
             metric_name = self.metric_methods[i][0]
@@ -931,6 +935,7 @@ class Trainer():
             log_string += ' loss scale {:.1f} |'.format(
                 optimizer.cur_scale if 'deepspeed' in self.env_type else
                 hasattr(optimizer, 'loss_scale') and optimizer.loss_scale)
+        log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
         log_dist(log_string, [0])
 
     def report_evaluate_metrics(self, prefix, loss, ppl, gpt_loss, bert_loss,
