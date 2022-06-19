@@ -451,10 +451,10 @@ class Trainer():
             #log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
             if self.env_type == 'deepspeed+mpu':
-                if mpu.get_model_parallel_rank() == 0:  # TODO using env to decide
-                    train_dataloader.sampler.set_epoch(self.rank+ epoch)
+                if mpu.get_model_parallel_rank() == 0:  
+                    train_dataloader.sampler.set_epoch(self.rank + epoch*self.world_size)
             elif self.env_type != 'pytorch':
-                train_dataloader.sampler.set_epoch(self.rank + epoch)
+                train_dataloader.sampler.set_epoch(self.rank + epoch * self.world_size)
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
