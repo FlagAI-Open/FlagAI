@@ -427,6 +427,7 @@ class Trainer():
                 warmup_iter=int(self.warm_up* self.epochs * len(train_dataloader)),
                 decay_style='linear',
                 num_iters= self.epochs * len(train_dataloader))
+
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
             model, optimizer, _, lr_scheduler = deepspeed.initialize(
@@ -883,6 +884,7 @@ class Trainer():
                 step_output = forward_step_func(data_iterator,
                                                 model,
                                                 mems)
+
                 '''when contiguous memory optimizations are enabled, the buffers
                 allocated by the optimizations are deallocated during backward pass
                 in the absence of backward pass the buffers should be reset after each
@@ -919,6 +921,7 @@ class Trainer():
                 metrics[i] += eval_method(all_logits, all_labels, meta=meta)
 
         # Move model back to the train mode.
+
         # model.train()
         tmp_model.train()
         # recover the settings for checkpoint_activations
