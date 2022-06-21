@@ -17,7 +17,6 @@ def sigmoid(x):
 
 
 def accuracy_metric(predictions, labels, meta=None):
-    print(predictions, labels)
     count = 0
     assert len(predictions) == len(labels)
     if predictions.size() != labels.size():
