@@ -17,7 +17,6 @@ def sigmoid(x):
 
 
 def accuracy_metric(predictions, labels, meta=None):
-    print(predictions, labels)
     count = 0
     assert len(predictions) == len(labels)
     if predictions.size() != labels.size():
@@ -25,11 +24,11 @@ def accuracy_metric(predictions, labels, meta=None):
         for prediction, label in zip(predictions, labels):
             count += prediction == label
     else:
-        for prediction, label in zip(predictions, labels):
-            if sigmoid(prediction[1]) >= 0.5:
-                count += label == 1
-            else:
-                count += label == 0
+        prediction, label = predictions[0], labels[0]
+        if sigmoid(prediction) >= 0.5:
+            count += label == 1
+        else:
+            count += label == 0
     return 100.0 * count / len(labels)
 
 
