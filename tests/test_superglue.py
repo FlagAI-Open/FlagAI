@@ -16,11 +16,12 @@ class TrainerTestCase(unittest.TestCase):
 
     def test_init_trainer_pytorch(self):
         for task_name in [
-                'qqp',
+                'boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc',
+                'tnews', 'qqp'
         ]:
             trainer = Trainer(env_type='pytorch',
                               epochs=1,
-                              batch_size=1,
+                              batch_size=4,
                               eval_interval=100,
                               log_interval=50,
                               experiment_name='glm_large',
@@ -31,7 +32,7 @@ class TrainerTestCase(unittest.TestCase):
             print("downloading...")
 
             cl_args = CollateArguments()
-            cl_args.cloze_eval = False
+            cl_args.cloze_eval = True
             cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
             if task_name in CH_TASKS:
                 model_name = 'GLM-large-ch'

@@ -907,7 +907,10 @@ class Trainer():
                     deepspeed.checkpointing.reset()
                 logits = step_output['logits']
                 lm_loss = step_output['loss']
-                labels = data_iterator['labels']
+                if 'labels' in data_iterator:
+                    labels = data_iterator['labels']
+                else:
+                    labels = data_iterator['target_ids']
 
                 all_logits.append(logits)
                 all_labels.append(labels)

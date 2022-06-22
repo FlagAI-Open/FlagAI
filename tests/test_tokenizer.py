@@ -84,7 +84,7 @@ def suite():
     suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
     suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
     suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
-    
+
     # suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
     return suite
 
