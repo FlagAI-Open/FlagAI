@@ -5,3 +5,4 @@ from .t5.t5_tokenizer import T5BPETokenizer
 from .roberta.roberta_tokenizer import ROBERTATokenizer
 from .bert.bert_tokenizer import BertWordPieceTokenizer
 from .cpm_1.cpm1_tokenizer import CPMTokenizer
+from .opt.opt_en_tokenizer import OPTTokenizer

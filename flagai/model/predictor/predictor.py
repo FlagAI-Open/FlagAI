@@ -36,11 +36,46 @@ class Predictor:
 
         """
         self.tokenizer = tokenizer
+        word2idx = None
+        if getattr(self.tokenizer, "get_vocab", None) is not None:
+            word2idx = self.tokenizer.get_vocab()
+
         if getattr(self.tokenizer, "token_end_id", None) is None:
-            setattr(self.tokenizer, "token_end_id", 1)
+            if word2idx is not None:
+                if word2idx.get("[SEP]", None) is not None:
+                    setattr(self.tokenizer, "token_end_id", word2idx["[SEP]"])
+                elif word2idx.get("</s>", None) is not None:
+                    setattr(self.tokenizer, "token_end_id", word2idx["</s>"])
+                else:
+                    setattr(self.tokenizer, "token_end_id", 1)
 
         if getattr(self.tokenizer, "token_start_id", None) is None:
-            setattr(self.tokenizer, "token_start_id", 0)
+            if word2idx is not None:
+                if word2idx.get("[CLS]", None) is not None:
+                    setattr(self.tokenizer, "token_start_id", word2idx["[CLS]"])
+                elif word2idx.get("<s>", None) is not None:
+                    setattr(self.tokenizer, "token_start_id", word2idx["<s>"])
+                else:
+                    setattr(self.tokenizer, "token_start_id", 0)
+
+        if getattr(self.tokenizer, "token_unk_id", None) is None:
+            if word2idx is not None:
+                if word2idx.get("[UNK]", None) is not None:
+                    setattr(self.tokenizer, "token_unk_id", word2idx["[UNK]"])
+                elif word2idx.get("<unk>", None) is not None:
+                    setattr(self.tokenizer, "token_unk_id", word2idx["<unk>"])
+                else:
+                    setattr(self.tokenizer, "token_unk_id", 0)
+
+        if getattr(self.tokenizer, "token_pad_id", None) is None:
+            if word2idx is not None:
+                if word2idx.get("[PAD]", None) is not None:
+                    setattr(self.tokenizer, "token_pad_id", word2idx["[PAD]"])
+                elif word2idx.get("<pad>", None) is not None:
+                    setattr(self.tokenizer, "token_pad_id", word2idx["<pad>"])
+                else:
+                    setattr(self.tokenizer, "token_pad_id", 0)
+
 
         self.model = model
         self.model.eval()
@@ -253,7 +288,7 @@ class Predictor:
                                     top_p, repetition_penalty, temperature,
                                     device)
 
-        elif "gpt" in self.class_name.lower():
+        elif "gpt" in self.class_name.lower() or "opt" in self.class_name.lower():
             return gpt_random_sample(self.model, self.tokenizer, text,
                                      input_max_length, out_max_length, top_k,
                                      top_p, repetition_penalty, temperature,

@@ -140,3 +140,9 @@ def _get_model_id(model_name):
     return requests.get('https://model.baai.ac.cn/api/searchModleByName', {
         'model_name': model_name
     }).text
+
+def _get_model_files(model_name):
+    return requests.get('https://model.baai.ac.cn/api/searchModelFileByName', {
+        'model_name': model_name
+    }).text
+

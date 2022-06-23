@@ -3,7 +3,10 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import importlib
 import os
-from flagai.model.file_utils import _get_model_id, _get_vocab_path
+
+
+import flagai.model.opt_model
+from  flagai.model.file_utils import _get_model_id, _get_vocab_path
 
 
 class LazyImport(object):
@@ -50,40 +53,52 @@ ALL_TASK = {
     "glm_classification":
     ["flagai.model.glm_model", "GLMForSequenceClassification"],
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
+    "opt_seq2seq": ("flagai.model.opt_model","OPTModel"),
+    "opt_lm": ("flagai.model.opt_model","OPTModel"),
 }
 
 MODEL_DICT = {
-    "BERT-base-en": ["flagai.model.bert_model", "BertModel", "bert"],
-    "RoBERTa-base-ch": ["flagai.model.bert_model", "BertModel", "bert"],
-    "T5-base-en": ["flagai.model.t5_model", "T5Model", "t5"],
-    "T5-base-ch": ["flagai.model.t5_model", "T5Model", "t5"],
-    "GLM-large-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
-    "GLM-large-en": ["flagai.model.glm_model", "GLMModel", "glm"],
-    "GPT2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2"],
-    "CPM-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm"],
+    "bert-base-en": ["flagai.model.bert_model", "BertModel", "bert"],
+    "roberta-base-ch": ["flagai.model.bert_model", "BertModel", "bert"],
+    "t5-base-en": ["flagai.model.t5_model", "T5Model", "t5"],
+    "t5-base-ch": ["flagai.model.t5_model", "T5Model", "t5"],
+    "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
+    "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm"],
+    "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2"],
+    "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm"],
+    "opt-125m-en": ["flagai.model.opt_model","OPTModel", "opt"],
+    "opt-350m-en": ["flagai.model.opt_model","OPTModel", "opt"],
+    "opt-1.3b-en": ["flagai.model.opt_model","OPTModel", "opt"],
+    "opt-2.7b-en": ["flagai.model.opt_model","OPTModel", "opt"],
+    "opt-6.7b-en": ["flagai.model.opt_model","OPTModel", "opt"],
+    "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt"],
+    "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt"],
 }
 
 TOKENIZER_DICT = {
-    "BERT-base-en":
-    ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "RoBERTa-base-ch":
-    ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "T5-base-en":
-    ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "T5-base-ch":
-    ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "GLM-large-ch": [
+    "bert-base-en": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "roberta-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "t5-base-en": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
+    "t5-base-ch": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
+    "glm-large-ch": [
         "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
         "GLMLargeChTokenizer"
     ],
-    "GLM-large-en": [
+    "glm-large-en": [
         "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
         "GLMLargeEnTokenizer"
     ],
-    "GPT2-base-ch":
-    ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "CPM-large-ch":
-    ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"]
+
+    "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
+    "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-350m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-1.3b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-2.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+
 }
 
 
@@ -121,6 +136,8 @@ class AutoLoader:
                                          class_num=2)
 
         """
+        model_name = model_name.lower()
+
         if model_name not in MODEL_DICT:
             print(f"The model_name: {model_name} is not be supported")
             print(f"All supported models are {list(MODEL_DICT.keys())}")
@@ -154,13 +171,14 @@ class AutoLoader:
                                  **kwargs)
 
         model_id = _get_model_id(model_name)
-        print("*" * 20, task_name, model_id, model_name)
-        if model_name == 'GLM-large-ch':
-            vocab_file = os.path.join(download_path, 'cog-pretrained.model')
+
+        print("*"*20, task_name, model_id, model_name)
+        if model_name == 'glm-large-ch':
+            vocab_file = os.path.join(download_path,'cog-pretrained.model')
             if not os.path.exists(vocab_file):
-                vocab_file = _get_vocab_path(download_path,
-                                             "cog-pretrain.model", model_id)
-        elif model_name == "CPM-large-ch":
+                vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
+        elif model_name == "cpm-large-ch":
+
             # two files to load
             vocab_file_1 = os.path.join(download_path, "vocab.json")
             vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
@@ -177,10 +195,14 @@ class AutoLoader:
                                              model_id)
         tokenizer_class = TOKENIZER_DICT[model_name]
         tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
-                                  tokenizer_class[1])
-        if model_name == "CPM-large-ch":
+                                  
+                                    tokenizer_class[1])
+        if model_name == "cpm-large-ch":
             self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
-        else:
+        elif brief_model_name == "opt":
+            self.tokenizer = tokenizer_class("facebook/opt-350m")
+        else :
+
             self.tokenizer = tokenizer_class(vocab_file)
 
     def get_task_name(self, brief_model_name):

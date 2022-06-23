@@ -14,7 +14,8 @@ class AutoLoaderTestCase(unittest.TestCase):
         ]
         self.model_name = [
             "GPT2-base-ch", "T5-base-ch", "T5-base-en","RoBERTa-base-ch",
-            "GLM-large-ch","GLM-large-cn", "BERT-base-en"
+            "GLM-large-ch","GLM-large-cn", "BERT-base-en", "opt-350m-en",
+            "opt-125m-en", "opt-1.3b-en", "opt-2.7b-en",
         ]
 
 
@@ -103,6 +104,16 @@ class AutoLoaderTestCase(unittest.TestCase):
                 f"task_name is {t_name}, model_name is {m_name}"
             )
 
+    def test_OPT_model(self):
+
+        for m_name in ["opt-350m-en", "opt-125m-en", "opt-1.3b-en", "opt-2.7b-en"]:
+            loader = AutoLoader(task_name="lm",
+                                model_name=m_name,
+                                only_download_config=True)
+            print(
+                f"task_name is lm, model_name is {m_name}"
+            )
+
    
 def suite():
     suite = unittest.TestSuite()
@@ -113,6 +124,8 @@ def suite():
     suite.addTest(AutoLoaderTestCase('test_T5_base_ch'))
     suite.addTest(AutoLoaderTestCase('test_GPT2_base_ch'))
     suite.addTest(AutoLoaderTestCase('test_CPM_large_ch'))
+    suite.addTest(AutoLoaderTestCase('test_OPT_model'))
+
     return suite
 
 

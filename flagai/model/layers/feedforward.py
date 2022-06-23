@@ -72,7 +72,7 @@ class GPT2MLP(nn.Module):
                  init_method=init.xavier_normal_
                  ):  # in MLP: n_state=3072 (4 * n_embd)
         super().__init__()
-        nx = config['n_embd']
+        nx = config.hidden_size
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             self.c_fc = ColumnParallelLinear(nx,
                                              n_state,
@@ -89,8 +89,8 @@ class GPT2MLP(nn.Module):
         else:
             self.c_fc = nn.Linear(nx, n_state)
             self.c_proj = nn.Linear(n_state, nx)
-        self.act = ACT2FN[config['activation_function']]
-        self.dropout = nn.Dropout(config['resid_pdrop'])
+        self.act = ACT2FN[config.activation_function]
+        self.dropout = nn.Dropout(config.resid_pdrop)
 
     def forward(self, x):
         h = self.act(self.c_fc(x))

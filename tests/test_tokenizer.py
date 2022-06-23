@@ -8,6 +8,7 @@ from flagai.data.tokenizer import GLM10bENBPETokenizer
 from flagai.data.tokenizer import T5BPETokenizer
 from flagai.data.tokenizer import ROBERTATokenizer
 from flagai.data.tokenizer import BertWordPieceTokenizer
+from flagai.data.tokenizer import OPTTokenizer
 from flagai.auto_model.auto_loader import AutoLoader
 
 class TokenizerTestCase(unittest.TestCase):
@@ -75,6 +76,14 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.decode([2487, 27385, 8, 10, 9291, 9412, 3531, 8, 10, 14588, 289, 8, 10, 4406, 8, 10, 25239]),
                          'fried chicken makes me happy', 'DecodeIds Error')
 
+    def test_tokenizer_opt(self):
+        tokenizer = OPTTokenizer(tokenizer_model_type="facebook/opt-125m")
+        self.assertEqual(tokenizer.get_vocab()["day"], 1208, '')
+        self.assertEqual(tokenizer.encode_plus("fried chicken makes me happy")["input_ids"],
+                         [2, 21209, 5884, 817, 162, 1372], '')
+        self.assertEqual(tokenizer.decode([21209, 5884, 817, 162, 1372]),
+                         'fried chicken makes me happy', 'DecodeIds Error')
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -84,8 +93,9 @@ def suite():
     suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
     suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
     suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_opt'))
 
-    # suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
     return suite
 
 

@@ -53,13 +53,13 @@ class GPT2Attention(nn.Module):
 
         n_state = nx  # in Attention: n_state=768 (nx=n_embd)
         # [switch nx => n_state from Block to Attention to keep identical to TF implem]
-        assert n_state % config['n_head'] == 0
-        self.register_buffer(
-            "bias",
-            torch.tril(torch.ones((n_ctx, n_ctx),
-                                  dtype=torch.uint8)).view(1, 1, n_ctx, n_ctx))
-        self.register_buffer("masked_bias", torch.tensor(-1e4))
-        self.n_head = config['n_head']
+        assert n_state % config.n_head == 0
+        # self.register_buffer(
+        #     "bias",
+        #     torch.tril(torch.ones((n_ctx, n_ctx),
+        #                           dtype=torch.uint8)).view(1, 1, n_ctx, n_ctx))
+        # self.register_buffer("masked_bias", torch.tensor(-1e4))
+        self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
@@ -84,8 +84,8 @@ class GPT2Attention(nn.Module):
         else:
             self.c_attn = nn.Linear(nx, 3 * n_state)
             self.c_proj = nn.Linear(nx, n_state)
-        self.attn_dropout = nn.Dropout(config['attn_pdrop'])
-        self.resid_dropout = nn.Dropout(config['resid_pdrop'])
+        self.attn_dropout = nn.Dropout(config.attn_pdrop)
+        self.resid_dropout = nn.Dropout(config.resid_pdrop)
         self.pruned_heads = set()
 
     def _attn(self,
@@ -103,8 +103,8 @@ class GPT2Attention(nn.Module):
 
         # if not self.is_cross_attention:
         # if only "normal" attention layer implements causal mask
-        mask = self.bias[:, :, ns - nd:ns, :ns]
-        w = torch.where(mask.bool(), w, self.masked_bias.to(w.dtype))
+        # mask = self.bias[:, :, ns - nd:ns, :ns]
+        # w = torch.where(mask.bool(), w, self.masked_bias.to(w.dtype))
 
         if attention_mask is not None:
             # Apply the attention mask

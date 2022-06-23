@@ -10,13 +10,13 @@ class GPT2Block(nn.Module):
 
     def __init__(self, n_ctx, config, scale=False):
         super().__init__()
-        hidden_size = config['n_embd']
-        inner_dim = config['n_inner'] if config[
-            'n_inner'] is not None else 4 * hidden_size
-        self.ln_1 = nn.LayerNorm(hidden_size, eps=config['layer_norm_epsilon'])
+        hidden_size = config.hidden_size
+        inner_dim = config.n_inner if config.n_inner is not None else 4 * hidden_size
+        self.ln_1 = nn.LayerNorm(hidden_size, eps=config.layer_norm_epsilon)
         self.attn = GPT2Attention(hidden_size, n_ctx, config, scale)
-        self.ln_2 = nn.LayerNorm(hidden_size, eps=config['layer_norm_epsilon'])
+        self.ln_2 = nn.LayerNorm(hidden_size, eps=config.layer_norm_epsilon)
         self.mlp = GPT2MLP(inner_dim, config)
+        self.do_layer_norm_before = config.do_layer_norm_before
 
     def forward(
         self,
@@ -26,21 +26,39 @@ class GPT2Block(nn.Module):
         use_cache=False,
         output_attentions=False,
     ):
+
+        residual = hidden_states
+
+        if self.do_layer_norm_before:
+            hidden_states = self.ln_1(hidden_states)
+
         attn_outputs = self.attn(
-            self.ln_1(hidden_states),
+            hidden_states,
             attention_mask=attention_mask,
             head_mask=head_mask,
             use_cache=use_cache,
             output_attentions=output_attentions,
         )
+
         attn_output = attn_outputs[0]  # output_attn: a, present, (attentions)
         outputs = attn_outputs[1:]
         # residual connection
-        hidden_states = attn_output + hidden_states
+        hidden_states = attn_output + residual
 
-        feed_forward_hidden_states = self.mlp(self.ln_2(hidden_states))
+        if not self.do_layer_norm_before:
+            hidden_states = self.ln_1(hidden_states)
+
+        residual = hidden_states
+
+        if self.do_layer_norm_before:
+            hidden_states = self.ln_2(hidden_states)
+
+        feed_forward_hidden_states = self.mlp(hidden_states)
         # residual connection
-        hidden_states = hidden_states + feed_forward_hidden_states
+        hidden_states = residual + feed_forward_hidden_states
+
+        if not self.do_layer_norm_before:
+            hidden_states = self.ln_2(hidden_states)
 
         if use_cache:
             outputs = (hidden_states, ) + outputs

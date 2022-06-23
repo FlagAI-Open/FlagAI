@@ -5,8 +5,9 @@ from sklearn.linear_model import HuberRegressor
 from torch.nn import Module
 import torch
 import json
-from typing import Union
-from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path
+from typing import Union 
+from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path, _get_model_files
+
 import os
 
 
@@ -60,11 +61,27 @@ class BaseModel(Module):
         if model_id and model_id != "null":
             if not os.path.exists(os.path.join(download_path, 'vocab.txt')):
                 _get_vocab_path(download_path, "vocab.txt", model_id)
-            if not only_download_config and not os.path.exists(
-                    os.path.join(download_path, 'config.json')):
-                checkpoint_path = _get_checkpoint_path(download_path,
-                                                       'pytorch_model.bin',
-                                                       model_id)
+
+            if not only_download_config and not os.path.exists(os.path.join(download_path, 'config.json')):
+                model_files = eval(_get_model_files(model_name))
+                if 'pytorch_model.bin' in model_files:
+                    checkpoint_path = _get_checkpoint_path(download_path,
+                                                           'pytorch_model.bin',
+                                                           model_id)
+                else :
+                    checkpoint_merge = {}
+                    # maybe multi weights files
+                    for file_to_load in model_files:
+                        if "pytorch_model-0" in file_to_load:
+                            _get_checkpoint_path(download_path,
+                                                 file_to_load,
+                                                 model_id)
+                            checkpoint_to_load = torch.load(os.path.join(download_path, file_to_load), map_location="cpu")
+                            for k, v in checkpoint_to_load.items():
+                                checkpoint_merge[k] = v
+                    # save all parameters
+                    torch.save(checkpoint_merge, os.path.join(download_path, "pytorch_model.bin"))
+
 
         config_path = os.path.join(download_path, "config.json")
         if model_id and not os.path.exists(config_path) and model_id != "null":

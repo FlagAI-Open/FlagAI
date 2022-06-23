@@ -15,34 +15,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-"""Sample Generate GPT2"""
-import sys
-# sys.path.append('/data/wang/models/GLMgeneration')
-# sys.path.append('/data/wang/models/FlagAI')
-import os
 import torch
-
-from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
-    """Main training program."""
-    print('Generate Samples')
-    # Random seeds for reproducability.
-    # Model,
-    model = GLMModel.from_pretrain(model_name='GLM-large-ch', download_path="./state_dict/")
-    #tokenizer = GLMLargeChTokenizer(vocab_path='./state_dict/GLM-large-ch/cog-pretrain.model',
-    tokenizer = GLMLargeChTokenizer(
-                                    add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=True)
-
-    model.cuda(torch.cuda.current_device())
+    loader = AutoLoader(task_name="lm",
+                        model_name="GLM-large-ch",
+                        )
+    model = loader.get_model()
+    tokenizer = loader.get_tokenizer()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
     predictor = Predictor(model, tokenizer)
-    # generate samples
+
     text = ['问题：啤酒伤胃吗？回答：[gMASK]',
             "问题：隔夜菜能吃吗？回答：[gMASK]",
             "问题：如何评价许嵩？回答：[gMASK]"]
