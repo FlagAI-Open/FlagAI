@@ -1,8 +1,7 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys
-sys.path.append('/mnt/liuguang/FlagAI')
+
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.model.bert_model import BertForClsClassifier
@@ -15,7 +14,7 @@ from flagai.test_utils import CollateArguments
 
 task_name = 'qqp'
 trainer = Trainer(env_type='pytorch',
-                  pytorch_device='cuda:1',
+                  pytorch_device='cuda',
                   epochs=2,
                   batch_size=128+256,
                   eval_interval=500,

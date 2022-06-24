@@ -1,8 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys
-sys.path.append('/mnt/liuguang/FlagAI')
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import GLM10bENBPETokenizer, GLMLargeEnWordPieceTokenizer
@@ -27,7 +25,7 @@ trainer = Trainer(env_type='pytorchDDP',
                   master_ip='127.0.0.1',
                   master_port=16665,
                   num_nodes=1,
-                  num_gpus=4,
+                  num_gpus=2,
                   hostfile='./hostfile',
                   training_script=__file__)
 
@@ -50,6 +48,7 @@ valid_dataset = SuperGlueDataset(task_name=task_name,
 cl_args = CollateArguments()
 cl_args.cloze_eval = True
 
+
 if task_name in ['copa', 'wsc', 'record']:
     cl_args.multi_token = True
 
@@ -58,8 +57,7 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name)
-# train_dataset.example_list = train_dataset.example_list[:160]
-valid_dataset.example_list = valid_dataset.example_list[:160]
+
 
 trainer.train(model,
               train_dataset=train_dataset,

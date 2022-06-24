@@ -1,8 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys
-sys.path.append('/mnt/liuguang/FlagAI')
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import GLM10bENBPETokenizer, GLMLargeEnWordPieceTokenizer
@@ -16,7 +14,7 @@ trainer = Trainer(env_type='deepspeed',
                   batch_size=512,
                   eval_interval=100,
                   log_interval=10,
-                  save_interval=1e5,
+                  save_interval = 1e5,
                   gradient_accumulation_steps=5,
                   checkpoint_activations=True,
                   fp16=True,
@@ -33,6 +31,7 @@ trainer = Trainer(env_type='deepspeed',
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
                                              model_name="GLM-large-en")
+
 
 tokenizer = GLMLargeEnWordPieceTokenizer()
 train_dataset = SuperGlueDataset(task_name=task_name,
@@ -57,6 +56,7 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name)
+
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=valid_dataset,

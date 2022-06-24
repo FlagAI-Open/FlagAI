@@ -22,6 +22,7 @@ elif os.getenv('ENV_TYPE') == 'deepspeed':
 else:
     from torch.utils.checkpoint import checkpoint
 
+
 class GPT2Config:
 
     def __init__(

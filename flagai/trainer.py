@@ -11,8 +11,7 @@ try:
     from flagai import mpu
 except Exception:
     pass
-from re import I
-from attr import has
+
 import torch
 import argparse
 import os
@@ -32,7 +31,8 @@ from flagai.fp16 import DynamicLossScaler
 """
 The Trainer class, to easily train a pytorh model on a new task.
 """
-
+def save_best(best_score, eval_dict):
+    return best_score if best_score < eval_dict['loss'] else eval_dict['loss']
 
 class Trainer():
     """
@@ -129,11 +129,13 @@ class Trainer():
 
         # model checkpointing
         save_dir='checkpoints',  # 'Output directory to save checkpoints to.')
+        save_best=save_best,
         save_optim=False,  # save current optimizer.')
         save_rng=False,  # save current rng state.')
         load_dir=None,  # Path to a directory containing a model checkpoint.')
         load_type='latest',  # latest, best
         load_optim=False,  # not load optimizer when loading checkpoint.')
+
         # ' not load rng state when loading checkpoint.')):
         load_rng=False,
         tensorboard_dir="tensorboard_summary",
@@ -179,6 +181,7 @@ class Trainer():
         self.save_interval = save_interval
         self.save_optim = save_optim
         self.save_rng = save_rng
+        self.save_best = save_best
         self.load_dir = load_dir
         self.load_type = load_type
         self.load_optim = load_optim
@@ -403,7 +406,8 @@ class Trainer():
             model.to(torch.device('cuda', self.local_rank))
             model = DDP(model,
                         device_ids=[self.local_rank],
-                        find_unused_parameters=False)
+                        find_unused_parameters=True)
+
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)
         else:
@@ -425,9 +429,10 @@ class Trainer():
                 cpu_optimizer=False,
                 cpu_torch_adam=False,
                 fp16=self.fp16,
-                optimizer='adam' if not self.fp16 else 'adafactor')
+                optimizer='adam')  # if not self.fp16 else 'adafactor')
 
-        if lr_scheduler == None and optimizer != None and 'deepspeed' not in self.env_type and self.epochs > 0:
+        if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
+
             lr_scheduler = AnnealingLR(
                 optimizer,
                 start_lr=self.lr,
@@ -462,17 +467,19 @@ class Trainer():
         # self.eval_metrics = eval_metrics
         # self.do_eval = valid_dataset!=None
         self.metric_methods = metric_methods
+        best_score = float('inf')
+        if len(self.metric_methods) > 0:
+            best_score = -best_score
 
         for epoch in range(self.epochs):
-            #log_dist('working on epoch {} ...'.format(epoch), [0])
+            # log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
             if self.env_type == 'deepspeed+mpu':
                 if mpu.get_model_parallel_rank() == 0:
-                    train_dataloader.sampler.set_epoch(self.rank +
-                                                       epoch * self.world_size)
+                    train_dataloader.sampler.set_epoch(epoch + self.world_size)
             elif self.env_type != 'pytorch':
-                train_dataloader.sampler.set_epoch(self.rank +
-                                                   epoch * self.world_size)
+                train_dataloader.sampler.set_epoch(epoch + self.world_size)
+
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
@@ -490,6 +497,8 @@ class Trainer():
                 if self.env_type == 'pytorchDDP':
                     lm_loss, _ = self.train_step_pytorchDDP(
                         batch, model, optimizer, lr_scheduler)
+                    dist.barrier()
+
                 elif self.env_type == 'pytorch':
                     lm_loss, _ = self.train_step_pytorch(
                         batch, model, optimizer, lr_scheduler)
@@ -499,6 +508,7 @@ class Trainer():
                                                            optimizer,
                                                            lr_scheduler,
                                                            single_step=True)
+                    dist.barrier()
                 total_lm_loss += lm_loss.data.detach().float()
 
                 # Logging.
@@ -520,7 +530,6 @@ class Trainer():
                                               self.iteration + 1)
                     total_lm_loss = 0.0
                 # Evaluation #todo add train_args
-
                 if self.eval_interval and (
                         self.iteration + 1
                 ) % self.eval_interval == 0 and valid_dataloader is not None:
@@ -543,11 +552,14 @@ class Trainer():
                             self.tb_writer.add_scalar(
                                 'eval_metrics/%s' % (name), score,
                                 self.iteration + 1)
-                        if eval_loss < best_loss:
-                            best_loss = eval_loss
+                                
+                        if self.save_best is not None and self.save_best(best_score, eval_dict) != best_score:
+                            best_score = self.save_best(best_score, eval_dict)
+                            log_dist("saving best model with score {:.4f}".format(best_score))
                             best_iteration = self.iteration
-                            save_checkpoint(self.iteration,
-                                            best_iteration,
+                            save_checkpoint(self.iteration+1,
+                                            best_iteration+1,
+
                                             model,
                                             optimizer,
                                             lr_scheduler,
@@ -555,9 +567,9 @@ class Trainer():
                                             save_dir=self.save_dir,
                                             save_rng=self.save_rng)
                 if self.save_dir and (self.iteration + 1) % self.save_interval == 0 and \
-                    self.iteration!=best_iteration:
-                    save_checkpoint(self.iteration,
-                                    best_iteration,
+                        self.iteration != best_iteration:
+                    save_checkpoint(self.iteration+1,
+                                    best_iteration+1,
                                     model,
                                     optimizer,
                                     lr_scheduler,
@@ -569,9 +581,9 @@ class Trainer():
                 # Checkpointing at the end of each epoch.
 
         # Evaluation #todo add train_args
-        if self.eval_interval and (
-                self.iteration
-        ) % self.eval_interval != 0 and valid_dataloader is not None:
+        if ((self.epochs == 0) or (self.eval_interval and
+                                   (self.iteration ) % self.eval_interval != 0)
+            ) and valid_dataloader is not None:
             prefix = 'final evaluate'
             self.evaluate_and_print_results(
                 prefix=prefix,
@@ -613,12 +625,12 @@ class Trainer():
             if (self.accumulate_count +
                     1) % self.gradient_accumulation_steps == 0:
                 if self.fp16:
-                    optimizer.update_master_grads()
+                    # optimizer.update_master_grads()
                     optimizer.step()
                     optimizer.zero_grad()
                 else:
                     optimizer.step()
-                    optimizer.zero_grad()
+                    # optimizer.zero_grad()
                 self.accumulate_count = 0
             else:
                 self.accumulate_count += 1
@@ -689,10 +701,11 @@ class Trainer():
                     if self.fp16:
                         optimizer.update_master_grads()
                         optimizer.step()
-                        model.zero_grad()
+                        optimizer.zero_grad()
                     else:
                         optimizer.step()
-                        model.zero_grad()
+                        # model.zero_grad()
+
                     self.accumulate_count = 0
                 else:
                     self.accumulate_count += 1
@@ -700,6 +713,7 @@ class Trainer():
                     lr_scheduler.step()
                 self.timers('optimizer').stop()
                 dist.barrier()
+
             else:
                 log_dist("Found NaN loss, skip backward", [0])
                 del lm_loss, reduced_loss
@@ -907,6 +921,7 @@ class Trainer():
                     deepspeed.checkpointing.reset()
                 logits = step_output['logits']
                 lm_loss = step_output['loss']
+
                 if 'labels' in data_iterator:
                     labels = data_iterator['labels']
                 else:
@@ -1000,7 +1015,7 @@ class Trainer():
 
         for i in range(len(self.metric_methods)):
             name = self.metric_methods[i][0]
-            string += ", {} {:.2f}".format(name, eval_dict[name])
+            string += ", {} {:.3f}".format(name, eval_dict[name])
         # string = ' validation loss at {} | {:.4f},  Acc {:.2f}'.format(
         #     prefix, eval_dict["loss"], eval_dict["metrics"])
         length = len(string) + 1

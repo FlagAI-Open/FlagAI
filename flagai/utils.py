@@ -177,7 +177,7 @@ def save_checkpoint(iteration,
     sd = {'iteration': iteration}
 
     # model state_dict
-    if "deepspeed" in env_type or "pytorchDDP" in env_type:
+    while hasattr(model, 'module'): 
         model = model.module
     # if only_changed_parameters:
     #     requires_grad_dict = {}
@@ -265,6 +265,9 @@ def load_checkpoint(model, load_dir="checkpoints", load_type='latest'):
     log_dist('global rank {} is loading checkpoint {}'.format(
         0, checkpoint_name))
     sd = torch.load(checkpoint_name, map_location='cpu')
+
+    while hasattr(model, 'module'):
+        model = model.module
     model.load_state_dict(sd['module'], strict=False)
     del sd['module']
     return sd

@@ -3,8 +3,10 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import importlib
 import os
+
 from  flagai.model.file_utils import _get_model_id, _get_vocab_path
 import copy
+
 
 class LazyImport(object):
 
@@ -85,7 +87,6 @@ TOKENIZER_DICT = {
         "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
         "GLMLargeEnTokenizer"
     ],
-
     "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
     "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
     "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
@@ -95,7 +96,6 @@ TOKENIZER_DICT = {
     "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
     "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
     "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-
 }
 
 
@@ -156,6 +156,7 @@ class AutoLoader:
             )
             return
 
+
         model_id = _get_model_id(f"{raw_model_name}-{task_name}")
         if model_id != 'null':
             model_name_ = f"{raw_model_name}-{task_name}"
@@ -178,7 +179,6 @@ class AutoLoader:
             if not os.path.exists(vocab_file):
                 vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
         elif model_name == "cpm-large-ch":
-
             # two files to load
             vocab_file_1 = os.path.join(download_path, "vocab.json")
             vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
@@ -194,15 +194,13 @@ class AutoLoader:
                 vocab_file = _get_vocab_path(download_path, "vocab.txt",
                                              model_id)
         tokenizer_class = TOKENIZER_DICT[model_name]
-        tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
-                                  
+        tokenizer_class = getattr(LazyImport(tokenizer_class[0]),                              
                                     tokenizer_class[1])
         if model_name == "cpm-large-ch":
             self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
         elif brief_model_name == "opt":
             self.tokenizer = tokenizer_class("facebook/opt-350m")
         else :
-
             self.tokenizer = tokenizer_class(vocab_file)
 
     def get_task_name(self, brief_model_name):

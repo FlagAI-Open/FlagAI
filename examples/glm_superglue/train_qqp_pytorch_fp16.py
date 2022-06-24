@@ -1,8 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys
-sys.path.append('/mnt/liuguang/FlagAI')
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import GLM10bENBPETokenizer, GLMLargeEnWordPieceTokenizer
@@ -15,7 +13,7 @@ from flagai.test_utils import CollateArguments
 task_name = 'qqp'
 trainer = Trainer(env_type='pytorch',
                   pytorch_device='cuda:3',
-                  epochs=2,
+                  epochs=10,
                   batch_size=456,
                   eval_interval=1e5,
                   log_interval=10,

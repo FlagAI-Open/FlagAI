@@ -7,7 +7,6 @@ import torch
 import json
 from typing import Union 
 from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path, _get_model_files
-
 import os
 
 
@@ -81,7 +80,6 @@ class BaseModel(Module):
                                 checkpoint_merge[k] = v
                     # save all parameters
                     torch.save(checkpoint_merge, os.path.join(download_path, "pytorch_model.bin"))
-
 
         config_path = os.path.join(download_path, "config.json")
         if model_id and not os.path.exists(config_path) and model_id != "null":
