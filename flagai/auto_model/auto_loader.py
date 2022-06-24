@@ -3,11 +3,8 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import importlib
 import os
-
-
-import flagai.model.opt_model
 from  flagai.model.file_utils import _get_model_id, _get_vocab_path
-
+import copy
 
 class LazyImport(object):
 
@@ -136,8 +133,8 @@ class AutoLoader:
                                          class_num=2)
 
         """
-        model_name = model_name.lower()
-
+        
+        raw_model_name = copy.deepcopy(model_name)
         if model_name not in MODEL_DICT:
             print(f"The model_name: {model_name} is not be supported")
             print(f"All supported models are {list(MODEL_DICT.keys())}")
@@ -156,11 +153,11 @@ class AutoLoader:
             )
             return
 
-        model_id = _get_model_id(f"{model_name}-{task_name}")
+        model_id = _get_model_id(f"{raw_model_name}-{task_name}")
         if model_id != 'null':
-            model_name_ = f"{model_name}-{task_name}"
+            model_name_ = f"{raw_model_name}-{task_name}"
         else:
-            model_name_ = model_name
+            model_name_ = raw_model_name
         download_path = os.path.join(model_dir, model_name_)
         os.makedirs(download_path, exist_ok=True)
         self.model = getattr(LazyImport(self.model_name[0]),
