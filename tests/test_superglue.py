@@ -17,7 +17,7 @@ class TrainerTestCase(unittest.TestCase):
     def test_init_trainer_pytorch(self):
         for task_name in [
                 'boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc',
-                'tnews', 'qqp'
+                'tnews', 'qqp', 'cola', 'mnli', 'qnli'
         ]:
             trainer = Trainer(env_type='pytorch',
                               epochs=1,
