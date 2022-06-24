@@ -1,6 +1,7 @@
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
 [![Python application](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml)
+![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/BAAI-Open/FlagAI?include_prereleases&style=social)
 [English](README.md)
 
 --------------------------------------------------------------------------------
