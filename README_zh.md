@@ -191,6 +191,7 @@ for text_pair in test_data:
 * [RoBERTa-base-ch用于命名实体识别](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)
 * [GPT-2用于文本续写](/doc_zh/TUTORIAL_18_GPT2_WRITING.md)
 * [T5用于标题生成](/doc_zh/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
+* [OPT模型示例](/examples/opt/README.md)
 
 [//]: # (* [用GLM10b模型在TNEWS短文本分类数据集上微调]&#40;doc_zh/TUTORIAL_20_GLM_TNEWS.md&#41;)
 
