@@ -28,7 +28,6 @@ trainer = Trainer(env_type='pytorch',
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
                                              model_name="GLM-large-en")
-#tokenizer = GLM10bENBPETokenizer()
 tokenizer = GLMLargeEnWordPieceTokenizer()
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='./datasets/',

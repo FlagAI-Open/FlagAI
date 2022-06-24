@@ -15,7 +15,7 @@ from flagai.test_utils import CollateArguments
 
 task_name = 'qqp'
 trainer = Trainer(env_type='pytorch',
-                  pytorch_device='cuda',
+                  pytorch_device='cuda:1',
                   epochs=2,
                   batch_size=128+256,
                   eval_interval=500,
