@@ -135,6 +135,9 @@ class AutoLoader:
         """
         
         raw_model_name = copy.deepcopy(model_name)
+
+        model_name = model_name.lower()
+
         if model_name not in MODEL_DICT:
             print(f"The model_name: {model_name} is not be supported")
             print(f"All supported models are {list(MODEL_DICT.keys())}")
