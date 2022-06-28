@@ -85,7 +85,7 @@ TOKENIZER_DICT = {
     ],
     "glm-large-en": [
         "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
-        "GLMLargeEnTokenizer"
+        "GLMLargeEnWordPieceTokenizer"
     ],
     "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
     "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
@@ -200,6 +200,8 @@ class AutoLoader:
             self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
         elif brief_model_name == "opt":
             self.tokenizer = tokenizer_class("facebook/opt-350m")
+        elif model_name in ["glm-large-en", "glm-large-ch"]:
+            self.tokenizer = tokenizer_class()
         else :
             self.tokenizer = tokenizer_class(vocab_file)
 

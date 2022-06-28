@@ -1009,7 +1009,8 @@ class Trainer():
         if eval_dict.get("loss", None) is not None:
             string = ' validation loss at {} | {:.4f}, '.format(
                 prefix, eval_dict["loss"])
-
+        # with open("results.txt", "a") as myfile:
+        #     myfile.write(string)
         if self.metric_methods is None:
             return eval_dict
 
