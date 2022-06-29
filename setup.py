@@ -5,12 +5,12 @@ from setuptools import find_packages, setup
 
 setup(
     name="flagai",
-    version="v1.0.5",
+    version="v1.1.0",
     description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="BAAI-Open",
-    author_email="liuguang@baai.ac.cn",
+    author_email="open@baai.ac.cn",
     url="https://github.com/BAAI-Open/FlagAI",
     packages=find_packages(exclude="tests"),  # same as name
     license="Apache 2.0",
@@ -24,7 +24,7 @@ setup(
         'jieba==0.42.1',
         'scikit-learn==1.0.2',
         'tensorboard==2.9.0',
-        'transformers==4.18.0',
+        'transformers==4.20.1',
         'datasets==2.0.0',
         'setuptools==59.5.0',
         'protobuf==3.20.1',
