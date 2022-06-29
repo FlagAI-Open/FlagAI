@@ -80,7 +80,7 @@ class TokenizerTestCase(unittest.TestCase):
         tokenizer = OPTTokenizer(tokenizer_model_type="facebook/opt-125m")
         self.assertEqual(tokenizer.get_vocab()["day"], 1208, '')
         self.assertEqual(tokenizer.encode_plus("fried chicken makes me happy")["input_ids"],
-                         [21209, 5884, 817, 162, 1372], '')
+                         [2, 21209, 5884, 817, 162, 1372], '')
         self.assertEqual(tokenizer.decode([21209, 5884, 817, 162, 1372]),
                          'fried chicken makes me happy', 'DecodeIds Error')
 
