@@ -64,6 +64,8 @@ class GPT2Attention(nn.Module):
         self.scale = scale
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             world_size = get_model_parallel_world_size()
+            self.split_size = divide(n_state, world_size)
+
             self.hidden_size_per_partition = divide(nx, world_size)
             self.hidden_size_per_attention_head = divide(nx, self.n_head)
             self.num_attention_heads_per_partition = divide(

@@ -8,15 +8,17 @@ from flagai.model.blocks.gpt2_block import GPT2Block
 from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.utils import normal_init_method
 from flagai.model.base_model import BaseModel
+import torch.nn.functional as F
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import get_model_parallel_world_size
-    from flagai.mpu import gather_from_model_parallel_region
     from flagai.mpu import get_cuda_rng_tracker
     from flagai.mpu.utils import divide
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import copy_to_model_parallel_region
     from flagai.mpu.random import checkpoint
+    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region
+    from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
+
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:
@@ -224,6 +226,7 @@ class GPT2Model(BaseModel):
                 do_layer_norm_before=self.config.get("do_layer_norm_before", True),
             )
             self.config = config_gpt
+        self.parallel_output = True
 
         self.transformer = GPT2Stack(self.config)
         self.lm_head = nn.Linear(self.config.n_embd,
@@ -266,21 +269,70 @@ class GPT2Model(BaseModel):
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
         )
-        hidden_states = transformer_outputs
+        logits = transformer_outputs
 
-        lm_logits = self.lm_head(hidden_states)
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            logits_parallel = copy_to_model_parallel_region(logits)
+        else:
+            logits_parallel = logits
 
-        return_data = {"logits": lm_logits}
+        # if self.output_predict:
+            # Parallel logits.
+        logits_parallel = F.linear(logits_parallel,
+                                   self.transformer.wte.weight)
+
         if labels is not None:
-            # Shift so that tokens < n predict n
-            shift_logits = lm_logits[..., :-1, :].contiguous()
+            shift_logits = logits_parallel[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
-            loss_fct = nn.CrossEntropyLoss()
-            loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)),
-                            shift_labels.view(-1))
-            return_data["loss"] = loss
 
-        return return_data
+            if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+                loss = vocab_parallel_cross_entropy(
+                    shift_logits.contiguous().float(), shift_labels).mean()
+            else:
+                loss = F.cross_entropy(
+                    shift_logits.contiguous().float(), shift_labels.long())
+
+            if self.parallel_output:  # Put in different GPUs
+                return {
+                    'logits': logits_parallel,
+                    'loss': loss,
+                    'hidden_states': None,
+                }
+            else:
+                return {
+                    "logits":
+                        gather_from_model_parallel_region(logits_parallel),
+                    "loss":
+                        loss,
+                    "hidden_states":
+                        None,
+                }
+        else:
+            if self.parallel_output:  # Put in different GPUs
+                return {
+                    'logits': logits_parallel,
+                    'hidden_states': None,
+                }
+            else:
+                return {
+                    "logits":
+                        gather_from_model_parallel_region(logits_parallel),
+                    "hidden_states":
+                        None,
+                }
+
+        # lm_logits = self.lm_head(hidden_states)
+        # return_data = {"logits": lm_logits}
+        # if labels is not None:
+        #     # Shift so that tokens < n predict n
+        #     shift_logits = lm_logits[..., :-1, :].contiguous()
+        #     shift_labels = labels[..., 1:].contiguous()
+        #     loss_fct = nn.CrossEntropyLoss()
+        #     loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)),
+        #                     shift_labels.view(-1))
+        #     return_data["loss"] = loss
+
+        # return return_data
 
     def load_weights(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path,
