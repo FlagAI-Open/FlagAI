@@ -96,6 +96,9 @@ DEFAULT_TYPE_TOKENS = [
 DEFAULT_TYPE_TOKENS = prep_type_tokens(DEFAULT_TYPE_TOKENS)
 
 
+
+
+
 class GLMTokenizer(object):
     """
     Tokenizer object that handles text tokenization, command tokens, and type tokens.
@@ -455,6 +458,8 @@ class Tokenizer(object):
         """A list of tokens => recovered text string"""
         return self.text_tokenizer.convert_tokens_to_string(tokens)
 
+
+# class BaseTokenizer(object):
 
 class TextTokenizer(object):
     """

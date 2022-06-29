@@ -8,7 +8,7 @@ from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 
-task_name = 'qqp'
+task_name = 'wic'
 trainer = Trainer(env_type='deepspeed',
                   epochs=10,
                   batch_size=512,

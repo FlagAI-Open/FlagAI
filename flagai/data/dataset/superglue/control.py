@@ -170,8 +170,11 @@ class SuperGlueProcessor:
         files = [f for f in os.listdir(dirname)]
 
         for f in files:
-            if f.lower() == dname:
-                os.rename(dirname + '/' + f, dirname + '/' + dname)
+            try:
+                if f.lower() == dname:
+                    os.rename(dirname + '/' + f, dirname + '/' + dname)
+            except:
+                pass
 
     def _unzip_file(self, src_file, dst_dir):
         r = zipfile.is_zipfile((src_file))
