@@ -377,7 +377,6 @@ from flagai.model.file_utils import _get_model_id, _get_vocab_path
 import logging
 logger = logging.getLogger(__name__)
 class BaseTokenizer(object):
-
     @classmethod
     def from_pretrained(cls,
                         pretrained_model_name_or_path,
