@@ -11,12 +11,9 @@ from flagai.model.base_model import BaseModel
 import torch.nn.functional as F
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import get_model_parallel_world_size
-    from flagai.mpu import get_cuda_rng_tracker
     from flagai.mpu.utils import divide
-if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.random import checkpoint
-    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region
+    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region, get_model_parallel_world_size, get_cuda_rng_tracker
     from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
 
 elif os.getenv('ENV_TYPE') == 'deepspeed':
@@ -320,19 +317,6 @@ class GPT2Model(BaseModel):
                     "hidden_states":
                         None,
                 }
-
-        # lm_logits = self.lm_head(hidden_states)
-        # return_data = {"logits": lm_logits}
-        # if labels is not None:
-        #     # Shift so that tokens < n predict n
-        #     shift_logits = lm_logits[..., :-1, :].contiguous()
-        #     shift_labels = labels[..., 1:].contiguous()
-        #     loss_fct = nn.CrossEntropyLoss()
-        #     loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)),
-        #                     shift_labels.view(-1))
-        #     return_data["loss"] = loss
-
-        # return return_data
 
     def load_weights(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path,

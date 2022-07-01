@@ -1,7 +1,6 @@
 from flagai.model.predictor.predictor import Predictor
 from flagai.auto_model.auto_loader import AutoLoader
 import torch
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="lm",
                     model_name="opt-30b-en")
@@ -9,7 +8,6 @@ loader = AutoLoader(task_name="lm",
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 model.eval()
-model.to(device)
 
 text = "The trophy doesn’t fit in the suitcase because "
 predictor = Predictor(model, tokenizer)

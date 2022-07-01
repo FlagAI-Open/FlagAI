@@ -265,43 +265,6 @@ class OPTModel(GPT2Model):
         # self.config = config
         self.transformer = OPTStack(self.config)
 
-    # def forward(
-    #         self,
-    #         **data,
-    # ):
-    #     input_ids = data.get("input_ids", None)
-    #     # attention_mask = data.get("attention_mask", None)
-    #     # position_ids = data.get("position_ids", None)
-    #     labels = data.get("labels", None)
-    #     use_cache = data.get("use_cache", None)
-    #     output_attentions = data.get("output_attentions", None)
-    #     output_hidden_states = data.get("output_hidden_states", True)
-    #
-    #     transformer_outputs = self.transformer(
-    #         input_ids,
-    #         attention_mask=None,
-    #         position_ids=None,
-    #         use_cache=use_cache,
-    #         output_attentions=output_attentions,
-    #         output_hidden_states=output_hidden_states,
-    #     )
-    #     hidden_states = transformer_outputs
-    #
-    #     lm_logits = self.lm_head(hidden_states)
-    #
-    #     return_data = {"logits": lm_logits}
-    #     if labels is not None:
-    #         # Shift so that tokens < n predict n
-    #         shift_logits = lm_logits[..., :-1, :].contiguous()
-    #         shift_labels = labels[..., 1:].contiguous()
-    #         loss_fct = nn.CrossEntropyLoss()
-    #         loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)),
-    #                         shift_labels.view(-1))
-    #         return_data["loss"] = loss
-    #
-    #     return return_data
-
-
     def load_weights(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path,
                                 map_location=torch.device("cpu"))
