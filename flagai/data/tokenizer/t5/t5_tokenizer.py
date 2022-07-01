@@ -18,7 +18,7 @@
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
 
 from transformers import T5Tokenizer
-from ..tokenizer import Tokenizer
+from ..tokenizer import Tokenizer, CommandToken
 
 import jieba
 import unicodedata
@@ -33,21 +33,97 @@ class T5BPETokenizer(Tokenizer):
 
         self.text_tokenizer = T5Tokenizer.from_pretrained(tokenizer_model_type,
                                                           cache_dir=cache_dir)
-        # self.text_encoder = json.load(open(self.text_tokenizer.vocab_file,encoding='utf-8'))
-        # self.text_decoder =  {v:k for k,v in self.text_encoder.items()}
-        # self.byte_text_encoder = bytes_to_unicode()
-        # self.text_byte_decoder = {v: k for k, v in self.byte_text_encoder.items()}
-        # disable max len warnings by increasing max len
-        self.text_tokenizer.max_len = int(1e12)
 
-        # self._tokens = list(self.text_tokenizer.vocab.keys())
-        # self._vocab = {k: v for k, v in self.text_tokenizer.vocab.items()}
+        self._tokens = list(self.text_tokenizer.get_vocab().keys())
+        self._vocab = {k: v for k, v in self.text_tokenizer.get_vocab().items()}
+        self.num_tokens = len(self._tokens)
+
+        self._command_tokens = [
+            CommandToken('unk', '[UNK]', self.get_specialid_from_text_tokenizer('unk')),
+            CommandToken('eos', '[PAD]', self.get_specialid_from_text_tokenizer('pad')),
+            CommandToken('sep', '[SEP]', self.num_tokens),
+
+            CommandToken('pad', '[PAD]', self.num_tokens + 1),
+            CommandToken('ENC', '[CLS]', self.num_tokens + 2),
+            CommandToken('MASK', '[MASK]',
+                         self.num_tokens + 3),
+        ]
+        self._command_tokens.extend([
+            CommandToken('sop', '<|startofpiece|>', self.num_tokens + 4),
+            CommandToken('eop', '<|endofpiece|>', self.num_tokens + 5)
+        ])
+        self.num_tokens += 5
+
+        self.command_name_map = {tok.name: tok for tok in self._command_tokens}
+        self.command_token_map = {
+            tok.token: tok
+            for tok in self._command_tokens
+        }
+        self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
+
+    def get_specialid_from_text_tokenizer(self, token):
+        if token in ["eos", "sep"]:
+            return self._vocab.get('</s>')
+        elif token == "cls":
+            return self._vocab.get('<|endoftext|>')
+        elif token == "unk":
+            return self._vocab.get('<unk>')
+        elif token == "pad":
+            return self._vocab.get('<pad>')
+        elif token == "mask":
+            return self._vocab.get('<mask>')
+        else:
+            raise NameError("token not exists")
+
+    def get_command(self, name):
+        """get command token corresponding to `name`"""
+        return self.command_name_map[name]
 
     def _encode(self, text):
         """text string to ids"""
         tokens = self.text_tokenizer._tokenize(text)
         ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
         return ids
+
+    def EncodeAsTokens(self, text, process_fn=None):
+        """convert wordpiece token to Id"""
+        processed_text = text
+        if process_fn is not None:
+            processed_text = process_fn(processed_text)
+        tokens = self.text_tokenizer.tokenize(processed_text)
+        return tokens
+
+    def IdToToken(self, Id, type_token=False):
+        """convert Id to sentencpiece token"""
+        if Id in self.command_id_map:
+            return self.command_id_map[Id].token
+        return self.text_tokenizer.ids_to_tokens[Id]
+
+    def TokenToId(self, token, type_token=False):
+        """convert sentencpiece token to Id"""
+        if isinstance(token, (CommandToken)):
+            return token.Id
+        return self.text_tokenizer._convert_token_to_id(token.strip())
+
+    def DecodeIds(self, Ids):
+        """converts ids to wordpiece tokens and joins them as a text string"""
+        Tokens = []
+        for Id in Ids:
+            if Id in self.command_id_map:
+                Tokens.append(self.command_id_map[Id].token)
+            elif Id in self.text_tokenizer.ids_to_tokens:
+                Tokens.append(self.text_tokenizer.ids_to_tokens[Id])
+        new_tokens = []
+        for token in Tokens:
+            if token.startswith('##') and len(new_tokens) > 0:
+                new_tokens[-1] += token[2:]
+            else:
+                new_tokens.append(token)
+        return ' '.join(new_tokens)
+
+    def DecodeTokens(self, Tokens):
+        """converts wordpiece tokens to a text string"""
+        return ' '.join(Tokens)
 
 
 class T5KGBPETokenizer(Tokenizer):
@@ -63,15 +139,7 @@ class T5KGBPETokenizer(Tokenizer):
 
         self.text_tokenizer = T5Tokenizer.from_pretrained(tokenizer_model_type,
                                                           cache_dir=cache_dir)
-        # self.text_encoder = json.load(open(self.text_tokenizer.vocab_file,encoding='utf-8'))
-        # self.text_decoder =  {v:k for k,v in self.text_encoder.items()}
-        # self.byte_text_encoder = bytes_to_unicode()
-        # self.text_byte_decoder = {v: k for k, v in self.byte_text_encoder.items()}
-        # disable max len warnings by increasing max len
         self.text_tokenizer.max_len = int(1e12)
-
-        # self._tokens = list(self.text_tokenizer.vocab.keys())
-        # self._vocab = {k: v for k, v in self.text_tokenizer.vocab.items()}
 
     def _encode(self, text):
         """text string to ids"""

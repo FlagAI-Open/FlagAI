@@ -119,7 +119,6 @@ class BertTokenizer(object):
         self._token_mask = '[MASK]'
 
         for token in ['pad', 'cls', 'sep', 'unk', 'mask']:
-
             _token_id = self.vocab[getattr(self, "_token_" + str(token))]
             setattr(self, "_token_" + str(token) + "_id", _token_id)
 

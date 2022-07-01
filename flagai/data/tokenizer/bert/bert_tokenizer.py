@@ -38,7 +38,7 @@ PRETRAINED_VOCAB_ARCHIVE_MAP = {
 
 from ..tokenizer import Tokenizer
 from .wordpiece import BertTokenizer
-
+from ..tokenizer import CommandToken
 
 class BertWordPieceTokenizer(Tokenizer):
     """
@@ -70,9 +70,37 @@ class BertWordPieceTokenizer(Tokenizer):
         # # parse tokens and vocabs from tokenizer
         self._tokens = list(self.text_tokenizer.vocab.keys())
         self._vocab = {k: v for k, v in self.text_tokenizer.vocab.items()}
+        self.num_tokens = len(self._tokens)
 
-        # self._text_tokens = list(self._tokens)
-        # self._text_token_vocab = {k: v for k, v in self.text_tokenizer.vocab.items()}
+        self._command_tokens = [
+            CommandToken('pad', '[PAD]', self.get_specialid_from_text_tokenizer('pad')),
+            CommandToken('ENC', '[CLS]', self.get_specialid_from_text_tokenizer('cls')),
+            CommandToken('MASK', '[MASK]',
+                         self.get_specialid_from_text_tokenizer('mask')),
+            CommandToken('unk', '[UNK]', self.get_specialid_from_text_tokenizer('unk')),
+            CommandToken('sep', '[SEP]', self.get_specialid_from_text_tokenizer('sep')),
+            CommandToken('eos', '[PAD]', self.get_specialid_from_text_tokenizer('pad')),
+        ]
+        self._command_tokens.extend([
+            CommandToken('sop', '<|startofpiece|>', self.num_tokens),
+            CommandToken('eop', '<|endofpiece|>', self.num_tokens + 1)
+        ])
+        self.num_tokens += 2
+
+        self.command_name_map = {tok.name: tok for tok in self._command_tokens}
+        self.command_token_map = {
+            tok.token: tok
+            for tok in self._command_tokens
+        }
+        self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
+
+
+    def get_specialid_from_text_tokenizer(self, token):
+        return self.text_tokenizer.vocab[getattr(self.text_tokenizer, "_token_" + str(token))]
+
+    def get_command(self, name):
+        """get command token corresponding to `name`"""
+        return self.command_name_map[name]
 
     def _encode(self, text):
         tokens = self.text_tokenizer.tokenize(text)
@@ -119,12 +147,6 @@ class BertWordPieceTokenizer(Tokenizer):
         sub_texts = []
         current_sub_text = []
         for token in filtered_tokens:
-            # if token in self.added_tokens_encoder:
-            #     if current_sub_text:
-            #         sub_texts.append(self.convert_tokens_to_string(current_sub_text))
-            #         current_sub_text = []
-            #     sub_texts.append(token)
-            # else:
             current_sub_text.append(token)
 
         if current_sub_text:
@@ -149,25 +171,33 @@ class BertWordPieceTokenizer(Tokenizer):
             processed_text = process_fn(processed_text)
         tokens = self.text_tokenizer.tokenize(processed_text)
         return tokens
-        # return Tokenization(tokens, processed_text, text, asIds=False)
 
     def IdToToken(self, Id, type_token=False):
         """convert Id to sentencpiece token"""
+        if Id in self.command_id_map:
+            return self.command_id_map[Id].token
         return self.text_tokenizer.ids_to_tokens[Id]
 
     def TokenToId(self, token, type_token=False):
         """convert sentencpiece token to Id"""
+        if isinstance(token, (CommandToken)):
+            return token.Id
         token = token.lower()
         try:
             return self.text_tokenizer.vocab[token]
         except KeyError:
-            return self.text_tokenizer.vocab[token.strip()]
+            try:
+                return self.text_tokenizer.vocab[token.upper()]
+            except KeyError:
+                return self.text_tokenizer.vocab[token.strip()]
 
     def DecodeIds(self, Ids):
         """converts ids to wordpiece tokens and joins them as a text string"""
         Tokens = []
         for Id in Ids:
-            if Id in self.text_tokenizer.ids_to_tokens:
+            if Id in self.command_id_map:
+                Tokens.append(self.command_id_map[Id].token)
+            elif Id in self.text_tokenizer.ids_to_tokens:
                 Tokens.append(self.text_tokenizer.ids_to_tokens[Id])
         new_tokens = []
         for token in Tokens:
