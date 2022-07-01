@@ -127,29 +127,7 @@ class GLM10bENTokenizer(object):
             else:
                 logger.info("loading special tokens file {}".format(
                     special_tokens_file))
-        # redirect to the cache, if necessary
-        # try:
-        #     resolved_vocab_file = cached_path(vocab_file, cache_dir=cache_dir)
-        #     resolved_merges_file = cached_path(merges_file, cache_dir=cache_dir)
-        # except EnvironmentError:
-        #     logger.error(
-        #         "Model name '{}' was not found in model name list ({}). "
-        #         "We assumed '{}' was a path or url but couldn't find files {} and {} "
-        #         "at this path or url.".format(
-        #             pretrained_model_name_or_path,
-        #             ', '.join(PRETRAINED_VOCAB_ARCHIVE_MAP.keys()),
-        #             pretrained_model_name_or_path,
-        #             vocab_file, merges_file))
-        #     return None
-        # if resolved_vocab_file == vocab_file and resolved_merges_file == merges_file:
-        #     logger.info("loading vocabulary file {}".format(vocab_file))
-        #     logger.info("loading merges file {}".format(merges_file))
-        # else:
-        #     logger.info("loading vocabulary file {} from cache at {}".format(
-        #         vocab_file, resolved_vocab_file))
-        #     logger.info("loading merges file {} from cache at {}".format(
-        #         merges_file, resolved_merges_file))
-        # print(os.getcwd())
+
         resolved_vocab_file = os.path.join(os.path.dirname(__file__),
                                            vocab_file)
         resolved_merges_file = os.path.join(os.path.dirname(__file__),

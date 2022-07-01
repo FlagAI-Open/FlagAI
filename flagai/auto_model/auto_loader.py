@@ -175,7 +175,7 @@ class AutoLoader:
 
         print("*"*20, task_name, model_id, model_name)
         if model_name == 'glm-large-ch':
-            vocab_file = os.path.join(download_path,'cog-pretrained.model')
+            vocab_file = os.path.join(download_path, 'cog-pretrained.model')
             if not os.path.exists(vocab_file):
                 vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
         elif model_name == "cpm-large-ch":
