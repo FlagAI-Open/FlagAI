@@ -26,14 +26,13 @@ logger = logging.getLogger(__name__)
 import os
 from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
 import collections
-from base_tokenizer import BaseTokenizer
 
-class WordpieceTokenizer(BaseTokenizer):
+
+class WordpieceTokenizer(object):
     def __init__(self, vocab_file=None, do_basic_tokenize=True,
                          do_lower_case=True, max_len=None,
                          never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"),
-                 unk_token="[UNK]", max_input_chars_per_word=100,**kwargs):
-        super().__init__(**kwargs)
+                 unk_token="[UNK]", max_input_chars_per_word=100):
         if not os.path.isfile(vocab_file):
             raise ValueError(
                 "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "
@@ -51,7 +50,7 @@ class WordpieceTokenizer(BaseTokenizer):
         self.unk_token = unk_token
         self.max_input_chars_per_word = max_input_chars_per_word
 
-    def word_piece(self, text):
+    def tokenize_base(self, text):
         """Tokenizes a piece of text into its word pieces.
         This uses a greedy longest-match-first algorithm to perform tokenization
         using the given vocabulary.
@@ -102,10 +101,10 @@ class WordpieceTokenizer(BaseTokenizer):
         if self.do_basic_tokenize:
             split_tokens = []
             for token in self.basic_tokenizer.tokenize(text):
-                for sub_token in self.word_piece(token):
+                for sub_token in self.tokenize_base(token):
                     split_tokens.append(sub_token)
         else:
-            split_tokens = self.word_piece(text)
+            split_tokens = self.tokenize_base(text)
         return split_tokens
 
     def convert_tokens_to_ids(self, tokens):

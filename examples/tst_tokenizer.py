@@ -5,8 +5,8 @@ import sys
 sys.path.append("..")
 # import os
 # print(os.getcwd())
-# from examples.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
-# tokenizer = WordpieceTokenizer.from_pretrained('GLM-large-en')
+# from examples.uni_tokenizer.base_tokenizer import BaseTokenizer
+# tokenizer = BaseTokenizer.from_pretrained('GLM-large-en')
 
 
 class Animal(object):
@@ -25,19 +25,19 @@ class Animal(object):
         print("jump")
 
 class cat(Animal):
-    def __init__(self, name, age):
-        # super().__init__(**kwargs)
-        self.name = name+name
+    def __init__(self, age, piece,**kwargs):
+        super().__init__(**kwargs)
         self.age = age+age
-        print('chikd', self.name, self.age)
+        self.piece = 8
 
 
     def jump(self,  name, age):
         self.age = 13
         print(self.age)
 
-a = Animal(name=24,age=9)
-print(a.age)
+a = cat()
+# a = cat(age=9,piece=7).move()
+# print(a.piece)
 
 # class FooParent(object):  #⽗类
 #     def __init__(self):
