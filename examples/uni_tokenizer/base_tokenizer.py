@@ -2,9 +2,9 @@ import logging
 logger = logging.getLogger(__name__)
 import os
 from flagai.model.file_utils import _get_model_files
-from flagai.data.tokenizer.glm_large_ch.glm_large_ch import get_encoder
-from bak_wp_tokenizer import WordpieceTokenizer
-from bpe_tokenizer import BPETokenizer
+# from flagai.data.tokenizer.glm_large_ch.glm_large_ch import get_encoder
+# from bak_wp_tokenizer import WordpieceTokenizer
+# from bpe_tokenizer import BPETokenizer
 from flagai.data.tokenizer.glm_large_ch import glm_large_ch
 class BaseTokenizer(object):
     @classmethod
@@ -49,20 +49,20 @@ class BaseTokenizer(object):
         resolved_merges_file = os.path.join(cache_dir, merges_file)
         resolved_sp_file = os.path.join(cache_dir, sp_file)
         if tokenizer_class == "wp":
-            return WordpieceTokenizer(vocab_file=resolved_vocab_file)
+            return cls(vocab_file=resolved_vocab_file)
         elif tokenizer_class == "bpe":
-            return BPETokenizer(vocab_file=resolved_vocab_file, merges_file=resolved_merges_file, *inputs, **kwargs)
+            return cls(vocab_file=resolved_vocab_file, merges_file=resolved_merges_file, *inputs, **kwargs)
         elif tokenizer_class == "sp":
             return glm_large_ch.from_pretrained(resolved_sp_file)
 
     def __init__(self,
-                 tokenizer_model_type='GLM-large-en',
-                 cache_dir=None,
-                 add_block_symbols=True,
-                 add_sentinel_token=0,
-                 add_task_mask=True,
-                 add_decoder_mask=False,
+                 vocab_file=None,
+                 merges_file=None,
+                 tokenizer_class=None,
                  **kwargs):
+        self.tokenizer_class = tokenizer_class
+        self.vocab_file = vocab_file
+        self.merges_file = merges_file
         self.tokenizer_model_type = 'GLM-large-en'
         self.max_len = int(1e12)
 

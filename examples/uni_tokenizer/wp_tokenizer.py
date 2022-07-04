@@ -26,14 +26,14 @@ logger = logging.getLogger(__name__)
 import os
 from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
 import collections
-from base_tokenizer import BaseTokenizer
+# from base_tokenizer import BaseTokenizer
 
-class WordpieceTokenizer(BaseTokenizer):
+class WordpieceTokenizer(object):
     def __init__(self, vocab_file=None, do_basic_tokenize=True,
                          do_lower_case=True, max_len=None,
                          never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"),
                  unk_token="[UNK]", max_input_chars_per_word=100,**kwargs):
-        super().__init__(**kwargs)
+        # super().__init__(**kwargs)
         if not os.path.isfile(vocab_file):
             raise ValueError(
                 "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "

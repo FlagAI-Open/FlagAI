@@ -21,21 +21,23 @@ class Animal(object):
         self.age = age
         print('parent')
 
-    def jump(self,  name, age):
-        print("jump")
+    # def jump(self,  name, age):
+    #     print("jump")
 
 class cat(Animal):
-    def __init__(self, age, piece,**kwargs):
+    def __init__(self, age, piece, **kwargs):
         super().__init__(**kwargs)
         self.age = age+age
         self.piece = 8
+        print("is it?")
 
 
     def jump(self,  name, age):
         self.age = 13
         print(self.age)
 
-a = cat()
+a = cat.move()
+# a.jump(2,4)
 # a = cat(age=9,piece=7).move()
 # print(a.piece)
 

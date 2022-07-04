@@ -28,19 +28,24 @@ from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokeni
 import collections
 from flagai.data.tokenizer.tokenizer import TypeToken, CommandToken
 from wp_tokenizer import WordpieceTokenizer
+from bpe_tokenizer import BPETokenizer
+from base_tokenizer import BaseTokenizer
 import torch
 
-class GLMWordpieceTokenizer(WordpieceTokenizer):
+
+class Tokenizer(BaseTokenizer):
     def __init__(self,
                  tokenizer_model_type='GLM-large-en',
                  cache_dir=None,
-                 add_block_symbols=True,
-                 add_sentinel_token=0,
-                 add_task_mask=True,
-                 add_decoder_mask=False,
                  **kwargs):
         super().__init__(**kwargs)
-
+        if self.tokenizer_class == "wp":
+            self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
+        elif self.tokenizer_class == "bpe":
+            self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
+        elif self.tokenizer_class == "sp":
+            pass
+        self.text_tokenizer = WordpieceTokenizer(self.vocab_file, self.merges_file)  # temporary
         # default to bert-large-uncased tokenizer
 
         if not torch.distributed.is_initialized(
@@ -52,20 +57,71 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
         ) or torch.distributed.get_rank() == 0:
             print('loaded', tokenizer_model_type)
 
+    def EncodeAsIds(self, text: str, process_fn=None):
+        """Input text string => a list of token ids"""
+        processed_text = text
+        if process_fn is not None:
+            processed_text = process_fn(processed_text)
+
+        tokens = self.EncodeAsTokens(processed_text, process_fn=process_fn)
+        Ids = [self.TokenToId(token) for token in tokens]
+        return Ids
+
+    def EncodeAsTokens(self, text: str, process_fn=None):
+        """Input text string => a list of tokens"""
+        processed_text = text
+        if process_fn is not None:
+            processed_text = process_fn(processed_text)
+        tokens = self.text_tokenizer.tokenize(processed_text)
+        return tokens
+
+    def IdToToken(self, Id: int):
+        """Token id => token"""
+        return self.text_tokenizer.ids_to_tokens[Id]
+
+    def TokenToId(self, token: str):
+        """Token => token id"""
+        try:
+            return self.text_tokenizer.vocab[token]
+        except KeyError:
+            return self.text_tokenizer.vocab[token.strip()]
+
+    def DecodeIds(self, Ids):
+        """A list of token ids => recovered text string"""
+        return self.DecodeTokens([self.IdToToken(id) for id in Ids])
+
+    def DecodeTokens(self, tokens):
+        """A list of tokens => recovered text string"""
+        return ' '.join(tokens)
+
+
+
+
+class GLMTokenizer(Tokenizer):
+    def __init__(self,
+                 tokenizer_model_type='GLM-large-en',
+                 cache_dir=None,
+                 add_block_symbols=True,
+                 add_sentinel_token=0,
+                 add_task_mask=True,
+                 add_decoder_mask=False,
+                 **kwargs):
+        super().__init__(**kwargs)
+
         # set command tokens from wordpiece tokenizer values
         self.num_command_tokens = 6
-        self.num_tokens = len(self.vocab)
+        self.num_tokens = len(self.text_tokenizer.vocab)
         self.num_text_tokens = self.num_tokens - 5
         self.num_type_tokens = 2
 
         self._command_tokens = [
-            CommandToken('pad', '[PAD]', self.vocab['[PAD]']),
-            CommandToken('ENC', '[CLS]', self.vocab['[CLS]']),
+            CommandToken('pad', '[PAD]', self.text_tokenizer.vocab['[PAD]']),
+            CommandToken('ENC', '[CLS]', self.text_tokenizer.vocab['[CLS]']),
             CommandToken('MASK', '[MASK]',
-                         self.vocab['[MASK]']),
-            CommandToken('unk', '[UNK]', self.vocab['[UNK]']),
-            CommandToken('sep', '[SEP]', self.vocab['[SEP]']),
-            CommandToken('eos', '[PAD]', self.vocab['[PAD]']),
+                         self.text_tokenizer.vocab['[MASK]']),
+            CommandToken('unk', '[UNK]', self.text_tokenizer.vocab['[UNK]']),
+            CommandToken('sep', '[SEP]', self.text_tokenizer.vocab['[SEP]']),
+            CommandToken('eos', '[PAD]', self.text_tokenizer.vocab['[PAD]']),
         ]
         if add_block_symbols:
             self._command_tokens.extend([
@@ -113,13 +169,13 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
 
         # parse tokens and vocabs from tokenizer
 
-        self._tokens = list(self.vocab.keys())
-        self._vocab = {k: v for k, v in self.vocab.items()}
+        self._tokens = list(self.text_tokenizer.vocab.keys())
+        self._vocab = {k: v for k, v in self.text_tokenizer.vocab.items()}
 
         self._text_tokens = list(self._tokens)
         self._text_token_vocab = {
             k: v
-            for k, v in self.vocab.items()
+            for k, v in self.text_tokenizer.vocab.items()
         }
 
         self._command_token_tokens = list(self.command_token_map.keys())
@@ -132,8 +188,8 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
         self._token_type_vocab = {t: Id for Id, t in self.type_id_map.items()}
 
     def _encode(self, text):
-        tokens = self.tokenize(text)
-        ids = self.convert_tokens_to_ids(tokens)
+        tokens = self.text_tokenizer.tokenize(text)
+        ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
         return ids
 
     def EncodeAsTokens(self, text, process_fn=None):
@@ -141,7 +197,7 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
         processed_text = text
         if process_fn is not None:
             processed_text = process_fn(processed_text)
-        tokens = self.tokenize(processed_text)
+        tokens = self.text_tokenizer.tokenize(processed_text)
         return tokens
 
     def IdToToken(self, Id, type_token=False):
@@ -152,7 +208,7 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
             return self.type_id_map[Id].token
         if Id in self.command_id_map:
             return self.command_id_map[Id].token
-        return self.ids_to_tokens[Id]
+        return self.text_tokenizer.ids_to_tokens[Id]
 
     def TokenToId(self, token, type_token=False):
         """convert sentencpiece token to Id"""
@@ -162,9 +218,9 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
         if type_token:
             return self.type_token_map[token].Id
         try:
-            return self.vocab[token]
+            return self.text_tokenizer.vocab[token]
         except KeyError:
-            return self.vocab[token.strip()]
+            return self.text_tokenizer.vocab[token.strip()]
 
     def DecodeIds(self, Ids, type_token=False):
         """converts ids to wordpiece tokens and joins them as a text string"""
@@ -175,8 +231,8 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
         for Id in Ids:
             if Id in self.command_id_map:
                 Tokens.append(self.command_id_map[Id].token)
-            elif Id in self.ids_to_tokens:
-                Tokens.append(self.ids_to_tokens[Id])
+            elif Id in self.text_tokenizer.ids_to_tokens:
+                Tokens.append(self.text_tokenizer.ids_to_tokens[Id])
         new_tokens = []
         for token in Tokens:
             if token.startswith('##') and len(new_tokens) > 0:
@@ -235,7 +291,7 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
             if not text.strip():
                 return []
             if not tok_list:
-                return self.encode(text)
+                return self.text_tokenizer.encode(text)
 
             tokenized_text = []
             text_list = [text]
@@ -260,8 +316,9 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
         return Ids
 
 if __name__ == '__main__':
-    tokenizer = GLMWordpieceTokenizer.from_pretrained('GLM-large-en')
-    print(tokenizer.convert_tokens_to_ids(tokenizer.tokenize("fried chicken makes me happy")))
+    tokenizer = GLMTokenizer.from_pretrained('GLM-large-en')
+    # tokenizer = Tokenizer.from_pretrained('GLM-large-en')
+    print(tokenizer.EncodeAsIds("fried chicken makes me happy"))
 
 
 
