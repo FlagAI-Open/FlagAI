@@ -23,84 +23,65 @@
 import itertools
 import logging
 logger = logging.getLogger(__name__)
-import os
-from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
-import collections
 from flagai.data.tokenizer.tokenizer import TypeToken, CommandToken
 from wp_tokenizer import WordpieceTokenizer
 from bpe_tokenizer import BPETokenizer
+from sp_tokenizer import SentencePieceTokenizer
 from base_tokenizer import BaseTokenizer
 import torch
 
 
 class Tokenizer(BaseTokenizer):
     def __init__(self,
-                 tokenizer_model_type='GLM-large-en',
-                 cache_dir=None,
                  **kwargs):
         super().__init__(**kwargs)
+        print("tokenizer class", self.tokenizer_class)
         if self.tokenizer_class == "wp":
             self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
             self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
         elif self.tokenizer_class == "sp":
-            pass
-        self.text_tokenizer = WordpieceTokenizer(self.vocab_file, self.merges_file)  # temporary
-        # default to bert-large-uncased tokenizer
+            self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
 
         if not torch.distributed.is_initialized(
         ) or torch.distributed.get_rank() == 0:
-            print('loading GLMBertWordPieceTokenizer (', tokenizer_model_type,
-                  ') from cache_dir ', cache_dir)
+            print('loading GLMBertWordPieceTokenizer (', self.tokenizer_model_name,
+                  ') from cache_dir ', self.cache_dir)
+            print('loaded', self.tokenizer_model_name)
 
-        if not torch.distributed.is_initialized(
-        ) or torch.distributed.get_rank() == 0:
-            print('loaded', tokenizer_model_type)
-
-    def EncodeAsIds(self, text: str, process_fn=None):
+    def EncodeAsIds(self, text: str):
         """Input text string => a list of token ids"""
-        processed_text = text
-        if process_fn is not None:
-            processed_text = process_fn(processed_text)
+        tokens = self.EncodeAsTokens(text)
+        ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
+        return ids
 
-        tokens = self.EncodeAsTokens(processed_text, process_fn=process_fn)
-        Ids = [self.TokenToId(token) for token in tokens]
-        return Ids
-
-    def EncodeAsTokens(self, text: str, process_fn=None):
+    def EncodeAsTokens(self, text: str):
         """Input text string => a list of tokens"""
-        processed_text = text
-        if process_fn is not None:
-            processed_text = process_fn(processed_text)
-        tokens = self.text_tokenizer.tokenize(processed_text)
+        tokens = self.text_tokenizer.tokenize(text)
         return tokens
 
-    def IdToToken(self, Id: int):
+    def IdToToken(self, id: int):
         """Token id => token"""
-        return self.text_tokenizer.ids_to_tokens[Id]
+        return self.text_tokenizer.convert_ids_to_tokens([id])[0]
 
     def TokenToId(self, token: str):
         """Token => token id"""
         try:
-            return self.text_tokenizer.vocab[token]
+            return self.text_tokenizer.convert_tokens_to_ids(token)[0]
         except KeyError:
-            return self.text_tokenizer.vocab[token.strip()]
+            return self.text_tokenizer.convert_tokens_to_ids(token.strip())[0]
 
-    def DecodeIds(self, Ids):
+    def DecodeIds(self, ids):
         """A list of token ids => recovered text string"""
-        return self.DecodeTokens([self.IdToToken(id) for id in Ids])
+        return self.DecodeTokens([self.text_tokenizer.convert_ids_to_tokens(ids)])
 
     def DecodeTokens(self, tokens):
         """A list of tokens => recovered text string"""
-        return ' '.join(tokens)
-
-
+        return self.text_tokenizer.convert_tokens_to_string(tokens)
 
 
 class GLMTokenizer(Tokenizer):
     def __init__(self,
-                 tokenizer_model_type='GLM-large-en',
-                 cache_dir=None,
                  add_block_symbols=True,
                  add_sentinel_token=0,
                  add_task_mask=True,
@@ -316,9 +297,10 @@ class GLMTokenizer(Tokenizer):
         return Ids
 
 if __name__ == '__main__':
-    tokenizer = GLMTokenizer.from_pretrained('GLM-large-en')
-    # tokenizer = Tokenizer.from_pretrained('GLM-large-en')
-    print(tokenizer.EncodeAsIds("fried chicken makes me happy"))
-
+    tokenizer = Tokenizer.from_pretrained('GLM-large-ch')
+    # tokenizer = GLMTokenizer.from_pretrained('GLM-large-en')
+    # print(tokenizer.EncodeAsIds("fried chicken makes me happy"))
+    # print(tokenizer.EncodeAsTokens("fried chicken makes me happy deglobalization"))
+    print(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"))
 
 

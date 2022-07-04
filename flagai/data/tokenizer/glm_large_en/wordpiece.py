@@ -138,7 +138,7 @@ class GLMLargeEnTokenizer(object):
 
         model_id = _get_model_id(pretrained_model_name_or_path)
         if not os.path.exists(cache_dir + '/' +
-                              vocab_file):  # Temporary if statement
+                              vocab_file):
             _get_vocab_path(cache_dir + '/', vocab_file, model_id, rank=0)
 
         resolved_vocab_file = os.path.join(cache_dir, vocab_file)

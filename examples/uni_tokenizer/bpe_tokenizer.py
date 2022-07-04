@@ -59,6 +59,13 @@ class BPETokenizer(BaseTokenizer):
         self.special_tokens_decoder = {}
         self.set_special_tokens(special_tokens)
 
+    @property
+    def vocab_size(self):
+        return len(self.encoder)
+
+    # def get_vocab(self):
+    #     return dict(self.encoder, **self.added_tokens_encoder)
+
     def __len__(self):
         return len(self.encoder) + len(self.special_tokens)
 
@@ -174,6 +181,12 @@ class BPETokenizer(BaseTokenizer):
         text = ''.join([self.decoder[id] for id in ids])
         text = bytearray([self.byte_decoder[c]
                           for c in text]).decode('utf-8', errors=self.errors)
+        return text
+
+    def convert_tokens_to_string(self, tokens):
+        """Converts a sequence of tokens (string) in a single string."""
+        text = "".join(tokens)
+        text = bytearray([self.byte_decoder[c] for c in text]).decode("utf-8", errors=self.errors)
         return text
 
     def save_vocabulary(self, vocab_path):
