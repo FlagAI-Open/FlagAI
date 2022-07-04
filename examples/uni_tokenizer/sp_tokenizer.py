@@ -31,6 +31,15 @@ class SentencePieceTokenizer(object):
         self.sp_model = spm.SentencePieceProcessor()
         self.sp_model.Load(model_path)
 
+    @property
+    def vocab_size(self):
+        return self.sp_model.get_piece_size()
+
+    def get_vocab(self):
+        vocab = {self.convert_ids_to_tokens(i): i for i in range(self.vocab_size)}
+        # vocab.update(self.added_tokens_encoder)
+        return vocab
+
     def encode(self, text):
         """
         text="...."
@@ -55,6 +64,9 @@ class SentencePieceTokenizer(object):
 
     def convert_id_to_token(self, idx):
         return self.sp_model.IdToPiece(idx)
+
+    def convert_ids_to_tokens(self, idxs):
+        return [self.sp_model.IdToPiece(idx) for idx in idxs]
 
     def convert_tokens_to_string(self, tokens):
         """Converts a sequence of tokens (string) in a single string."""

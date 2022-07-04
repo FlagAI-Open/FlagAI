@@ -91,18 +91,18 @@ class GLMTokenizer(Tokenizer):
 
         # set command tokens from wordpiece tokenizer values
         self.num_command_tokens = 6
-        self.num_tokens = len(self.text_tokenizer.vocab)
+        self.num_tokens = len(self.text_tokenizer.vocab_size)
         self.num_text_tokens = self.num_tokens - 5
         self.num_type_tokens = 2
 
         self._command_tokens = [
-            CommandToken('pad', '[PAD]', self.text_tokenizer.vocab['[PAD]']),
-            CommandToken('ENC', '[CLS]', self.text_tokenizer.vocab['[CLS]']),
+            CommandToken('pad', '[PAD]', self.num_text_tokens),
+            CommandToken('ENC', '[CLS]', self.num_text_tokens),
             CommandToken('MASK', '[MASK]',
-                         self.text_tokenizer.vocab['[MASK]']),
-            CommandToken('unk', '[UNK]', self.text_tokenizer.vocab['[UNK]']),
-            CommandToken('sep', '[SEP]', self.text_tokenizer.vocab['[SEP]']),
-            CommandToken('eos', '[PAD]', self.text_tokenizer.vocab['[PAD]']),
+                         self.text_tokenizer.convert_token_to_id('[MASK]')),
+            CommandToken('unk', '[UNK]', self.text_tokenizer.convert_token_to_id('[UNK]')),
+            CommandToken('sep', '[SEP]', self.text_tokenizer.convert_token_to_id('[SEP]')),
+            CommandToken('eos', '[PAD]', self.text_tokenizer.convert_token_to_id('[PAD]')),
         ]
         if add_block_symbols:
             self._command_tokens.extend([
