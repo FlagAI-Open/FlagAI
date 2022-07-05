@@ -214,10 +214,6 @@ class GLMLargeChTokenizer(GLMTokenizer):
             processed_text = process_fn(processed_text)
         tokens = self.text_tokenizer.tokenize(processed_text)
         return tokens
-        # tokenization = Tokenization(tokens, processed_text, text, asIds=False)
-        # tokenization.set_command_tokens(self._command_tokens)
-        # return tokenization
-        # return Tokenization(tokens, processed_text, text, asIds=False)
 
     def IdToToken(self, Id, type_token=False):
         if isinstance(Id, (TypeToken, CommandToken)):

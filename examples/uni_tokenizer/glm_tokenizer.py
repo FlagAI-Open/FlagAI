@@ -35,7 +35,7 @@ class Tokenizer(BaseTokenizer):
     def __init__(self,
                  **kwargs):
         super().__init__(**kwargs)
-        print("tokenizer class", self.tokenizer_class)
+
         if self.tokenizer_class == "wp":
             self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
@@ -43,11 +43,22 @@ class Tokenizer(BaseTokenizer):
         elif self.tokenizer_class == "sp":
             self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
 
+        self.num_tokens = len(self.text_tokenizer.vocab_size)
+        self.command_name_map = {}
+
         if not torch.distributed.is_initialized(
         ) or torch.distributed.get_rank() == 0:
             print('loading GLMBertWordPieceTokenizer (', self.tokenizer_model_name,
                   ') from cache_dir ', self.cache_dir)
             print('loaded', self.tokenizer_model_name)
+
+    def __len__(self):
+        """total number of tokens"""
+        return self.num_tokens
+
+    def get_command(self, name):
+        """get command token corresponding to `name`"""
+        return self.command_name_map[name]
 
     def EncodeAsIds(self, text: str):
         """Input text string => a list of token ids"""
@@ -91,7 +102,7 @@ class GLMTokenizer(Tokenizer):
 
         # set command tokens from wordpiece tokenizer values
         self.num_command_tokens = 6
-        self.num_tokens = len(self.text_tokenizer.vocab_size)
+
         self.num_text_tokens = self.num_tokens - 5
         self.num_type_tokens = 2
 
