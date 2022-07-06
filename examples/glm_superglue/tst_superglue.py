@@ -4,7 +4,7 @@
 import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
-from ..uni_tokenizer.glm_tokenizer import GLMTokenizer
+from flagai.data.tokenizer import GLMTokenizer
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS

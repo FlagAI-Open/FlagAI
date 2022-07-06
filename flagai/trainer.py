@@ -470,7 +470,6 @@ class Trainer():
         best_score = float('inf')
         if len(self.metric_methods) > 0:
             best_score = -best_score
-        print(self.epochs * len(train_dataloader), self.epochs, len(train_dataloader),111111111111)
         for epoch in range(self.epochs):
             # log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
