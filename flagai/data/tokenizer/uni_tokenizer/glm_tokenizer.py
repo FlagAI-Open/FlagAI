@@ -58,7 +58,7 @@ class Tokenizer(BaseTokenizer):
 
     def get_command_id(self, name):
         """get command token corresponding to `name`"""
-        return self.command_name_map[name]
+        return self.command_name_map[name].Id
 
     def EncodeAsIds(self, text: str):
         """Input text string => a list of token ids"""
@@ -312,9 +312,9 @@ class GLMTokenizer(Tokenizer):
         if isinstance(token, (CommandToken)):
             return token.Id
         try:
-            self.text_tokenizer.convert_token_to_id(token)
+            return self.text_tokenizer.convert_token_to_id(token)
         except KeyError:
-            self.text_tokenizer.convert_token_to_id(token.strip())
+            return self.text_tokenizer.convert_token_to_id(token.strip())
 
     def DecodeIds(self, ids):
         """converts ids to wordpiece tokens and joins them as a text string"""

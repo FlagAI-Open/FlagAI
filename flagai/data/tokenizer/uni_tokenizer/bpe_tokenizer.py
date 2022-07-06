@@ -23,7 +23,6 @@ import logging
 import re
 import json
 logger = logging.getLogger(__name__)
-import os
 from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode, get_pairs
 import sys
 

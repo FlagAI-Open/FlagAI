@@ -427,7 +427,7 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
         return example
         # cls_id = self.tokenizer.get_command_id('cls')
         # mask_token = 'sMASK' if self.task_mask else 'MASK'
-        # mask_id = self.tokenizer.get_command_id(mask_token).Id
+        # mask_id = self.tokenizer.get_command_id(mask_token)
         # pad_id = self.tokenizer.get_command_id('pad')
         # sop_id = self.tokenizer.get_command_id('sop')
         # eop_id = self.tokenizer.get_command_id('eop')
@@ -604,7 +604,7 @@ class ExtractionDataset(torch.utils.data.Dataset):
         example = self.example_list[idx]
         source_text, target_text = example.text_a, example.text_b
         mask_token = 'MASK'
-        mask_id = self.tokenizer.get_command_id(mask_token).Id
+        mask_id = self.tokenizer.get_command_id(mask_token)
         sop_id = self.tokenizer.get_command_id('sop')
         eop_id = self.tokenizer.get_command_id('eop')
         pad_id = self.tokenizer.get_command_id('pad')
@@ -739,7 +739,7 @@ class BlankLMDataset(torch.utils.data.Dataset):
         example = self.example_list[idx]
         source_text = example.text_a
         mask_token = 'gMASK' if self.args.task_mask else 'MASK'
-        mask_id = self.tokenizer.get_command_id(mask_token).Id
+        mask_id = self.tokenizer.get_command_id(mask_token)
         sop_id = self.tokenizer.get_command_id('sop')
         eop_id = self.tokenizer.get_command_id('eop')
         pad_id = self.tokenizer.get_command_id('pad')

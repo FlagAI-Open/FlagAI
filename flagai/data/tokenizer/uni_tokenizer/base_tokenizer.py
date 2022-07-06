@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 import os
 from flagai.model.file_utils import _get_model_files, _get_model_id, _get_vocab_path
+from flagai.data.tokenizer.uni_tokenizer.properties import VOCAB_FILE, MERGES_FILE, SP_MODEL_FILE
 
 
 class BaseTokenizer(object):
@@ -20,9 +21,6 @@ class BaseTokenizer(object):
             cache_dir (`str`):
                 The directory that contains the vocab files, or will receive the downloaded vocab files
         """
-        vocab_file = 'vocab.txt'
-        merges_file = 'merges.txt'
-        sp_model_file = 'spiece.model'
         if cache_dir is None:
             # cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs')
             cache_dir = "/root/.cache/FlagAI/"+tokenizer_model_name
@@ -44,20 +42,20 @@ class BaseTokenizer(object):
             model_id = _get_model_id(tokenizer_model_name)
             if "spiece.model" in files:
                 tokenizer_class = "sp"
-                _get_vocab_path(cache_dir + '/', sp_model_file, model_id, rank=0)
+                _get_vocab_path(cache_dir + '/', SP_MODEL_FILE, model_id, rank=0)
             elif "vocab.txt" in files:
                 if "merges.txt" in files:
                     tokenizer_class = "bpe"
-                    _get_vocab_path(cache_dir + '/', vocab_file, model_id, rank=0)
-                    _get_vocab_path(cache_dir + '/', merges_file, model_id, rank=0)
+                    _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
+                    _get_vocab_path(cache_dir + '/', MERGES_FILE, model_id, rank=0)
                 else:
                     tokenizer_class = "wp"
-                    _get_vocab_path(cache_dir + '/', vocab_file, model_id, rank=0)
+                    _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
             else:
                 raise FileNotFoundError("no tokenizer files")
-        resolved_vocab_file = os.path.join(cache_dir, vocab_file)
-        resolved_merges_file = os.path.join(cache_dir, merges_file)
-        resolved_sp_file = os.path.join(cache_dir, sp_model_file)
+        resolved_vocab_file = os.path.join(cache_dir, VOCAB_FILE)
+        resolved_merges_file = os.path.join(cache_dir, MERGES_FILE)
+        resolved_sp_file = os.path.join(cache_dir, SP_MODEL_FILE)
         if tokenizer_class == "wp":
             return cls(vocab_file=resolved_vocab_file, tokenizer_class=tokenizer_class,
                        tokenizer_model_name=tokenizer_model_name, cache_dir=cache_dir, *inputs, **kwargs)

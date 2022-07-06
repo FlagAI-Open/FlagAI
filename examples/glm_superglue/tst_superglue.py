@@ -4,7 +4,7 @@
 import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
-from flagai.data.tokenizer import GLMTokenizer
+from flagai.data.tokenizer import GLMTokenizer, GLMLargeEnWordPieceTokenizer
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
@@ -12,7 +12,8 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 from flagai.data.dataset.superglue.control import MULTI_TOKEN_TASKS
 
 for task_name in [
-        'boolq'
+    'boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc',
+    'tnews'
 ]:
     trainer = Trainer(env_type='pytorch',
                       epochs=1,
@@ -35,7 +36,7 @@ for task_name in [
     else:
         model_name = 'GLM-large-en'
         tokenizer = GLMTokenizer.from_pretrained(model_name)
-
+        # tokenizer  = GLMLargeEnWordPieceTokenizer()
     if task_name in MULTI_TOKEN_TASKS:
         model = GLMForMultiTokenCloze.from_pretrain(
             model_name=model_name, only_download_config=True)
@@ -57,7 +58,7 @@ for task_name in [
                                      dataset_type='dev',
                                      tokenizer=tokenizer)
     valid_dataset.example_list = valid_dataset.example_list[:1]
-    print(task_name)
+
     metric_methods = DEFAULT_METRICS[task_name]
     trainer.train(model,
                   collate_fn=collate_fn,
