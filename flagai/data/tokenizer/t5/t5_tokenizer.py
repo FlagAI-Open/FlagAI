@@ -111,15 +111,16 @@ class T5BPETokenizer(Tokenizer):
         for Id in Ids:
             if Id in self.command_id_map:
                 Tokens.append(self.command_id_map[Id].token)
-            elif Id in self.text_tokenizer.ids_to_tokens:
-                Tokens.append(self.text_tokenizer.ids_to_tokens[Id])
-        new_tokens = []
-        for token in Tokens:
-            if token.startswith('##') and len(new_tokens) > 0:
-                new_tokens[-1] += token[2:]
-            else:
-                new_tokens.append(token)
-        return ' '.join(new_tokens)
+            elif Id < self.text_tokenizer.vocab_size:
+                Tokens.append(self.text_tokenizer._convert_id_to_token(Id))
+        return self.text_tokenizer.convert_tokens_to_string(Tokens)
+        # new_tokens = []
+        # for token in Tokens:
+        #     if token.startswith('##') and len(new_tokens) > 0:
+        #         new_tokens[-1] += token[2:]
+        #     else:
+        #         new_tokens.append(token)
+        # return ' '.join(new_tokens)
 
     def DecodeTokens(self, Tokens):
         """converts wordpiece tokens to a text string"""
