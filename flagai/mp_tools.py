@@ -48,16 +48,17 @@ def check_pytorch_model_mp_size(checkpoint: str, target_mp: int):
     """
     check the checkpoints contains the weights for mp_size = target_mp
     """
+    assert target_mp > 1
     assert os.path.isdir(checkpoint)
     filenames = os.listdir(checkpoint)
     filenames = [
         filename for filename in filenames
-        if filename.startswith("pytorch_model")
+        if filename.startswith("pytorch_model_")
     ]
-    if 'pytorch_model.bin' in filenames and target_mp == 1:
-        return True
-    else:
-        filenames.remove('pytorch_model.bin')
+    # if 'pytorch_model.bin' in filenames and target_mp == 1:
+    #     return True
+    # else:
+    #     filenames.remove('pytorch_model.bin')
     print(
         "check the weight files in {}, the number of mp_size({}) {} num_of_files({})"
         .format(checkpoint, target_mp,
@@ -219,8 +220,6 @@ def change_pytorch_model_mp_from_1_to_n_new(model_name_brief, checkpoint: str, t
             start = ratio * i
             end = ratio * (i + 1)
             d = torch.load(filenames[i], map_location='cpu')
-            if d.get("module", None) is None:
-                d["module"] = d
 
             for j in range(start, end):
                 d_new = {}
@@ -235,7 +234,10 @@ def change_pytorch_model_mp_from_1_to_n_new(model_name_brief, checkpoint: str, t
                             d_new[k] = None
                 d_new['module'] = {}
                 with torch.no_grad():
-                    for k, v in d['module'].items():
+                    if "module" in d:
+                        d = d["module"]
+
+                    for k, v in d.items():
                         assert len(v.shape) < 3
                         flag = 0
                         for keys in trans_keys:

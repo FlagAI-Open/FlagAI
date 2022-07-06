@@ -1,4 +1,4 @@
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
+
 import torch
 import os
 import argparse
@@ -7,8 +7,9 @@ from flagai.auto_model.auto_loader import AutoLoader
 import random
 import numpy as np
 from flagai.model.predictor.predictor import Predictor
+import glob
+import time
 
-# run script : python -m torch.distributed.launch --nproc_per_node=2 --nnodes=1 glm_blank_filling_QA_ch_mutigpu.py
 os.environ["ENV_TYPE"] = "deepspeed+mpu"
 model_parallel_size = 4
 world_size = 4
@@ -58,11 +59,14 @@ initialize_distributed()
 
 set_random_seed(123)
 
-loader = AutoLoader("lm", model_name="opt-350m-en")
+print(f"building model...")
+loader = AutoLoader("lm", model_name="opt-30b-en")
 model = loader.get_model()
-model.half()
 tokenizer = loader.get_tokenizer()
-# model.parallel_output = False
+model.half()
+
+model.parallel_output = False
+
 model.eval()
 model.to(device)
 
@@ -74,5 +78,4 @@ predictor = Predictor(model, tokenizer)
 out = predictor.predict_generate_randomsample(text)
 if mpu.get_model_parallel_rank() == 0:
     print(f"pred is {out}")
-
 

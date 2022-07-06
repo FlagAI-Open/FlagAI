@@ -11,12 +11,9 @@ from flagai.model.base_model import BaseModel
 import torch.nn.functional as F
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import get_model_parallel_world_size
-    from flagai.mpu import get_cuda_rng_tracker
     from flagai.mpu.utils import divide
-if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.random import checkpoint
-    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region
+    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region, get_model_parallel_world_size, get_cuda_rng_tracker
     from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
 
 elif os.getenv('ENV_TYPE') == 'deepspeed':
@@ -103,6 +100,8 @@ class GPT2Stack(nn.Module):
             self.wte = nn.Embedding(config.vocab_size, config.n_embd)
         self.wpe = nn.Embedding(config.n_positions, config.n_embd)
         self.drop = nn.Dropout(config.embd_pdrop)
+        self.project_in = None
+        self.project_out = None
         self.h = nn.ModuleList([
             GPT2Block(config.n_ctx, config, scale=True)
             for _ in range(config.n_layer)
@@ -117,12 +116,27 @@ class GPT2Stack(nn.Module):
     def set_input_embeddings(self, new_embeddings):
         self.wte = new_embeddings
 
+    def get_position_embeddings(self, **kwargs):
+        input_ids = kwargs["input_ids"]
+        input_shape = input_ids.size()
+        position_ids = kwargs.get("position_ids", None)
+        past_length = kwargs["past_length"]
+        if position_ids is None:
+            device = input_ids.device
+            position_ids = torch.arange(past_length, input_shape[-1] + past_length, dtype=torch.long, device=device)
+            position_ids = position_ids.unsqueeze(0).view(-1, input_shape[-1])
+
+        position_embeds = self.wpe(position_ids)
+        return position_embeds
+
+
     def forward(
         self,
         input_ids,
         attention_mask=None,
+        past_key_values=None,
         position_ids=None,
-        use_cache=None,
+        use_cache=False,
         output_attentions=None,
         output_hidden_states=None,
     ):
@@ -134,13 +148,22 @@ class GPT2Stack(nn.Module):
         if position_ids is not None:
             position_ids = position_ids.view(-1, input_shape[-1])
 
-        if position_ids is None:
-            device = input_ids.device
-            position_ids = torch.arange(0,
-                                        input_shape[-1],
-                                        dtype=torch.long,
-                                        device=device)
-            position_ids = position_ids.unsqueeze(0).view(-1, input_shape[-1])
+        device = input_ids.device
+
+
+        if past_key_values is None:
+            past_length = 0
+            past_key_values = tuple([None] * len(self.h))
+            full_ids = input_ids
+        else:
+            past_length = past_key_values[0][0].size(-2)
+            full_ids = torch.ones((input_ids.shape[0], past_length + 1), dtype=torch.long, device=device)
+
+        padding_mask = (full_ids > 0).float()
+
+        position_embeds = self.get_position_embeddings(input_ids=input_ids, past_length=past_length,
+                                                       position_ids=position_ids, padding_mask=padding_mask,
+                                                       )
 
         # Attention mask.
         if attention_mask is not None:
@@ -148,17 +171,21 @@ class GPT2Stack(nn.Module):
             attention_mask = (1.0 - attention_mask) * -10000.0
 
         inputs_embeds = self.wte(input_ids)
-        position_embeds = self.wpe(position_ids)
+
+        output_shape = input_shape + (inputs_embeds.size(-1), )
+
+        if self.project_in is not None:
+            inputs_embeds = self.project_in(inputs_embeds)
+
+        # position_embeds = self.wpe(position_ids)
         hidden_states = inputs_embeds + position_embeds
 
         hidden_states = self.drop(hidden_states)
 
-        output_shape = input_shape + (hidden_states.size(-1), )
-
         presents = () if use_cache else None
         all_self_attentions = () if output_attentions else None
         all_hidden_states = () if output_hidden_states else None
-        for i, block in enumerate(self.h):
+        for i, (block, layer_past) in enumerate(zip(self.h, past_key_values)):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states, )
 
@@ -174,6 +201,7 @@ class GPT2Stack(nn.Module):
                 outputs = checkpoint(
                     create_custom_forward(block),
                     hidden_states,
+                    None,
                     attention_mask,
                     None,
                     use_cache,
@@ -183,6 +211,7 @@ class GPT2Stack(nn.Module):
 
                 outputs = block(
                     hidden_states,
+                    layer_past=layer_past,
                     attention_mask=attention_mask,
                     head_mask=None,
                     use_cache=use_cache,
@@ -197,14 +226,19 @@ class GPT2Stack(nn.Module):
                 all_self_attentions = all_self_attentions + (
                     outputs[2 if use_cache else 1], )
 
-        hidden_states = self.ln_f(hidden_states)
+        # hidden_states = self.ln_f(hidden_states)
+        if self.ln_f is not None:
+            hidden_states = self.ln_f(hidden_states)
+
+        if self.project_out is not None:
+            hidden_states = self.project_out(hidden_states)
 
         hidden_states = hidden_states.view(*output_shape)
         # Add last hidden state
         if output_hidden_states:
             all_hidden_states = all_hidden_states + (hidden_states, )
 
-        return hidden_states
+        return hidden_states, presents
 
 
 class GPT2Model(BaseModel):
@@ -248,6 +282,7 @@ class GPT2Model(BaseModel):
         **data,
     ):
         input_ids = data.get("input_ids", None)
+        past_key_values = data.get("past_key_values", None)
         attention_mask = data.get("attention_mask", None)
         position_ids = data.get("position_ids", None)
         labels = data.get("labels", None)
@@ -255,11 +290,18 @@ class GPT2Model(BaseModel):
         output_attentions = data.get("output_attentions", None)
         output_hidden_states = data.get("output_hidden_states", None)
 
+        device = input_ids.device
         extend_mask = (input_ids > 0).float()
         if attention_mask is None:
-            attention_mask = self._make_causal_mask(input_ids)
-            extend_mask = extend_mask.unsqueeze(1).unsqueeze(
-                1) * attention_mask
+
+            if past_key_values is not None:
+                past_length = past_key_values[0][0].size(-2)
+                full_ids = torch.zeros((input_ids.shape[0], past_length + 1), dtype=torch.long, device=device)
+                extend_mask = self._make_causal_mask(full_ids)
+            else :
+                attention_mask = self._make_causal_mask(input_ids)
+                extend_mask = extend_mask.unsqueeze(1).unsqueeze(
+                    1) * attention_mask
 
         transformer_outputs = self.transformer(
             input_ids,
@@ -268,16 +310,17 @@ class GPT2Model(BaseModel):
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
+            past_key_values=past_key_values,
         )
-        logits = transformer_outputs
+
+        logits, past_key_values = transformer_outputs
+
 
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             logits_parallel = copy_to_model_parallel_region(logits)
         else:
             logits_parallel = logits
 
-        # if self.output_predict:
-            # Parallel logits.
         logits_parallel = F.linear(logits_parallel,
                                    self.transformer.wte.weight)
 
@@ -290,49 +333,27 @@ class GPT2Model(BaseModel):
                     shift_logits.contiguous().float(), shift_labels).mean()
             else:
                 loss = F.cross_entropy(
-                    shift_logits.contiguous().float(), shift_labels.long())
+                    shift_logits.view(-1, shift_logits.shape[-1]).contiguous().float(), shift_labels.view(-1).contiguous().long())
 
-            if self.parallel_output:  # Put in different GPUs
-                return {
-                    'logits': logits_parallel,
-                    'loss': loss,
-                    'hidden_states': None,
-                }
-            else:
-                return {
-                    "logits":
-                        gather_from_model_parallel_region(logits_parallel),
-                    "loss":
-                        loss,
-                    "hidden_states":
-                        None,
-                }
+            return {
+                'logits': logits_parallel,
+                'loss': loss,
+                'hidden_states': past_key_values,
+            }
+
         else:
-            if self.parallel_output:  # Put in different GPUs
-                return {
-                    'logits': logits_parallel,
-                    'hidden_states': None,
-                }
+
+            if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+                logits = gather_from_model_parallel_region(logits_parallel)
             else:
-                return {
-                    "logits":
-                        gather_from_model_parallel_region(logits_parallel),
-                    "hidden_states":
-                        None,
-                }
+                logits = logits_parallel
+            return {
+                "logits":
+                   logits,
+                "hidden_states":
+                    past_key_values,
+            }
 
-        # lm_logits = self.lm_head(hidden_states)
-        # return_data = {"logits": lm_logits}
-        # if labels is not None:
-        #     # Shift so that tokens < n predict n
-        #     shift_logits = lm_logits[..., :-1, :].contiguous()
-        #     shift_labels = labels[..., 1:].contiguous()
-        #     loss_fct = nn.CrossEntropyLoss()
-        #     loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)),
-        #                     shift_labels.view(-1))
-        #     return_data["loss"] = loss
-
-        # return return_data
 
     def load_weights(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path,
