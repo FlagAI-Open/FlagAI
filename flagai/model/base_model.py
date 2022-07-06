@@ -45,6 +45,7 @@ class BaseModel(Module):
                       download_path='./checkpoints/',
                       model_name='RoBERTa-base-ch',
                       only_download_config=False,
+                      device="cpu",
                       **kwargs):
         model_id = None
         try:
@@ -87,6 +88,7 @@ class BaseModel(Module):
                                            model_id)
         if os.path.exists(config_path):
             model = cls.init_from_json(config_path, **kwargs)
+            model.to(device)
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
                 if os.path.exists(checkpoint_path):
                     model.load_weights(checkpoint_path)

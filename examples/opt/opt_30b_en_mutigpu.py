@@ -10,8 +10,6 @@ from flagai.model.predictor.predictor import Predictor
 import glob
 import time
 
-# run script : python -m torch.distributed.launch --nproc_per_node=4 --nnodes=1 opt_30b_en_mutigpu.py
-
 os.environ["ENV_TYPE"] = "deepspeed+mpu"
 model_parallel_size = 4
 world_size = 4
@@ -60,7 +58,6 @@ def initialize_distributed():
 initialize_distributed()
 
 set_random_seed(123)
-
 
 print(f"building model...")
 loader = AutoLoader("lm", model_name="opt-30b-en")

@@ -21,6 +21,7 @@ class GPT2Block(nn.Module):
     def forward(
         self,
         hidden_states,
+        layer_past=None,
         attention_mask=None,
         head_mask=None,
         use_cache=False,
@@ -34,6 +35,7 @@ class GPT2Block(nn.Module):
 
         attn_outputs = self.attn(
             hidden_states,
+            layer_past=layer_past,
             attention_mask=attention_mask,
             head_mask=head_mask,
             use_cache=use_cache,
