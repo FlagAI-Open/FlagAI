@@ -60,7 +60,7 @@ class GLMWordpieceTokenizer(WordpieceTokenizer):
 
         self._command_tokens = [
             CommandToken('pad', '[PAD]', self.vocab['[PAD]']),
-            CommandToken('ENC', '[CLS]', self.vocab['[CLS]']),
+            CommandToken('cls', '[CLS]', self.vocab['[CLS]']),
             CommandToken('MASK', '[MASK]',
                          self.vocab['[MASK]']),
             CommandToken('unk', '[UNK]', self.vocab['[UNK]']),

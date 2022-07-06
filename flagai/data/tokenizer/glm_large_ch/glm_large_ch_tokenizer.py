@@ -54,7 +54,7 @@ class GLMLargeChTokenizer(GLMTokenizer):
             CommandToken('pad', '<|endoftext|>', self.num_text_tokens),
             CommandToken('eos', '<|endoftext|>', self.num_text_tokens),
             CommandToken('sep', '[SEP]', self.num_text_tokens + 1),
-            CommandToken('ENC', '[CLS]', self.num_text_tokens + 2),
+            CommandToken('cls', '[CLS]', self.num_text_tokens + 2),
             CommandToken('MASK',
                          '[MASK]',
                          self.num_text_tokens + 3,
@@ -144,9 +144,9 @@ class GLMLargeChTokenizer(GLMTokenizer):
             target_text=None,
     ):
 
-        sop_id = self.get_command('sop').Id  #start of piece
-        eop_id = self.get_command('eop').Id  #end of piece
-        sep_id = self.get_command('sep').Id  #seperation
+        sop_id = self.get_command_id('sop')  #start of piece
+        eop_id = self.get_command_id('eop')  #end of piece
+        sep_id = self.get_command_id('sep')  #seperation
 
         source_tokens = self.EncodeAsIds(source_text)
         source_tokens = [sop_id] + source_tokens + [sep_id]
@@ -259,7 +259,5 @@ class GLMLargeChTokenizer(GLMTokenizer):
         if type_token:
             return ' '.join(t.token if isinstance(t, TypeToken) else t
                             for t in Tokens)
-        # if isinstance(Tokens, Tokenization):
-        #     Tokens = Tokens.tokenization
         return self.text_tokenizer.decode(
             [self.TokenToId(tok) for tok in Tokens])

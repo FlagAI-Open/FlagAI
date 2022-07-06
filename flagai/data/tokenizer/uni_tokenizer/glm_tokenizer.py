@@ -24,10 +24,10 @@ import itertools
 import logging
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
-from wp_tokenizer import WordpieceTokenizer
-from bpe_tokenizer import BPETokenizer
-from sp_tokenizer import SentencePieceTokenizer
-from base_tokenizer import BaseTokenizer
+from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
+from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer
+from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
+from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
 import torch
 
 

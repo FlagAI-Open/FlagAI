@@ -59,7 +59,7 @@ if __name__ == '__main__':
     collate_fn = None
     if ds_args.block_lm:
         collate_fn = ConstructBlockStrategy(
-            tokenizer, 512, eod_token=tokenizer.get_command('eos').Id)
+            tokenizer, 512, eod_token=tokenizer.get_command_id('eos'))
     metric_methods = DEFAULT_METRICS['pretrain']
     trainer.train(model,
                   collate_fn=collate_fn,

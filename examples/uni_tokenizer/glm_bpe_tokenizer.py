@@ -56,7 +56,7 @@ class GLMBPETokenizer(BPETokenizer):
                              self.encoder['</s>']),
                 CommandToken('sep', '[SEP]',
                              self.encoder['</s>']),
-                CommandToken('ENC', '[CLS]',
+                CommandToken('cls', '[CLS]',
                              self.encoder['<s>']),
                 CommandToken('MASK',
                              '[MASK]',
@@ -85,7 +85,7 @@ class GLMBPETokenizer(BPETokenizer):
                 self._command_tokens.extend([
                     CommandToken('sop', '<|startofpiece|>', self.num_tokens),
                     CommandToken('eop', '<|endofpiece|>', self.num_tokens + 1),
-                    CommandToken('ENC', '[CLS]', self.num_tokens + 2),
+                    CommandToken('cls', '[CLS]', self.num_tokens + 2),
                     CommandToken('MASK',
                                  '[MASK]',
                                  self.num_tokens + 3,

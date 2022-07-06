@@ -16,127 +16,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
-# from collections import namedtuple
-# import itertools
-
-
 
 import logging
 logger = logging.getLogger(__name__)
-import os
-from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
-import collections
+import sentencepiece as spm
 
-class WordpieceTokenizer(object):
-    def __init__(self, vocab_file=None, do_basic_tokenize=True,
-                         do_lower_case=True, max_len=None,
-                         never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"),
-                         unk_token="[UNK]", max_input_chars_per_word=100, *input, **kwargs):
-        if not os.path.isfile(vocab_file):
-            raise ValueError(
-                "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "
-                "model use `tokenizer = BertTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)`"
-                    .format(vocab_file))
-        self.vocab = load_vocab(vocab_file)
-        self.ids_to_tokens = collections.OrderedDict([
-            (ids, tok) for tok, ids in self.vocab.items()
-        ])
-        self.do_basic_tokenize = do_basic_tokenize
-        if do_basic_tokenize:
-            self.basic_tokenizer = BasicTokenizer(do_lower_case=do_lower_case,
-                                                  never_split=never_split)
-        self.max_len = max_len if max_len is not None else int(1e12)
-        self.unk_token = unk_token
-        self.max_input_chars_per_word = max_input_chars_per_word
+
+class SentencePieceTokenizer(object):
+    def __init__(self, model_path):
+        self.sp_model = spm.SentencePieceProcessor()
+        self.sp_model.Load(model_path)
 
     @property
     def vocab_size(self):
-        return len(self.vocab)
+        return self.sp_model.get_piece_size()
 
-    def word_piece(self, text):
-        """Tokenizes a piece of text into its word pieces.
-        This uses a greedy longest-match-first algorithm to perform tokenization
-        using the given vocabulary.
-        For example:
-          input = "unaffable"
-          output = ["un", "##aff", "##able"]
-        Args:
-          text: A single token or whitespace separated tokens. This should have
-            already been passed through `BasicTokenizer`.
-        Returns:
-          A list of wordpiece tokens.
+    def get_vocab(self):
+        vocab = {self.convert_ids_to_tokens(i): i for i in range(self.vocab_size)}
+        # vocab.update(self.added_tokens_encoder)
+        return vocab
+
+    def encode(self, text):
         """
+        text="...."
+        """
+        return self.sp_model.EncodeAsIds(text)
 
-        output_tokens = []
-        for token in whitespace_tokenize(text):
-            chars = list(token)
-            if len(chars) > self.max_input_chars_per_word:
-                output_tokens.append(self.unk_token)
-                continue
-
-            is_bad = False
-            start = 0
-            sub_tokens = []
-            while start < len(chars):
-                end = len(chars)
-                cur_substr = None
-                while start < end:
-                    substr = "".join(chars[start:end])
-                    if start > 0:
-                        substr = "##" + substr
-                    if substr in self.vocab:
-                        cur_substr = substr
-                        break
-                    end -= 1
-                if cur_substr is None:
-                    is_bad = True
-                    break
-                sub_tokens.append(cur_substr)
-                start = end
-
-            if is_bad:
-                output_tokens.append(self.unk_token)
-            else:
-                output_tokens.extend(sub_tokens)
-        return output_tokens
+    def decode(self, tokens):
+        """
+        tokens=[x1,x2,...]
+        """
+        text = [int(token) for token in tokens]
+        return self.sp_model.DecodeIds(text)
 
     def tokenize(self, text):
-        if self.do_basic_tokenize:
-            split_tokens = []
-            for token in self.basic_tokenizer.tokenize(text):
-                for sub_token in self.word_piece(token):
-                    split_tokens.append(sub_token)
-        else:
-            split_tokens = self.word_piece(text)
-        return split_tokens
-
-    def convert_token_to_id(self, token):
-        """ Converts a sequence of tokens into ids using the vocab. """
-        return self.vocab[token]
+        return self.sp_model.EncodeAsPieces(text)
 
     def convert_tokens_to_ids(self, tokens):
-        """Converts a sequence of tokens into ids using the vocab."""
-        ids = [self.convert_token_to_id(token) for token in tokens]
-        if len(ids) > self.max_len:
-            logger.warning(
-                "Token indices sequence length is longer than the specified maximum "
-                " sequence length for this BERT model ({} > {}). Running this"
-                " sequence through BERT will result in indexing errors".format(
-                    len(ids), self.max_len))
-        return ids
+        return [self.sp_model.PieceToId(token) for token in tokens]
 
-    def convert_id_to_token(self, id):
-        """Converts a sequence of ids in wordpiece tokens using the vocab."""
-        return self.ids_to_tokens[id]
+    def convert_token_to_id(self, token):
+        return self.sp_model.PieceToId(token)
 
-    def convert_ids_to_tokens(self, ids):
-        """Converts a sequence of ids in wordpiece tokens using the vocab."""
-        return [self.convert_id_to_token(id) for id in ids]
+    def convert_id_to_token(self, idx):
+        return self.sp_model.IdToPiece(idx)
+
+    def convert_ids_to_tokens(self, idxs):
+        return [self.sp_model.IdToPiece(idx) for idx in idxs]
 
     def convert_tokens_to_string(self, tokens):
         """Converts a sequence of tokens (string) in a single string."""
-        out_string = " ".join(tokens).replace(" ##", "").strip()
-        return out_string
+        current_sub_tokens = []
+        out_string = ""
+        for token in tokens:
+            # make sure that special tokens are not decoded using sentencepiece model
+            if token in self.all_special_tokens:
+                out_string += self.sp_model.decode_pieces(current_sub_tokens) + token + " "
+                current_sub_tokens = []
+            else:
+                current_sub_tokens.append(token)
+        out_string += self.sp_model.decode_pieces(current_sub_tokens)
+        return out_string.strip()
 
 
 

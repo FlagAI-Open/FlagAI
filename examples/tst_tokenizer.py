@@ -8,35 +8,47 @@ sys.path.append("..")
 # from examples.uni_tokenizer.base_tokenizer import BaseTokenizer
 # tokenizer = BaseTokenizer.from_pretrained('GLM-large-en')
 
+from flagai.data.tokenizer.glm_large_en.wordpiece import GLMLargeEnTokenizer
+from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import GLM10bENTokenizer
 
-class Animal(object):
-    @classmethod
-    def move(cls):
-        # return cls.jump(cls,8,12)
-        return cls(8,12)
-    def __init__(self, name=None, age=None):
-        print(name, age)
-        # super(Animal, self).__init__()
-        self.name = name
-        self.age = age
-        print('parent')
+tokenizer = GLMLargeEnTokenizer.from_pretrained("GLM-large-en")
+# tokenizer = GLM10bENTokenizer.from_pretrained("gpt2")
+print(tokenizer.vocab['[CLS]'])
+print(tokenizer.vocab['[UNK]'])
+print(tokenizer.vocab['[SEP]'])
+print(tokenizer.vocab['<|startofpiece|>'])
+print(tokenizer.vocab['<|endofpiece|>'])
+print(tokenizer.vocab_size())
+# print(list(dict(tokenizer.encoder).items())[-2:])
 
-    # def jump(self,  name, age):
-    #     print("jump")
-
-class cat(Animal):
-    def __init__(self, age, piece, **kwargs):
-        super().__init__(**kwargs)
-        self.age = age+age
-        self.piece = 8
-        print("is it?")
-
-
-    def jump(self,  name, age):
-        self.age = 13
-        print(self.age)
-
-a = cat.move()
+# class Animal(object):
+#     @classmethod
+#     def move(cls):
+#         # return cls.jump(cls,8,12)
+#         return cls(8,12)
+#     def __init__(self, name=None, age=None):
+#         print(name, age)
+#         # super(Animal, self).__init__()
+#         self.name = name
+#         self.age = age
+#         print('parent')
+#
+#     # def jump(self,  name, age):
+#     #     print("jump")
+#
+# class cat(Animal):
+#     def __init__(self, age, piece, **kwargs):
+#         super().__init__(**kwargs)
+#         self.age = age+age
+#         self.piece = 8
+#         print("is it?")
+#
+#
+#     def jump(self,  name, age):
+#         self.age = 13
+#         print(self.age)
+#
+# a = cat.move()
 # a.jump(2,4)
 # a = cat(age=9,piece=7).move()
 # print(a.piece)

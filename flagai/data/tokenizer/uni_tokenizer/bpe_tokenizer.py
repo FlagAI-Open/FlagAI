@@ -26,11 +26,9 @@ logger = logging.getLogger(__name__)
 import os
 from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode, get_pairs
 import sys
-from properties import VOCAB_NAME, MERGES_NAME, SPECIAL_TOKENS_NAME
-from base_tokenizer import BaseTokenizer
 
 
-class BPETokenizer(BaseTokenizer):
+class BPETokenizer(object):
     def __init__(self,
                  vocab_file,
                  merges_file,
@@ -167,46 +165,46 @@ class BPETokenizer(BaseTokenizer):
         text = bytearray([self.byte_decoder[c] for c in text]).decode("utf-8", errors=self.errors)
         return text
 
-    def save_vocabulary(self, vocab_path):
-        """Save the tokenizer vocabulary and merge files to a directory."""
-        if not os.path.isdir(vocab_path):
-            logger.error("Vocabulary path ({}) should be a directory".format(
-                vocab_path))
-            return
-        vocab_file = os.path.join(vocab_path, VOCAB_NAME)
-        merge_file = os.path.join(vocab_path, MERGES_NAME)
-        special_tokens_file = os.path.join(vocab_path, SPECIAL_TOKENS_NAME)
-
-        with open(vocab_file, 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.encoder, ensure_ascii=False))
-
-        index = 0
-        with open(merge_file, "w", encoding="utf-8") as writer:
-            writer.write(u'#version: 0.2\n')
-            for bpe_tokens, token_index in sorted(self.bpe_ranks.items(),
-                                                  key=lambda kv: kv[1]):
-                if index != token_index:
-                    logger.warning(
-                        "Saving vocabulary to {}: BPE merge indices are not consecutive."
-                        " Please check that the tokenizer is not corrupted!".
-                        format(merge_file))
-                    index = token_index
-                writer.write(' '.join(bpe_tokens) + u'\n')
-                index += 1
-
-        index = len(self.encoder)
-        with open(special_tokens_file, 'w', encoding='utf-8') as writer:
-            for token, token_index in sorted(self.special_tokens.items(),
-                                             key=lambda kv: kv[1]):
-                if index != token_index:
-                    logger.warning(
-                        "Saving special tokens vocabulary to {}: BPE indices are not consecutive."
-                        " Please check that the tokenizer is not corrupted!".
-                        format(special_tokens_file))
-                    index = token_index
-                writer.write(token + u'\n')
-                index += 1
-
-        return vocab_file, merge_file, special_tokens_file
+    # def save_vocabulary(self, vocab_path):
+    #     """Save the tokenizer vocabulary and merge files to a directory."""
+    #     if not os.path.isdir(vocab_path):
+    #         logger.error("Vocabulary path ({}) should be a directory".format(
+    #             vocab_path))
+    #         return
+    #     vocab_file = os.path.join(vocab_path, VOCAB_NAME)
+    #     merge_file = os.path.join(vocab_path, MERGES_NAME)
+    #     special_tokens_file = os.path.join(vocab_path, SPECIAL_TOKENS_NAME)
+    #
+    #     with open(vocab_file, 'w', encoding='utf-8') as f:
+    #         f.write(json.dumps(self.encoder, ensure_ascii=False))
+    #
+    #     index = 0
+    #     with open(merge_file, "w", encoding="utf-8") as writer:
+    #         writer.write(u'#version: 0.2\n')
+    #         for bpe_tokens, token_index in sorted(self.bpe_ranks.items(),
+    #                                               key=lambda kv: kv[1]):
+    #             if index != token_index:
+    #                 logger.warning(
+    #                     "Saving vocabulary to {}: BPE merge indices are not consecutive."
+    #                     " Please check that the tokenizer is not corrupted!".
+    #                     format(merge_file))
+    #                 index = token_index
+    #             writer.write(' '.join(bpe_tokens) + u'\n')
+    #             index += 1
+    #
+    #     index = len(self.encoder)
+    #     with open(special_tokens_file, 'w', encoding='utf-8') as writer:
+    #         for token, token_index in sorted(self.special_tokens.items(),
+    #                                          key=lambda kv: kv[1]):
+    #             if index != token_index:
+    #                 logger.warning(
+    #                     "Saving special tokens vocabulary to {}: BPE indices are not consecutive."
+    #                     " Please check that the tokenizer is not corrupted!".
+    #                     format(special_tokens_file))
+    #                 index = token_index
+    #             writer.write(token + u'\n')
+    #             index += 1
+    #
+    #     return vocab_file, merge_file, special_tokens_file
 
 

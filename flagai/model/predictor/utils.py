@@ -824,7 +824,7 @@ def glm_sample_sequence(model,
                         out_seq_length=512,
                         temperature=0.9,
                         top_k=40):
-    tokens = context_tokens.new_full((1, 1), tokenizer.get_command('sop').Id)
+    tokens = context_tokens.new_full((1, 1), tokenizer.get_command_id('sop'))
     counter = 0
     if mems is None:
         mems = []
@@ -879,9 +879,9 @@ def glm_generate_sample(
     if 'MASK]' not in text:
         text += ' ' + generation_mask
     context_tokens = tokenizer.EncodeAsIds(text)
-    context_tokens = [tokenizer.get_command('ENC').Id] + context_tokens
+    context_tokens = [tokenizer.get_command_id('cls')] + context_tokens
     if not text.endswith('[gMASK]'):
-        context_tokens = context_tokens + [tokenizer.get_command('eos').Id]
+        context_tokens = context_tokens + [tokenizer.get_command_id('eos')]
     context_length = len(context_tokens)
     context_length_tensor = torch.cuda.LongTensor([context_length])
     context_length = context_length_tensor[0].item()
@@ -905,8 +905,8 @@ def glm_generate_sample(
     position_ids = torch.stack((position_ids, block_position_ids), dim=0)
     position_ids = position_ids.unsqueeze(0)
     mask_tokens = ['MASK', 'sMASK', 'gMASK']
-    mask_tokens = [tokenizer.get_command(token).Id for token in mask_tokens]
-    end_tokens = [tokenizer.get_command('eop').Id, eod_token]
+    mask_tokens = [tokenizer.get_command_id(token).Id for token in mask_tokens]
+    end_tokens = [tokenizer.get_command_id('eop'), eod_token]
     mask_positions = []
     for token in mask_tokens:
         mask_positions += (context_tokens_tensor == token).nonzero(

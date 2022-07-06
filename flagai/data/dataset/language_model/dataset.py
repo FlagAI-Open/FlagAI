@@ -39,7 +39,7 @@ class LMDataset(torch.utils.data.Dataset):
         self.unidirectional = args.unidirectional
         self.block_lm = args.block_lm
         mask_token = "gMASK" if args.task_mask else 'MASK'
-        self.mask_id = self.tokenizer.get_command(mask_token).Id
+        self.mask_id = self.tokenizer.get_command_id(mask_token)
 
     def __len__(self):
         return sum(self.num_sequences)
@@ -111,12 +111,12 @@ class LambadaDataset(torch.utils.data.Dataset):
         self.args = args
         self.max_seq_length = args.seq_length
         self.tokenizer = tokenizer
-        self.pad_idx = tokenizer.get_command('pad').Id
+        self.pad_idx = tokenizer.get_command_id('pad')
         self.strict = strict
         self.block_lm = args.block_lm
         self.unidirectional = args.unidirectional
         mask_token = "gMASK" if args.task_mask else 'MASK'
-        self.mask_id = self.tokenizer.get_command(mask_token).Id
+        self.mask_id = self.tokenizer.get_command_id(mask_token)
 
         self.tokens = []
         self.labels = []

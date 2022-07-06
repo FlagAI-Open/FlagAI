@@ -425,12 +425,12 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         example = self.example_list[idx]
         return example
-        # cls_id = self.tokenizer.get_command('ENC').Id
+        # cls_id = self.tokenizer.get_command_id('cls')
         # mask_token = 'sMASK' if self.task_mask else 'MASK'
-        # mask_id = self.tokenizer.get_command(mask_token).Id
-        # pad_id = self.tokenizer.get_command('pad').Id
-        # sop_id = self.tokenizer.get_command('sop').Id
-        # eop_id = self.tokenizer.get_command('eop').Id
+        # mask_id = self.tokenizer.get_command_id(mask_token).Id
+        # pad_id = self.tokenizer.get_command_id('pad')
+        # sop_id = self.tokenizer.get_command_id('sop')
+        # eop_id = self.tokenizer.get_command_id('eop')
         # if self.task_name in [
         #         "gigaword", "cnn_dm", "cnn_dm_original", "xsum", "lang8_hsk"
         # ]:
@@ -474,7 +474,7 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
         #     source_tokens = [cls_id] + source_tokens + [mask_id
         #                                                 ] + answer_tokens
         # elif self.task_name in ["cmrc"]:
-        #     mask_id = self.tokenizer.get_command('MASK').Id
+        #     mask_id = self.tokenizer.get_command_id('MASK')
         #     source_text = example.text_a
         #     target_text = example.meta["answer"].strip()
         #     question = example.meta["question"].strip()
@@ -488,7 +488,7 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
         #         mask_id
         #     ] + source_tokens[:max_src_length]
         # elif self.task_name in ["wsc"]:
-        #     mask_id = self.tokenizer.get_command('MASK').Id
+        #     mask_id = self.tokenizer.get_command_id('MASK')
         #     source_text = example.text_a
         #     target_text = example.meta["answer"].strip()
         #     question = example.meta["question"].strip()
@@ -604,10 +604,10 @@ class ExtractionDataset(torch.utils.data.Dataset):
         example = self.example_list[idx]
         source_text, target_text = example.text_a, example.text_b
         mask_token = 'MASK'
-        mask_id = self.tokenizer.get_command(mask_token).Id
-        sop_id = self.tokenizer.get_command('sop').Id
-        eop_id = self.tokenizer.get_command('eop').Id
-        pad_id = self.tokenizer.get_command('pad').Id
+        mask_id = self.tokenizer.get_command_id(mask_token).Id
+        sop_id = self.tokenizer.get_command_id('sop')
+        eop_id = self.tokenizer.get_command_id('eop')
+        pad_id = self.tokenizer.get_command_id('pad')
 
         def pad_to(text, max_len, pad_id):
             if len(text) > max_len:
@@ -739,10 +739,10 @@ class BlankLMDataset(torch.utils.data.Dataset):
         example = self.example_list[idx]
         source_text = example.text_a
         mask_token = 'gMASK' if self.args.task_mask else 'MASK'
-        mask_id = self.tokenizer.get_command(mask_token).Id
-        sop_id = self.tokenizer.get_command('sop').Id
-        eop_id = self.tokenizer.get_command('eop').Id
-        pad_id = self.tokenizer.get_command('pad').Id
+        mask_id = self.tokenizer.get_command_id(mask_token).Id
+        sop_id = self.tokenizer.get_command_id('sop')
+        eop_id = self.tokenizer.get_command_id('eop')
+        pad_id = self.tokenizer.get_command_id('pad')
         if self.split in ['train', 'dev']:
             masked_src, masked_tgt = self.mask_text(source_text)
             source_text = masked_src

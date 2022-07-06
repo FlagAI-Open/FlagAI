@@ -26,6 +26,7 @@ class TokenizerTestCase(unittest.TestCase):
         tokenizer = GLMLargeEnWordPieceTokenizer()
         print(tokenizer.EncodeAsIds("today is a nice day and"))
         self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
+        print(tokenizer.EncodeAsTokens('fried chicken makes me happy'))
         self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
                          [13017, 7975, 3084, 2033, 3407], '')
         self.assertEqual(tokenizer.DecodeIds([13017, 7975, 3084, 2033, 3407]),
@@ -88,13 +89,13 @@ class TokenizerTestCase(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     # suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_ch'))
-    # suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_en'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_en'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
-    suite.addTest(TokenizerTestCase('test_tokenizer_opt'))
+    # suite.addTest(TokenizerTestCase('test_tokenizer_opt'))
 
     return suite
 

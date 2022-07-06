@@ -6,3 +6,5 @@ from .roberta.roberta_tokenizer import ROBERTATokenizer
 from .bert.bert_tokenizer import BertWordPieceTokenizer
 from .cpm_1.cpm1_tokenizer import CPMTokenizer
 from .opt.opt_en_tokenizer import OPTTokenizer
+from .uni_tokenizer.glm_tokenizer import GLMTokenizer
+# from .uni_tokenizer.base_tokenizer import BaseTokenizer
