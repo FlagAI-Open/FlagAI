@@ -410,15 +410,3 @@ class Tokenizer(BaseTokenizer):
         Ids = split_on_tokens(no_split_tokens, processed_text)
         return Ids
 
-if __name__ == '__main__':
-    tokenizer = Tokenizer.from_pretrained('GLM-large-ch')
-    # tokenizer = GLMTokenizer.from_pretrained('GLM-large-en')
-    # print(tokenizer.EncodeAsIds("fried chicken makes me happy"))
-    # print(tokenizer.EncodeAsTokens("fried chicken makes me happy deglobalization"))
-    print(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"))
-
-    tokenizer = GLMTokenizer.from_pretrained('GLM-large-en')
-    # print(tokenizer.EncodeAsTokens("fried chicken makes me happy"))
-    # print(tokenizer.EncodeAsIds("fried chicken makes me happy"))
-    print(len(tokenizer))
-
