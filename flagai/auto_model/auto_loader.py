@@ -72,6 +72,8 @@ MODEL_DICT = {
     "opt-6.7b-en": ["flagai.model.opt_model","OPTModel", "opt"],
     "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt"],
     "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt"],
+    "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt"],
+
 }
 
 TOKENIZER_DICT = {
@@ -85,7 +87,7 @@ TOKENIZER_DICT = {
     ],
     "glm-large-en": [
         "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
-        "GLMLargeEnTokenizer"
+        "GLMLargeEnWordPieceTokenizer"
     ],
     "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
     "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
@@ -96,6 +98,8 @@ TOKENIZER_DICT = {
     "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
     "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
     "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+
 }
 
 
@@ -108,6 +112,7 @@ class AutoLoader:
                  model_name: str = "RoBERTa-base-ch",
                  model_dir: str = "./checkpoints/",
                  only_download_config: bool = False,
+                 device="cpu",
                  **kwargs):
         """
         Args:
@@ -171,6 +176,7 @@ class AutoLoader:
                                  download_path=model_dir,
                                  model_name=model_name_,
                                  only_download_config=only_download_config,
+                                 device=device,
                                  **kwargs)
 
         model_id = _get_model_id(model_name)
@@ -180,6 +186,8 @@ class AutoLoader:
             vocab_file = os.path.join(download_path, 'cog-pretrained.model')
             if not os.path.exists(vocab_file):
                 vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
+        elif model_name == "glm-large-en":
+            vocab_file = "GLM-large-en"
         elif model_name == "cpm-large-ch":
             # two files to load
             vocab_file_1 = os.path.join(download_path, "vocab.json")
@@ -203,12 +211,14 @@ class AutoLoader:
             self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
         elif brief_model_name == "opt":
             self.tokenizer = tokenizer_class("facebook/opt-350m")
+        elif model_name in ["glm-large-en", "glm-large-ch"]:
+            self.tokenizer = tokenizer_class()
         else :
             self.tokenizer = tokenizer_class(vocab_file)
 
-        tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
-                                    "Tokenizer")
-        self.tokenizer = tokenizer_class.from_pretrained(model_name)
+        # tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+        #                             "Tokenizer")
+        # self.tokenizer = tokenizer_class.from_pretrained(model_name)
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())

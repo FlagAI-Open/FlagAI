@@ -45,6 +45,7 @@ class BaseModel(Module):
                       download_path='./checkpoints/',
                       model_name='RoBERTa-base-ch',
                       only_download_config=False,
+                      device="cpu",
                       **kwargs):
         model_id = None
         try:
@@ -87,6 +88,7 @@ class BaseModel(Module):
                                            model_id)
         if os.path.exists(config_path):
             model = cls.init_from_json(config_path, **kwargs)
+            model.to(device)
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
                 if os.path.exists(checkpoint_path):
                     model.load_weights(checkpoint_path)
@@ -98,11 +100,17 @@ class BaseModel(Module):
                     print(
                         "preparing the model weights for model parallel size = {:02d}"
                         .format(model_parallel_size))
-                    from flagai.mp_tools import change_pytorch_model_mp_from_1_to_n, check_pytorch_model_mp_size
+                    from flagai.auto_model.auto_loader import MODEL_DICT
+                    from flagai.mp_tools import change_pytorch_model_mp_from_1_to_n_new, check_pytorch_model_mp_size
                     if model_parallel_size > 1 and not check_pytorch_model_mp_size(
                             download_path, model_parallel_size):
-                        change_pytorch_model_mp_from_1_to_n(
+                        brief_model_name = MODEL_DICT[model_name.lower()][2]
+                        change_pytorch_model_mp_from_1_to_n_new(brief_model_name,
                             download_path, model_parallel_size)
+
+                from flagai import mpu
+                torch.distributed.barrier(group=mpu.get_model_parallel_group())
+
                 if model_parallel_size > 1:
                     from flagai.mpu import get_model_parallel_rank
                     model_parallel_rank = get_model_parallel_rank()

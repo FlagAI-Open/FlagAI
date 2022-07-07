@@ -27,12 +27,16 @@ trainer = Trainer(
     num_checkpoints=1,
 )
 
-cur_dir = os.path.dirname(os.path.abspath(__file__))
-src_dir = cur_dir + '/data/train.src'
-tgt_dir = cur_dir + '/data/train.tgt'
+# cur_dir = os.path.dirname(os.path.abspath(__file__))
+# src_dir = cur_dir + '/data/train.src'
+# tgt_dir = cur_dir + '/data/train.tgt'
+
+src_dir = "./data/train.src"
+tgt_dir = "./data/train.tgt"
+
 
 maxlen = 256
-auto_loader = AutoLoader("seq2seq",
+auto_loader = AutoLoader("lm",
                          model_name="GLM-large-ch",
                          model_dir="./state_dict/")
 model = auto_loader.get_model()

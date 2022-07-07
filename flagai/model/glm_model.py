@@ -458,7 +458,7 @@ class GLMModel(BaseModel):
                 labels = kwargs['labels']
                 if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
                     loss = vocab_parallel_cross_entropy(
-                        logits.contiguous().float(), labels).mean()
+                        logits_parallel.contiguous().float(), labels).mean()
                 else:
 
                     loss = F.cross_entropy(

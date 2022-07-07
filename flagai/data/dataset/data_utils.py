@@ -120,8 +120,6 @@ def num_special_tokens_to_add(text_a_ids,
     return num_tokens
 
 
-#
-#
 def build_input_from_ids(text_a_ids,
                          text_b_ids,
                          answer_ids,

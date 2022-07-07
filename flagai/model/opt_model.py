@@ -24,74 +24,6 @@ from flagai.model.layers.activations import ACT2FN
 from flagai.model.gpt2_model import GPT2Model, GPT2Stack, GPT2Config
 from torch.utils.checkpoint import checkpoint
 
-
-# class GPT2Config:
-#
-#     def __init__(
-#             self,
-#             vocab_size=50257,
-#             n_positions=1024,
-#             n_ctx=1024,
-#             n_embd=768,
-#             n_layer=12,
-#             n_head=12,
-#             n_inner=None,
-#             activation_function="gelu_new",
-#             resid_pdrop=0.1,
-#             embd_pdrop=0.1,
-#             attn_pdrop=0.1,
-#             layer_norm_epsilon=1e-5,
-#             initializer_range=0.02,
-#             summary_type="cls_index",
-#             summary_use_proj=True,
-#             summary_activation=None,
-#             summary_proj_to_labels=True,
-#             summary_first_dropout=0.1,
-#             scale_attn_weights=True,
-#             gradient_checkpointing=False,
-#             use_cache=True,
-#             bos_token_id=50256,
-#             eos_token_id=50256,
-#             checkpoint_activations=False,
-#             hidden_size=768,
-#     ):
-#         self.checkpoint_activations = checkpoint_activations
-#         self.vocab_size = vocab_size
-#         # self.n_ctx = n_ctx
-#         self.n_positions = n_positions
-#         self.n_ctx = n_positions
-#         self.n_embd = n_embd
-#         self.hidden_size = hidden_size
-#         self.n_layer = n_layer
-#         self.n_head = n_head
-#         self.n_inner = n_inner
-#         self.activation_function = activation_function
-#         self.resid_pdrop = resid_pdrop
-#         self.embd_pdrop = embd_pdrop
-#         self.attn_pdrop = attn_pdrop
-#         self.layer_norm_epsilon = layer_norm_epsilon
-#         self.initializer_range = initializer_range
-#         self.summary_type = summary_type
-#         self.summary_use_proj = summary_use_proj
-#         self.summary_activation = summary_activation
-#         self.summary_first_dropout = summary_first_dropout
-#         self.summary_proj_to_labels = summary_proj_to_labels
-#         self.gradient_checkpointing = gradient_checkpointing
-#         self.scale_attn_weights = scale_attn_weights
-#         self.use_cache = use_cache
-#
-#         self.bos_token_id = bos_token_id
-#         self.eos_token_id = eos_token_id
-
-
-_CHECKPOINT_FOR_DOC = "facebook/opt-350m"
-_CONFIG_FOR_DOC = "OPTConfig"
-_TOKENIZER_FOR_DOC = "GPT2Tokenizer"
-
-# Base model docstring
-_EXPECTED_OUTPUT_SHAPE = [1, 8, 1024]
-
-
 OPT_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "facebook/opt-125m",
     "facebook/opt-350m",
@@ -120,21 +52,10 @@ class OPTLearnedPositionalEmbedding(nn.Embedding):
 
         # create positions depending on attention_mask
         positions = (torch.cumsum(attention_mask, dim=1).type_as(attention_mask) * attention_mask).long() - 1
-
         # cut positions if `past_key_values_length` is > 0
         positions = positions[:, past_key_values_length:]
 
         return super().forward(positions + self.offset)
-
-def make_causal_mask(input_ids):
-    device = input_ids.device
-    bsz, tgt_len = input_ids.shape
-    mask = torch.full((tgt_len, tgt_len), 0.0).to(device)
-    mask_cond = torch.arange(mask.size(-1)).to(device)
-    mask.masked_fill_(mask_cond < (mask_cond + 1).view(mask.size(-1), 1),
-                      1.0)
-
-    return mask[None, None, :, :].expand(bsz, 1, tgt_len, tgt_len)
 
 class OPTStack(GPT2Stack):
     def __init__(self, config: GPT2Config):
@@ -154,88 +75,12 @@ class OPTStack(GPT2Stack):
         else:
             self.project_in = None
 
-    def forward(
-            self,
-            input_ids,
-            attention_mask=None,
-            position_ids=None,
-            use_cache=None,
-            output_attentions=None,
-            output_hidden_states=None,
-    ):
-        input_shape = input_ids.size()
-        input_ids = input_ids.view(-1, input_shape[-1])
-        batch_size = input_ids.shape[0]
-
-        extend_mask = (input_ids > 0).float()
-        position_embeds = self.wpe(extend_mask, 0)
-
-        # if attention_mask is None:
-        attention_mask = make_causal_mask(input_ids)
-        attention_mask = extend_mask.unsqueeze(1).unsqueeze(
-            1) * attention_mask
-        attention_mask = (1.0 - attention_mask) * -10000.0
-
-        inputs_embeds = self.wte(input_ids)
-        if self.project_in is not None:
-            inputs_embeds = self.project_in(inputs_embeds)
-        hidden_states = inputs_embeds + position_embeds
-
-        hidden_states = self.drop(hidden_states)
-
-        # output_shape = input_shape + (hidden_states.size(-1), )
-
-        presents = () if use_cache else None
-        all_self_attentions = () if output_attentions else None
-        all_hidden_states = () if output_hidden_states else None
-
-        for i, block in enumerate(self.h):
-            if output_hidden_states:
-                all_hidden_states = all_hidden_states + (hidden_states, )
-            if self.config.checkpoint_activations:
-                def create_custom_forward(module):
-                    def custom_forward(*inputs):
-                        return module(*inputs)
-                    return custom_forward
-
-                outputs = checkpoint(
-                    create_custom_forward(block),
-                    hidden_states,
-                    attention_mask,
-                    None,
-                    use_cache,
-                    output_attentions,
-                )
-            else:
-
-                outputs = block(
-                    hidden_states,
-                    attention_mask=attention_mask,
-                    head_mask=None,
-                    use_cache=use_cache,
-                    output_attentions=output_attentions,
-                )
-
-            hidden_states = outputs[0]
-            if use_cache is True:
-                presents = presents + (outputs[1], )
-
-            if output_attentions:
-                all_self_attentions = all_self_attentions + (
-                    outputs[2 if use_cache else 1], )
-
-        if self.ln_f is not None:
-            hidden_states = self.ln_f(hidden_states)
-
-        if self.project_out is not None:
-            hidden_states = self.project_out(hidden_states)
-
-        # hidden_states = hidden_states.view(*output_shape)
-        # Add last hidden state
-        if output_hidden_states:
-            all_hidden_states = all_hidden_states + (hidden_states, )
-
-        return hidden_states
+    def get_position_embeddings(self, **kwargs):
+        pass
+        padding_mask = kwargs["padding_mask"]
+        past_length = kwargs["past_length"]
+        position_embeds = self.wpe(padding_mask, past_length)
+        return position_embeds
 
 def trans_opt_to_gpt_config(opt_config_json):
     trans_config_json = {}
@@ -262,45 +107,7 @@ class OPTModel(GPT2Model):
     def __init__(self, config, **kwargs):
         config = trans_opt_to_gpt_config(config)
         super(OPTModel, self).__init__(config, **kwargs)
-        # self.config = config
         self.transformer = OPTStack(self.config)
-
-    def forward(
-            self,
-            **data,
-    ):
-        input_ids = data.get("input_ids", None)
-        # attention_mask = data.get("attention_mask", None)
-        # position_ids = data.get("position_ids", None)
-        labels = data.get("labels", None)
-        use_cache = data.get("use_cache", None)
-        output_attentions = data.get("output_attentions", None)
-        output_hidden_states = data.get("output_hidden_states", True)
-
-        transformer_outputs = self.transformer(
-            input_ids,
-            attention_mask=None,
-            position_ids=None,
-            use_cache=use_cache,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-        )
-        hidden_states = transformer_outputs
-
-        lm_logits = self.lm_head(hidden_states)
-
-        return_data = {"logits": lm_logits}
-        if labels is not None:
-            # Shift so that tokens < n predict n
-            shift_logits = lm_logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-            loss_fct = nn.CrossEntropyLoss()
-            loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)),
-                            shift_labels.view(-1))
-            return_data["loss"] = loss
-
-        return return_data
-
 
     def load_weights(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path,
@@ -315,7 +122,6 @@ class OPTModel(GPT2Model):
                 checkpoint_[k[6:]] = v
             else :
                 checkpoint_[k] = v
-
 
         checkpoint = self.transpose_weight(checkpoint_)
         self.load_state_dict(checkpoint, strict=False)

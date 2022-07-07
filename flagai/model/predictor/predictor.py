@@ -8,24 +8,14 @@ from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_bea
     t5_random_sample, gpt_random_sample, \
     t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample
 from typing import List, Union, Dict, Tuple, Any
-from flagai.model.bert_model import BertModel, BertForMaskLM, BertForSeq2seq, BertForSequenceLabeling, \
-    BertForSequenceLabelingGP, BertForSequenceLabelingCRF, BertForClsClassifier
-from flagai.model.gpt2_model import GPT2Model
-from flagai.model.t5_model import T5Model
-from flagai.data.tokenizer.bert.bert_tokenizer import BertTokenizer
-from flagai.data.tokenizer.t5.t5_pegasus_tokenizer import T5PegasusTokenizer
-from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeChTokenizer
+from flagai.model.predictor.gpt import gpt_random_sample_use_cache
 
 
 class Predictor:
 
     def __init__(self,
-                 model: Union[BertModel, GPT2Model, BertForSequenceLabelingGP,
-                              BertForSequenceLabelingCRF, BertForClsClassifier,
-                              BertForClsClassifier, BertForSequenceLabeling,
-                              BertForSeq2seq, T5Model, BertForMaskLM],
-                 tokenizer: Union[GLMLargeChTokenizer, BertTokenizer,
-                                  T5PegasusTokenizer]):
+                 model,
+                 tokenizer):
         """
         Args:
             model: The model loaded by the AutoLoader class.
@@ -289,7 +279,7 @@ class Predictor:
                                     device)
 
         elif "gpt" in self.class_name.lower() or "opt" in self.class_name.lower():
-            return gpt_random_sample(self.model, self.tokenizer, text,
+            return gpt_random_sample_use_cache(self.model, self.tokenizer, text,
                                      input_max_length, out_max_length, top_k,
                                      top_p, repetition_penalty, temperature,
                                      device)

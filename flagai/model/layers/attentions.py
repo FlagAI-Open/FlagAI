@@ -64,6 +64,8 @@ class GPT2Attention(nn.Module):
         self.scale = scale
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             world_size = get_model_parallel_world_size()
+            self.split_size = divide(n_state, world_size)
+
             self.hidden_size_per_partition = divide(nx, world_size)
             self.hidden_size_per_attention_head = divide(nx, self.n_head)
             self.num_attention_heads_per_partition = divide(
@@ -94,12 +96,11 @@ class GPT2Attention(nn.Module):
               v,
               attention_mask=None,
               head_mask=None,
-              output_attentions=False):
-        w = torch.matmul(q, k)
+              ):
+        w = torch.matmul(q, k.transpose(-1, -2))
 
         if self.scale:
             w = w / (float(v.size(-1))**0.5)
-        nd, ns = w.size(-2), w.size(-1)
 
         # if not self.is_cross_attention:
         # if only "normal" attention layer implements causal mask
@@ -117,17 +118,16 @@ class GPT2Attention(nn.Module):
         if head_mask is not None:
             w = w * head_mask
         w = w.to(v.dtype)  #  fp16
-        outputs = (torch.matmul(w, v), )
-        if output_attentions:
-            outputs += (w, )
-        return outputs
+        outputs = torch.matmul(w, v)
+
+        return outputs, w
 
     def merge_heads(self, x):
         x = x.permute(0, 2, 1, 3).contiguous()
         new_x_shape = x.size()[:-2] + (x.size(-2) * x.size(-1), )
         return x.view(*new_x_shape)  # in Tensorflow implem: fct merge_states
 
-    def split_heads(self, x, k=False):
+    def split_heads(self, x):
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
             new_x_shape = x.size()[:-1] + (
                 self.num_attention_heads_per_partition,
@@ -136,44 +136,52 @@ class GPT2Attention(nn.Module):
             new_x_shape = x.size()[:-1] + (self.n_head,
                                            x.size(-1) // self.n_head)
         x = x.view(*new_x_shape)  # in Tensorflow implem: fct split_states
-        if k:
-            return x.permute(0, 2, 3,
-                             1)  # (batch, head, head_features, seq_length)
-        else:
-            return x.permute(0, 2, 1,
-                             3)  # (batch, head, seq_length, head_features)
+        # if k:
+        #     return x.permute(0, 2, 3,
+        #                      1)  # (batch, head, head_features, seq_length)
+        # else:
+        return x.permute(0, 2, 1,
+                         3)  # (batch, head, seq_length, head_features)
 
     def forward(
         self,
         hidden_states,
+        layer_past=None,
         attention_mask=None,
         head_mask=None,
         use_cache=False,
         output_attentions=False,
     ):
-
         query, key, value = self.c_attn(hidden_states).split(self.split_size,
                                                              dim=2)
 
         query = self.split_heads(query)
-        key = self.split_heads(key, k=True)
+        key = self.split_heads(key)
         value = self.split_heads(value)
 
+        if layer_past is not None:
+            past_key, past_value = layer_past
+            key = torch.cat((past_key, key), dim=-2)
+            value = torch.cat((past_value, value), dim=-2)
+
         if use_cache is True:
-            present = (key.transpose(-2, -1), value
-                       )  # transpose to have same shapes
+            present = (key, value
+                       )
         else:
             present = None
 
         attn_outputs = self._attn(query, key, value, attention_mask, head_mask,
-                                  output_attentions)
+                                  )
         a = attn_outputs[0]
-
+        if layer_past is not None:
+            a = a[:, :, -1:]
         a = self.merge_heads(a)
         a = self.c_proj(a)
         a = self.resid_dropout(a)
-
-        return (a, present) + attn_outputs[1:]  # a, present, (attentions)
+        outputs = (a, present)
+        if output_attentions:
+            outputs += (attn_outputs[1])
+        return outputs  # a, present, (attentions)
 
 
 class T5Attention(nn.Module):
