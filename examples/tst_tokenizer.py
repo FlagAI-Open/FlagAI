@@ -8,17 +8,25 @@ sys.path.append("..")
 # from examples.uni_tokenizer.base_tokenizer import BaseTokenizer
 # tokenizer = BaseTokenizer.from_pretrained('GLM-large-en')
 
-from flagai.data.tokenizer.glm_large_en.wordpiece import GLMLargeEnTokenizer
-from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import GLM10bENTokenizer
-
-tokenizer = GLMLargeEnTokenizer.from_pretrained("GLM-large-en")
-# tokenizer = GLM10bENTokenizer.from_pretrained("gpt2")
-print(tokenizer.vocab['[CLS]'])
-print(tokenizer.vocab['[UNK]'])
-print(tokenizer.vocab['[SEP]'])
-print(tokenizer.vocab['<|startofpiece|>'])
-print(tokenizer.vocab['<|endofpiece|>'])
-print(tokenizer.vocab_size())
+# from flagai.data.tokenizer import GLMLargeChTokenizer, GLMTokenizer
+#
+# model_name = 'GLM-large-ch'
+# tokenizer = GLMTokenizer.from_pretrained(model_name)
+# print(tokenizer.DecodeIds([43358]),123)
+from flagai.data.tokenizer import GLMLargeChTokenizer
+tokenizer = GLMLargeChTokenizer()
+print(tokenizer.DecodeIds([43358]),321)
+# from flagai.data.tokenizer.glm_large_en.wordpiece import GLMLargeEnTokenizer
+# from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import GLM10bENTokenizer
+#
+# tokenizer = GLMLargeEnTokenizer.from_pretrained("GLM-large-en")
+# # tokenizer = GLM10bENTokenizer.from_pretrained("gpt2")
+# print(tokenizer.vocab['[CLS]'])
+# print(tokenizer.vocab['[UNK]'])
+# print(tokenizer.vocab['[SEP]'])
+# print(tokenizer.vocab['<|startofpiece|>'])
+# print(tokenizer.vocab['<|endofpiece|>'])
+# print(tokenizer.vocab_size())
 # print(list(dict(tokenizer.encoder).items())[-2:])
 
 # class Animal(object):

@@ -327,12 +327,12 @@ class GLMTokenizer(Tokenizer):
                     tokens.extend(self.text_tokenizer.convert_ids_to_tokens([id]))
                 except KeyError:
                     pass
-        return self.text_tokenizer.convert_tokens_to_string(tokens)
+        return self.text_tokenizer.convert_tokens_to_string(tokens, self.command_token_map)
 
 
     def DecodeTokens(self, tokens):
         """converts wordpiece tokens to a text string"""
-        return self.text_tokenizer.convert_tokens_to_string(tokens)
+        return self.text_tokenizer.convert_tokens_to_string(tokens, self.command_token_map)
 
     def EncodeAsIds(self, text, process_fn=None):
         """

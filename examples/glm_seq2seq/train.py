@@ -3,7 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSeq2Seq
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer, GLMLargeChTokenizer
+from flagai.data.tokenizer import GLMTokenizer
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.test_utils import Seq2SeqCollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, CH_TASKS
@@ -27,11 +27,11 @@ trainer = Trainer(env_type='pytorch',
 print("downloading...")
 
 if task_name in CH_TASKS:
-    tokenizer = GLMLargeChTokenizer()
     model_name = 'GLM-large-ch'
 else:
-    tokenizer = GLMLargeEnWordPieceTokenizer()
     model_name = 'GLM-large-en'
+
+tokenizer = GLMTokenizer.from_pretrained(model_name)
 
 train_dataset = Seq2SeqDataset(task_name=task_name,
                                data_dir='./datasets/',

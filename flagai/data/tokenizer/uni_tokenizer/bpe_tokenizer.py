@@ -158,7 +158,7 @@ class BPETokenizer(object):
                           for c in text]).decode('utf-8', errors=self.errors)
         return text
 
-    def convert_tokens_to_string(self, tokens):
+    def convert_tokens_to_string(self, tokens, all_command_token={}):
         """Converts a sequence of tokens (string) in a single string."""
         text = "".join(tokens)
         text = bytearray([self.byte_decoder[c] for c in text]).decode("utf-8", errors=self.errors)

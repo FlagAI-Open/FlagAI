@@ -133,7 +133,7 @@ class WordpieceTokenizer(object):
         """Converts a sequence of ids in wordpiece tokens using the vocab."""
         return [self.convert_id_to_token(id) for id in ids]
 
-    def convert_tokens_to_string(self, tokens):
+    def convert_tokens_to_string(self, tokens, all_command_token={}):
         """Converts a sequence of tokens (string) in a single string."""
         out_string = " ".join(tokens).replace(" ##", "").strip()
         return out_string
