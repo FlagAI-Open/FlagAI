@@ -313,9 +313,7 @@ class ConstructBlockStrategy:
         self.masked_lm = masked_lm
 
     def contains_sentence_end(self, tok):
-        print(tok,22222)
         tok = self.tokenizer.IdToToken(tok)
-        print(tok,33333)
         if '.' in tok:
             return True
         if '?' in tok:

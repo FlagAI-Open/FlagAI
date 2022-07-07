@@ -3,7 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
-from flagai.data.tokenizer import GLM10bENBPETokenizer, GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
@@ -30,17 +30,18 @@ trainer = Trainer(env_type='deepspeed',
                   deepspeed_config='./deepspeed.json',
                   training_script=__file__)
 
+model_name = "GLM-large-en"
+tokenizer = Tokenizer.from_pretrained(model_name)
+
 if task_name in MULTI_TOKEN_TASKS:
     model = GLMForMultiTokenCloze.from_pretrain(
-        download_path="/mnt/test_10b_models", model_name="GLM-large-en")
+        download_path="/mnt/test_10b_models", model_name=model_name)
 else:
     model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
-                                                 model_name="GLM-large-en")
+                                                 model_name=model_name)
 
 # model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
 #                                              model_name="GLM-large-en")
-
-tokenizer = GLMLargeEnWordPieceTokenizer()
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='./datasets/',
                                  dataset_type='train',

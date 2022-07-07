@@ -24,8 +24,10 @@
 import logging
 logger = logging.getLogger(__name__)
 import os
-from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
+# from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
 import collections
+import unicodedata
+
 
 class WordpieceTokenizer(object):
     def __init__(self, vocab_file=None, do_basic_tokenize=True,
@@ -138,261 +140,192 @@ class WordpieceTokenizer(object):
         out_string = " ".join(tokens).replace(" ##", "").strip()
         return out_string
 
+def load_vocab(vocab_file):
+    """Loads a vocabulary file into a dictionary."""
+    vocab = collections.OrderedDict()
+    index = 0
+    with open(vocab_file, "r", encoding="utf-8") as reader:
+        while True:
+            token = reader.readline()
+            if not token:
+                break
+            token = token.strip()
+            vocab[token] = index
+            index += 1
+    return vocab
 
 
+def whitespace_tokenize(text):
+    """Runs basic whitespace cleaning and splitting on a piece of text."""
+    text = text.strip()
+    if not text:
+        return []
+    tokens = text.split()
+    return tokens
 
 
+class BasicTokenizer(object):
+    """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
 
 
+    def __init__(self,
+                 do_lower_case=True,
+                 never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]")):
+        """Constructs a BasicTokenizer.
+        Args:
+          do_lower_case: Whether to lower case the input.
+        """
+        self.do_lower_case = do_lower_case
+        self.never_split = never_split
 
 
+    def tokenize(self, text):
+        """Tokenizes a piece of text."""
+        text = self._clean_text(text)
+        # This was added on November 1st, 2018 for the multilingual and Chinese
+        # models. This is also applied to the English models now, but it doesn't
+        # matter since the English models were not trained on any Chinese data
+        # and generally don't have any Chinese data in them (there are Chinese
+        # characters in the vocabulary because Wikipedia does have some Chinese
+        # words in the English Wikipedia.).
+        text = self._tokenize_chinese_chars(text)
+        orig_tokens = whitespace_tokenize(text)
+        split_tokens = []
+        for token in orig_tokens:
+            if self.do_lower_case and token not in self.never_split:
+                token = token.lower()
+                token = self._run_strip_accents(token)
+            split_tokens.extend(self._run_split_on_punc(token))
+
+        output_tokens = whitespace_tokenize(" ".join(split_tokens))
+        return output_tokens
 
 
+    def _run_strip_accents(self, text):
+        """Strips accents from a piece of text."""
+        text = unicodedata.normalize("NFD", text)
+        output = []
+        for char in text:
+            cat = unicodedata.category(char)
+            if cat == "Mn":
+                continue
+            output.append(char)
+        return "".join(output)
 
 
+    def _run_split_on_punc(self, text):
+        """Splits punctuation on a piece of text."""
+        if text in self.never_split:
+            return [text]
+        chars = list(text)
+        i = 0
+        start_new_word = True
+        output = []
+        while i < len(chars):
+            char = chars[i]
+            if _is_punctuation(char):
+                output.append([char])
+                start_new_word = True
+            else:
+                if start_new_word:
+                    output.append([])
+                start_new_word = False
+                output[-1].append(char)
+            i += 1
+
+        return ["".join(x) for x in output]
 
 
-        # if not os.path.isfile(vocab_file):
-        #     raise ValueError(
-        #         "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "
-        #         "model use `tokenizer = BertTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)`"
-        #         .format(vocab_file))
-        # self.vocab = load_vocab(vocab_file)
-        # self.ids_to_tokens = collections.OrderedDict([
-        #     (ids, tok) for tok, ids in self.vocab.items()
-        # ])
-        # self.do_basic_tokenize = do_basic_tokenize
-        # if do_basic_tokenize:
-        #     self.basic_tokenizer = BasicTokenizer(do_lower_case=do_lower_case,
-        #                                           never_split=never_split)
-        # self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab)
-        # self.max_len = max_len if max_len is not None else int(1e12)
-        # self.tokenizer_class = "wp"
-    #
-    # def set_special_tokens(self, special_tokens):
-    #     """ Add a list of additional tokens to the encoder.
-    #         The additional tokens are indexed starting from the last index of the
-    #         current vocabulary in the order of the `special_tokens` list.
-    #     """
-    #     if not special_tokens:
-    #         self.special_tokens = {}
-    #         self.special_tokens_decoder = {}
-    #         return
-    #     self.special_tokens = dict((tok, len(self.encoder) + i)
-    #                                for i, tok in enumerate(special_tokens))
-    #     self.special_tokens_decoder = {
-    #         v: k
-    #         for k, v in self.special_tokens.items()
-    #     }
-    #     logger.info("Special tokens {}".format(self.special_tokens))
-    #
-    # def _from_pretrained_bpe(self,
-    #              vocab_file,
-    #              merges_file,
-    #              errors='replace',
-    #              special_tokens=None,
-    #              max_len=None):
-    #     self.max_len = max_len if max_len is not None else int(1e12)
-    #     self.encoder = json.load(open(vocab_file))
-    #     self.decoder = {v: k for k, v in self.encoder.items()}
-    #     self.errors = errors  # how to handle errors in decoding
-    #     self.byte_encoder = bytes_to_unicode()
-    #     self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
-    #     bpe_data = open(merges_file, encoding='utf-8').read().split('\n')[1:-1]
-    #     bpe_merges = [tuple(merge.split()) for merge in bpe_data]
-    #     self.bpe_ranks = dict(zip(bpe_merges, range(len(bpe_merges))))
-    #     self.cache = {}
-    #
-    #     # Should haved added re.IGNORECASE so BPE merges can happen for capitalized versions of contractions
-    #     self.pat = re.compile(
-    #         r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
-    #     )
-    #
-    #     self.special_tokens = {}
-    #     self.special_tokens_decoder = {}
-    #     self.set_special_tokens(special_tokens)
-    #     self.tokenizer_class = "bpe"
-    #
-    #
-    # def tokenize(self, text):
-    #     if self.do_basic_tokenize:
-    #         split_tokens = []
-    #         for token in self.basic_tokenizer.tokenize(text):
-    #             for sub_token in self.wordpiece_tokenizer.tokenize(token):
-    #                 split_tokens.append(sub_token)
-    #     else:
-    #         split_tokens = self.wordpiece_tokenizer.tokenize(text)
-    #     return split_tokens
-    #
-    # def convert_tokens_to_ids(self, tokens):
-    #     """Converts a sequence of tokens into ids using the vocab."""
-    #     ids = []
-    #     for token in tokens:
-    #         ids.append(self.vocab[token])
-    #     if len(ids) > self.max_len:
-    #         logger.warning(
-    #             "Token indices sequence length is longer than the specified maximum "
-    #             " sequence length for this BERT model ({} > {}). Running this"
-    #             " sequence through BERT will result in indexing errors".format(
-    #                 len(ids), self.max_len))
-    #     return ids
-    #
-    # def convert_ids_to_tokens(self, ids):
-    #     """Converts a sequence of ids in wordpiece tokens using the vocab."""
-    #     tokens = []
-    #     for i in ids:
-    #         tokens.append(self.ids_to_tokens[i])
-    #     return tokens
+    def _tokenize_chinese_chars(self, text):
+        """Adds whitespace around any CJK character."""
+        output = []
+        for char in text:
+            cp = ord(char)
+            if self._is_chinese_char(cp):
+                output.append(" ")
+                output.append(char)
+                output.append(" ")
+            else:
+                output.append(char)
+        return "".join(output)
 
 
-# from flagai.data.tokenizer.tokenizer import BasicTokenizer
+    def _is_chinese_char(self, cp):
+        """Checks whether CP is the codepoint of a CJK character."""
+        # This defines a "chinese character" as anything in the CJK Unicode block:
+        #   https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)
+        #
+        # Note that the CJK Unicode block is NOT all Japanese and Korean characters,
+        # despite its name. The modern Korean Hangul alphabet is a different block,
+        # as is Japanese Hiragana and Katakana. Those alphabets are used to write
+        # space-separated words, so they are not treated specially and handled
+        # like the all of the other languages.
+        if ((cp >= 0x4E00 and cp <= 0x9FFF) or  #
+                (cp >= 0x3400 and cp <= 0x4DBF) or  #
+                (cp >= 0x20000 and cp <= 0x2A6DF) or  #
+                (cp >= 0x2A700 and cp <= 0x2B73F) or  #
+                (cp >= 0x2B740 and cp <= 0x2B81F) or  #
+                (cp >= 0x2B820 and cp <= 0x2CEAF) or
+                (cp >= 0xF900 and cp <= 0xFAFF) or  #
+                (cp >= 0x2F800 and cp <= 0x2FA1F)):  #
+            return True
+
+        return False
 
 
-# class BaseTokenizer(object):
-#     @classmethod
-#     def from_pretrained(cls,
-#                         pretrained_model_name_or_path,
-#                         cache_dir=None,
-#                         *inputs,
-#                         **kwargs):
-#         """
-#         Instantiate a PreTrainedBertModel from a pre-trained model file.
-#         Download and cache the pre-trained model file if needed.
-#         """
-#         vocab_file = 'vocab.txt'
-#         merges_file = 'merges.txt'
-#         sp_file = 'spm.model'
-#         if cache_dir is None:
-#             cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs')
-#         tokenizer_class = "wp"
-#         # search the cache directory for certain files
-#         if os.path.exists(cache_dir):
-#             if os.path.exists(cache_dir + '/' + vocab_file):  # Temporary if statement
-#                 if os.path.exists(cache_dir + '/' + merges_file):  # Temporary if statement
-#                     tokenizer_class = "bpe"
-#                 else:
-#                     tokenizer_class = "wp"
-#             elif os.path.exists(cache_dir + '/' + sp_file):
-#                 tokenizer_class = "sp"
-#         else:
-#             model_id = _get_model_id(pretrained_model_name_or_path)
-#             try:
-#                 _get_vocab_path(cache_dir + '/', vocab_file, model_id, rank=0)
-#                 try:
-#                     _get_vocab_path(cache_dir + '/', merges_file, model_id, rank=0)
-#                     tokenizer_class = "bpe"
-#                 except:
-#                     tokenizer_class = 'wp'
-#             except:
-#                 try:
-#                     _get_vocab_path(cache_dir + '/', sp_file, model_id, rank=0)
-#                     tokenizer_class = "sp"
-#                 except:
-#                     raise("Error")
-#         resolved_vocab_file = os.path.join(cache_dir, vocab_file)
-#         resolved_merges_file = os.path.join(cache_dir, merges_file)
-#         resolved_sp_file = os.path.join(cache_dir, sp_file)
-#         if tokenizer_class == "wp":
-#             return cls._from_pretrained_wp(resolved_vocab_file, tokenizer_class, *inputs, **kwargs)
-#         elif tokenizer_class == "bpe":
-#             return cls._from_pretrained(resolved_vocab_file, resolved_merges_file, tokenizer_class, *inputs, **kwargs)
-#         elif tokenizer_class == "sp":
-#             return get_encoder(resolved_sp_file, "")
-#
-#     def _from_pretrained_wp(self, vocab_file=None, do_basic_tokenize=True,
-#                             do_lower_case=True, max_len=None,
-#                             never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]")):
-#         if not os.path.isfile(vocab_file):
-#             raise ValueError(
-#                 "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "
-#                 "model use `tokenizer = BertTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)`"
-#                 .format(vocab_file))
-#         self.vocab = load_vocab(vocab_file)
-#         self.ids_to_tokens = collections.OrderedDict([
-#             (ids, tok) for tok, ids in self.vocab.items()
-#         ])
-#         self.do_basic_tokenize = do_basic_tokenize
-#         if do_basic_tokenize:
-#             self.basic_tokenizer = BasicTokenizer(do_lower_case=do_lower_case,
-#                                                   never_split=never_split)
-#         self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab)
-#         self.max_len = max_len if max_len is not None else int(1e12)
-#         self.tokenizer_class = "wp"
-#
-#     def set_special_tokens(self, special_tokens):
-#         """ Add a list of additional tokens to the encoder.
-#             The additional tokens are indexed starting from the last index of the
-#             current vocabulary in the order of the `special_tokens` list.
-#         """
-#         if not special_tokens:
-#             self.special_tokens = {}
-#             self.special_tokens_decoder = {}
-#             return
-#         self.special_tokens = dict((tok, len(self.encoder) + i)
-#                                    for i, tok in enumerate(special_tokens))
-#         self.special_tokens_decoder = {
-#             v: k
-#             for k, v in self.special_tokens.items()
-#         }
-#         logger.info("Special tokens {}".format(self.special_tokens))
-#
-#     def _from_pretrained_bpe(self,
-#                  vocab_file,
-#                  merges_file,
-#                  errors='replace',
-#                  special_tokens=None,
-#                  max_len=None):
-#         self.max_len = max_len if max_len is not None else int(1e12)
-#         self.encoder = json.load(open(vocab_file))
-#         self.decoder = {v: k for k, v in self.encoder.items()}
-#         self.errors = errors  # how to handle errors in decoding
-#         self.byte_encoder = bytes_to_unicode()
-#         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
-#         bpe_data = open(merges_file, encoding='utf-8').read().split('\n')[1:-1]
-#         bpe_merges = [tuple(merge.split()) for merge in bpe_data]
-#         self.bpe_ranks = dict(zip(bpe_merges, range(len(bpe_merges))))
-#         self.cache = {}
-#
-#         # Should haved added re.IGNORECASE so BPE merges can happen for capitalized versions of contractions
-#         self.pat = re.compile(
-#             r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
-#         )
-#
-#         self.special_tokens = {}
-#         self.special_tokens_decoder = {}
-#         self.set_special_tokens(special_tokens)
-#         self.tokenizer_class = "bpe"
-#
-#
-#     def tokenize(self, text):
-#         if self.do_basic_tokenize:
-#             split_tokens = []
-#             for token in self.basic_tokenizer.tokenize(text):
-#                 for sub_token in self.wordpiece_tokenizer.tokenize(token):
-#                     split_tokens.append(sub_token)
-#         else:
-#             split_tokens = self.wordpiece_tokenizer.tokenize(text)
-#         return split_tokens
-#
-#     def convert_tokens_to_ids(self, tokens):
-#         """Converts a sequence of tokens into ids using the vocab."""
-#         ids = []
-#         for token in tokens:
-#             ids.append(self.vocab[token])
-#         if len(ids) > self.max_len:
-#             logger.warning(
-#                 "Token indices sequence length is longer than the specified maximum "
-#                 " sequence length for this BERT model ({} > {}). Running this"
-#                 " sequence through BERT will result in indexing errors".format(
-#                     len(ids), self.max_len))
-#         return ids
-#
-#     def convert_ids_to_tokens(self, ids):
-#         """Converts a sequence of ids in wordpiece tokens using the vocab."""
-#         tokens = []
-#         for i in ids:
-#             tokens.append(self.ids_to_tokens[i])
-#         return tokens
+    def _clean_text(self, text):
+        """Performs invalid character removal and whitespace cleanup on text."""
+        output = []
+        for char in text:
+            cp = ord(char)
+            if cp == 0 or cp == 0xfffd or _is_control(char):
+                continue
+            if _is_whitespace(char):
+                output.append(" ")
+            else:
+                output.append(char)
+        return "".join(output)
+
+
+def _is_whitespace(char):
+    """Checks whether `chars` is a whitespace character."""
+    # \t, \n, and \r are technically contorl characters but we treat them
+    # as whitespace since they are generally considered as such.
+    if char == " " or char == "\t" or char == "\n" or char == "\r":
+        return True
+    cat = unicodedata.category(char)
+    if cat == "Zs":
+        return True
+    return False
+
+
+def _is_control(char):
+    """Checks whether `chars` is a control character."""
+    # These are technically control characters but we count them as whitespace
+    # characters.
+    if char == "\t" or char == "\n" or char == "\r":
+        return False
+    cat = unicodedata.category(char)
+    if cat.startswith("C"):
+        return True
+    return False
+
+
+def _is_punctuation(char):
+    """Checks whether `chars` is a punctuation character."""
+    cp = ord(char)
+    # We treat all non-letter/number ASCII as punctuation.
+    # Characters such as "^", "$", and "`" are not in the Unicode
+    # Punctuation class but we treat them as punctuation anyways, for
+    # consistency.
+    if ((cp >= 33 and cp <= 47) or (cp >= 58 and cp <= 64)
+            or (cp >= 91 and cp <= 96) or (cp >= 123 and cp <= 126)):
+        return True
+    cat = unicodedata.category(char)
+    if cat.startswith("P"):
+        return True
+    return False
+
 
 
 

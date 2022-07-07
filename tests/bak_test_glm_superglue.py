@@ -4,7 +4,7 @@
 import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer, GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
@@ -36,13 +36,10 @@ class TrainerTestCase(unittest.TestCase):
             cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
             if task_name in CH_TASKS:
                 model_name = 'GLM-large-ch'
-                #lm_model = GLMModel.from_pretrain(model_name='GLM-large-ch')
-                tokenizer = GLMLargeChTokenizer()
-                # tokenizer = GLMBertWordPieceTokenizer(tokenizer_model_type='BERT-base-ch')
+                tokenizer = Tokenizer.from_pretrained(model_name)
             else:
                 model_name = 'GLM-large-en'
-                #lm_model = GLMModel.from_pretrain(model_name='GLM-large-en')
-                tokenizer = GLMLargeEnWordPieceTokenizer()
+                tokenizer = Tokenizer.from_pretrained(model_name)
 
             if cl_args.multi_token:
                 model = GLMForMultiTokenCloze.from_pretrain(

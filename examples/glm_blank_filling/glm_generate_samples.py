@@ -5,16 +5,17 @@
 import torch
 
 from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import GLMTokenizer
 from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples')
     # Random seeds for reproducability.
     # Model,
-    model = GLMModel.from_pretrain(model_name='GLM-large-ch',
+    model_name = 'GLM-large-ch'
+    model = GLMModel.from_pretrain(model_name=model_name,
                                    download_path="./state_dict/")
-    tokenizer = GLMLargeChTokenizer()
+    tokenizer = GLMTokenizer.from_pretrained(model_name)
 
     model.cuda(torch.cuda.current_device())
 

@@ -59,7 +59,7 @@ class SentencePieceTokenizer(object):
         return self.sp_model.PieceToId(token)
 
     def convert_id_to_token(self, idx):
-        return self.sp_model.IdToPiece(idx)
+        return self.sp_model.IdToPiece(int(idx))
 
     def convert_ids_to_tokens(self, idxs):
         return [self.sp_model.IdToPiece(idx) for idx in idxs]

@@ -23,8 +23,15 @@ import logging
 import re
 import json
 logger = logging.getLogger(__name__)
-from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode, get_pairs
+# from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode, get_pairs
 import sys
+try:
+    from functools import lru_cache
+except ImportError:
+    # Just a dummy decorator to get the checks to run on python2
+    # because honestly I don't want to support a byte-level unicode BPE tokenizer on python 2 right now.
+    def lru_cache():
+        return lambda func: func
 
 
 class BPETokenizer(object):
@@ -205,5 +212,44 @@ class BPETokenizer(object):
     #             index += 1
     #
     #     return vocab_file, merge_file, special_tokens_file
+
+@lru_cache()
+def bytes_to_unicode():
+    """
+    Returns list of utf-8 byte and a corresponding list of unicode strings.
+    The reversible bpe codes work on unicode strings.
+    This means you need a large # of unicode characters in your vocab if you want to avoid UNKs.
+    When you're at something like a 10B token dataset you end up needing around 5K for decent coverage.
+    This is a signficant percentage of your normal, say, 32K bpe vocab.
+    To avoid that, we want lookup tables between utf-8 bytes and unicode strings.
+    And avoids mapping to whitespace/control characters the bpe code barfs on.
+    """
+    _chr = chr if sys.version_info[0] == 2 else chr
+    bs = list(range(ord("!"),
+                    ord("~") + 1)) + list(range(
+                        ord("¡"),
+                        ord("¬") + 1)) + list(range(ord("®"),
+                                                    ord("ÿ") + 1))
+    cs = bs[:]
+    n = 0
+    for b in range(2**8):
+        if b not in bs:
+            bs.append(b)
+            cs.append(2**8 + n)
+            n += 1
+    cs = [_chr(n) for n in cs]
+    return dict(zip(bs, cs))
+
+def get_pairs(word):
+    """Return set of symbol pairs in a word.
+
+    Word is represented as tuple of symbols (symbols being variable-length strings).
+    """
+    pairs = set()
+    prev_char = word[0]
+    for char in word[1:]:
+        pairs.add((prev_char, char))
+        prev_char = char
+    return pairs
 
 

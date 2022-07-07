@@ -36,8 +36,8 @@ class BaseTokenizer(object):
                     tokenizer_class = "bpe"
                 else:
                     tokenizer_class = "wp"
-
         if tokenizer_class == "":
+            print("downloading model %s from ModelHub"%tokenizer_model_name)
             files = _get_model_files(tokenizer_model_name)
             model_id = _get_model_id(tokenizer_model_name)
             if "spiece.model" in files:
@@ -52,7 +52,7 @@ class BaseTokenizer(object):
                     tokenizer_class = "wp"
                     _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
             else:
-                raise FileNotFoundError("no tokenizer files")
+                raise FileNotFoundError("Error: no tokenizer files")
         resolved_vocab_file = os.path.join(cache_dir, VOCAB_FILE)
         resolved_merges_file = os.path.join(cache_dir, MERGES_FILE)
         resolved_sp_file = os.path.join(cache_dir, SP_MODEL_FILE)

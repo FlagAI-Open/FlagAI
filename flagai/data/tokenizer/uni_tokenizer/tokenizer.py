@@ -24,74 +24,74 @@ import itertools
 import logging
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
-from wp_tokenizer import WordpieceTokenizer
-from bpe_tokenizer import BPETokenizer
-from sp_tokenizer import SentencePieceTokenizer
-from base_tokenizer import BaseTokenizer
-import torch
+from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
+from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer
+from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
+from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
+# import torch
+
+
+# class Tokenizer(BaseTokenizer):
+#     def __init__(self,
+#                  **kwargs):
+#         super().__init__(**kwargs)
+#
+#         if self.tokenizer_class == "wp":
+#             self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
+#         elif self.tokenizer_class == "bpe":
+#             self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
+#         elif self.tokenizer_class == "sp":
+#             self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
+#
+#         self.num_tokens = self.text_tokenizer.vocab_size
+#         self.command_name_map = {}
+#
+#         if not torch.distributed.is_initialized(
+#         ) or torch.distributed.get_rank() == 0:
+#             print('loading GLMBertWordPieceTokenizer (', self.tokenizer_model_name,
+#                   ') from cache_dir ', self.cache_dir)
+#             print('loaded', self.tokenizer_model_name)
+#
+#     def __len__(self):
+#         """total number of tokens"""
+#         return self.num_tokens
+#
+#     def get_command_id(self, name):
+#         """get command token corresponding to `name`"""
+#         return self.command_name_map[name].Id
+#
+#     def EncodeAsIds(self, text: str):
+#         """Input text string => a list of token ids"""
+#         tokens = self.EncodeAsTokens(text)
+#         ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
+#         return ids
+#
+#     def EncodeAsTokens(self, text: str):
+#         """Input text string => a list of tokens"""
+#         tokens = self.text_tokenizer.tokenize(text)
+#         return tokens
+#
+#     def IdToToken(self, id: int):
+#         """Token id => token"""
+#         return self.text_tokenizer.convert_ids_to_tokens([id])[0]
+#
+#     def TokenToId(self, token: str):
+#         """Token => token id"""
+#         try:
+#             return self.text_tokenizer.convert_tokens_to_ids(token)[0]
+#         except KeyError:
+#             return self.text_tokenizer.convert_tokens_to_ids(token.strip())[0]
+#
+#     def DecodeIds(self, ids):
+#         """A list of token ids => recovered text string"""
+#         return self.DecodeTokens([self.text_tokenizer.convert_ids_to_tokens(ids)])
+#
+#     def DecodeTokens(self, tokens):
+#         """A list of tokens => recovered text string"""
+#         return self.text_tokenizer.convert_tokens_to_string(tokens)
 
 
 class Tokenizer(BaseTokenizer):
-    def __init__(self,
-                 **kwargs):
-        super().__init__(**kwargs)
-
-        if self.tokenizer_class == "wp":
-            self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
-        elif self.tokenizer_class == "bpe":
-            self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
-        elif self.tokenizer_class == "sp":
-            self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
-
-        self.num_tokens = self.text_tokenizer.vocab_size
-        self.command_name_map = {}
-
-        if not torch.distributed.is_initialized(
-        ) or torch.distributed.get_rank() == 0:
-            print('loading GLMBertWordPieceTokenizer (', self.tokenizer_model_name,
-                  ') from cache_dir ', self.cache_dir)
-            print('loaded', self.tokenizer_model_name)
-
-    def __len__(self):
-        """total number of tokens"""
-        return self.num_tokens
-
-    def get_command_id(self, name):
-        """get command token corresponding to `name`"""
-        return self.command_name_map[name]
-
-    def EncodeAsIds(self, text: str):
-        """Input text string => a list of token ids"""
-        tokens = self.EncodeAsTokens(text)
-        ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
-        return ids
-
-    def EncodeAsTokens(self, text: str):
-        """Input text string => a list of tokens"""
-        tokens = self.text_tokenizer.tokenize(text)
-        return tokens
-
-    def IdToToken(self, id: int):
-        """Token id => token"""
-        return self.text_tokenizer.convert_ids_to_tokens([id])[0]
-
-    def TokenToId(self, token: str):
-        """Token => token id"""
-        try:
-            return self.text_tokenizer.convert_tokens_to_ids(token)[0]
-        except KeyError:
-            return self.text_tokenizer.convert_tokens_to_ids(token.strip())[0]
-
-    def DecodeIds(self, ids):
-        """A list of token ids => recovered text string"""
-        return self.DecodeTokens([self.text_tokenizer.convert_ids_to_tokens(ids)])
-
-    def DecodeTokens(self, tokens):
-        """A list of tokens => recovered text string"""
-        return self.text_tokenizer.convert_tokens_to_string(tokens)
-
-
-class GLMTokenizer(Tokenizer):
     def __init__(self,
                  add_block_symbols=True,
                  add_sentinel_token=0,
@@ -101,6 +101,15 @@ class GLMTokenizer(Tokenizer):
                  **kwargs):
         super().__init__(**kwargs)
 
+        if self.tokenizer_class == "wp":
+            self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
+        elif self.tokenizer_class == "bpe":
+            self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
+        elif self.tokenizer_class == "sp":
+            self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
+        else:
+            raise NotImplementedError("cannot assign a tokenize class")
+        self.num_tokens = self.text_tokenizer.vocab_size
 
         if self.tokenizer_class == "wp":
             # set command tokens from wordpiece tokenizer values
@@ -312,9 +321,9 @@ class GLMTokenizer(Tokenizer):
         if isinstance(token, (CommandToken)):
             return token.Id
         try:
-            self.text_tokenizer.convert_token_to_id(token)
+            return self.text_tokenizer.convert_token_to_id(token)
         except KeyError:
-            self.text_tokenizer.convert_token_to_id(token.strip())
+            return self.text_tokenizer.convert_token_to_id(token.strip())
 
     def DecodeIds(self, ids):
         """converts ids to wordpiece tokens and joins them as a text string"""
@@ -327,12 +336,12 @@ class GLMTokenizer(Tokenizer):
                     tokens.extend(self.text_tokenizer.convert_ids_to_tokens([id]))
                 except KeyError:
                     pass
-        return self.text_tokenizer.convert_tokens_to_string(tokens)
+        return self.text_tokenizer.convert_tokens_to_string(tokens, self.command_token_map)
 
 
     def DecodeTokens(self, tokens):
         """converts wordpiece tokens to a text string"""
-        return self.text_tokenizer.convert_tokens_to_string(tokens)
+        return self.text_tokenizer.convert_tokens_to_string(tokens, self.command_token_map)
 
     def EncodeAsIds(self, text, process_fn=None):
         """

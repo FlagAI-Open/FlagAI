@@ -4,7 +4,7 @@
 import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
-from flagai.data.tokenizer import GLMTokenizer, GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
@@ -32,10 +32,10 @@ for task_name in [
     cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
     if task_name in CH_TASKS:
         model_name = 'GLM-large-ch'
-        tokenizer = GLMTokenizer.from_pretrained(model_name)
+        tokenizer = Tokenizer.from_pretrained(model_name)
     else:
         model_name = 'GLM-large-en'
-        tokenizer = GLMTokenizer.from_pretrained(model_name)
+        tokenizer = Tokenizer.from_pretrained(model_name)
         # tokenizer  = GLMLargeEnWordPieceTokenizer()
     if task_name in MULTI_TOKEN_TASKS:
         model = GLMForMultiTokenCloze.from_pretrain(

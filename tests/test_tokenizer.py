@@ -2,6 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import unittest
+from flagai.data.tokenizer import Tokenizer
 from flagai.data.tokenizer import GLMLargeChTokenizer
 from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
 from flagai.data.tokenizer import GLM10bENBPETokenizer
@@ -14,26 +15,23 @@ from flagai.auto_model.auto_loader import AutoLoader
 class TokenizerTestCase(unittest.TestCase):
 
     def test_tokenizer_glm_large_ch(self):
-        tokenizer = GLMLargeChTokenizer()
-        print(tokenizer.DecodeIds([43358]), 321)
+        tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
         self.assertEqual(tokenizer.TokenToId("人"), 43371, 'Token id "人" error')
         self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
                          [3378, 1567, 2613, 20282], 'EncodeAsIds Error')
         self.assertEqual(tokenizer.DecodeIds([3378, 1567, 2613, 20282]),
                          '今天吃饭吃了肯德基', 'DecodeIds Error')
 
-    # def test_tokenizer_GLM_large_en(self):
-    #     tokenizer = GLMLargeEnWordPieceTokenizer()
-    #     print(tokenizer.EncodeAsIds("today is a nice day and"))
-    #     self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
-    #     print(tokenizer.EncodeAsTokens('fried chicken makes me happy'))
-    #     self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
-    #                      [13017, 7975, 3084, 2033, 3407], '')
-    #     self.assertEqual(tokenizer.DecodeIds([13017, 7975, 3084, 2033, 3407]),
-    #                      'fried chicken makes me happy', 'DecodeIds Error')
-    #
+    def test_tokenizer_GLM_large_en(self):
+        tokenizer = Tokenizer.from_pretrained("GLM-large-en")
+        self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
+        self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
+                         [13017, 7975, 3084, 2033, 3407], '')
+        self.assertEqual(tokenizer.DecodeIds([13017, 7975, 3084, 2033, 3407]),
+                         'fried chicken makes me happy', 'DecodeIds Error')
+
     # def test_tokenizer_glm_10b_en(self):
-    #     tokenizer = GLM10bENBPETokenizer()
+    #     tokenizer = GLMTokenizer.from_pretrained("GLM-10b-en", cache_dir='')
     #     self.assertEqual(tokenizer.TokenToId("day"), 820, '')
     #     self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
     #                      [25520, 9015, 1838, 502, 3772], '')
@@ -47,7 +45,7 @@ class TokenizerTestCase(unittest.TestCase):
     #                      [3, 7704, 3832, 656, 140, 1095], '')
     #     self.assertEqual(tokenizer.DecodeIds([3, 7704, 3832, 656, 140, 1095]),
     #                      'fried chicken makes me happy', 'DecodeIds Error')
-    #
+    # #
     # def test_tokenizer_roberta(self):
     #     tokenizer = ROBERTATokenizer(tokenizer_model_type='roberta-base')
     #     self.assertEqual(tokenizer.TokenToId("day"), 1208, '')
@@ -89,7 +87,7 @@ class TokenizerTestCase(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_ch'))
-    # suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_en'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_en'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))

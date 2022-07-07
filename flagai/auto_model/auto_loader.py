@@ -99,6 +99,8 @@ TOKENIZER_DICT = {
 }
 
 
+
+
 class AutoLoader:
 
     def __init__(self,
@@ -194,14 +196,19 @@ class AutoLoader:
                 vocab_file = _get_vocab_path(download_path, "vocab.txt",
                                              model_id)
         tokenizer_class = TOKENIZER_DICT[model_name]
-        tokenizer_class = getattr(LazyImport(tokenizer_class[0]),                              
+        tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
                                     tokenizer_class[1])
+
         if model_name == "cpm-large-ch":
             self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
         elif brief_model_name == "opt":
             self.tokenizer = tokenizer_class("facebook/opt-350m")
         else :
             self.tokenizer = tokenizer_class(vocab_file)
+
+        tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                    "Tokenizer")
+        self.tokenizer = tokenizer_class.from_pretrained(model_name)
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())

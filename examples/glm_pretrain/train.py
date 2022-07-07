@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 
-from flagai.data.tokenizer import GLMLargeChTokenizer, GLMTokenizer
+from flagai.data.tokenizer import GLMLargeChTokenizer, Tokenizer
 from flagai.model.glm_model import GLMForSeq2Seq
 from flagai.trainer import Trainer
 from flagai.data.dataset import ConstructBlockStrategy
@@ -20,12 +20,12 @@ if __name__ == '__main__':
                       eval_interval=100,
                       log_interval=50,
                       experiment_name='glm_large',
-                      pytorch_device='cpu',
+                      pytorch_device='cuda',
                       load_dir=None,
                       lr=1e-4,
                       save_interval=10)
     model_name = 'GLM-large-ch'
-    tokenizer = GLMTokenizer.from_pretrained(model_name)
+    tokenizer = Tokenizer.from_pretrained(model_name)
     ds_args = PretrainDatasetArguments()
     ds_args = add_args(ds_args, tokenizer)
     model = GLMForSeq2Seq.from_pretrain(model_name=model_name)
