@@ -199,9 +199,6 @@ class GLMLargeChTokenizer(GLMTokenizer):
         return result
 
     def CommandTokenIds(self, exception=None):
-        #get command tokens' ids
-        #return ids list
-        #exception token: string list
         result = []
         for s in self._command_tokens:
             if not exception or (exception and s.name not in exception):

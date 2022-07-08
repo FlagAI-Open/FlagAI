@@ -410,3 +410,56 @@ class Tokenizer(BaseTokenizer):
         Ids = split_on_tokens(no_split_tokens, processed_text)
         return Ids
 
+    def CommandTokenIds(self, exception=None):
+        result = []
+        for s in self._command_tokens:
+            if not exception or (exception and s.name not in exception):
+                result.append(s.Id)
+        return (result)
+
+    def encode_plus(  #for Seq2seq
+            self,
+            source_text: str,
+            target_text=None,
+    ):
+        if not self.tokenizer_model_name.startswith("GLM"):
+            return {"input_ids": self.EncodeAsIds(source_text)}
+        sop_id = self.get_command_id('sop')  #start of piece
+        eop_id = self.get_command_id('eop')  #end of piece
+        sep_id = self.get_command_id('sep')  #seperation
+
+        source_tokens = self.EncodeAsIds(source_text)
+        source_tokens = [sop_id] + source_tokens + [sep_id]
+
+        # no pading for consistency
+        len_source = len(source_tokens)
+        sop_pos = source_tokens.index(sop_id)
+        loss_mask = [0] * len_source
+        block_position_ids = [0] * len_source
+        position_ids = list(range(len_source))
+
+        if target_text:
+            target_tokens = self.EncodeAsIds(target_text)
+            target_tokens = target_tokens + [eop_id]
+            loss_mask += [1] * len(target_tokens)
+            block_position_ids += [0] * len(target_tokens)
+            position_ids += [x + len_source for x in range(len(target_tokens))]
+            tokens = source_tokens + target_tokens
+            position_ids = [position_ids[:-1], block_position_ids[:-1]]
+            sample = {
+                'input_ids': tokens[:-1],
+                'target_ids': tokens[1:],
+                'attention_mask': sop_pos,
+                'loss_mask': loss_mask[:-1],
+                "position_ids": position_ids
+            }
+        else:
+            position_ids = [position_ids, block_position_ids]
+            sample = {
+                'input_ids': source_tokens,
+                'attention_mask': sop_pos,
+                "position_ids": position_ids,
+                'loss_mask': loss_mask,
+            }
+        return sample
+
