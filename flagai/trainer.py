@@ -309,12 +309,15 @@ class Trainer():
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
-                num_replicas = self.world_size // mpu.get_model_parallel_world_size(
-                )
-                rank = self.rank // mpu.get_model_parallel_world_size()
+                # num_replicas = self.world_size // mpu.get_model_parallel_world_size(
+                # )
+                # rank = self.rank // mpu.get_model_parallel_world_size()
+                # rank = mpu.get_model_parallel_rank()
+                rank = mpu.get_model_parallel_src_rank()
+        
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
-                    num_replicas=num_replicas,
+                    # num_replicas=num_replicas,
                     rank=rank,
                     shuffle=shuffle)
             else:
@@ -474,12 +477,8 @@ class Trainer():
         for epoch in range(self.epochs):
             # log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
-            if self.env_type == 'deepspeed+mpu':
-                if mpu.get_model_parallel_rank() == 0:
-                    train_dataloader.sampler.set_epoch(epoch + self.world_size)
-            elif self.env_type != 'pytorch':
+            if self.env_type != 'pytorch':
                 train_dataloader.sampler.set_epoch(epoch + self.world_size)
-
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
