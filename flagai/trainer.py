@@ -935,18 +935,22 @@ class Trainer():
                 all_labels.append(labels)
                 all_losses.append(lm_loss.view(1))
 
-            all_logits = torch.cat(all_logits, dim=0)
-            all_labels = torch.cat(all_labels, dim=0)
+            if len(self.metric_methods) != 0:
+                all_logits = torch.cat(all_logits, dim=0)
+                all_labels = torch.cat(all_labels, dim=0)
+
             all_losses = torch.cat(all_losses, dim=0)
 
             if self.env_type == 'pytorchDDP' or self.env_type == 'deepspeed':
-                all_logits = self._gather_all(all_logits)
-                all_labels = self._gather_all(all_labels)
+                if len(self.metric_methods) != 0:
+                    all_logits = self._gather_all(all_logits)
+                    all_labels = self._gather_all(all_labels)
                 all_losses = self._gather_all(all_losses)
 
             elif self.env_type == 'deepspeed+mpu':
-                all_logits = self._gather_all_mpu(all_logits)
-                all_labels = self._gather_all_mpu(all_labels)
+                if len(self.metric_methods) != 0:
+                    all_logits = self._gather_all_mpu(all_logits)
+                    all_labels = self._gather_all_mpu(all_labels)
                 all_losses = self._gather_all_mpu(all_losses)
 
             if all_losses.device != torch.device('cpu'):
