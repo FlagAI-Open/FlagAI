@@ -73,7 +73,7 @@ MODEL_DICT = {
     "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt"],
     "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt"],
     "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-
+    "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
 }
 
 TOKENIZER_DICT = {
@@ -88,6 +88,10 @@ TOKENIZER_DICT = {
     "glm-large-en": [
         "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
         "GLMLargeEnWordPieceTokenizer"
+    ],
+    "glm-10b-ch": [
+        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
+        "GLMLargeChTokenizer"
     ],
     "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
     "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
@@ -180,11 +184,11 @@ class AutoLoader:
         model_id = _get_model_id(model_name)
 
         print("*"*20, task_name, model_id, model_name)
-        if model_name == 'glm-large-ch':
+        if "glm" in model_name and "ch" in model_name:
             vocab_file = os.path.join(download_path,'cog-pretrained.model')
             if not os.path.exists(vocab_file):
                 vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
-        elif model_name == "glm-large-en":
+        elif "glm" in model_name and "en" in model_name:
             vocab_file = "GLM-large-en"
         elif model_name == "cpm-large-ch":
             # two files to load
