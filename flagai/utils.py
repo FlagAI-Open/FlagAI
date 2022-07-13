@@ -207,7 +207,7 @@ def save_checkpoint(iteration,
     if env_type == 'pytorch' or (env_type != 'deepspeed+mpu'
                                  and dist.get_rank() == 0) or (
                                      env_type == 'deepspeed+mpu'
-                                     and mpu.get_data_parallel_group() == 0):
+                                     and mpu.get_model_parallel_src_rank() == 0):
         ensure_directory_exists(checkpoint_name)
         config_path = os.path.join(save_dir, str(iteration), 'config.json')
 

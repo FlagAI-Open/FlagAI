@@ -309,9 +309,17 @@ class Trainer():
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
+                # num_replicas = self.world_size // mpu.get_model_parallel_world_size(
+                # )
+                # rank = self.rank // mpu.get_model_parallel_world_size()
+                # rank = mpu.get_model_parallel_rank()
                 rank = mpu.get_model_parallel_src_rank()
+                print("*"*80)
+                print("local rank",self.rank, "model rank", rank)
+                print("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
+                    # num_replicas=num_replicas,
                     rank=rank,
                     shuffle=shuffle)
             else:
@@ -471,6 +479,9 @@ class Trainer():
         for epoch in range(self.epochs):
             # log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
+            # if self.env_type == 'deepspeed+mpu':
+            #     if mpu.get_model_parallel_rank() == 0:
+            #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
             if self.env_type != 'pytorch':
                 train_dataloader.sampler.set_epoch(epoch + self.world_size)
 
@@ -919,9 +930,9 @@ class Trainer():
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
-
-                all_logits.append(logits)
-                all_labels.append(labels)
+                if len(self.metric_methods) != 0:
+                    all_logits.append(logits)
+                    all_labels.append(labels)
                 all_losses.append(lm_loss.view(1))
 
             if len(self.metric_methods) != 0:
