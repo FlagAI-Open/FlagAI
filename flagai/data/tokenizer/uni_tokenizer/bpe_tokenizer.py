@@ -20,7 +20,7 @@
 # import itertools
 
 import logging
-import re
+import regex as re
 import json
 logger = logging.getLogger(__name__)
 # from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode, get_pairs
@@ -54,9 +54,7 @@ class BPETokenizer(object):
         self.cache = {}
 
         # Should haved added re.IGNORECASE so BPE merges can happen for capitalized versions of contractions
-        self.pat = re.compile(
-            r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
-        )
+        self.pat = re.compile(r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
 
         self.special_tokens = {}
         self.special_tokens_decoder = {}

@@ -187,44 +187,44 @@ class AutoLoader:
 
         print("*"*20, task_name, model_id, model_name)
 
-        if "glm" in model_name and "ch" in model_name:
-            vocab_file = os.path.join(download_path,'cog-pretrained.model')
+        # if "glm" in model_name and "ch" in model_name:
+        #     vocab_file = os.path.join(download_path,'cog-pretrained.model')
+        #
+        #     if not os.path.exists(vocab_file):
+        #         vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
+        # elif "glm" in model_name and "en" in model_name:
+        #     vocab_file = "GLM-large-en"
+        # elif model_name == "cpm-large-ch":
+        #     # two files to load
+        #     vocab_file_1 = os.path.join(download_path, "vocab.json")
+        #     vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
+        #     if not os.path.exists(vocab_file_1):
+        #         vocab_file_1 = _get_vocab_path(download_path, "vocab.json",
+        #                                        model_id)
+        #     if not os.path.exists(vocab_file_2):
+        #         vocab_file_2 = _get_vocab_path(download_path,
+        #                                        "chinese_vocab.model", model_id)
+        # else:
+        #     vocab_file = os.path.join(download_path, 'vocab.txt')
+        #     if not os.path.exists(vocab_file):
+        #         vocab_file = _get_vocab_path(download_path, "vocab.txt",
+        #                                      model_id)
+        # tokenizer_class = TOKENIZER_DICT[model_name]
+        # tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
+        #                             tokenizer_class[1])
 
-            if not os.path.exists(vocab_file):
-                vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
-        elif "glm" in model_name and "en" in model_name:
-            vocab_file = "GLM-large-en"
-        elif model_name == "cpm-large-ch":
-            # two files to load
-            vocab_file_1 = os.path.join(download_path, "vocab.json")
-            vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
-            if not os.path.exists(vocab_file_1):
-                vocab_file_1 = _get_vocab_path(download_path, "vocab.json",
-                                               model_id)
-            if not os.path.exists(vocab_file_2):
-                vocab_file_2 = _get_vocab_path(download_path,
-                                               "chinese_vocab.model", model_id)
-        else:
-            vocab_file = os.path.join(download_path, 'vocab.txt')
-            if not os.path.exists(vocab_file):
-                vocab_file = _get_vocab_path(download_path, "vocab.txt",
-                                             model_id)
-        tokenizer_class = TOKENIZER_DICT[model_name]
-        tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
-                                    tokenizer_class[1])
+        # if model_name == "cpm-large-ch":
+        #     self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
+        # elif brief_model_name == "opt":
+        #     self.tokenizer = tokenizer_class("facebook/opt-350m")
+        # elif model_name in ["glm-large-en", "glm-large-ch"]:
+        #     self.tokenizer = tokenizer_class()
+        # else :
+        #     self.tokenizer = tokenizer_class(vocab_file)
 
-        if model_name == "cpm-large-ch":
-            self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
-        elif brief_model_name == "opt":
-            self.tokenizer = tokenizer_class("facebook/opt-350m")
-        elif model_name in ["glm-large-en", "glm-large-ch"]:
-            self.tokenizer = tokenizer_class()
-        else :
-            self.tokenizer = tokenizer_class(vocab_file)
-
-        # tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
-        #                             "Tokenizer")
-        # self.tokenizer = tokenizer_class.from_pretrained(model_name)
+        tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                    "Tokenizer")
+        self.tokenizer = tokenizer_class.from_pretrained(model_name)
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())

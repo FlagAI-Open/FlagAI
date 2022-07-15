@@ -417,6 +417,77 @@ class Tokenizer(BaseTokenizer):
                 result.append(s.Id)
         return (result)
 
+
+    def encode_plus(
+        self,
+        text,
+        second_text=None,
+        add_special_tokens: bool = True,
+        truncation=True,
+        max_length=None,
+    ):
+
+        def get_input_ids(text):
+            tokens = self.tokenize(text)
+            return self.convert_tokens_to_ids(tokens)
+
+        first_ids = get_input_ids(text)
+        second_ids = get_input_ids(
+            second_text) if second_text is not None else None
+
+        return self.prepare_for_model(
+            first_ids,
+            pair_ids=second_ids,
+            add_special_tokens=add_special_tokens,
+            truncation=truncation,
+            max_length=max_length,
+        )
+
+    def prepare_for_model(
+        self,
+        ids: List[int],
+        pair_ids: Optional[List[int]] = None,
+        add_special_tokens: bool = True,
+        truncation: Union[bool, str] = True,
+        max_length: Optional[int] = None,
+    ):
+
+        pair = bool(pair_ids is not None)
+        len_ids = len(ids)
+        len_pair_ids = len(pair_ids) if pair else 0
+
+        encoded_inputs = {}
+        total_len = len_ids + len_pair_ids + 3
+
+        # Truncation: Handle max sequence length
+        if truncation is True and (max_length is not None
+                                   and total_len > max_length):
+            self.truncate_sequence(
+                max_length,
+                ids,
+                pair_ids,
+                pop_index=-1,
+            )
+
+        if add_special_tokens:
+            if pair_ids is not None:
+                sequence = [self.token_start_id] + ids + [
+                    self.token_end_id
+                ] + pair_ids + [self.token_end_id]
+                token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) +
+                                                               1)
+            else:
+                sequence = [self.token_start_id] + ids + [self.token_end_id]
+                token_type_ids = [0] * (len(ids) + 2)
+        else:
+            sequence = ids + pair_ids if pair else ids
+            token_type_ids = [0] * len(ids) + ([0] *
+                                               len(pair_ids) if pair else [])
+
+        encoded_inputs["input_ids"] = sequence
+        encoded_inputs["token_type_ids"] = token_type_ids
+        return encoded_inputs
+
     def encode_plus(  #for Seq2seq
             self,
             source_text: str,
