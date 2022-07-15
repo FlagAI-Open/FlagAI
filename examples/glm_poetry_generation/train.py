@@ -10,8 +10,6 @@ from flagai.trainer import Trainer
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/src.txt'
 tgt_dir = cur_dir + '/data/tgt.txt'
-model_dir = "./state_dict/"  # ./state_dict/roberta/  # 模型位置
-
 
 def read_file():
     src = []
@@ -35,14 +33,12 @@ def read_file():
     return src, tgt
 
 
-auto_loader = AutoLoader("seq2seq",
-                         model_name="GLM-large-ch",
-                         model_dir=model_dir)
+auto_loader = AutoLoader("lm",
+                         model_name="GLM-large-ch")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
-# Custom model and tokenizer:
-# model = GLMForSeq2Seq.from_pretrain(download_path=model_dir,model_name='GLM-large-ch')
-# tokenizer = GLMLargeChTokenizer()
+
+
 trainer = Trainer(
     env_type="pytorch",  #pytorch or deepspeed
     experiment_name="glm_seq2seq",
@@ -66,6 +62,7 @@ trainer = Trainer(
     hostfile='./hostfile',
     deepspeed_config='./deepspeed.json',
     training_script=__file__,
+    model_parallel_size=8
 )
 
 
@@ -123,7 +120,7 @@ class GLMPoetryDynamicCollateFN():  #padding process in each batch
             loss_mask[i] = self.pad_loss_mask(loss_mask[i], max_length)
         return {
             'input_ids': torch.LongTensor(input_ids),
-            'target_ids': torch.LongTensor(target_ids),
+            'labels': torch.LongTensor(target_ids),
             'position_ids': torch.LongTensor(position_ids),
             'attention_mask': torch.LongTensor(attention_mask),
             'loss_mask': torch.LongTensor(loss_mask)

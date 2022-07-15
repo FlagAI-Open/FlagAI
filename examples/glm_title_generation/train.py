@@ -125,7 +125,7 @@ class GLMPoetryDynamicCollateFN():  #padding process in each batch
             loss_mask[i] = self.pad_loss_mask(loss_mask[i], max_length)
         return {
             'input_ids': torch.LongTensor(input_ids),
-            'target_ids': torch.LongTensor(target_ids),
+            'labels': torch.LongTensor(target_ids),
             'position_ids': torch.LongTensor(position_ids),
             'attention_mask': torch.LongTensor(attention_mask),
             'loss_mask': torch.LongTensor(loss_mask)

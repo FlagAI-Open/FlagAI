@@ -309,12 +309,17 @@ class Trainer():
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
-                num_replicas = self.world_size // mpu.get_model_parallel_world_size(
-                )
-                rank = self.rank // mpu.get_model_parallel_world_size()
+                # num_replicas = self.world_size // mpu.get_model_parallel_world_size(
+                # )
+                # rank = self.rank // mpu.get_model_parallel_world_size()
+                # rank = mpu.get_model_parallel_rank()
+                rank = mpu.get_model_parallel_src_rank()
+                print("*"*80)
+                print("local rank",self.rank, "model rank", rank)
+                print("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
-                    num_replicas=num_replicas,
+                    # num_replicas=num_replicas,
                     rank=rank,
                     shuffle=shuffle)
             else:
@@ -473,12 +478,11 @@ class Trainer():
         for epoch in range(self.epochs):
             # log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
-            if self.env_type == 'deepspeed+mpu':
-                if mpu.get_model_parallel_rank() == 0:
-                    train_dataloader.sampler.set_epoch(epoch + self.world_size)
-            elif self.env_type != 'pytorch':
+            # if self.env_type == 'deepspeed+mpu':
+            #     if mpu.get_model_parallel_rank() == 0:
+            #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
+            if self.env_type != 'pytorch':
                 train_dataloader.sampler.set_epoch(epoch + self.world_size)
-
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
@@ -930,18 +934,22 @@ class Trainer():
                 all_labels.append(labels)
                 all_losses.append(lm_loss.view(1))
 
-            all_logits = torch.cat(all_logits, dim=0)
-            all_labels = torch.cat(all_labels, dim=0)
+            if len(self.metric_methods) != 0:
+                all_logits = torch.cat(all_logits, dim=0)
+                all_labels = torch.cat(all_labels, dim=0)
+
             all_losses = torch.cat(all_losses, dim=0)
 
             if self.env_type == 'pytorchDDP' or self.env_type == 'deepspeed':
-                all_logits = self._gather_all(all_logits)
-                all_labels = self._gather_all(all_labels)
+                if len(self.metric_methods) != 0:
+                    all_logits = self._gather_all(all_logits)
+                    all_labels = self._gather_all(all_labels)
                 all_losses = self._gather_all(all_losses)
 
             elif self.env_type == 'deepspeed+mpu':
-                all_logits = self._gather_all_mpu(all_logits)
-                all_labels = self._gather_all_mpu(all_labels)
+                if len(self.metric_methods) != 0:
+                    all_logits = self._gather_all_mpu(all_logits)
+                    all_labels = self._gather_all_mpu(all_labels)
                 all_losses = self._gather_all_mpu(all_losses)
 
             if all_losses.device != torch.device('cpu'):

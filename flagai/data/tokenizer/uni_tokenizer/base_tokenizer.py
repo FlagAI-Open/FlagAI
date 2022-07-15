@@ -2,7 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 import os
 from flagai.model.file_utils import _get_model_files, _get_model_id, _get_vocab_path
-from flagai.data.tokenizer.uni_tokenizer.properties import VOCAB_FILE, MERGES_FILE, SP_MODEL_FILE
+from flagai.data.tokenizer.uni_tokenizer.properties import VOCAB_FILE, MERGES_FILE, SP_MODEL_FILE, VOCAB_JSON_FILE
 
 
 class BaseTokenizer(object):
@@ -29,28 +29,26 @@ class BaseTokenizer(object):
 
         if os.path.exists(cache_dir):
             files = os.listdir(cache_dir)
-            if "spiece.model" in files:
+            if SP_MODEL_FILE in files:
                 tokenizer_class = "sp"
-            elif "vocab.txt" in files:
-                if "merges.txt" in files:
-                    tokenizer_class = "bpe"
-                else:
-                    tokenizer_class = "wp"
+            elif VOCAB_JSON_FILE in files and MERGES_FILE in files:
+                tokenizer_class = "bpe"
+            elif VOCAB_FILE in files:
+                tokenizer_class = "wp"
         if tokenizer_class == "":
             print("downloading model %s from ModelHub"%tokenizer_model_name)
             files = _get_model_files(tokenizer_model_name)
             model_id = _get_model_id(tokenizer_model_name)
-            if "spiece.model" in files:
+            if SP_MODEL_FILE in files:
                 tokenizer_class = "sp"
                 _get_vocab_path(cache_dir + '/', SP_MODEL_FILE, model_id, rank=0)
-            elif "vocab.txt" in files:
-                if "merges.txt" in files:
-                    tokenizer_class = "bpe"
-                    _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
-                    _get_vocab_path(cache_dir + '/', MERGES_FILE, model_id, rank=0)
-                else:
-                    tokenizer_class = "wp"
-                    _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
+            elif VOCAB_JSON_FILE in files and MERGES_FILE in files:
+                tokenizer_class = "bpe"
+                _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
+                _get_vocab_path(cache_dir + '/', MERGES_FILE, model_id, rank=0)
+            elif VOCAB_FILE in files:
+                tokenizer_class = "wp"
+                _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
             else:
                 raise FileNotFoundError("Error: no tokenizer files")
         resolved_vocab_file = os.path.join(cache_dir, VOCAB_FILE)

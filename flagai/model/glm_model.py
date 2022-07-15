@@ -462,7 +462,7 @@ class GLMModel(BaseModel):
                 else:
 
                     loss = F.cross_entropy(
-                        logits_parallel.contiguous().float(), labels.long())
+                        logits_parallel.reshape(-1, logits_parallel.shape[-1]).contiguous().float(), labels.reshape(-1).long())
 
                 if self.parallel_output:  # Put in different GPUs
                     return {
