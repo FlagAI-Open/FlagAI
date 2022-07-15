@@ -8,7 +8,7 @@ import json
 from typing import Union 
 from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path, _get_model_files
 import os
-
+from glob import glob
 
 # The base model for models
 class BaseModel(Module):
@@ -59,12 +59,34 @@ class BaseModel(Module):
         # downloading the files
         model: Union[Module, None]
         if model_id and model_id != "null":
+            model_files = eval(_get_model_files(model_name))
             if not os.path.exists(os.path.join(download_path, 'vocab.txt')):
-                _get_vocab_path(download_path, "vocab.txt", model_id)
+                if "vocab.txt" in model_files:
+                    _get_vocab_path(download_path, "vocab.txt", model_id)
 
             if not only_download_config and not os.path.exists(os.path.join(download_path, 'config.json')):
-                model_files = eval(_get_model_files(model_name))
-                if 'pytorch_model.bin' in model_files:
+                if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+                    model_parallel_size = int(os.getenv("MODEL_PARALLEL_SIZE"))
+                    if model_parallel_size > 1:
+                        # if gpus == nums_of_modelhub_models
+                        # can load
+                        # else need to download the pytorch_model.bin and to recut.
+                        model_hub_parallel_size = 0
+                        for f in model_files:
+                            if "pytorch_model_" in f:
+                                model_hub_parallel_size += 1
+                else:
+                    model_parallel_size = 1
+
+                if "pytorch_model_01.bin" in model_files and model_parallel_size > 1 and model_hub_parallel_size == model_parallel_size:
+                    # Only to download the model slices(megatron-lm).
+                    for file_to_load in model_files:
+                        if "pytorch_model_" in file_to_load:
+                            _get_checkpoint_path(download_path,
+                                                 file_to_load,
+                                                 model_id)
+
+                elif 'pytorch_model.bin' in model_files:
                     checkpoint_path = _get_checkpoint_path(download_path,
                                                            'pytorch_model.bin',
                                                            model_id)

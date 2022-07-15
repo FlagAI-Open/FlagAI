@@ -54,26 +54,37 @@ ALL_TASK = {
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "opt_seq2seq": ("flagai.model.opt_model","OPTModel"),
     "opt_lm": ("flagai.model.opt_model","OPTModel"),
+    "vit_classification": ("flagai.model.vision.vit", "VisionTransformer")
+
 }
 
 MODEL_DICT = {
-    "bert-base-en": ["flagai.model.bert_model", "BertModel", "bert"],
-    "roberta-base-ch": ["flagai.model.bert_model", "BertModel", "bert"],
-    "t5-base-en": ["flagai.model.t5_model", "T5Model", "t5"],
-    "t5-base-ch": ["flagai.model.t5_model", "T5Model", "t5"],
-    "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
-    "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm"],
-    "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2"],
-    "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm"],
-    "opt-125m-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-350m-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-1.3b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-2.7b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-6.7b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
+    "bert-base-en": ["flagai.model.bert_model", "BertModel", "bert", "nlp"],
+    "roberta-base-ch": ["flagai.model.bert_model", "BertModel", "bert", "nlp"],
+    "t5-base-en": ["flagai.model.t5_model", "T5Model", "t5", "nlp"],
+    "t5-base-ch": ["flagai.model.t5_model", "T5Model", "t5", "nlp"],
+    "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
+    "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm", "nlp"],
+    "opt-125m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-350m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-1.3b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-2.7b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-6.7b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+
+    "vit-base-p16-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p16-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
 }
 
 TOKENIZER_DICT = {
@@ -105,7 +116,6 @@ TOKENIZER_DICT = {
     "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
 
 }
-
 
 class AutoLoader:
 
@@ -153,6 +163,8 @@ class AutoLoader:
             return
 
         brief_model_name = MODEL_DICT[model_name][2]
+        model_type = MODEL_DICT[model_name][3]
+
         # The dir to save config, vocab and model.
 
         self.model_name = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
@@ -184,38 +196,41 @@ class AutoLoader:
         model_id = _get_model_id(model_name)
 
         print("*"*20, task_name, model_id, model_name)
-        if "glm" in model_name and "ch" in model_name:
-            vocab_file = os.path.join(download_path,'cog-pretrained.model')
-            if not os.path.exists(vocab_file):
-                vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
-        elif "glm" in model_name and "en" in model_name:
-            vocab_file = "GLM-large-en"
-        elif model_name == "cpm-large-ch":
-            # two files to load
-            vocab_file_1 = os.path.join(download_path, "vocab.json")
-            vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
-            if not os.path.exists(vocab_file_1):
-                vocab_file_1 = _get_vocab_path(download_path, "vocab.json",
-                                               model_id)
-            if not os.path.exists(vocab_file_2):
-                vocab_file_2 = _get_vocab_path(download_path,
-                                               "chinese_vocab.model", model_id)
-        else:
-            vocab_file = os.path.join(download_path, 'vocab.txt')
-            if not os.path.exists(vocab_file):
-                vocab_file = _get_vocab_path(download_path, "vocab.txt",
-                                             model_id)
-        tokenizer_class = TOKENIZER_DICT[model_name]
-        tokenizer_class = getattr(LazyImport(tokenizer_class[0]),                              
-                                    tokenizer_class[1])
-        if model_name == "cpm-large-ch":
-            self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
-        elif brief_model_name == "opt":
-            self.tokenizer = tokenizer_class("facebook/opt-350m")
-        elif model_name in ["glm-large-en", "glm-large-ch"]:
-            self.tokenizer = tokenizer_class()
-        else :
-            self.tokenizer = tokenizer_class(vocab_file)
+        if model_type == "nlp":
+            if "glm" in model_name and "ch" in model_name:
+                vocab_file = os.path.join(download_path,'cog-pretrained.model')
+                if not os.path.exists(vocab_file):
+                    vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
+            elif "glm" in model_name and "en" in model_name:
+                vocab_file = "GLM-large-en"
+            elif model_name == "cpm-large-ch":
+                # two files to load
+                vocab_file_1 = os.path.join(download_path, "vocab.json")
+                vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
+                if not os.path.exists(vocab_file_1):
+                    vocab_file_1 = _get_vocab_path(download_path, "vocab.json",
+                                                   model_id)
+                if not os.path.exists(vocab_file_2):
+                    vocab_file_2 = _get_vocab_path(download_path,
+                                                   "chinese_vocab.model", model_id)
+            else:
+                vocab_file = os.path.join(download_path, 'vocab.txt')
+                if not os.path.exists(vocab_file):
+                    vocab_file = _get_vocab_path(download_path, "vocab.txt",
+                                                 model_id)
+            tokenizer_class = TOKENIZER_DICT[model_name]
+            tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
+                                        tokenizer_class[1])
+            if model_name == "cpm-large-ch":
+                self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
+            elif brief_model_name == "opt":
+                self.tokenizer = tokenizer_class("facebook/opt-350m")
+            elif model_name in ["glm-large-en", "glm-large-ch"]:
+                self.tokenizer = tokenizer_class()
+            else :
+                self.tokenizer = tokenizer_class(vocab_file)
+        elif model_type == "vision":
+            self.tokenizer = None
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())
