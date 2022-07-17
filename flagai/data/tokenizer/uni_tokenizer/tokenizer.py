@@ -419,11 +419,10 @@ class Tokenizer(BaseTokenizer):
         return (result)
 
 
-    def encode_plus(
+    def encode_plus_non_glm(
         self,
         text,
         second_text=None,
-        add_special_tokens: bool = True,
         truncation=True,
         max_length=None,
     ):
@@ -482,9 +481,12 @@ class Tokenizer(BaseTokenizer):
             self,
             source_text: str,
             target_text=None,
+            second_text=None,
+            truncation=True,
+            max_length=None,
     ):
         if not self.tokenizer_model_name.startswith("GLM"):
-            return {"input_ids": self.EncodeAsIds(source_text)}
+            return {self.encode_plus_non_glm(source_text, second_text, truncation, max_length)}
         sop_id = self.get_command_id('sop')  #start of piece
         eop_id = self.get_command_id('eop')  #end of piece
         sep_id = self.get_command_id('sep')  #seperation

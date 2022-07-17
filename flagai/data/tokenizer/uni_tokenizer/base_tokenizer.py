@@ -78,7 +78,7 @@ class BaseTokenizer(object):
                 _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
             else:
                 raise FileNotFoundError("Error: no tokenizer files")
-        print(tokenizer_class,22222)
+        # print(tokenizer_class,22222)
         resolved_vocab_json_file = os.path.join(cache_dir, VOCAB_JSON_FILE)
         resolved_vocab_file = os.path.join(cache_dir, VOCAB_FILE)
         resolved_merges_file = os.path.join(cache_dir, MERGES_FILE)
