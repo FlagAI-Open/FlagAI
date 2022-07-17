@@ -28,6 +28,7 @@ from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer
 from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
+from typing import List, Union, Optional
 # import torch
 
 
@@ -438,16 +439,15 @@ class Tokenizer(BaseTokenizer):
         return self.prepare_for_model(
             first_ids,
             pair_ids=second_ids,
-            add_special_tokens=add_special_tokens,
             truncation=truncation,
             max_length=max_length,
         )
+
 
     def prepare_for_model(
         self,
         ids: List[int],
         pair_ids: Optional[List[int]] = None,
-        add_special_tokens: bool = True,
         truncation: Union[bool, str] = True,
         max_length: Optional[int] = None,
     ):
@@ -469,20 +469,10 @@ class Tokenizer(BaseTokenizer):
                 pop_index=-1,
             )
 
-        if add_special_tokens:
-            if pair_ids is not None:
-                sequence = [self.token_start_id] + ids + [
-                    self.token_end_id
-                ] + pair_ids + [self.token_end_id]
-                token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) +
-                                                               1)
-            else:
-                sequence = [self.token_start_id] + ids + [self.token_end_id]
-                token_type_ids = [0] * (len(ids) + 2)
-        else:
-            sequence = ids + pair_ids if pair else ids
-            token_type_ids = [0] * len(ids) + ([0] *
-                                               len(pair_ids) if pair else [])
+
+        sequence = ids + pair_ids if pair else ids
+        token_type_ids = [0] * len(ids) + ([0] *
+                                           len(pair_ids) if pair else [])
 
         encoded_inputs["input_ids"] = sequence
         encoded_inputs["token_type_ids"] = token_type_ids
@@ -533,4 +523,22 @@ class Tokenizer(BaseTokenizer):
                 'loss_mask': loss_mask,
             }
         return sample
+
+    @staticmethod
+    def truncate_sequence(max_length,
+                          first_sequence,
+                          second_sequence=None,
+                          pop_index=-1):
+
+        if second_sequence is None:
+            second_sequence = []
+
+        while True:
+            total_length = len(first_sequence) + len(second_sequence)
+            if total_length <= max_length:
+                break
+            elif len(first_sequence) > len(second_sequence):
+                first_sequence.pop(pop_index)
+            else:
+                second_sequence.pop(pop_index)
 
