@@ -27,6 +27,7 @@ import os
 # from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
 import collections
 import unicodedata
+import json
 
 
 class WordpieceTokenizer(object):
@@ -147,6 +148,9 @@ def load_vocab(vocab_file):
     with open(vocab_file, "r", encoding="utf-8") as reader:
         while True:
             token = reader.readline()
+            print(len(token), token[0], token[-1],21222222222)
+            if token.startswith('{') and token.endswith('{'):
+                return json.loads(token)
             if not token:
                 break
             token = token.strip()

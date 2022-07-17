@@ -7,7 +7,7 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
                       top_k, top_p, repetition_penalty, temperature, device):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
     token_ids = tokenizer_out["input_ids"]
-    token_end_id = tokenizer.token_end_id
+    token_end_id = tokenizer.get_command_id('eos')
     if token_ids[-1] == token_end_id:
         token_ids = token_ids[:-1]
 
@@ -22,13 +22,13 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
     token_ids = torch.tensor(token_ids, device=device,
                              dtype=torch.long).view(1, -1)
     output_ids = []
-    sep_id = tokenizer.token_end_id
+    sep_id = tokenizer.get_command_id('eos')
     outputs = model(**{"input_ids": token_ids, "use_cache": True})
     scores = outputs["logits"]
     past_key_values = outputs["hidden_states"]
 
     logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-    logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+    logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
 
     filtered_logits = list_processor(token_ids, logit_score)
     next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
@@ -42,7 +42,7 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
             past_key_values = outputs["hidden_states"]
 
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
 
             filtered_logits = list_processor(token_ids, logit_score)
             next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),

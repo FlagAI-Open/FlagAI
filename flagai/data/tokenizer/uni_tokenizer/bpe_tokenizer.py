@@ -154,14 +154,14 @@ class BPETokenizer(object):
             tokens.append(self.decoder[i])
         return tokens
 
-    def encode(self, text):
-        return self.convert_tokens_to_ids(self.tokenize(text))
-
-    def decode(self, ids):
-        text = ''.join([self.decoder[id] for id in ids])
-        text = bytearray([self.byte_decoder[c]
-                          for c in text]).decode('utf-8', errors=self.errors)
-        return text
+    # def encode(self, text):
+    #     return self.convert_tokens_to_ids(self.tokenize(text))
+    #
+    # def decode(self, ids):
+    #     text = ''.join([self.decoder[id] for id in ids])
+    #     text = bytearray([self.byte_decoder[c]
+    #                       for c in text]).decode('utf-8', errors=self.errors)
+    #     return text
 
     def convert_tokens_to_string(self, tokens, all_command_token={}):
         """Converts a sequence of tokens (string) in a single string."""

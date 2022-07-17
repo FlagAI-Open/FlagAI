@@ -64,7 +64,6 @@ class BaseTokenizer(object):
         if tokenizer_class == "":
             print("downloading model %s from ModelHub"%tokenizer_model_name)
             files = _get_model_files(tokenizer_model_name)
-            print(files,11111111)
             model_id = _get_model_id(tokenizer_model_name)
             if SP_MODEL_FILE in files:
                 tokenizer_class = "sp"

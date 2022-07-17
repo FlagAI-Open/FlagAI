@@ -36,18 +36,18 @@ class SentencePieceTokenizer(object):
         # vocab.update(self.added_tokens_encoder)
         return vocab
 
-    def encode(self, text):
-        """
-        text="...."
-        """
-        return self.sp_model.EncodeAsIds(text)
-
-    def decode(self, tokens):
-        """
-        tokens=[x1,x2,...]
-        """
-        text = [int(token) for token in tokens]
-        return self.sp_model.DecodeIds(text)
+    # def encode(self, text):
+    #     """
+    #     text="...."
+    #     """
+    #     return self.sp_model.EncodeAsIds(text)
+    #
+    # def decode(self, tokens):
+    #     """
+    #     tokens=[x1,x2,...]
+    #     """
+    #     text = [int(token) for token in tokens]
+    #     return self.sp_model.DecodeIds(text)
 
     def tokenize(self, text):
         return self.sp_model.EncodeAsPieces(text)

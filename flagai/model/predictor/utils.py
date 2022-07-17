@@ -468,7 +468,7 @@ def t5_random_sample(model, tokenizer, text, input_max_length, out_max_length,
     token_ids = torch.tensor(token_ids, device=device,
                              dtype=torch.long).view(1, -1)
     output_ids = []
-    input_decoder_ids = torch.tensor(tokenizer.token_start_id,
+    input_decoder_ids = torch.tensor(tokenizer.get_command_id('cls'),
                                      device=device,
                                      dtype=torch.long).view(1, -1)
     lp = [
@@ -485,13 +485,13 @@ def t5_random_sample(model, tokenizer, text, input_max_length, out_max_length,
                 "decoder_input_ids": input_decoder_ids
             })["logits"]
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
             # filtered_logits = top_k_top_p_filtering(logit_score, top_k=top_k, top_p=top_p)
             filtered_logits = list_processor(input_decoder_ids, logit_score)
 
             filterd_logits_prob = F.softmax(filtered_logits, dim=-1)
             next_token = torch.multinomial(filterd_logits_prob, num_samples=1)
-            if tokenizer.token_end_id == next_token.item():
+            if tokenizer.get_command_id('eos') == next_token.item():
                 break
             output_ids.append(next_token.item())
             input_decoder_ids = torch.cat(
@@ -526,12 +526,12 @@ def bert_random_sample(model, tokenizer, text, input_max_length,
                 "segment_ids": token_type_ids
             })["logits"]
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
             filtered_logits = list_processor(token_ids, logit_score)
 
             filterd_logits_prob = F.softmax(filtered_logits, dim=-1)
             next_token = torch.multinomial(filterd_logits_prob, num_samples=1)
-            if tokenizer.token_end_id == next_token.item():
+            if tokenizer.get_command_id('eos') == next_token.item():
                 break
             output_ids.append(next_token.item())
             token_ids = torch.cat((token_ids, next_token.long()), dim=1)
@@ -546,7 +546,7 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
                       top_k, top_p, repetition_penalty, temperature, device):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
     token_ids = tokenizer_out["input_ids"]
-    token_end_id = tokenizer.token_end_id
+    token_end_id = tokenizer.get_command_id('eos')
     if token_ids[-1] == token_end_id:
         token_ids = token_ids[:-1]
 
@@ -561,12 +561,12 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
     token_ids = torch.tensor(token_ids, device=device,
                              dtype=torch.long).view(1, -1)
     output_ids = []
-    sep_id = tokenizer.token_end_id
+    sep_id = tokenizer.get_command_id('eos')
     with torch.no_grad():
         for step in range(out_max_length):
             scores = model(**{"input_ids": token_ids})["logits"]
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
 
             filtered_logits = list_processor(token_ids, logit_score)
             next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
@@ -752,8 +752,8 @@ def t5_beam_search(model,
                    beam_size=1,
                    out_max_length=50):
 
-    sep_id = tokenizer.token_end_id
-    decoder_input_ids = np.array(tokenizer.token_start_id,
+    sep_id = tokenizer.get_command_id('eos')
+    decoder_input_ids = np.array(tokenizer.get_command_id('cls'),
                                  dtype=np.int64).reshape(1, -1)
 
     output_ids = None
@@ -938,7 +938,7 @@ def gpt_beam_search(model,
                     beam_size=1,
                     out_max_length=50):
 
-    sep_id = tokenizer.token_end_id
+    sep_id = tokenizer.get_command_id('eos')
 
     output_ids = None
     with torch.no_grad():
