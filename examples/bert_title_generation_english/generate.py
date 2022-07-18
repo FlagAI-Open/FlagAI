@@ -14,7 +14,7 @@ model_save_path = "./checkpoints_seq2seq/7079/mp_rank_00_model_states.pt"
 maxlen = 512
 auto_loader = AutoLoader(
     "seq2seq",
-    model_name="bert-base-uncased",
+    model_name="BERT-base-en",
     model_dir=model_dir,
 )
 model = auto_loader.get_model()

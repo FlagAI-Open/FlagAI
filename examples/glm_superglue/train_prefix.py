@@ -2,13 +2,12 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze, GLMForMultiTokenClozeFast, GLMForSequenceClassification
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer, GLMLargeChTokenizer
+from flagai.model.glm_model import GLMForSequenceClassification
+from flagai.data.tokenizer import Tokenizer
 
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
-import unittest
 from flagai.data.dataset import ConstructSuperglueStrategy
 
 
@@ -32,13 +31,10 @@ cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
 
 if task_name in CH_TASKS:
     model_name = 'GLM-large-ch'
-    tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
-                                    add_task_mask=False,
-                                    add_decoder_mask=False,
-                                    fix_command_token=True)
+    add_block_symbols=True,
 else:
     model_name = 'GLM-large-en'
-    tokenizer = GLMLargeEnWordPieceTokenizer()
+tokenizer = Tokenizer.from_pretrained(model_name)
 
 model = GLMForSequenceClassification.from_pretrain(model_name=model_name, spell_length=2,
                                                     class_num=3, tune_prefix_layers=1)
