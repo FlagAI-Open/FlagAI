@@ -198,22 +198,31 @@ class Trainer():
         self.not_call_launch = True
         self.deepspeed_config = deepspeed_config
         self.model_parallel_size = model_parallel_size
-        if 'deepspeed' in env_type or env_type == 'pytorchDDP':
+        self.num_nodes = num_nodes
+        self.num_gpus = num_gpus
+        self.master_ip = master_ip
+        self.master_port = master_port
+        self.hostfile = hostfile
+        self.training_script = training_script
+
+        training_paras = self.get_dist_args()
+
+        if 'deepspeed' in self.env_type or self.env_type == 'pytorchDDP':
             # Implement for AutoLaunch
             # >>> python train.py # will call get_dist_args()
             # `--not_call_launch` is default 'False'
             # So, if `env_type` is `pytorch`, the `Trainer` will not call lanch_dist()
             # Otherwise, the lanch_dist() is called to launch 'train.py' with `--not_call_launch`
-            self.get_dist_args()
             if not self.not_call_launch:
                 launch_dist(launcher='distributed_deepspeed' if 'deepspeed'
                             in env_type else 'distributed_torch',
-                            num_nodes=num_nodes,
-                            gpus_per_node=num_gpus,
-                            master_addr=master_ip,
-                            master_port=master_port,
-                            hostfile=hostfile,
-                            training_script=training_script)
+                            num_nodes=self.num_nodes,
+                            gpus_per_node=self.num_gpus,
+                            master_addr=self.master_ip,
+                            master_port=self.master_port,
+                            hostfile=self.hostfile,
+                            training_script=self.training_script,
+                            training_paras=training_paras)
                 os._exit(1)
             self.initialize_distributed()
 
@@ -239,6 +248,7 @@ class Trainer():
         self.master_addr = os.environ.get('MASTER_ADDR', '127.0.0.1')
         self.master_port = os.environ.get('MASTER_PORT', '17500')
         log_dist("not_call_launch: {}".format(ds_args.not_call_launch))
+        return []
 
     def set_seed(self, seed=1234):
         """Set random seed for reproducability."""
@@ -310,6 +320,9 @@ class Trainer():
         else:
             if self.env_type == 'deepspeed+mpu':
                 rank = mpu.get_model_parallel_src_rank()
+                print("*"*80)
+                print("local rank",self.rank, "model rank", rank)
+                print("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
                     # num_replicas=num_replicas,
@@ -506,7 +519,8 @@ class Trainer():
                                                            lr_scheduler,
                                                            single_step=True)
                     dist.barrier()
-                total_lm_loss += lm_loss.data.detach().float()
+                if lm_loss is not None:
+                    total_lm_loss += lm_loss.data.detach().float()
 
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
@@ -1025,3 +1039,173 @@ class Trainer():
         log_dist(string, [0])
         log_dist('-' * length, [0])
         return eval_dict
+
+
+class BatchTrainer(Trainer):
+    def __init__(self):
+        super(BatchTrainer, self).__init__()
+
+    def get_dist_args(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--local_rank',
+                            type=int,
+                            default=0,
+                            help="local_rank")
+        parser.add_argument('--env_type',
+                            type=str,
+                            required=True,
+                            help="env_type: pytorch, pytorchDDP, deepspeed, deepspeed+mpu")
+        parser.add_argument('--not_call_launch',
+                            action='store_true',
+                            help="not call launch!")
+        parser.add_argument('--experiment_name',
+                            type=str,
+                            default="test",
+                            help="experiment_name")
+        parser.add_argument('--batch_size',
+                            type=int,
+                            default=1,
+                            help="batch size")
+        parser.add_argument('--gradient_accumulation_steps',
+                            type=int,
+                            default=1,
+                            help="gradient_accumulation_steps")
+        parser.add_argument('--lr',
+                            type=float,
+                            default=1e-5,
+                            help="learning rate")
+        parser.add_argument('--weight_decay',
+                            type=float,
+                            default=1e-3,
+                            help="weight_decay")
+        parser.add_argument('--epochs',
+                            type=int,
+                            default=2,
+                            help="epochs")
+        parser.add_argument('--fp16',
+                            type=bool,
+                            default=False,
+                            help="fp16")
+        parser.add_argument('--log_interval',
+                            type=int,
+                            default=10,
+                            help="log_interval")
+
+        parser.add_argument('--eval_interval',
+                            type=int,
+                            default=1000,
+                            help="eval_interval")
+        parser.add_argument('--load_dir',
+                            type=str,
+                            default=None,
+                            help="load_dir")
+        parser.add_argument('--save_dir',
+                            type=str,
+                            default="./checkpoints",
+                            help="save_dir")
+        parser.add_argument('--save_interval',
+                            type=int,
+                            default=1000,
+                            help="save_interval")
+        parser.add_argument('--num_checkpoints',
+                            type=int,
+                            default=1,
+                            help="num_checkpoints")
+        parser.add_argument('--pytorch_device',
+                            type=str,
+                            default="cpu",
+                            help="pytorch_device")
+        parser.add_argument('--num_nodes',
+                            type=int,
+                            default=1,
+                            help="num_nodes")
+        parser.add_argument('--num_gpus',
+                            type=int,
+                            default=1,
+                            help="num_gpus")
+        parser.add_argument('--deepspeed_config',
+                            type=str,
+                            default="./deepspeed.json",
+                            help="deepspeed_config")
+        parser.add_argument('--hostfile',
+                            type=str,
+                            default="hostfile",
+                            help="hostfile")
+        parser.add_argument('--model_parallel_size',
+                            type=int,
+                            default=1,
+                            help="model_parallel_size")
+        parser.add_argument('--training_script',
+                            type=str,
+                            default="train.py",
+                            help="training_script")
+        parser.add_argument('--master_ip',
+                            type=str,
+                            default="127.0.0.1",
+                            help="master_ip")
+        parser.add_argument('--master_port',
+                            type=int,
+                            default=17500,
+                            help="master_ip")
+
+        ds_args = parser.parse_args()
+        self.local_rank = ds_args.local_rank
+        self.not_call_launch = ds_args.not_call_launch
+        self.rank = int(os.environ.get('RANK', 0))
+        self.world_size = int(os.environ.get('WORLD_SIZE', 1))
+        self.master_addr = ds_args.master_ip
+        self.master_port = ds_args.master_port
+        self.env_type = ds_args.env_type
+        self.experiment_name = ds_args.experiment_name
+        self.batch_size = ds_args.batch_size
+        self.gradient_accumulation_steps = ds_args.gradient_accumulation_steps
+        self.lr = ds_args.lr
+        self.weight_decay = ds_args.weight_decay
+        self.epochs = ds_args.epochs
+        self.fp16 = ds_args.fp16
+        self.log_interval = ds_args.log_interval
+        self.eval_interval = ds_args.eval_interval
+        self.load_dir = ds_args.load_dir
+        self.save_dir = ds_args.save_dir
+        self.save_interval = ds_args.save_interval
+        self.num_checkpoints = ds_args.num_checkpoints
+        self.pytorch_device = ds_args.pytorch_device
+        self.num_nodes = ds_args.num_nodes
+        self.num_gpus = ds_args.num_gpus
+        self.deepspeed_config = ds_args.deepspeed_config
+        self.hostfile = ds_args.hostfile
+        self.model_parallel_size = ds_args.model_parallel_size
+        self.training_script = ds_args.training_script
+
+        log_dist("not_call_launch: {}".format(ds_args.not_call_launch))
+
+        return [
+            "--env_type",
+            self.env_type,
+            "--experiment_name",
+            self.experiment_name,
+            "--batch_size",
+            str(self.batch_size),
+            "--gradient_accumulation_steps",
+            str(self.gradient_accumulation_steps),
+            "--lr",
+            str(self.lr),
+            "--weight_decay",
+            str(self.weight_decay),
+            "--epochs",
+            str(self.epochs),
+            "--log_interval",
+            str(self.log_interval),
+            "--eval_interval",
+            str(self.eval_interval),
+            "--load_dir",
+            str(self.load_dir),
+            "--save_dir",
+            str(self.save_dir),
+            "--save_interval",
+            str(self.save_interval),
+            "--num_checkpoints",
+            str(self.num_checkpoints),
+            "--fp16",
+            str(self.fp16)
+        ]

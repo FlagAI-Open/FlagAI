@@ -74,7 +74,8 @@ def launch_dist(launcher='distributed_deepspeed',
                 hostfile='hostfile',
                 nccl_info=False,
                 training_script='train.py',
-                training_script_paras=None):
+                training_script_paras=None,
+                training_paras=None,):
     try:
         resource_pool = fetch_hostfile(hostfile)
     except:
@@ -151,6 +152,9 @@ def launch_dist(launcher='distributed_deepspeed',
         ]
         cmd_launch.extend(torch_distributed_args)
         cmd_launch.append(training_script)
+        if training_paras:
+            cmd_launch.extend(training_paras)
+
         cmd_launch.append('--not_call_launch')
         run_cmd = ' '.join(cmd_launch)
         log_dist(run_cmd)
@@ -196,6 +200,9 @@ def launch_dist(launcher='distributed_deepspeed',
             if len(training_script_paras) > 0:
                 cmd_launch.extend(training_script_paras)
 
+        if training_paras:
+            cmd_launch.extend(training_paras)
+
         cmd_launch.append('--not_call_launch')
         run_cmd = ' '.join(cmd_launch)
         log_dist(run_cmd)
@@ -225,6 +232,9 @@ def launch_dist(launcher='distributed_deepspeed',
                     del training_script_paras[para_index:para_index + 2]
             if len(training_script_paras) > 0:
                 cmd_launch.extend(training_script_paras)
+
+            if training_paras:
+                cmd_launch.extend(training_paras)
 
             run_cmd = ' '.join(cmd_launch)
             log_dist(run_cmd)
