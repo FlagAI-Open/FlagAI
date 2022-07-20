@@ -13,7 +13,7 @@
     - [deepspeed](#deepspeed)
     - [pytorchDDP](#pytorchddp)
     - [deepspeed + megatron-lm](#deepspeed--megatron-lm)
-
+- [EnvTrainer](#EnvTrainer)
 
 Trainer 类提供了API用于多种并行框架的训练。API 支持在多个 GPU上使用Pytorch DDP/Deepspeed进行分布式训练，同时支持Megatron-LM+Deepspeed的混合并行分布式训练，同时也通过 NVIDIA Apex 实现混合精度。
 ## 入门
@@ -335,3 +335,72 @@ trainer = MyTrainer(
 )
 ```
 
+# EnvTrainer
+
+为了更容易的输入参数，我们提供了EnvTrainer代替原来的Trainer
+例如：
+```python
+# train.py
+import torch
+from flagai.env_args import EnvArgs
+from flagai.env_trainer import EnvTrainer
+
+lr = 2e-5
+n_epochs = 50
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+env_args = EnvArgs(
+    env_type="pytorch",
+    experiment_name="vit-cifar100-single_gpu",
+    batch_size=150,
+    num_gpus=1,
+    gradient_accumulation_steps=1,
+    lr=lr,
+    weight_decay=1e-5,
+    epochs=n_epochs,
+    log_interval=100,
+    eval_interval=1000,
+    load_dir=None,
+    pytorch_device=device,
+    save_dir="checkpoints_vit_cifar100_single_gpu",
+    save_interval=1000,
+    num_checkpoints=1,
+)
+
+env_args.add_arg(arg_name="test1", default=0, type=int, )
+env_args_parse = env_args.parse_args()
+trainer = EnvTrainer(env_args)
+```
+
+运行train.py文件时，可以通过命令行修改输入参数。
+```commandline
+python train.py --batch_size=8 --epochs=10
+```
+如果你需要添加额外的参数，你可以调用这个函数:
+```python
+env_args.add_arg(arg_name="test1", default=0, type=int, )
+```
+然后你可以运行如下命令中的train.py文件:
+```commandline
+python train.py --test1=1
+```
+更多的例子可以查看 :
+
+1. [vit-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/vit_cifar100/train_env_trainer.py)
+
+2. [glm-title-generation-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/glm_title_generation/train_env_trainer.py)
+
+
+# 使用 pytorchDDP launcher 或 deepspeed launcher 运行
+如果你使用多个GPU来训练模型，你可以直接运行train.py来调用FlagAI训练器中的启动器。
+```commandline
+python train.py
+```
+另外，你也可以使用pytorchDDP和deepspeed启动器来运行，例如:
+### pytorchDDP
+```commandline
+python -m torch.distributed.launch --nproc_per_node 2 --nnodes 1 --node_rank 0 --master_addr localhost --master_port 17750 train_env_trainer.py --not_call_launch
+```
+### deepspeed
+```commandline
+python -m deepspeed.launcher.launch  --master_addr=172.31.125.121 --master_port=17500 train.py --not_call_launch
+```
