@@ -13,6 +13,9 @@
     - [deepspeed](#deepspeed)
     - [pytorchDDP](#pytorchddp)
     - [deepspeed + megatron-lm](#deepspeed--megatron-lm)
+- [EnvTrainer](#EnvTrainer)
+
+
 The Trainer class provides APIs for training with multiple parallel frameworks. The API supports distributed training with Pytorch DDP/Deepspeed on multiple GPUs, as well as mixed parallel distributed training with Megatron-LM+Deepspeed, and mixed precision via NVIDIA Apex.
 
 ## Getting Started
@@ -340,4 +343,77 @@ trainer = MyTrainer(
     # megatron-lm
     model_paralle_size = 2
 )
+```
+
+# EnvTrainer
+
+To input the parameters easier, we provided the EnvTrainer to replace the original Tranier.
+
+Taking the code for example:
+```python
+# train.py
+import torch
+from flagai.env_args import EnvArgs
+from flagai.env_trainer import EnvTrainer
+
+lr = 2e-5
+n_epochs = 50
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+env_args = EnvArgs(
+    env_type="pytorch",
+    experiment_name="vit-cifar100-single_gpu",
+    batch_size=150,
+    num_gpus=1,
+    gradient_accumulation_steps=1,
+    lr=lr,
+    weight_decay=1e-5,
+    epochs=n_epochs,
+    log_interval=100,
+    eval_interval=1000,
+    load_dir=None,
+    pytorch_device=device,
+    save_dir="checkpoints_vit_cifar100_single_gpu",
+    save_interval=1000,
+    num_checkpoints=1,
+)
+
+env_args.add_arg(arg_name="test1", default=0, type=int, )
+env_args_parse = env_args.parse_args()
+trainer = EnvTrainer(env_args)
+```
+
+When you run the train.py file, you can modify the input parameters through command line.
+```commandline
+python train.py --batch_size=8 --epochs=10
+```
+If you need to add additional parameters, you can call the function:
+```python
+env_args.add_arg(arg_name="test1", default=0, type=int, )
+```
+Then you can run the train.py file in the following command:
+```commandline
+python train.py --test1=1
+```
+
+More examples in :
+
+1. [vit-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/vit_cifar100/train_env_trainer.py)
+
+2. [glm-title-generation-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/glm_title_generation/train_env_trainer.py)
+
+
+# Run with pytorchDDP launcher or deepspeed launcher
+If you use multiple GPU to train models, you can run the train.py directly which to call the launcher in FlagAI Trainer.
+```commandline
+python train.py
+```
+In addition, you also can use the pytorchDDP and deepspeed launcher to run, as example:
+
+### pytorchDDP
+```commandline
+python -m torch.distributed.launch --nproc_per_node 2 --nnodes 1 --node_rank 0 --master_addr localhost --master_port 17750 train_env_trainer.py --not_call_launch
+```
+### deepspeed
+```commandline
+python -m deepspeed.launcher.launch  --master_addr=172.31.125.121 --master_port=17500 train.py --not_call_launch
 ```
