@@ -206,8 +206,7 @@ def save_checkpoint(iteration,
         sd['rng_tracker_states'] = mpu.get_cuda_rng_tracker().get_states()
     if env_type == 'pytorch' or (env_type != 'deepspeed+mpu'
                                  and dist.get_rank() == 0) or (
-                                     env_type == 'deepspeed+mpu'
-                                     and mpu.get_model_parallel_src_rank() == 0):
+                                    env_type == 'deepspeed+mpu'and mpu.get_model_parallel_src_rank() == 0):
         ensure_directory_exists(checkpoint_name)
         config_path = os.path.join(save_dir, str(iteration), 'config.json')
 
@@ -220,6 +219,7 @@ def save_checkpoint(iteration,
         tracker_filename = get_checkpoint_tracker_filename(save_dir)
         with open(tracker_filename, 'w') as f:
             f.write(str(iteration) + '\t' + str(best_iteration))
+
     # Wait so everyone is done (necessary)
     if barrier and dist.is_initialized():
         torch.distributed.barrier()
