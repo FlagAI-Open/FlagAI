@@ -348,7 +348,8 @@ class Trainer():
               train_dataset=None,
               valid_dataset=None,
               metric_methods=[],
-              collate_fn=None):
+              collate_fn=None,
+              find_unused_parameters=True):
         """Training Loops"""
         """
        Trainer is a simple but unifed training and eval loop for PyTorch/Deepspeed/Megatron-LM.
@@ -416,7 +417,7 @@ class Trainer():
             model.to(torch.device('cuda', self.local_rank))
             model = DDP(model,
                         device_ids=[self.local_rank],
-                        find_unused_parameters=True)
+                        find_unused_parameters=find_unused_parameters)
 
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)

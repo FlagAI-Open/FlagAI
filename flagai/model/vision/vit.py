@@ -33,6 +33,7 @@ from flagai.model.vision.layers.mlp import Mlp
 from flagai.model.vision.layers.drop import DropPath
 from flagai.model.vision.layers.weight_init import trunc_normal_, lecun_normal_
 from flagai.model.base_model import BaseModel
+from flagai.model.vision.helpers import checkpoint_seq
 
 class VitConfig:
     def __init__(self,
@@ -53,7 +54,7 @@ class VitConfig:
                  attn_drop_rate=0.,
                  drop_path_rate=0.,
                  weight_init='',
-                 checkpoint_activations=None):
+                 checkpoint_activations=False):
         pass
         self.img_size=img_size
         self.patch_size=patch_size
@@ -73,7 +74,6 @@ class VitConfig:
         self.drop_path_rate=drop_path_rate
         self.weight_init=weight_init
         self.checkpoint_activations = checkpoint_activations
-
 
 def named_apply(fn: Callable, module: nn.Module, name='', depth_first=True, include_root=False) -> nn.Module:
     if not depth_first and include_root:
@@ -206,42 +206,42 @@ class VisionTransformer(BaseModel):
         block_fn=Block
         vit_config = VitConfig(**config)
         vit_config.num_classes = num_classes
-        config = vit_config
+        # config = vit_config
 
-        assert config.global_pool in ('', 'avg', 'token')
-        assert config.class_token or config.global_pool != 'token'
-        use_fc_norm = config.global_pool == 'avg' if config.fc_norm is None else config.fc_norm
+        assert vit_config.global_pool in ('', 'avg', 'token')
+        assert vit_config.class_token or vit_config.global_pool != 'token'
+        use_fc_norm = vit_config.global_pool == 'avg' if vit_config.fc_norm is None else vit_config.fc_norm
         norm_layer = partial(nn.LayerNorm, eps=1e-6)
         act_layer = nn.GELU
 
         self.num_classes = num_classes
-        self.global_pool = config.global_pool
-        self.num_features = self.embed_dim = config.embed_dim  # num_features for consistency with other models
-        self.num_tokens = 1 if config.class_token else 0
-        self.grad_checkpointing = False
+        self.global_pool = vit_config.global_pool
+        self.num_features = self.embed_dim = vit_config.embed_dim  # num_features for consistency with other models
+        self.num_tokens = 1 if vit_config.class_token else 0
+        self.grad_checkpointing = vit_config.checkpoint_activations
 
         self.patch_embed = embed_layer(
-            img_size=config.img_size, patch_size=config.patch_size, in_chans=config.in_chans, embed_dim=config.embed_dim)
+            img_size=vit_config.img_size, patch_size=vit_config.patch_size, in_chans=vit_config.in_chans, embed_dim=vit_config.embed_dim)
         num_patches = self.patch_embed.num_patches
 
-        self.cls_token = nn.Parameter(torch.zeros(1, 1, config.embed_dim)) if self.num_tokens > 0 else None
-        self.pos_embed = nn.Parameter(torch.randn(1, num_patches + self.num_tokens, config.embed_dim) * .02)
-        self.pos_drop = nn.Dropout(p=config.drop_rate)
+        self.cls_token = nn.Parameter(torch.zeros(1, 1, vit_config.embed_dim)) if self.num_tokens > 0 else None
+        self.pos_embed = nn.Parameter(torch.randn(1, num_patches + self.num_tokens, vit_config.embed_dim) * .02)
+        self.pos_drop = nn.Dropout(p=vit_config.drop_rate)
 
-        dpr = [x.item() for x in torch.linspace(0, config.drop_path_rate, config.depth)]  # stochastic depth decay rule
+        dpr = [x.item() for x in torch.linspace(0, vit_config.drop_path_rate, vit_config.depth)]  # stochastic depth decay rule
         self.blocks = nn.Sequential(*[
             block_fn(
-                dim=config.embed_dim, num_heads=config.num_heads, mlp_ratio=config.mlp_ratio, qkv_bias=config.qkv_bias, init_values=config.init_values,
-                drop=config.drop_rate, attn_drop=config.attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, act_layer=act_layer)
-            for i in range(config.depth)])
-        self.norm = norm_layer(config.embed_dim) if not use_fc_norm else nn.Identity()
+                dim=vit_config.embed_dim, num_heads=vit_config.num_heads, mlp_ratio=vit_config.mlp_ratio, qkv_bias=vit_config.qkv_bias, init_values=vit_config.init_values,
+                drop=vit_config.drop_rate, attn_drop=vit_config.attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, act_layer=act_layer)
+            for i in range(vit_config.depth)])
+        self.norm = norm_layer(vit_config.embed_dim) if not use_fc_norm else nn.Identity()
 
         # Classifier Head
-        self.fc_norm = norm_layer(config.embed_dim) if use_fc_norm else nn.Identity()
+        self.fc_norm = norm_layer(vit_config.embed_dim) if use_fc_norm else nn.Identity()
         self.head = nn.Linear(self.embed_dim, num_classes) if num_classes > 0 else nn.Identity()
 
-        if config.weight_init != 'skip':
-            self.init_weights(config.weight_init)
+        if vit_config.weight_init != 'skip':
+            self.init_weights(vit_config.weight_init)
 
     def init_weights(self, mode=''):
         assert mode in ('jax', 'jax_nlhb', 'moco', '')
@@ -290,10 +290,11 @@ class VisionTransformer(BaseModel):
         if self.cls_token is not None:
             x = torch.cat((self.cls_token.expand(x.shape[0], -1, -1), x), dim=1)
         x = self.pos_drop(x + self.pos_embed)
-        # if self.grad_checkpointing and not torch.jit.is_scripting():
-        #     x = checkpoint_seq(self.blocks, x)
-        # else:
-        x = self.blocks(x)
+
+        if self.config["checkpoint_activations"]:
+            x = checkpoint_seq(self.blocks, x)
+        else:
+            x = self.blocks(x)
         x = self.norm(x)
         return x
 

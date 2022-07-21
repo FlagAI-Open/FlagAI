@@ -13,22 +13,25 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env_type = "pytorchDDP"
 trainer = Trainer(
     env_type=env_type,
-    experiment_name="vit-cifar100-8gpu",
-    batch_size=150,
-    num_gpus=8,
+    experiment_name="vit-cifar100-deepspeed",
+    batch_size=128,
+    num_gpus=2,
+    fp16=True,
     gradient_accumulation_steps=1,
     lr=lr,
     weight_decay=1e-5,
     epochs=n_epochs,
-    log_interval=100,
-    eval_interval=1000,
+    log_interval=10,
+    eval_interval=100,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_vit_cifar100_8gpu",
+    save_dir="checkpoints_vit_cifar100_deepspeed",
     save_interval=1000,
     num_checkpoints=1,
     hostfile="./hostfile",
-    training_script="train_DDP.py"
+    deepspeed_config="./deepspeed.json",
+    training_script="train_deepspeed.py",
+    checkpoint_activations=True,
 )
 
 def build_cifar():
@@ -69,13 +72,13 @@ if __name__ == '__main__':
                         num_classes=100)
 
     model = loader.get_model()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, n_epochs)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, n_epochs)
     train_dataset, val_dataset = build_cifar()
 
     trainer.train(model,
-                  optimizer=optimizer,
-                  lr_scheduler=scheduler,
+                  # optimizer=optimizer,
+                  # lr_scheduler=scheduler,
                   train_dataset=train_dataset,
                   valid_dataset=val_dataset,
                   metric_methods=[["accuracy", validate]],
