@@ -29,6 +29,7 @@ trainer = Trainer(
     save_interval=1000,
     num_checkpoints=1,
     hostfile="./hostfile",
+    training_script="train_deepspeed.py"
 )
 
 def build_cifar():
