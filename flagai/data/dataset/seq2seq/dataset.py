@@ -388,7 +388,7 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
                  src_seq_length=608,
                  tgt_seq_length=160):
         self.task_name = task_name
-        self.data_dir = data_dir + task_name + '/'
+        self.data_dir = data_dir 
         self.max_src_length, self.max_tgt_length = src_seq_length, tgt_seq_length
         self.dataset_type = dataset_type
         self.tokenizer = tokenizer

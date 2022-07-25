@@ -50,6 +50,7 @@ pip install -U flagai
 
 ```shell
 git clone https://github.com/BAAI-Open/FlagAI.git
+cd FlagAI
 python setup.py install
 ```
 

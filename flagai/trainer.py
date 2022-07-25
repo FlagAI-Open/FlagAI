@@ -965,7 +965,7 @@ class Trainer():
                 all_losses = self._gather_all_mpu(all_losses)
 
             if all_losses.device != torch.device('cpu'):
-                all_losses = all_losses.cpu().detach().numpy()[0]
+                all_losses = all_losses.mean().cpu().detach().numpy()
 
             for i in range(len(self.metric_methods)):
                 eval_method = self.metric_methods[i][1]
