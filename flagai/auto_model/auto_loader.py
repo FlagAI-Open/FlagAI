@@ -54,26 +54,37 @@ ALL_TASK = {
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "opt_seq2seq": ("flagai.model.opt_model","OPTModel"),
     "opt_lm": ("flagai.model.opt_model","OPTModel"),
+    "vit_classification": ("flagai.model.vision.vit", "VisionTransformer")
+
 }
 
 MODEL_DICT = {
-    "bert-base-en": ["flagai.model.bert_model", "BertModel", "bert"],
-    "roberta-base-ch": ["flagai.model.bert_model", "BertModel", "bert"],
-    "t5-base-en": ["flagai.model.t5_model", "T5Model", "t5"],
-    "t5-base-ch": ["flagai.model.t5_model", "T5Model", "t5"],
-    "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
-    "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm"],
-    "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2"],
-    "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm"],
-    "opt-125m-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-350m-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-1.3b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-2.7b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-6.7b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt"],
-    "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm"],
+    "bert-base-en": ["flagai.model.bert_model", "BertModel", "bert", "nlp"],
+    "roberta-base-ch": ["flagai.model.bert_model", "BertModel", "bert", "nlp"],
+    "t5-base-en": ["flagai.model.t5_model", "T5Model", "t5", "nlp"],
+    "t5-base-ch": ["flagai.model.t5_model", "T5Model", "t5", "nlp"],
+    "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
+    "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm", "nlp"],
+    "opt-125m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-350m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-1.3b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-2.7b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-6.7b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+
+    "vit-base-p16-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p16-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
 }
 
 TOKENIZER_DICT = {
@@ -95,19 +106,16 @@ TOKENIZER_DICT = {
     ],
     "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
     "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
-    "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
-    "opt-350m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
-    "opt-1.3b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
-    "opt-2.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
-    "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
-    "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
-    "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
-    "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer", "OPTTokenizer"],
 
+    "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-350m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-1.3b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-2.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
 }
-
-
-
 
 class AutoLoader:
 
@@ -155,6 +163,8 @@ class AutoLoader:
             return
 
         brief_model_name = MODEL_DICT[model_name][2]
+        model_type = MODEL_DICT[model_name][3]
+
         # The dir to save config, vocab and model.
 
         self.model_name = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
