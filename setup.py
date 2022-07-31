@@ -9,9 +9,9 @@ setup(
     description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    author="BAAI-Open",
+    author="FlagAI-Open",
     author_email="open@baai.ac.cn",
-    url="https://github.com/BAAI-Open/FlagAI",
+    url="https://github.com/FlagAI-Open/FlagAI",
     packages=find_packages(exclude="tests"),  # same as name
     license="Apache 2.0",
     include_package_data=True,

@@ -1,7 +1,7 @@
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
-[![Python application](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml)
-![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/BAAI-Open/FlagAI?include_prereleases&style=social)
+[![Python application](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml)
+![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/FlagAI-Open/FlagAI?include_prereleases&style=social)
 [简体中文](README_zh.md)
 
 --------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ pip install -U flagai
 - [Optional]To install FlagAI and develop locally:
 
 ```shell
-git clone https://github.com/BAAI-Open/FlagAI.git
+git clone https://github.com/FlagAI-Open/FlagAI.git
 python setup.py install
 ```
 
@@ -153,7 +153,7 @@ We provide a set of quick tutorials to get you started with the library:
 
 Thanks for your interest in contributing! There are many ways to get involved;
 start with our [contributor guidelines](CONTRIBUTING.md) and then
-check these [open issues](https://github.com/BAAI-Open/FlagAI/issues) for specific tasks.
+check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
 
 ## Contact us
 
