@@ -1,35 +1,44 @@
+import torch
 import sys
 sys.path.append("/mnt/wchh/FlagAI-internal")
-import torch
 from PIL import Image
-from flagai.model.clip_model import CLIP
-from flagai.data.transform import image_transform #文件位置待确定
-from flagai.data.tokenizer.clip import tokenizer
-import os
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
+from flagai.auto_model.auto_loader import AutoLoader
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# dir = "/root/.cache/clip"#'/mnt/clip_models/ViT-B-32'
-dir = "/mnt/clip_models/ViT-B-32"
+
+loader = AutoLoader(task_name="cl", #contrastive learning
+                    model_name="clip-base-p32-224",
+                    model_dir="/mnt/clip_models/")
+
+model = loader.get_model()
+model.eval()
+model.to(device)
+tokenizer = loader.get_tokenizer()
+n_px = model.image_size
+print(n_px)
+def _convert_image_to_rgb(image):
+    return image.convert("RGB")
+image_transform = Compose([
+    Resize(n_px, interpolation=Image.BICUBIC),
+    CenterCrop(n_px),
+    _convert_image_to_rgb,
+    ToTensor(),
+    Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
+])
 
 def test_inference():
-    model = CLIP.init_from_json(os.path.join(dir,"config.json")).to(device)
-    preprocess = image_transform(model.visual.image_size, is_train=False)
-
-    model_path = os.path.join(dir, "pytorch_model.bin")
-
-    model.load_state_dict(torch.load(model_path), strict=False)
-
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-
-    image = preprocess(Image.open(current_dir + "CLIP.png")).unsqueeze(0).to(device)
+    image = Image.open("./CLIP.png")
+    image = image_transform(image).unsqueeze(0).to(device)
     text = tokenizer.tokenize(["a diagram", "a dog", "a cat"]).to(device)
 
+    import  numpy as np
     with torch.no_grad():
         image_features = model.encode_image(image)
         text_features = model.encode_text(text)
+        text_probs = (image_features @ text_features.T).softmax(dim=-1)
 
-        text_probs = (100.0 * image_features @ text_features.T)
-    print(text_probs)
-    assert text_probs.cpu().numpy()[0].tolist() == [1.0, 0.0, 0.0]
+    print(text_probs.cpu().numpy()[0].tolist())
 
 if __name__=="__main__":
     test_inference()

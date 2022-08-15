@@ -6,6 +6,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 import logging
 import math
+from tkinter.messagebox import NO
 from typing import Tuple, Union, Callable, Optional
 
 import numpy as np
@@ -16,8 +17,6 @@ from torch.utils.checkpoint import checkpoint
 
 from .utils import to_2tuple
 from flagai.model.base_model import BaseModel
-
-
 
 # contrastive loss function, adapted from
 # https://sachinruk.github.io/blog/pytorch/pytorch%20lightning/loss%20function/gpu/2021/03/07/CLIP.html
@@ -112,9 +111,6 @@ class AttentionPool2d(nn.Module):
         )
 
         return x[0]
-
-
-
 
 class LayerNorm(nn.LayerNorm):
     """Subclass torch's LayerNorm to handle fp16."""
@@ -296,7 +292,7 @@ class CLIP(BaseModel):
             heads=text_cfg.heads,
             act_layer=act_layer,
         )
-
+        self.image_size = vision_cfg.image_size
         self.vocab_size = text_cfg.vocab_size
         self.token_embedding = nn.Embedding(text_cfg.vocab_size, text_cfg.width)
         self.positional_embedding = nn.Parameter(torch.empty(self.context_length, text_cfg.width))
@@ -346,6 +342,11 @@ class CLIP(BaseModel):
         self.transformer.grad_checkpointing = enable
 
     def encode_image(self, image):
+        if image is not None:
+            # support fp16
+            if next(self.parameters())[0].dtype == torch.float16:
+                if image.dtype == torch.float32:
+                    image = image.half()
         return self.visual(image)
 
     def encode_text(self, text):
@@ -364,27 +365,19 @@ class CLIP(BaseModel):
         return x
 
     def forward(self, **data):
-        image = data.get("image", None)
-        text = data.get("text", None)
-        if image is not None:
-            # support fp16
-            if next(self.visual.parameters())[0].dtype == torch.float16:
-                image = image.half()
-        if image is None:
-            return {"logits": self.encode_text(text)}
-        elif text is None:
-            return {"logits": self.encode_image(image)}
-
-        image_features = self.encode_image(image)
+        if "image" not in data:
+            return {"logits": self.encode_text(data["text"])}
+        elif "text" not in data:
+            return {"logits": self.encode_image(data["image"])}
+        image_features = self.encode_image(data["image"])
         image_features = F.normalize(image_features, dim=-1)
-        text_features = self.encode_text(text)
+        text_features = self.encode_text(data["text"])
         text_features = F.normalize(text_features, dim=-1)
         loss = self.compute_loss(image_features, text_features)
         logits = torch.cat([image_features, text_features], dim=1)
 
         return {"logits": logits,
-                "loss": loss,
-                "logit_scale": self.logit_scale.exp()}
+                "loss": loss}
 
     def compute_loss(self, image_features, text_features):
         # cosine similarity as logits

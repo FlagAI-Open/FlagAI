@@ -1,30 +1,58 @@
 import sys
+sys.path.append("/mnt/wchh/FlagAI-internal")
 import torch
 from PIL import Image
-from flagai.model.clip_model import CLIP
-from flagai.data.transform import image_transform #文件位置待确定
 from flagai.data.tokenizer.clip import tokenizer
 import os
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import pandas as pd
+from flagai.trainer import Trainer
+from flagai.auto_model.auto_loader import AutoLoader
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-dir = "/mnt/clip_models/ViT-B-32"
-data_path = "/mnt/datasets/multimodal/ConceptualCaptions/Train_GCC-training_output.csv"
-image_path = "/mnt/datasets/multimodal/ConceptualCaptions/"
+# cd examples/clip
+data_path = "./data/pairs.csv"
+img_dir = "./data/img"
 
-def get_image_transform(image_size, mean=None, std=None):
-    preprocess_train = image_transform(image_size, is_train=True, mean=mean, std=std)
-    preprocess_val = image_transform(image_size, is_train=False, mean=mean, std=std)
-    return preprocess_train, preprocess_val
+trainer = Trainer(env_type="pytorch",
+                  epochs=5,
+                  pytorch_device=device,
+                  batch_size=64,
+                  lr=1e-4,
+                  log_interval=10,
+                  eval_interval=100,
+                  )
+
+# trainer = Trainer(env_type="pytorchDDP",
+#                   epochs=5,
+#                   pytorch_device=device,
+#                   batch_size=4,
+#                   lr=1e-4,
+#                   log_interval=10,
+#                   eval_interval=100,
+#                   num_gpus=2,
+#                   )
+def _convert_image_to_rgb(image):
+    return image.convert("RGB")
+def build_dataset(n_px):
+    transform_train = Compose([
+    Resize(n_px, interpolation=Image.BICUBIC),
+    CenterCrop(n_px),
+    _convert_image_to_rgb,
+    ToTensor(),
+    Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
+])
+    # only training
+    train_dataset = CsvDataset(data_path, transform_train, "filepath", "title")
+
+    return train_dataset
 
 class CsvDataset(Dataset):
     def __init__(self, input_filename, transforms, img_key, caption_key, sep="\t"):
         print(f'Loading csv data from {input_filename}.')
         df = pd.read_csv(input_filename, sep=sep)
-        for i, row in df.iterrows():
-            print(row)
-        self.images = df[img_key].tolist()
+        self.img_names = df[img_key].tolist()
         self.captions = df[caption_key].tolist()
         self.transforms = transforms
         print('Done loading data.')
@@ -33,29 +61,31 @@ class CsvDataset(Dataset):
         return len(self.captions)
 
     def __getitem__(self, idx):
-        images = self.transforms(Image.open(os.path.join(image_path, str(self.images[idx]))))
+        image = Image.open(os.path.join(img_dir, str(self.img_names[idx])))
+        images = self.transforms(image)
         texts = tokenizer.tokenize([str(self.captions[idx])])[0]
         return images, texts
 
+def collate_fn(batch):
+    images = [b[0] for b in batch]
+    texts = [b[1] for b in batch]
+    images = torch.stack(images, dim=0).float()
+    texts = torch.stack(texts, dim=0).long()
+    return {
+        "image": images,
+        "text": texts
+    }
 
-model = CLIP.init_from_json(os.path.join(dir,"config.json")).to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-3)
+loader = AutoLoader(task_name="cl",#contrastive learning
+                    model_name="clip-base-p32-224",
+                    model_dir="/mnt/clip_models/")
+model = loader.get_model()
+tokenizer = loader.get_tokenizer()
 
-train_transform, val_transform = get_image_transform(224)
-dataset = CsvDataset(data_path, train_transform, "filepath", "title")
-dataloader = DataLoader(dataset, batch_size=4, shuffle=True,)
-
-for image, text in dataloader:
-    print(image.shape)
-    print(text.shape)
-    image = image.to(device)
-    text = text.to(device)
-    optimizer.zero_grad()
-    model_out = model(**{"image": image, "text": text})
-    loss = model_out["loss"]
-    print(f"loss is {loss}")
-    loss.backward()
-    optimizer.step()
-
-
+train_dataset = build_dataset(model.image_size)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+trainer.train(model,
+              optimizer=optimizer,
+              train_dataset=train_dataset,
+              collate_fn=collate_fn)
 

@@ -65,7 +65,7 @@ def whitespace_clean(text):
     return text
 
 
-class SimpleTokenizer(object):
+class ClipTokenizer(object):
     def __init__(self, bpe_path: str = default_bpe(), special_tokens=None):
         self.byte_encoder = bytes_to_unicode()
         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
@@ -145,36 +145,32 @@ class SimpleTokenizer(object):
         text = bytearray([self.byte_decoder[c] for c in text]).decode('utf-8', errors="replace").replace('</w>', ' ')
         return text
 
+    def tokenize(self, texts: Union[str, List[str]], context_length: int = 77) -> torch.LongTensor:
+        """
+        Returns the tokenized representation of given input string(s)
 
-_tokenizer = SimpleTokenizer()
+        Parameters
+        ----------
+        texts : Union[str, List[str]]
+            An input string or a list of input strings to tokenize
+        context_length : int
+            The context length to use; all CLIP models use 77 as the context length
 
+        Returns
+        -------
+        A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]
+        """
+        if isinstance(texts, str):
+            texts = [texts]
 
-def tokenize(texts: Union[str, List[str]], context_length: int = 77) -> torch.LongTensor:
-    """
-    Returns the tokenized representation of given input string(s)
+        sot_token = self.encoder["<start_of_text>"]
+        eot_token = self.encoder["<end_of_text>"]
+        all_tokens = [[sot_token] + self.encode(text) + [eot_token] for text in texts]
+        result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 
-    Parameters
-    ----------
-    texts : Union[str, List[str]]
-        An input string or a list of input strings to tokenize
-    context_length : int
-        The context length to use; all CLIP models use 77 as the context length
+        for i, tokens in enumerate(all_tokens):
+            if len(tokens) > context_length:
+                tokens = tokens[:context_length]  # Truncate
+            result[i, :len(tokens)] = torch.tensor(tokens)
 
-    Returns
-    -------
-    A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]
-    """
-    if isinstance(texts, str):
-        texts = [texts]
-
-    sot_token = _tokenizer.encoder["<start_of_text>"]
-    eot_token = _tokenizer.encoder["<end_of_text>"]
-    all_tokens = [[sot_token] + _tokenizer.encode(text) + [eot_token] for text in texts]
-    result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
-
-    for i, tokens in enumerate(all_tokens):
-        if len(tokens) > context_length:
-            tokens = tokens[:context_length]  # Truncate
-        result[i, :len(tokens)] = torch.tensor(tokens)
-
-    return result
+        return result
