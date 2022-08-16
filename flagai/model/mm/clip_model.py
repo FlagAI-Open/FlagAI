@@ -4,20 +4,23 @@ Adapted from https://github.com/openai/CLIP. Originally MIT License, Copyright (
 """
 from collections import OrderedDict
 from dataclasses import dataclass
-import logging
-import math
-from tkinter.messagebox import NO
 from typing import Tuple, Union, Callable, Optional
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.utils.checkpoint import checkpoint
+import os 
+if os.getenv('ENV_TYPE') == 'deepspeed':
+    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+elif os.getenv('ENV_TYPE') == 'pytorch' or os.getenv('ENV_TYPE') == 'pytorchDDP':
+    from torch.utils.checkpoint import checkpoint
+else :
+    print(f"not support the {os.getenv('ENV_TYPE')} for checkpoint activation")
 
 from .utils import to_2tuple
 from flagai.model.base_model import BaseModel
-
+from ..layers.activations import QuickGELUActivation # NOTE This is slower than nn.GELU or nn.SiLU and uses more GPU memory
 # contrastive loss function, adapted from
 # https://sachinruk.github.io/blog/pytorch/pytorch%20lightning/loss%20function/gpu/2021/03/07/CLIP.html
 def contrastive_loss(logits: torch.Tensor) -> torch.Tensor:
@@ -28,90 +31,6 @@ def clip_loss(similarity: torch.Tensor) -> torch.Tensor:
     image_loss = contrastive_loss(similarity.T)
     return (caption_loss + image_loss) / 2.0
 
-class Bottleneck(nn.Module):
-    expansion = 4
-
-    def __init__(self, inplanes, planes, stride=1):
-        super().__init__()
-
-        # all conv layers have stride 1. an avgpool is performed after the second convolution when stride > 1
-        self.conv1 = nn.Conv2d(inplanes, planes, 1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.relu1 = nn.ReLU(inplace=True)
-
-        self.conv2 = nn.Conv2d(planes, planes, 3, padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
-        self.relu2 = nn.ReLU(inplace=True)
-
-        self.avgpool = nn.AvgPool2d(stride) if stride > 1 else nn.Identity()
-
-        self.conv3 = nn.Conv2d(planes, planes * self.expansion, 1, bias=False)
-        self.bn3 = nn.BatchNorm2d(planes * self.expansion)
-        self.relu3 = nn.ReLU(inplace=True)
-
-        self.downsample = None
-        self.stride = stride
-
-        if stride > 1 or inplanes != planes * Bottleneck.expansion:
-            # downsampling layer is prepended with an avgpool, and the subsequent convolution has stride 1
-            self.downsample = nn.Sequential(OrderedDict([
-                ("-1", nn.AvgPool2d(stride)),
-                ("0", nn.Conv2d(inplanes, planes * self.expansion, 1, stride=1, bias=False)),
-                ("1", nn.BatchNorm2d(planes * self.expansion))
-            ]))
-
-    def forward(self, x: torch.Tensor):
-        identity = x
-
-        out = self.relu1(self.bn1(self.conv1(x)))
-        out = self.relu2(self.bn2(self.conv2(out)))
-        out = self.avgpool(out)
-        out = self.bn3(self.conv3(out))
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out += identity
-        out = self.relu3(out)
-        return out
-
-
-class AttentionPool2d(nn.Module):
-    def __init__(self, spacial_dim: int, embed_dim: int, num_heads: int, output_dim: int = None):
-        super().__init__()
-        self.positional_embedding = nn.Parameter(torch.randn(spacial_dim ** 2 + 1, embed_dim) / embed_dim ** 0.5)
-        self.k_proj = nn.Linear(embed_dim, embed_dim)
-        self.q_proj = nn.Linear(embed_dim, embed_dim)
-        self.v_proj = nn.Linear(embed_dim, embed_dim)
-        self.c_proj = nn.Linear(embed_dim, output_dim or embed_dim)
-        self.num_heads = num_heads
-
-    def forward(self, x):
-        x = x.reshape(x.shape[0], x.shape[1], x.shape[2] * x.shape[3]).permute(2, 0, 1)  # NCHW -> (HW)NC
-        x = torch.cat([x.mean(dim=0, keepdim=True), x], dim=0)  # (HW+1)NC
-        x = x + self.positional_embedding[:, None, :].to(x.dtype)  # (HW+1)NC
-        x, _ = F.multi_head_attention_forward(
-            query=x, key=x, value=x,
-            embed_dim_to_check=x.shape[-1],
-            num_heads=self.num_heads,
-            q_proj_weight=self.q_proj.weight,
-            k_proj_weight=self.k_proj.weight,
-            v_proj_weight=self.v_proj.weight,
-            in_proj_weight=None,
-            in_proj_bias=torch.cat([self.q_proj.bias, self.k_proj.bias, self.v_proj.bias]),
-            bias_k=None,
-            bias_v=None,
-            add_zero_attn=False,
-            dropout_p=0,
-            out_proj_weight=self.c_proj.weight,
-            out_proj_bias=self.c_proj.bias,
-            use_separate_proj_weight=True,
-            training=self.training,
-            need_weights=False
-        )
-
-        return x[0]
-
 class LayerNorm(nn.LayerNorm):
     """Subclass torch's LayerNorm to handle fp16."""
 
@@ -119,13 +38,6 @@ class LayerNorm(nn.LayerNorm):
         orig_type = x.dtype
         x = F.layer_norm(x, self.normalized_shape, self.weight, self.bias, self.eps)
         return x.to(orig_type)
-
-
-class QuickGELU(nn.Module):
-    # NOTE This is slower than nn.GELU or nn.SiLU and uses more GPU memory
-    def forward(self, x: torch.Tensor):
-        return x * torch.sigmoid(1.702 * x)
-
 
 class ResidualAttentionBlock(nn.Module):
     def __init__(self, d_model: int, n_head: int, mlp_ratio: float = 4.0, act_layer: Callable = nn.GELU):
@@ -247,8 +159,6 @@ class CLIPTextCfg:
     layers: int = 12
     checkpoint_activations: bool = False
 
-
-
 class CLIP(BaseModel):
     def __init__(self, config, **kwargs):
         """
@@ -272,7 +182,7 @@ class CLIP(BaseModel):
         # OpenAI models are pretrained w/ QuickGELU but native nn.GELU is both faster and more
         # memory efficient in recent PyTorch releases (>= 1.10).
         # NOTE: timm models always use native GELU regardless of quick_gelu flag.
-        act_layer = QuickGELU if quick_gelu else nn.GELU
+        act_layer = QuickGELUActivation if quick_gelu else nn.GELU
         
         vision_heads = vision_cfg.width // vision_cfg.head_width
         self.visual = VisualTransformer(
@@ -391,130 +301,3 @@ class CLIP(BaseModel):
         self.load_state_dict(torch.load(checkpoint_path,
                                         map_location="cpu"),
                              strict=False)
-
-def convert_weights_to_fp16(model: nn.Module):
-    """Convert applicable model parameters to fp16"""
-
-    def _convert_weights_to_fp16(l):
-        if isinstance(l, (nn.Conv1d, nn.Conv2d, nn.Linear)):
-            l.weight.data = l.weight.data.half()
-            if l.bias is not None:
-                l.bias.data = l.bias.data.half()
-
-        if isinstance(l, nn.MultiheadAttention):
-            for attr in [*[f"{s}_proj_weight" for s in ["in", "q", "k", "v"]], "in_proj_bias", "bias_k", "bias_v"]:
-                tensor = getattr(l, attr)
-                if tensor is not None:
-                    tensor.data = tensor.data.half()
-
-        for name in ["text_projection", "proj"]:
-            if hasattr(l, name):
-                attr = getattr(l, name)
-                if attr is not None:
-                    attr.data = attr.data.half()
-
-    model.apply(_convert_weights_to_fp16)
-
-
-def build_model_from_openai_state_dict(state_dict: dict):
-    vit = "visual.proj" in state_dict
-
-    if vit:
-        vision_width = state_dict["visual.conv1.weight"].shape[0]
-        vision_layers = len(
-            [k for k in state_dict.keys() if k.startswith("visual.") and k.endswith(".attn.in_proj_weight")])
-        vision_patch_size = state_dict["visual.conv1.weight"].shape[-1]
-        grid_size = round((state_dict["visual.positional_embedding"].shape[0] - 1) ** 0.5)
-        image_size = vision_patch_size * grid_size
-    else:
-        counts: list = [
-            len(set(k.split(".")[2] for k in state_dict if k.startswith(f"visual.layer{b}"))) for b in [1, 2, 3, 4]]
-        vision_layers = tuple(counts)
-        vision_width = state_dict["visual.layer1.0.conv1.weight"].shape[0]
-        output_width = round((state_dict["visual.attnpool.positional_embedding"].shape[0] - 1) ** 0.5)
-        vision_patch_size = None
-        assert output_width ** 2 + 1 == state_dict["visual.attnpool.positional_embedding"].shape[0]
-        image_size = output_width * 32
-
-    embed_dim = state_dict["text_projection"].shape[1]
-    context_length = state_dict["positional_embedding"].shape[0]
-    vocab_size = state_dict["token_embedding.weight"].shape[0]
-    transformer_width = state_dict["ln_final.weight"].shape[0]
-    transformer_heads = transformer_width // 64
-    transformer_layers = len(set(k.split(".")[2] for k in state_dict if k.startswith(f"transformer.resblocks")))
-
-    vision_cfg = CLIPVisionCfg(
-        layers=vision_layers,
-        width=vision_width,
-        patch_size=vision_patch_size,
-        image_size=image_size,
-    )
-    text_cfg = CLIPTextCfg(
-        context_length=context_length,
-        vocab_size=vocab_size,
-        width=transformer_width,
-        heads=transformer_heads,
-        layers=transformer_layers
-    )
-    model = CLIP(
-        embed_dim,
-        vision_cfg=vision_cfg,
-        text_cfg=text_cfg,
-        quick_gelu=True,  # OpenAI models were trained with QuickGELU
-    )
-
-    for key in ["input_resolution", "context_length", "vocab_size"]:
-        state_dict.pop(key, None)
-
-    convert_weights_to_fp16(model)
-    model.load_state_dict(state_dict)
-    return model.eval()
-
-
-def trace_model(model, batch_size=256, device=torch.device('cpu')):
-    model.eval()
-    image_size = model.visual.image_size
-    example_images = torch.ones((batch_size, 3, image_size, image_size), device=device)
-    example_text = torch.zeros((batch_size, model.context_length), dtype=torch.int, device=device)
-    model = torch.jit.trace_module(
-        model,
-        inputs=dict(
-            forward=(example_images, example_text),
-            encode_text=(example_text,),
-            encode_image=(example_images,)
-        ))
-    model.visual.image_size = image_size
-    return model
-
-
-def resize_pos_embed(state_dict, model, interpolation: str = 'bicubic', seq_dim=1):
-    # Rescale the grid of position embeddings when loading from state_dict
-    old_pos_embed = state_dict.get('visual.positional_embedding', None)
-    if old_pos_embed is None or not hasattr(model.visual, 'grid_size'):
-        return
-    grid_size = to_2tuple(model.visual.grid_size)
-    extra_tokens = 1  # FIXME detect different token configs (ie no class token, or more)
-    new_seq_len = grid_size[0] * grid_size[1] + extra_tokens
-    if new_seq_len == old_pos_embed.shape[0]:
-        return
-
-    if extra_tokens:
-        pos_emb_tok, pos_emb_img = old_pos_embed[:extra_tokens], old_pos_embed[extra_tokens:]
-    else:
-        pos_emb_tok, pos_emb_img = None, old_pos_embed
-    old_grid_size = to_2tuple(int(math.sqrt(len(pos_emb_img))))
-
-    logging.info('Resizing position embedding grid-size from %s to %s', old_grid_size, grid_size)
-    pos_emb_img = pos_emb_img.reshape(1, old_grid_size[0], old_grid_size[1], -1).permute(0, 3, 1, 2)
-    pos_emb_img = F.interpolate(
-        pos_emb_img,
-        size=grid_size,
-        mode=interpolation,
-        align_corners=True,
-    )
-    pos_emb_img = pos_emb_img.permute(0, 2, 3, 1).reshape(1, grid_size[0] * grid_size[1], -1)[0]
-    if pos_emb_tok is not None:
-        new_pos_embed = torch.cat([pos_emb_tok, pos_emb_img], dim=0)
-    else:
-        new_pos_embed = pos_emb_img
-    state_dict['visual.positional_embedding'] = new_pos_embed

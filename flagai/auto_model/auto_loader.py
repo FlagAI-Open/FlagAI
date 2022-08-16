@@ -54,7 +54,7 @@ ALL_TASK = {
     "opt_seq2seq": ("flagai.model.opt_model","OPTModel"),
     "opt_lm": ("flagai.model.opt_model","OPTModel"),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
-    "clip_cl": ("flagai.model.mm.clip_model", "CLIP"),
+    "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -86,7 +86,10 @@ MODEL_DICT = {
     "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
 
-    "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"]
+    "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"]
 }
 
 # 2 columns : 1-package name,  2-class name
@@ -118,7 +121,10 @@ TOKENIZER_DICT = {
     "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
     "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
 
-    "clip-base-p32-224":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"]
+    "clip-base-p32-224":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"],
+    "clip-base-p16-224":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"],
+    "clip-large-p14-224":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"],
+    "clip-large-p14-336":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"]
 
 }
 
@@ -198,7 +204,11 @@ class AutoLoader:
                                  device=device,
                                  **kwargs)
 
-        model_id = _get_model_id(model_name)
+        try:
+            model_id = _get_model_id(model_name)
+        except:
+            print("Model hub is not reachable!")
+            model_id = -1
 
         print("*"*20, task_name, model_id, model_name)
         if model_type == "nlp":
@@ -242,7 +252,6 @@ class AutoLoader:
             tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
                                       tokenizer_class[1])
             if brief_model_name == "clip":
-                model_id = _get_model_id(model_name)
                 vocab_file = os.path.join(download_path, 'bpe_simple_vocab_16e6.txt.gz')
                 if not os.path.exists(vocab_file):
                     vocab_file = _get_vocab_path(download_path, "bpe_simple_vocab_16e6.txt.gz", model_id)
