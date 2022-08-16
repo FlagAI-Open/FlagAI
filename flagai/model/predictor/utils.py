@@ -670,7 +670,7 @@ def glm_beamsearch(model, tokenizer, text, out_max_length, beam_size):  #
 def bert_beamsearch(model, tokenizer, text, input_max_length, out_max_length,
                     beam_size):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
-    vocab = tokenizer.vocab
+    vocab = tokenizer.text_tokenizer.vocab
     token_ids = tokenizer_out["input_ids"]
     token_ids = np.array(token_ids).reshape(1, -1)
     out_puts_ids = bert_beam_search(model,

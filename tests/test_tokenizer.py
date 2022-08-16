@@ -45,7 +45,7 @@ class TokenizerTestCase(unittest.TestCase):
                          [3, 7704, 3832, 656, 140, 1095], '')
         self.assertEqual(tokenizer.DecodeIds([3, 7704, 3832, 656, 140, 1095]),
                          'fried chicken makes me happy', 'DecodeIds Error')
-    # #
+    # # #
     def test_tokenizer_roberta(self):
         tokenizer = ROBERTATokenizer(tokenizer_model_type='roberta-base')
         self.assertEqual(tokenizer.TokenToId("day"), 1208, '')
@@ -71,8 +71,8 @@ class TokenizerTestCase(unittest.TestCase):
         tokenizer = loader.get_tokenizer()
         self.assertEqual(tokenizer.encode("day"), [8, 8275], '')
         self.assertEqual(tokenizer.encode("fried chicken makes me happy"),
-                         [2487, 27385, 8, 10, 9291, 9412, 3531, 8, 10, 14588, 289, 8, 10, 4406, 8, 10, 25239], '')
-        self.assertEqual(tokenizer.decode([2487, 27385, 8, 10, 9291, 9412, 3531, 8, 10, 14588, 289, 8, 10, 4406, 8, 10, 25239]),
+                         [2487, 27385, 9291, 9412, 3531, 14588, 289, 4406, 25239], '')
+        self.assertEqual(tokenizer.decode([2487, 27385, 9291, 9412, 3531, 14588, 289, 4406, 25239]),
                          'fried chicken makes me happy', 'DecodeIds Error')
 
     def test_tokenizer_opt(self):

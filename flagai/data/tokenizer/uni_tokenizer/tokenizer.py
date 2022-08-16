@@ -29,6 +29,7 @@ from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer
 from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
 from typing import List, Union, Optional
+import unicodedata
 # import torch
 
 
@@ -91,6 +92,16 @@ from typing import List, Union, Optional
 #         """A list of tokens => recovered text string"""
 #         return self.text_tokenizer.convert_tokens_to_string(tokens)
 
+def is_control(ch):
+    """控制类字符判断
+    https://en.wikipedia.org/wiki/Control_character
+    https://www.fileformat.info/info/unicode/category/Cc/index.htm
+    https://www.fileformat.info/info/unicode/category/Cf/index.htm
+    
+    """
+    return unicodedata.category(ch) in ('Cc', 'Cf')
+
+
 
 class Tokenizer(BaseTokenizer):
     def __init__(self,
@@ -110,6 +121,7 @@ class Tokenizer(BaseTokenizer):
             self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
         else:
             raise NotImplementedError("cannot assign a tokenize class")
+
         self.is_glm = self.tokenizer_model_name.startswith('GLM')
         self.num_tokens = self.text_tokenizer.vocab_size
 
@@ -324,6 +336,29 @@ class Tokenizer(BaseTokenizer):
     def get_command_id(self, name):
         """get command token corresponding to `name`"""
         return self.command_name_map[name].Id
+    
+    def rematch(self, text, tokens):
+        text = text.lower()
+
+        normalized_text, char_mapping = '', []
+        for i, ch in enumerate(text):
+            if True:
+                ch = unicodedata.normalize('NFD', ch)
+                ch = ''.join([c for c in ch if unicodedata.category(c) != 'Mn'])
+            ch = ''.join([
+                c for c in ch
+                if not (ord(c) == 0 or ord(c) == 0xfffd or is_control(c))
+            ])
+            normalized_text += ch
+            char_mapping.extend([i] * len(ch))
+
+        text, token_mapping, offset = normalized_text, [], 0
+        for token in tokens:
+            start = text[offset:].index(token) + offset
+            end = start + len(token)
+            token_mapping.append(char_mapping[start:end])
+            offset = end
+        return token_mapping
 
     def _encode(self, text):
         tokens = self.text_tokenizer.tokenize(text)
