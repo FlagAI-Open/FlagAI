@@ -305,6 +305,111 @@ def change_pytorch_model_mp_from_1_to_n_new(model_name_brief, checkpoint: str, t
                 torch.save(d_new, filename)
 
 
+def change_pytorch_model_mp_from_n_to_1(model_name_brief, checkpoint):
+    #model merge
+    trans_keys = from_1_to_n_models.get(model_name_brief, None)
+    if trans_keys is None:
+        print(f"Not support the model_name: {model_name_brief}")
+        os._exit(0)
+
+    assert os.path.isdir(checkpoint)
+    filenames = os.listdir(checkpoint)
+    filenames = [
+        filename for filename in filenames
+        if filename.startswith("pytorch_model")
+    ]
+
+    filenames = sorted(filenames)
+    if 'pytorch_model.bin' in filenames:
+        print("no need to merge")
+        exit(0)
+
+    filenames = [os.path.join(checkpoint, x) for x in filenames]
+
+    if checkpoint[-1] == '/':
+        new_checkpoint = checkpoint[:-1]
+    else:
+        new_checkpoint = checkpoint
+
+    preserve_keys = [
+        "lr_scheduler",
+        "skipped_steps",
+        "global_steps",
+        "global_samples",
+        "dp_world_size",
+        "iteration",
+        "client_lr_scheduler",
+        "np_rng_state",
+        "random_rng_state",
+        "torch_rng_state",
+        "cuda_rng_state",
+        "rng_tracker_states",
+    ]
+
+    print("Decrease MP size.")
+    ratio = len(filenames)
+    for i in range(1):
+        start = ratio * i
+        end = ratio * (i + 1)
+        d = torch.load(filenames[start], map_location='cpu')
+
+        if "module" in d:
+            d = d["module"]
+
+        for j in range(start+1, end):
+            d_new = torch.load(filenames[j], map_location='cpu')
+            if "module" in d_new:
+                d_new = d_new["module"]
+
+                for k, v in d_new.items():
+                    assert len(v.shape) < 3
+                    for keys in trans_keys:
+                        if keys in k:
+                            # find a key to concat
+                            dim = trans_keys[keys]
+                            if len(v.shape) == 2:
+                                if dim == 30:
+                                    size_1 = d[k].shape[0] // 3
+                                    size_2 = v.shape[0] // 3
+                                    target = d[k]
+                                    d[k] = torch.cat([
+                                        target[:size_1, :], v[:size_2, :],
+                                        target[size_1:size_1 * 2, :],
+                                        v[size_2:size_2 * 2, :], target[size_1 * 2:, :],
+                                        v[size_2 * 2:, :]
+                                    ], 0)
+                                    break
+
+                                elif dim == 0:
+                                    d[k] = torch.cat([d[k], v], 0)
+                                    break
+
+                                elif dim == 1:
+                                    d[k] = torch.cat([d[k], v], 1)
+                                    break
+
+                            elif len(v.shape) == 1:
+                                if dim == 30:
+                                    size_1 = d[k].shape[0] // 3
+                                    size_2 = v.shape[0] // 3
+                                    target = d[k]
+                                    d[k] = torch.cat([
+                                        target[:size_1], v[:size_2], target[size_1:size_1 * 2],
+                                        v[size_2:size_2 * 2], target[size_1 * 2:],
+                                        v[size_2 * 2:]
+                                    ], 0)
+
+                                    break
+
+                                else :
+                                    d[k] = torch.cat([d[k], v], 0)
+                                    break
+
+        filename = os.path.join(new_checkpoint,
+                                "pytorch_model.bin")
+        print(f"merge succeed: {filename}")
+        torch.save(d, filename)
+
 if __name__ == "__main__":
     change_pytorch_model_mp_from_1_to_n(
         '/mnt/test_10b_models/state_dict/GLM-10b-en', 2)
