@@ -54,6 +54,7 @@ def read_file():
 
     return src, tgt
 
+# t5-11b is not uploaded to modelhub yet. Since it shares tokenizer with T5-base-en, we will get tokenizer here
 tokenizer = Tokenizer.from_pretrained('T5-base-en')
  # path to your downloaded model files is /mnt/t5-11b
 model = T5ForConditionalGeneration.from_pretrain(download_path='/mnt',

@@ -87,35 +87,6 @@ MODEL_DICT = {
     "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
 }
 
-TOKENIZER_DICT = {
-    "bert-base-en": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "roberta-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "t5-base-en": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "t5-base-ch": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "glm-large-ch": [
-        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
-        "GLMLargeChTokenizer"
-    ],
-    "glm-large-en": [
-        "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
-        "GLMLargeEnWordPieceTokenizer"
-    ],
-    "glm-10b-ch": [
-        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
-        "GLMLargeChTokenizer"
-    ],
-    "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
-
-    "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-350m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-1.3b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-2.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-}
 
 class AutoLoader:
 
@@ -177,7 +148,6 @@ class AutoLoader:
             )
             return
 
-
         model_id = _get_model_id(f"{raw_model_name}-{task_name}")
         if model_id != 'null':
             model_name_ = f"{raw_model_name}-{task_name}"
@@ -196,41 +166,6 @@ class AutoLoader:
         model_id = _get_model_id(model_name)
 
         print("*"*20, task_name, model_id, model_name)
-
-        # if "glm" in model_name and "ch" in model_name:
-        #     vocab_file = os.path.join(download_path,'cog-pretrained.model')
-        #
-        #     if not os.path.exists(vocab_file):
-        #         vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
-        # elif "glm" in model_name and "en" in model_name:
-        #     vocab_file = "GLM-large-en"
-        # elif model_name == "cpm-large-ch":
-        #     # two files to load
-        #     vocab_file_1 = os.path.join(download_path, "vocab.json")
-        #     vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
-        #     if not os.path.exists(vocab_file_1):
-        #         vocab_file_1 = _get_vocab_path(download_path, "vocab.json",
-        #                                        model_id)
-        #     if not os.path.exists(vocab_file_2):
-        #         vocab_file_2 = _get_vocab_path(download_path,
-        #                                        "chinese_vocab.model", model_id)
-        # else:
-        #     vocab_file = os.path.join(download_path, 'vocab.txt')
-        #     if not os.path.exists(vocab_file):
-        #         vocab_file = _get_vocab_path(download_path, "vocab.txt",
-        #                                      model_id)
-        # tokenizer_class = TOKENIZER_DICT[model_name]
-        # tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
-        #                             tokenizer_class[1])
-
-        # if model_name == "cpm-large-ch":
-        #     self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
-        # elif brief_model_name == "opt":
-        #     self.tokenizer = tokenizer_class("facebook/opt-350m")
-        # elif model_name in ["glm-large-en", "glm-large-ch"]:
-        #     self.tokenizer = tokenizer_class()
-        # else :
-        #     self.tokenizer = tokenizer_class(vocab_file)
 
         tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
                                     "Tokenizer")
@@ -251,5 +186,4 @@ class AutoLoader:
 
     def load_pretrain_params(self, model_path):
         self.model.load_huggingface_weights(model_path)
-
         print(f"Loading done: {model_path}")
