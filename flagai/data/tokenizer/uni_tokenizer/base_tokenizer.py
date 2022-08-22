@@ -8,7 +8,8 @@ class BaseTokenizer(object):
     @classmethod
     def from_pretrained(cls,
                         tokenizer_model_name,
-                        cache_dir=None, *inputs,
+                        cache_dir=None, 
+                        *inputs,
                         **kwargs):
         """
         Instantiate a PreTrainedBertModel from a pre-trained model file.
@@ -30,8 +31,11 @@ class BaseTokenizer(object):
             files = os.listdir(cache_dir)
             if SP_MODEL_FILE in files:
                 tokenizer_class = "sp"
-            elif VOCAB_JSON_FILE in files and MERGES_FILE in files:
-                tokenizer_class = "bpe"
+            elif MERGES_FILE in files:
+                if VOCAB_JSON_FILE in files:
+                    tokenizer_class = "bpe"
+                else:
+                    tokenizer_class = "mm"
             elif VOCAB_FILE in files:
                 tokenizer_class = "wp"
         if tokenizer_class == "":
@@ -41,16 +45,17 @@ class BaseTokenizer(object):
             if SP_MODEL_FILE in files:
                 tokenizer_class = "sp"
                 _get_vocab_path(cache_dir + '/', SP_MODEL_FILE, model_id, rank=0)
-            elif VOCAB_JSON_FILE in files and MERGES_FILE in files:
+            elif MERGES_FILE in files:
                 tokenizer_class = "bpe"
-                _get_vocab_path(cache_dir + '/', VOCAB_JSON_FILE, model_id, rank=0)
                 _get_vocab_path(cache_dir + '/', MERGES_FILE, model_id, rank=0)
+                if VOCAB_JSON_FILE in files:
+                    _get_vocab_path(cache_dir + '/', VOCAB_JSON_FILE, model_id, rank=0)
             elif VOCAB_FILE in files:
                 tokenizer_class = "wp"
                 _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
             else:
                 raise FileNotFoundError("Error: no tokenizer files")
-        resolved_vocab_json_file = os.path.join(cache_dir, VOCAB_JSON_FILE)
+        resolved_vocab_json_file = os.path.join(cache_dir, VOCAB_JSON_FILE) if VOCAB_JSON_FILE not in files else None
         resolved_vocab_file = os.path.join(cache_dir, VOCAB_FILE)
         resolved_merges_file = os.path.join(cache_dir, MERGES_FILE)
         resolved_sp_file = os.path.join(cache_dir, SP_MODEL_FILE)
@@ -59,7 +64,7 @@ class BaseTokenizer(object):
                        tokenizer_model_name=tokenizer_model_name, cache_dir=cache_dir, *inputs, **kwargs)
         elif tokenizer_class == "bpe":
             return cls(vocab_file=resolved_vocab_json_file, merges_file=resolved_merges_file, tokenizer_class=tokenizer_class,
-                       tokenizer_model_name=tokenizer_model_name, cache_dir=cache_dir, *inputs, **kwargs)
+                    tokenizer_model_name=tokenizer_model_name, cache_dir=cache_dir, *inputs, **kwargs)
         elif tokenizer_class == "sp":
             return cls(sp_model_file=resolved_sp_file, tokenizer_class=tokenizer_class,
                        tokenizer_model_name=tokenizer_model_name, cache_dir=cache_dir, *inputs, **kwargs)

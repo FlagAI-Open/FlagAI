@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 
-from flagai.data.tokenizer import GLMLargeChTokenizer, Tokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.glm_model import GLMForSeq2Seq
 from flagai.trainer import Trainer
 from flagai.data.dataset import ConstructBlockStrategy
