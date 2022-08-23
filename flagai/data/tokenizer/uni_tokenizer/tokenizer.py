@@ -25,7 +25,7 @@ import logging
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
 from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
-from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer
+from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer, MMBPETokenizer
 from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
 from typing import List, Union, Optional
@@ -56,13 +56,17 @@ class Tokenizer(BaseTokenizer):
         if self.tokenizer_class == "wp":
             self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
-            self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
+            if self.tokenizer_model_name.startswith('clip'):
+                self.text_tokenizer = MMBPETokenizer(self.vocab_file, self.merges_file)
+            else:
+                self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
         elif self.tokenizer_class == "sp":
             self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
         else:
             raise NotImplementedError("cannot assign a tokenize class")
 
         self.is_glm = self.tokenizer_model_name.startswith('GLM')
+        # self.is_clip = self.tokenizer_model_name.startswith('clip')
         self.num_tokens = self.text_tokenizer.vocab_size
 
         if self.tokenizer_class == "wp":
@@ -147,6 +151,15 @@ class Tokenizer(BaseTokenizer):
                     ])
                     self.num_tokens += 2
                     self.num_command_tokens += 2
+            elif self.tokenizer_model_name.startswith('clip'):
+                self.num_command_tokens = 2
+                self._command_tokens = [
+                    CommandToken('sot', '<start_of_text>',
+                                 self.text_tokenizer.convert_token_to_id('</s>')),
+                    CommandToken('eot', '<end_of_text>',
+                                 self.text_tokenizer.convert_token_to_id('</s>')),
+                ]
+                self.num_tokens += self.num_command_tokens 
             else:
                 self.num_command_tokens = 2
                 self.num_text_tokens = self.num_tokens - 1
@@ -157,7 +170,7 @@ class Tokenizer(BaseTokenizer):
                                  self.text_tokenizer.convert_token_to_id('<|endoftext|>'))
                 ]
                 if add_block_symbols:
-                    if self.is_glm:
+                    if self.tokenizer_model_name.startswith('GLM'):
                         unk_token_id = self.num_tokens + 5
                         cls_token_id = self.num_tokens + 2
                         num_tokens_to_add = 5
@@ -202,7 +215,7 @@ class Tokenizer(BaseTokenizer):
             self.num_text_tokens = self.text_tokenizer.vocab_size
             self.num_tokens = self.num_text_tokens
 
-            if self.is_glm:
+            if self.tokenizer_model_name.startswith('GLM'):
                 pad_token_id = self.num_tokens
                 eos_token_id = self.num_tokens
                 unk_token_id = self.num_tokens + 4
@@ -553,4 +566,37 @@ class Tokenizer(BaseTokenizer):
                 first_sequence.pop(pop_index)
             else:
                 second_sequence.pop(pop_index)
+
+    def tokenize_as_tensor(self, texts):
+        """
+        Returns the tokenized representation of given input string(s)
+
+        Parameters
+        ----------
+        texts : Union[str, List[str]]
+            An input string or a list of input strings to tokenize
+        context_length : int
+            The context length to use; all CLIP models use 77 as the context length
+
+        Returns
+        -------
+        A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]
+        """
+        sot_token = self.get_command_id('sot')
+        eot_token = self.get_command_id('eot')
+        return self.text_tokenizer.tokenize(texts, sot_token=sot_token, eot_token=eot_token)
+        # if isinstance(texts, str):
+        #     texts = [texts]
+        
+        # sot_token = self.get_command_id('sot')
+        # eot_token = self.get_command_id('eot')
+        # all_tokens = [[sot_token] + self.encode(text) + [eot_token] for text in texts]
+        # result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
+
+        # for i, tokens in enumerate(all_tokens):
+        #     if len(tokens) > context_length:
+        #         tokens = tokens[:context_length]  # Truncate
+        #     result[i, :len(tokens)] = torch.tensor(tokens)
+        # return result
+
 

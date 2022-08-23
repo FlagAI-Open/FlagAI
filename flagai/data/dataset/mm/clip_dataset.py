@@ -43,7 +43,7 @@ class CsvDataset(Dataset):
     def __getitem__(self, idx):
         image = Image.open(os.path.join(self.img_dir, self.img_names[idx]))
         images = self.transforms(image)
-        texts = self.tokenizer.tokenize([str(self.captions[idx])])[0]
+        texts = self.tokenizer.tokenize_as_tensor([str(self.captions[idx])])[0]
         return images, texts
 
 def collate_fn(batch):

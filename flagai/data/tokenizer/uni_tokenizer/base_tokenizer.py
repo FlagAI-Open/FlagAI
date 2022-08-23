@@ -32,10 +32,7 @@ class BaseTokenizer(object):
             if SP_MODEL_FILE in files:
                 tokenizer_class = "sp"
             elif MERGES_FILE in files:
-                if VOCAB_JSON_FILE in files:
-                    tokenizer_class = "bpe"
-                else:
-                    tokenizer_class = "mm"
+                tokenizer_class = "bpe"
             elif VOCAB_FILE in files:
                 tokenizer_class = "wp"
         if tokenizer_class == "":
@@ -55,7 +52,7 @@ class BaseTokenizer(object):
                 _get_vocab_path(cache_dir + '/', VOCAB_FILE, model_id, rank=0)
             else:
                 raise FileNotFoundError("Error: no tokenizer files")
-        resolved_vocab_json_file = os.path.join(cache_dir, VOCAB_JSON_FILE) if VOCAB_JSON_FILE not in files else None
+        resolved_vocab_json_file = os.path.join(cache_dir, VOCAB_JSON_FILE) if VOCAB_JSON_FILE in files else None
         resolved_vocab_file = os.path.join(cache_dir, VOCAB_FILE)
         resolved_merges_file = os.path.join(cache_dir, MERGES_FILE)
         resolved_sp_file = os.path.join(cache_dir, SP_MODEL_FILE)

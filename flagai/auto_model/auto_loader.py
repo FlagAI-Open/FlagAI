@@ -214,7 +214,7 @@ class AutoLoader:
 
 
 
-        if model_type == "mm":
+        if False:
             tokenizer_class = TOKENIZER_DICT[model_name]
             tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
                                       tokenizer_class[1])
