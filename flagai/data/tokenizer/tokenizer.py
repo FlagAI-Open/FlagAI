@@ -53,7 +53,7 @@ DEFAULT_COMMAND_TOKENS = [
     ('unk', 3),
     ('sep', 4),
     ('L2R', 5),
-    ('ENC', 6),
+    ('cls', 6),
     ('MASK', 7),
 ]
 DEFAULT_COMMAND_TOKENS = prep_command_tokens(DEFAULT_COMMAND_TOKENS)
@@ -94,6 +94,9 @@ DEFAULT_TYPE_TOKENS = [
     ('arg2', 10),
 ]
 DEFAULT_TYPE_TOKENS = prep_type_tokens(DEFAULT_TYPE_TOKENS)
+
+
+
 
 
 class GLMTokenizer(object):
@@ -170,7 +173,7 @@ class GLMTokenizer(object):
         """total number of tokens"""
         return self.num_tokens
 
-    def get_command(self, name):
+    def get_command_id(self, name):
         """get command token corresponding to `name`"""
         return self.command_name_map[name]
 
@@ -284,9 +287,6 @@ class GLMTokenizer(object):
         no_split_tokens = self._command_tokens
         Ids = split_on_tokens(no_split_tokens, processed_text)
         return Ids
-        # tokenization = Tokenization(Ids, processed_text, text)
-        # tokenization.set_command_tokens(self._command_tokens)
-        # return tokenization
 
     def _encode(self, text):
         raise NotImplementedError
@@ -368,6 +368,8 @@ class GLMTokenizer(object):
         if current_str != []:
             rtn_strs.append(self.text_tokenizer.DecodeTokens(current_str))
         return ' '.join(rtn_strs)
+
+
 
 
 class Tokenizer(object):
@@ -455,6 +457,8 @@ class Tokenizer(object):
         """A list of tokens => recovered text string"""
         return self.text_tokenizer.convert_tokens_to_string(tokens)
 
+
+# class BaseTokenizer(object):
 
 class TextTokenizer(object):
     """

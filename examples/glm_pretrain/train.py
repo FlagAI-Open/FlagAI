@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.glm_model import GLMForSeq2Seq
 from flagai.trainer import Trainer
 from flagai.data.dataset import ConstructBlockStrategy
@@ -24,14 +24,11 @@ if __name__ == '__main__':
                       load_dir=None,
                       lr=1e-4,
                       save_interval=10)
-
-    model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
-
+    model_name = 'GLM-large-ch'
+    tokenizer = Tokenizer.from_pretrained(model_name)
     ds_args = PretrainDatasetArguments()
-
-    tokenizer = GLMLargeChTokenizer()
-
     ds_args = add_args(ds_args, tokenizer)
+    model = GLMForSeq2Seq.from_pretrain(model_name=model_name)
 
     def create_dataset(tokenizer, should_split):
         dataset = get_dataset_lazy("./examples/glm_pretrain/data",
@@ -59,7 +56,7 @@ if __name__ == '__main__':
     collate_fn = None
     if ds_args.block_lm:
         collate_fn = ConstructBlockStrategy(
-            tokenizer, 512, eod_token=tokenizer.get_command('eos').Id)
+            tokenizer, 512, eod_token=tokenizer.get_command_id('eos'))
     metric_methods = DEFAULT_METRICS['pretrain']
     trainer.train(model,
                   collate_fn=collate_fn,

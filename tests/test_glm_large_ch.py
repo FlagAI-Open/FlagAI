@@ -4,7 +4,7 @@
 from flagai.model.predictor.predictor import Predictor
 import torch
 from flagai.model.glm_model import GLMForSeq2Seq
-from flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 import unittest
 
 class GLMLargeChTestCase(unittest.TestCase):
@@ -12,7 +12,7 @@ class GLMLargeChTestCase(unittest.TestCase):
     def setUp(self) -> None:
 
         self.model = GLMForSeq2Seq.init_from_json("./checkpoints/GLM-large-ch/config.json")
-        self.tokenizer = GLMLargeChTokenizer("./checkpoints/GLM-large-ch/cog-pretrain.model")
+        self.tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
         print("loading bert model successfully!")
 
     def test_model_predict(self):

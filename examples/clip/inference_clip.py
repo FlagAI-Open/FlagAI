@@ -17,7 +17,7 @@ transform = clip_transform(img_size=model.image_size)
 def inference():
     image = Image.open("./CLIP.png")
     image = transform(image).unsqueeze(0).to(device)
-    text = tokenizer.tokenize(["a diagram", "a dog", "a cat"]).to(device)
+    text = tokenizer.tokenize_as_tensor(["a diagram", "a dog", "a cat"]).to(device)
 
     with torch.no_grad():
         image_features = model.encode_image(image)

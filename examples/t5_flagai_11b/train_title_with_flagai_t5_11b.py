@@ -4,6 +4,7 @@
 from flagai.trainer import Trainer
 from flagai.model.t5_model import T5ForConditionalGeneration
 from transformers import T5Tokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.predictor.predictor import Predictor
 from torch.utils.data import Dataset
 import os
@@ -53,7 +54,8 @@ def read_file():
 
     return src, tgt
 
-tokenizer = T5Tokenizer.from_pretrained('t5-11b')
+# t5-11b is not uploaded to modelhub yet. Since it shares tokenizer with T5-base-en, we will get tokenizer here
+tokenizer = Tokenizer.from_pretrained('T5-base-en')
  # path to your downloaded model files is /mnt/t5-11b
 model = T5ForConditionalGeneration.from_pretrain(download_path='/mnt',
                                                  model_name='t5-11b',checkpoint_activations=True)

@@ -2,19 +2,20 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSingleTokenCloze
-from flagai.data.tokenizer import GLM10bENBPETokenizer, GLMLargeEnWordPieceTokenizer
+from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
+from flagai.data.tokenizer import Tokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
+from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
 
-task_name = 'qqp'
+task_name = 'boolq'
 trainer = Trainer(env_type='deepspeed',
-                  epochs=10,
+                  epochs=1000,
                   batch_size=512,
                   eval_interval=100,
                   log_interval=10,
-                  save_interval = 1e5,
+                  save_interval=1e5,
                   gradient_accumulation_steps=5,
                   checkpoint_activations=True,
                   fp16=True,
@@ -22,18 +23,25 @@ trainer = Trainer(env_type='deepspeed',
                   weight_decay=0.1,
                   save_dir="./qqp",
                   master_ip='127.0.0.1',
-                  master_port=17887,
+                  master_port=17810,
                   num_nodes=1,
                   num_gpus=2,
                   hostfile='./hostfile',
                   deepspeed_config='./deepspeed.json',
                   training_script=__file__)
 
-model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
-                                             model_name="GLM-large-en")
+model_name = "GLM-large-en"
+tokenizer = Tokenizer.from_pretrained(model_name)
 
+if task_name in MULTI_TOKEN_TASKS:
+    model = GLMForMultiTokenCloze.from_pretrain(
+        download_path="/mnt/test_10b_models", model_name=model_name)
+else:
+    model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
+                                                 model_name=model_name)
 
-tokenizer = GLMLargeEnWordPieceTokenizer()
+# model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
+#                                              model_name="GLM-large-en")
 train_dataset = SuperGlueDataset(task_name=task_name,
                                  data_dir='./datasets/',
                                  dataset_type='train',

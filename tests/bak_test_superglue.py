@@ -4,7 +4,7 @@
 import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze, GLMForSequenceClassification
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer, GLMLargeChTokenizer, BertWordPieceTokenizer, T5BPETokenizer, ROBERTATokenizer, OPTTokenizer, CPMTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
@@ -15,12 +15,9 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 class TrainerTestCase(unittest.TestCase):
 
     def test_init_trainer_pytorch(self):
-        # for task_name in [
-        #         'boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc',
-        #         'tnews', 'qqp', 'cola', 'mnli', 'qnli'
-        # ]:
         for task_name in [
-            'boolq'
+                'boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc',
+                'tnews', 'qqp', 'cola', 'mnli', 'qnli'
         ]:
             trainer = Trainer(env_type='pytorch',
                               epochs=1,
@@ -39,17 +36,10 @@ class TrainerTestCase(unittest.TestCase):
             cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
             if task_name in CH_TASKS:
                 model_name = 'GLM-large-ch'
-                tokenizer = GLMLargeChTokenizer()
             else:
                 model_name = 'GLM-large-en'
-                # tokenizer = GLMLargeEnWordPieceTokenizer()
-                # tokenizer = BertWordPieceTokenizer()
-                tokenizer = T5BPETokenizer()
-                # tokenizer = ROBERTATokenizer()
-                # tokenizer = OPTTokenizer()
-                # tokenizer = CPMTokenizer()
 
-
+            tokenizer = Tokenizer.from_pretrained(model_name)
             if cl_args.cloze_eval:
                 if cl_args.multi_token:
                     model = GLMForMultiTokenCloze.from_pretrain(
@@ -65,24 +55,10 @@ class TrainerTestCase(unittest.TestCase):
                                              data_dir='./datasets/',
                                              dataset_type='train',
                                              tokenizer=tokenizer)
-            # print(train_dataset[0])
+            train_dataset.example_list = train_dataset.example_list[:1]
             collate_fn = ConstructSuperglueStrategy(cl_args,
                                                     tokenizer,
                                                     task_name=task_name)
-            # import torch
-            # loader = torch.utils.data.DataLoader(train_dataset,
-            #                                      batch_size=1,
-            #                                      shuffle=False,
-            #                                      num_workers=1,
-            #                                      drop_last=False,
-            #                                      pin_memory=False,
-            #                                      collate_fn=collate_fn)
-            # for data_iterator in loader:
-            #     for key, value in data_iterator.items():
-            #         print(key, value)
-            #     break
-            train_dataset.example_list = train_dataset.example_list[:1]
-
 
             valid_dataset = SuperGlueDataset(task_name=task_name,
                                              data_dir='./datasets/',

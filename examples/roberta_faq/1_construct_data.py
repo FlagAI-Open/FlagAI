@@ -10,7 +10,6 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import collections
-import faiss
 
 faq_data_path = "./data/financezhidao_filter.csv"
 answer_save_path = "./data/finance_fqa.json"

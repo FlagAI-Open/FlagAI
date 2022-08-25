@@ -4,6 +4,7 @@
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 import torch
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.bert_model import BertModel, BertForSeq2seq, \
                                     BertForSequenceLabeling, \
                                     BertForSequenceLabelingGP, \
@@ -23,8 +24,7 @@ class BertTestCase(unittest.TestCase):
                        BertForSequenceLabelingCRF]
         self.model_name = "RoBERTa-base-ch"
         self.bert_path = "./checkpoints/RoBERTa-base-ch/config.json"
-        self.tokenizer = BertTokenizer("./checkpoints/RoBERTa-base-ch/vocab.txt")
-
+        self.tokenizer = Tokenizer.from_pretrained(self.model_name)
         print("loading bert model successfully!")
 
     def test_model_predict(self):

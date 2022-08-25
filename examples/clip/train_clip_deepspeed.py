@@ -26,7 +26,7 @@ trainer = Trainer(
     num_checkpoints=1,
     hostfile="./deepspeed/hostfile",
     training_script=__file__,
-    deepspeed_config="./deepspeed/deepspeed.json"
+    deepspeed_config="./deepspeed.json"
 )
 loader = AutoLoader(task_name="txt_img_matching",#contrastive learning
                     model_name="clip-base-p32-224",

@@ -121,12 +121,12 @@ class ConstructSeq2seqStrategy:
         self.args = args
 
     def encode(self, example):
-        cls_id = self.tokenizer.get_command('ENC').Id
+        cls_id = self.tokenizer.get_command_id('cls')
         mask_token = 'sMASK' if self.args.task_mask else 'MASK'
-        mask_id = self.tokenizer.get_command(mask_token).Id
-        pad_id = self.tokenizer.get_command('pad').Id
-        sop_id = self.tokenizer.get_command('sop').Id
-        eop_id = self.tokenizer.get_command('eop').Id
+        mask_id = self.tokenizer.get_command_id(mask_token)
+        pad_id = self.tokenizer.get_command_id('pad')
+        sop_id = self.tokenizer.get_command_id('sop')
+        eop_id = self.tokenizer.get_command_id('eop')
         if self.task_name in [
                 "gigaword", "cnn_dm", "cnn_dm_original", "xsum", "lang8_hsk"
         ]:
@@ -171,7 +171,7 @@ class ConstructSeq2seqStrategy:
             source_tokens = [cls_id] + source_tokens + [mask_id
                                                         ] + answer_tokens
         elif self.task_name in ["cmrc"]:
-            mask_id = self.tokenizer.get_command('MASK').Id
+            mask_id = self.tokenizer.get_command_id('MASK')
             source_text = example.text_a
             target_text = example.meta["answer"].strip()
             question = example.meta["question"].strip()
@@ -187,7 +187,7 @@ class ConstructSeq2seqStrategy:
                 mask_id
             ] + source_tokens[:max_src_length]
         elif self.task_name in ["wsc"]:
-            mask_id = self.tokenizer.get_command('MASK').Id
+            mask_id = self.tokenizer.get_command_id('MASK')
             source_text = example.text_a
             target_text = example.meta["answer"].strip()
             question = example.meta["question"].strip()
@@ -304,11 +304,11 @@ class ConstructBlockStrategy:
         self.shuffle_blocks = shuffle_blocks
         self.sentinel_token = sentinel_token
         self.generation_mask = 'gMASK' if task_mask else 'MASK'
-        self.generation_mask = self.tokenizer.get_command(
-            self.generation_mask).Id
+        self.generation_mask = self.tokenizer.get_command_id(
+            self.generation_mask)
         self.gap_sentence_mask = 'sMASK' if task_mask else 'MASK'
-        self.gap_sentence_mask = self.tokenizer.get_command(
-            self.gap_sentence_mask).Id
+        self.gap_sentence_mask = self.tokenizer.get_command_id(
+            self.gap_sentence_mask)
         self.random_position = random_position
         self.masked_lm = masked_lm
 
@@ -362,7 +362,7 @@ class ConstructBlockStrategy:
         for index in reversed(indices):
             start_index = index
             if start_index + 1 < len(tokens) and tokens[
-                    start_index + 1] == self.tokenizer.get_command('ENC').Id:
+                    start_index + 1] == self.tokenizer.get_command_id('cls'):
                 start_index += 1
             length = last_index - start_index - 1
             if last_index == len(tokens) and length > 0:
@@ -422,7 +422,7 @@ class ConstructBlockStrategy:
 
         position_ids = np.arange(len(tokens), dtype=np.int64)
         targets = copy.deepcopy(tokens)
-        mask_id = self.tokenizer.get_command('MASK').Id
+        mask_id = self.tokenizer.get_command_id('MASK')
         mlm_masks = np.zeros(len(tokens), dtype=np.int64)
         for start, end in block_spans:
             for idx in range(start, end):
@@ -459,16 +459,16 @@ class ConstructBlockStrategy:
         target_tokens, target_position_ids, target_block_position_ids, targets = [], [], [], []
         for start, end, idx in block_spans:
             sop_token = 'sop' if idx == 0 else f"sop{idx}"
-            target_tokens.append([self.tokenizer.get_command(sop_token).Id])
+            target_tokens.append([self.tokenizer.get_command_id(sop_token)])
             span_tokens = copy.deepcopy(tokens[start:end])
             if self.block_mask_prob > 0.0 and task == 'bert':
                 for sub_idx in range(len(span_tokens)):
                     if random.random() < self.block_mask_prob:
-                        span_tokens[sub_idx] = self.tokenizer.get_command(
-                            'dBLOCK').Id
+                        span_tokens[sub_idx] = self.tokenizer.get_command_id(
+                            'dBLOCK')
             target_tokens.append(span_tokens)
             targets.append(tokens[start:end])
-            targets.append([self.tokenizer.get_command('eop').Id])
+            targets.append([self.tokenizer.get_command_id('eop')])
             if not self.sentinel_token:
                 target_position_id = position_ids[start:end]
                 target_position_ids.append(target_position_id)
@@ -491,7 +491,7 @@ class ConstructBlockStrategy:
                 mask_id = self.gap_sentence_mask
             else:
                 mask_token = 'MASK' if idx == 0 else f'MASK{idx}'
-                mask_id = self.tokenizer.get_command(mask_token).Id
+                mask_id = self.tokenizer.get_command_id(mask_token)
             local_spans.append((current_length, current_length + start - last))
             source_tokens.append(tokens[last:start])
             source_tokens.append([mask_id])
@@ -513,7 +513,7 @@ class ConstructBlockStrategy:
             raise RuntimeError
         if self.encoder_decoder:
             target_tokens = target_tokens + [
-                self.tokenizer.get_command('eop').Id
+                self.tokenizer.get_command_id('eop')
             ]
             loss_masks = np.ones(len(target_tokens), dtype=np.int64)
             return source_tokens, target_tokens, loss_masks
@@ -532,7 +532,7 @@ class ConstructBlockStrategy:
                     mask_candidates,
                     int(self.context_mask_ratio * text_length))
                 for pos in mask_pos:
-                    tokens[pos] = self.tokenizer.get_command('dBLOCK').Id
+                    tokens[pos] = self.tokenizer.get_command_id('dBLOCK')
             targets = np.concatenate(source_tokens + targets)
             loss_masks = np.ones(len(tokens), dtype=np.int64)
             loss_masks[:source_length] = 0
@@ -555,7 +555,7 @@ class ConstructBlockStrategy:
                             task='bert'):
         rng.shuffle(masked_lengths)
         tokens, loss_masks = sample['input_ids'], sample['loss_mask']
-        assert tokens[0] == self.tokenizer.get_command('ENC').Id
+        assert tokens[0] == self.tokenizer.get_command_id('cls')
         block_spans = self.sample_span_in_document(tokens, masked_lengths, rng)
         if len(block_spans) < len(masked_lengths):
             return None
@@ -575,8 +575,8 @@ class ConstructBlockStrategy:
         target_length = rng.randrange(32, self.max_seq_length - 1)
         num_splits = (self.max_seq_length - 1) // target_length
         new_samples = []
-        cls_id = self.tokenizer.get_command('ENC').Id
-        eos_id = self.tokenizer.get_command('eos').Id
+        cls_id = self.tokenizer.get_command_id('cls')
+        eos_id = self.tokenizer.get_command_id('eos')
         for sample in samples:
             tokens, loss_masks = sample['input_ids'][1:], sample['loss_mask'][
                 1:]
@@ -676,14 +676,14 @@ class ConstructBlockStrategy:
             for sample in samples:
                 tokens, loss_masks = sample['input_ids'], sample['loss_mask']
                 sentence_spans = []
-                last_index = 1 if tokens[0] == self.tokenizer.get_command(
-                    'ENC').Id else 0
+                last_index = 1 if tokens[0] == self.tokenizer.get_command_id(
+                    'cls') else 0
                 for i in range(len(tokens)):
                     if self.contains_sentence_end(tokens[i]):
                         if last_index < i + 1:
                             sentence_spans.append((last_index, i + 1))
                         last_index = i + 1
-                    elif tokens[i] == self.tokenizer.get_command('eos').Id:
+                    elif tokens[i] == self.tokenizer.get_command_id('eos'):
                         last_index = i + 1
                 if last_index < len(tokens):
                     sentence_spans.append((last_index, len(tokens)))
@@ -725,7 +725,7 @@ class ConstructBlockStrategy:
                     len(sample['input_ids']) - generation_length + 1)
                 multiple_doc = index_in_list(
                     sample['input_ids'],
-                    self.tokenizer.get_command('eos').Id) not in [
+                    self.tokenizer.get_command_id('eos')) not in [
                         -1, len(sample['input_ids']) - 1
                     ]
                 if multiple_doc or rng.random() < self.infill_prob:
@@ -737,7 +737,7 @@ class ConstructBlockStrategy:
                     target_masks = loss_masks[division:]
                     tokens = np.concatenate((source_tokens, [
                         self.generation_mask,
-                        self.tokenizer.get_command('sop').Id
+                        self.tokenizer.get_command_id('sop')
                     ], target_tokens[:-1]))
                     targets = np.concatenate(
                         (source_tokens, [self.generation_mask], target_tokens))

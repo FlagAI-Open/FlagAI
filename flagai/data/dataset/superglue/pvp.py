@@ -97,12 +97,12 @@ class PVP(ABC):
     @property
     def mask(self) -> str:
         """Return the underlying LM's mask token"""
-        return self.tokenizer.get_command('MASK').Id
+        return self.tokenizer.get_command_id('MASK')
 
     @property
     def mask_id(self) -> int:
         """Return the underlying LM's mask id"""
-        return self.tokenizer.get_command('MASK').Id
+        return self.tokenizer.get_command_id('MASK')
 
     @property
     def max_num_verbalizers(self) -> int:
@@ -264,7 +264,7 @@ class PVP(ABC):
                         answer_ids = get_verbalization_ids(
                             answer, tokenizer, force_single_token=False)
                         answer_ids = answer_ids + [
-                            tokenizer.get_command('eop').Id
+                            tokenizer.get_command_id('eop')
                         ]
                         self.num_truncated += self.truncate(
                             this_parts_a,
@@ -376,7 +376,7 @@ class PVP(ABC):
                 for answer in answers:
                     answer_ids = get_verbalization_ids(
                         answer, tokenizer, force_single_token=False)
-                    answer_ids = answer_ids + [tokenizer.get_command('eop').Id]
+                    answer_ids = answer_ids + [tokenizer.get_command_id('eop')]
                     answer_ids = answer_ids[:self.max_dec_seq_length]
                     data = build_decoder_input(ids, answer_ids,
                                                self.max_seq_length,
@@ -510,7 +510,6 @@ class PVP(ABC):
     def get_verbalizer_ids(self):
         target_ids = []
         for label in self.label_list:
-
             verbalizer = self.verbalize(label)[0]
             verbalizer_id = get_verbalization_ids(verbalizer,
                                                   self.tokenizer,
@@ -575,13 +574,13 @@ class CopaPVP(PVP):
     def mask(self) -> str:
         """Return the underlying LM's mask token"""
         mask_token = 'MASK'
-        return self.tokenizer.get_command(mask_token).Id
+        return self.tokenizer.get_command_id(mask_token)
 
     @property
     def mask_id(self) -> int:
         """Return the underlying LM's mask id"""
         mask_token = 'MASK'
-        return self.tokenizer.get_command(mask_token).Id
+        return self.tokenizer.get_command_id(mask_token)
 
     def get_answers(self, example: InputExample):
         choice1 = " " + self.remove_final_punc(
@@ -658,7 +657,7 @@ class CopaPVP(PVP):
             get_verbalization_ids(answer, tokenizer, force_single_token=True)
         ]
         if self.is_multi_token:
-            answer_ids.append(tokenizer.get_command('eop').Id)
+            answer_ids.append(tokenizer.get_command_id('eop'))
 
         ids_list, positions_list, sep_list, mask_list, target_list = [], [], [], [], []
 
@@ -814,7 +813,7 @@ class WscPVP(PVP):
         answer_ids = get_verbalization_ids(answer,
                                            tokenizer,
                                            force_single_token=False)
-        answer_ids = answer_ids + [tokenizer.get_command('eop').Id]
+        answer_ids = answer_ids + [tokenizer.get_command_id('eop')]
         self.num_truncated += self.truncate(parts_a,
                                             parts_b,
                                             answer_ids,
@@ -1690,7 +1689,6 @@ def get_verbalization_ids(word: str, tokenizer,
     :return: either the list of token ids or the single token id corresponding to this word
     """
     if force_single_token:
-        # verbalization_id = tokenizer.TokenToId(word)
         verbalization_id = tokenizer.TokenToId(word)
         assert verbalization_id not in tokenizer.command_id_map, \
             f'Verbalization {word} is mapped to a special token {tokenizer.IdToToken(verbalization_id)}'

@@ -134,10 +134,10 @@ def build_input_from_ids(text_a_ids,
 
     # Prepare ids for special tokens
     if mask_id is None:
-        mask_id = tokenizer.get_command('MASK').Id
-    eos_id = tokenizer.get_command('eos').Id  # end of sentence token
-    cls_id = tokenizer.get_command('ENC').Id  # start of sentence token
-    sep_id = tokenizer.get_command('sep').Id  # seperator of two texts token
+        mask_id = tokenizer.get_command_id('MASK')
+    eos_id = tokenizer.get_command_id('eos')  # end of sentence token
+    cls_id = tokenizer.get_command_id('cls')  # start of sentence token
+    sep_id = tokenizer.get_command_id('sep')  # seperator of two texts token
 
     ids = []  # ids of all the tokens
     types = [
@@ -191,7 +191,7 @@ def build_input_from_ids(text_a_ids,
     block_position_ids = [0] * len(ids)
     # Piece
     if add_piece or answer_ids is not None:
-        sop_id = tokenizer.get_command('sop').Id
+        sop_id = tokenizer.get_command_id('sop')
         mask_position = ids.index(
             mask_id
         ) if not args.sentinel_token else args.max_position_embeddings
@@ -235,9 +235,9 @@ def build_input_from_ids(text_a_ids,
 #
 def build_decoder_input(enc_ids, answer_ids, max_seq_length,
                         max_dec_seq_length, tokenizer):
-    mask_id = tokenizer.get_command('MASK').Id
-    eos_id = tokenizer.get_command('eos').Id
-    sop_id = tokenizer.get_command('sop').Id
+    mask_id = tokenizer.get_command_id('MASK')
+    eos_id = tokenizer.get_command_id('eos')
+    sop_id = tokenizer.get_command_id('sop')
     masks = []
     # TODO: it probably takes too much memory
     # for i in range(max_dec_seq_length):
