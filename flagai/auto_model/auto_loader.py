@@ -41,8 +41,8 @@ ALL_TASK = {
         ["flagai.model.bert_model", "BertForClsClassifier"],
     "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
     "gpt2_lm": ("flagai.model.gpt2_model", "GPT2Model"),
-    "cpm_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
-    "cpm_lm": ("flagai.model.gpt2_model", "GPT2Model"),
+    "cpm_seq2seq": ("flagai.model.cpm_model", "CPMModel"),
+    "cpm_lm": ("flagai.model.cpm_model", "CPMModel"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "t5_lm": ["flagai.model.t5_model", "T5Model"],
     "glm_lm": ["flagai.model.glm_model", "GLMModel"],
@@ -87,7 +87,6 @@ MODEL_DICT = {
     "vit-large-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-
     "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
@@ -100,6 +99,34 @@ MODEL_DICT = {
     "swinv2-small-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
 }
 
+TOKENIZER_DICT = {
+    "bert-base-en": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "roberta-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "t5-base-en": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
+    "t5-base-ch": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
+    "glm-large-ch": [
+        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
+        "GLMLargeChTokenizer"
+    ],
+    "glm-large-en": [
+        "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
+        "GLMLargeEnWordPieceTokenizer"
+    ],
+    "glm-10b-ch": [
+        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
+        "GLMLargeChTokenizer"
+    ],
+    "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
+    "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
+    "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-350m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-1.3b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-2.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+    "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
+}
 
 
 class AutoLoader:

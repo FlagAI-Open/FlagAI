@@ -41,7 +41,7 @@ auto_loader = AutoLoader(task_name="ner",
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
-查看 https://github.com/BAAI-Open/FlagAI/blob/master/quickstart/ner_ch.py 了解更多.
+查看 https://github.com/FlagAI-Open/FlagAI/blob/master/quickstart/ner_ch.py 了解更多.
 ## 所有支持的任务和模型
 
 ![model_and_task_table](../docs/img/model_task_table.png)

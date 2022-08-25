@@ -1,13 +1,13 @@
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
-[![Python application](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml)
-![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/BAAI-Open/FlagAI?include_prereleases&style=social)
+[![Python application](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml)
+![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/FlagAI-Open/FlagAI?include_prereleases&style=social)
 [简体中文](README_zh.md)
 
 --------------------------------------------------------------------------------
 
 
-FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
+FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
 
 * Now it supports **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports **BERT**, **RoBERTa**, **GPT2**, **T5**, and models from Huggingface Transformers.
 
@@ -154,7 +154,7 @@ We provide a set of quick tutorials to get you started with the library:
 
 Thanks for your interest in contributing! There are many ways to get involved;
 start with our [contributor guidelines](CONTRIBUTING.md) and then
-check these [open issues](https://github.com/BAAI-Open/FlagAI/issues) for specific tasks.
+check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
 
 ## Contact us
 
