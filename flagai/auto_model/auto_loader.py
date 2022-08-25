@@ -92,41 +92,6 @@ MODEL_DICT = {
     "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"]
 }
 
-TOKENIZER_DICT = {
-    "bert-base-en": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "roberta-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "t5-base-en": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "t5-base-ch": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "glm-large-ch": [
-        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
-        "GLMLargeChTokenizer"
-    ],
-    "glm-large-en": [
-        "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
-        "GLMLargeEnWordPieceTokenizer"
-    ],
-    "glm-10b-ch": [
-        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
-        "GLMLargeChTokenizer"
-    ],
-    "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
-
-    "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-350m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-1.3b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-2.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-
-    "clip-base-p32-224":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"],
-    "clip-base-p16-224":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"],
-    "clip-large-p14-224":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"],
-    "clip-large-p14-336":["flagai.data.tokenizer.clip.tokenizer", "ClipTokenizer"]
-
-}
 
 
 class AutoLoader:
@@ -212,22 +177,9 @@ class AutoLoader:
 
         print("*"*20, task_name, model_id, model_name)
 
-
-
-        if False:
-            tokenizer_class = TOKENIZER_DICT[model_name]
-            tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
-                                      tokenizer_class[1])
-            if brief_model_name == "clip":
-                vocab_file = os.path.join(download_path, 'merges.txt')
-                if not os.path.exists(vocab_file):
-                    vocab_file = _get_vocab_path(download_path, "merges.txt", model_id)
-
-                self.tokenizer = tokenizer_class(vocab_file)
-        else:
-            tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
-                                        "Tokenizer")
-            self.tokenizer = tokenizer_class.from_pretrained(model_name)
+        tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                    "Tokenizer")
+        self.tokenizer = tokenizer_class.from_pretrained(model_name)
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())
