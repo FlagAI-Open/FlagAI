@@ -18,14 +18,13 @@ def inference():
     image = Image.open("./CLIP.png")
     image = transform(image).unsqueeze(0).to(device)
     text = tokenizer.tokenize_as_tensor(["a diagram", "a dog", "a cat"]).to(device)
-    # text = tokenizer.tokenize(["a diagram", "a dog", "a cat"]).to(device)
-    print(text)
-    # with torch.no_grad():
-    #     image_features = model.encode_image(image)
-    #     text_features = model.encode_text(text)
-    #     text_probs = (image_features @ text_features.T).softmax(dim=-1)
 
-    # print(text_probs.cpu().numpy()[0].tolist())
+    with torch.no_grad():
+        image_features = model.encode_image(image)
+        text_features = model.encode_text(text)
+        text_probs = (image_features @ text_features.T).softmax(dim=-1)
+
+    print(text_probs.cpu().numpy()[0].tolist())
 
 if __name__=="__main__":
     inference()
