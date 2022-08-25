@@ -148,7 +148,7 @@ class GLM10bENTokenizer(object):
         else:
             special_tokens = kwargs.pop('special_tokens', [])
 
-        if not os.path.exists(resolved_merges_file):  # 如果没有这个vocab文件， 那我们就要下载
+        if not os.path.exists(resolved_merges_file):  
             if pretrained_model_name_or_path in VOCAB_ARCHIVE_URLS_MAP:
                 for key, url in VOCAB_ARCHIVE_URLS_MAP[
                         pretrained_model_name_or_path].items():
