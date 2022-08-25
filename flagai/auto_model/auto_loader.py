@@ -27,18 +27,18 @@ ALL_TASK = {
     "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
     "bert_sequence-labeling":
-    ["flagai.model.bert_model", "BertForSequenceLabeling"],
+        ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_sequence-labeling-crf":
-    ["flagai.model.bert_model", "BertForSequenceLabeling"],
+        ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_sequence-labeling-gp":
-    ["flagai.model.bert_model", "BertForSequenceLabeling"],
+        ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner": ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner-crf": ["flagai.model.bert_model", "BertForSequenceLabelingCRF"],
     "bert_ner-gp": ["flagai.model.bert_model", "BertForSequenceLabelingGP"],
     "bert_embedding": ["flagai.model.bert_model", "BertForEmbedding"],
     "bert_classification": ["flagai.model.bert_model", "BertForClsClassifier"],
     "bert_semantic-matching":
-    ["flagai.model.bert_model", "BertForClsClassifier"],
+        ["flagai.model.bert_model", "BertForClsClassifier"],
     "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
     "gpt2_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "cpm_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
@@ -49,12 +49,14 @@ ALL_TASK = {
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_classification":
-    ["flagai.model.glm_model", "GLMForSequenceClassification"],
+        ["flagai.model.glm_model", "GLMForSequenceClassification"],
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "opt_seq2seq": ("flagai.model.opt_model","OPTModel"),
     "opt_lm": ("flagai.model.opt_model","OPTModel"),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
+    "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
+    "swinv2_classification": ("flagai.model.vision.swinv2", "SwinTransformerV2"),
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -89,7 +91,13 @@ MODEL_DICT = {
     "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
-    "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"]
+    "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+
+    "swinv1-base-patch4-window7-224": ["flagai.model.vision.swinv1", "SwinTransformer","swinv1","vision"],
+
+    "swinv2-base-patch4-window8-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "swinv2-base-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "swinv2-small-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
 }
 
 
@@ -129,7 +137,7 @@ class AutoLoader:
                                          class_num=2)
 
         """
-        
+
         raw_model_name = copy.deepcopy(model_name)
 
         model_name = model_name.lower()
@@ -163,11 +171,11 @@ class AutoLoader:
         os.makedirs(download_path, exist_ok=True)
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
-                                 download_path=model_dir,
-                                 model_name=model_name_,
-                                 only_download_config=only_download_config,
-                                 device=device,
-                                 **kwargs)
+            download_path=model_dir,
+            model_name=model_name_,
+            only_download_config=only_download_config,
+            device=device,
+            **kwargs)
 
         try:
             model_id = _get_model_id(model_name)
@@ -176,10 +184,12 @@ class AutoLoader:
             model_id = -1
 
         print("*"*20, task_name, model_id, model_name)
-
-        tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
-                                    "Tokenizer")
-        self.tokenizer = tokenizer_class.from_pretrained(model_name)
+        if model_type == "mm" or model_type == "nlp":
+            tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                      "Tokenizer")
+            self.tokenizer = tokenizer_class.from_pretrained(model_name)
+        else :
+            self.tokenizer = None
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())
