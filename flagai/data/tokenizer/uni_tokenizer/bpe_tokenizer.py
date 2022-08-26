@@ -71,9 +71,9 @@ class BPETokenizer(object):
         self.cache = {}
         # self.cache = {t:t for t in special_tokens}
 
-        # Should haved added re.IGNORECASE so BPE merges can happen for capitalized versions of contractions
-        # special = "|".join(special_tokens)
-        self.pat = re.compile(r"""|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+""", re.IGNORECASE)
+        self.pat = re.compile(
+            r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+        )
 
         self.special_tokens = {}
         self.special_tokens_decoder = {}

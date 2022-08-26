@@ -64,6 +64,7 @@ class Tokenizer(BaseTokenizer):
             self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
         else:
             raise NotImplementedError("cannot assign a tokenize class")
+        self.vocab = self.text_tokenizer.vocab
 
         self.is_glm = self.tokenizer_model_name.startswith('GLM')
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
@@ -317,6 +318,12 @@ class Tokenizer(BaseTokenizer):
         tokens = self.text_tokenizer.tokenize(text)
         ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
         return ids
+
+    def convert_tokens_to_ids(self, tokens):
+        return self.text_tokenizer.convert_tokens_to_ids(tokens)
+
+    def convert_ids_to_tokens(self, ids):
+        return self.text_tokenizer.convert_ids_to_tokens(ids)
 
     def EncodeAsTokens(self, text, process_fn=None):
         """convert wordpiece token to Id"""
@@ -585,18 +592,8 @@ class Tokenizer(BaseTokenizer):
         sot_token = self.get_command_id('sot')
         eot_token = self.get_command_id('eot')
         return self.text_tokenizer.tokenize(texts, sot_token=sot_token, eot_token=eot_token)
-        # if isinstance(texts, str):
-        #     texts = [texts]
-        
-        # sot_token = self.get_command_id('sot')
-        # eot_token = self.get_command_id('eot')
-        # all_tokens = [[sot_token] + self.encode(text) + [eot_token] for text in texts]
-        # result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 
-        # for i, tokens in enumerate(all_tokens):
-        #     if len(tokens) > context_length:
-        #         tokens = tokens[:context_length]  # Truncate
-        #     result[i, :len(tokens)] = torch.tensor(tokens)
-        # return result
+    def tokenize(self, texts):
+        return self.text_tokenizer.tokenize(texts)
 
 
