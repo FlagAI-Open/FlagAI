@@ -41,8 +41,8 @@ ALL_TASK = {
         ["flagai.model.bert_model", "BertForClsClassifier"],
     "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
     "gpt2_lm": ("flagai.model.gpt2_model", "GPT2Model"),
-    "cpm_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
-    "cpm_lm": ("flagai.model.gpt2_model", "GPT2Model"),
+    "cpm_seq2seq": ("flagai.model.cpm_model", "CPMModel"),
+    "cpm_lm": ("flagai.model.cpm_model", "CPMModel"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "t5_lm": ["flagai.model.t5_model", "T5Model"],
     "glm_lm": ["flagai.model.glm_model", "GLMModel"],
@@ -87,7 +87,6 @@ MODEL_DICT = {
     "vit-large-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-
     "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
@@ -99,7 +98,6 @@ MODEL_DICT = {
     "swinv2-base-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
     "swinv2-small-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
 }
-
 
 
 class AutoLoader:

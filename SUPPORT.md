@@ -3,7 +3,7 @@ _Use this file to detail how to make get support forthe project. The structure b
 # Getting Help
 
 There are a few ways to connect with the PROJECT NAME project:
-* https://github.com/BAAI-Open/FlagAI/issues
+* https://github.com/FlagAI-Open/FlagAI/issues
 
 ## How to Ask for Help
 
@@ -12,7 +12,7 @@ start by posting a question to the mailing list or Slack channel. This is the pl
 
 ## How to report a bug or request an enhancement
 
-PROJECT NAME manages bug and enhancement using it's [issue tracker](https://github.com/BAAI-Open/FlagAI/issues). The issue template will guide you on making an effective report.
+PROJECT NAME manages bug and enhancement using it's [issue tracker](https://github.com/FlagAI-Open/FlagAI/issues). The issue template will guide you on making an effective report.
 
 ## How to report a security vulnerability
 
