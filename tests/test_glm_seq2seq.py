@@ -36,11 +36,11 @@ class TrainerTestCase(unittest.TestCase):
         tokenizer = Tokenizer.from_pretrained(model_name)
 
         train_dataset = Seq2SeqDataset(task_name=task_name,
-                                       data_dir='../data/cmrc/',
+                                       data_dir='./data/',
                                        dataset_type='train',
                                        tokenizer=tokenizer)
         valid_dataset = Seq2SeqDataset(task_name=task_name,
-                                       data_dir='../data/cmrc/',
+                                       data_dir='./data/',
                                        dataset_type='dev',
                                        tokenizer=tokenizer)
 

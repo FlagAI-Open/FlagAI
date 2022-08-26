@@ -403,13 +403,13 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
             self.processor = SummmaryProcessor(self.task_name, self.data_dir,
                                                tokenizer)
         elif self.task_name in ["xsum"]:
-            self.processor = XSumProcessor(self.data_dir, tokenizer)
+            self.processor = XSumProcessor(self.data_dir+task_name, tokenizer)
         elif self.task_name in ["squad_generation"]:
-            self.processor = SQuADProcessor(self.data_dir, tokenizer)
+            self.processor = SQuADProcessor(self.data_dir+task_name, tokenizer)
         elif self.task_name in ['cmrc']:
-            self.processor = CMRCProcessor(self.data_dir, tokenizer)
+            self.processor = CMRCProcessor(self.data_dir+task_name, tokenizer)
         elif self.task_name in ['wsc']:
-            self.processor = WSCProcessor(self.data_dir, tokenizer)
+            self.processor = WSCProcessor(self.data_dir+task_name, tokenizer)
         else:
             raise NotImplementedError(self.task_name)
         example_list = self.processor.create_examples(dataset_type)
