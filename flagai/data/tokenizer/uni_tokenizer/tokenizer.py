@@ -286,6 +286,9 @@ class Tokenizer(BaseTokenizer):
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
 
+    def get_vocab(self):
+        return self.text_tokenizer.get_vocab()
+
     def get_command_id(self, name):
         """get command token corresponding to `name`"""
         return self.command_name_map[name].Id
@@ -317,6 +320,12 @@ class Tokenizer(BaseTokenizer):
         tokens = self.text_tokenizer.tokenize(text)
         ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
         return ids
+
+    def convert_tokens_to_ids(self, tokens):
+        return self.text_tokenizer.convert_tokens_to_ids(tokens)
+
+    def convert_ids_to_tokens(self, ids):
+        return self.text_tokenizer.convert_ids_to_tokens(ids)
 
     def EncodeAsTokens(self, text, process_fn=None):
         """convert wordpiece token to Id"""
@@ -585,18 +594,8 @@ class Tokenizer(BaseTokenizer):
         sot_token = self.get_command_id('sot')
         eot_token = self.get_command_id('eot')
         return self.text_tokenizer.tokenize(texts, sot_token=sot_token, eot_token=eot_token)
-        # if isinstance(texts, str):
-        #     texts = [texts]
-        
-        # sot_token = self.get_command_id('sot')
-        # eot_token = self.get_command_id('eot')
-        # all_tokens = [[sot_token] + self.encode(text) + [eot_token] for text in texts]
-        # result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 
-        # for i, tokens in enumerate(all_tokens):
-        #     if len(tokens) > context_length:
-        #         tokens = tokens[:context_length]  # Truncate
-        #     result[i, :len(tokens)] = torch.tensor(tokens)
-        # return result
+    def tokenize(self, texts):
+        return self.text_tokenizer.tokenize(texts)
 
 
