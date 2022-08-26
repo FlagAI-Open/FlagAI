@@ -51,12 +51,13 @@ class BPETokenizer(object):
         super().__init__(**kwargs)
         self.max_len = max_len if max_len is not None else int(1e12)
         
-        
         self.errors = errors  # how to handle errors in decoding
         self.byte_encoder = bytes_to_unicode()
         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
-        bpe_data = open(merges_file, encoding='utf-8').read().split('\n')[1:-1]
+        with open(merges_file, encoding='utf-8') as file:
+            bpe_data = file.read().split('\n')[1:-1]
         bpe_merges = [tuple(merge.split()) for merge in bpe_data]
+        # file.close()
         if not vocab_file:
             vocab = list(bytes_to_unicode().values())
             vocab = vocab + [v for v in vocab]
@@ -64,7 +65,8 @@ class BPETokenizer(object):
                 vocab.append(''.join(merge))
             self.encoder = dict(zip(vocab, range(len(vocab))))
         else:
-            self.encoder = json.load(open(vocab_file))
+            with open(vocab_file) as file:
+                self.encoder = json.load(file)
         self.decoder = {v: k for k, v in self.encoder.items()}
 
         self.bpe_ranks = dict(zip(bpe_merges, range(len(bpe_merges))))

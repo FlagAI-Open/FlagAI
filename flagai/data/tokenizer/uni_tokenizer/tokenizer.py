@@ -64,7 +64,6 @@ class Tokenizer(BaseTokenizer):
             self.text_tokenizer = SentencePieceTokenizer(self.sp_model_file)
         else:
             raise NotImplementedError("cannot assign a tokenize class")
-        self.vocab = self.text_tokenizer.vocab
 
         self.is_glm = self.tokenizer_model_name.startswith('GLM')
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
@@ -286,6 +285,9 @@ class Tokenizer(BaseTokenizer):
         }
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
+
+    def get_vocab(self):
+        return self.text_tokenizer.get_vocab()
 
     def get_command_id(self, name):
         """get command token corresponding to `name`"""

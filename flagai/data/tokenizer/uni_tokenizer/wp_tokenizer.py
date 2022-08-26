@@ -56,6 +56,9 @@ class WordpieceTokenizer(object):
     def vocab_size(self):
         return len(self.vocab)
 
+    def get_vocab(self):
+        return self.vocab
+
     def word_piece(self, text):
         """Tokenizes a piece of text into its word pieces.
         This uses a greedy longest-match-first algorithm to perform tokenization
