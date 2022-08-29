@@ -31,7 +31,6 @@ from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
 from typing import List, Union, Optional
 import unicodedata
 
-
 def is_control(ch):
     """控制类字符判断
     https://en.wikipedia.org/wiki/Control_character
@@ -40,8 +39,6 @@ def is_control(ch):
     
     """
     return unicodedata.category(ch) in ('Cc', 'Cf')
-
-
 
 class Tokenizer(BaseTokenizer):
     def __init__(self,
@@ -441,7 +438,6 @@ class Tokenizer(BaseTokenizer):
                 result.append(s.Id)
         return (result)
 
-
     def encode_plus_non_glm(
         self,
         text,
@@ -464,7 +460,6 @@ class Tokenizer(BaseTokenizer):
             truncation=truncation,
             max_length=max_length,
         )
-
 
     def prepare_for_model(
         self,
@@ -585,18 +580,5 @@ class Tokenizer(BaseTokenizer):
         sot_token = self.get_command_id('sot')
         eot_token = self.get_command_id('eot')
         return self.text_tokenizer.tokenize(texts, sot_token=sot_token, eot_token=eot_token)
-        # if isinstance(texts, str):
-        #     texts = [texts]
-        
-        # sot_token = self.get_command_id('sot')
-        # eot_token = self.get_command_id('eot')
-        # all_tokens = [[sot_token] + self.encode(text) + [eot_token] for text in texts]
-        # result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
-
-        # for i, tokens in enumerate(all_tokens):
-        #     if len(tokens) > context_length:
-        #         tokens = tokens[:context_length]  # Truncate
-        #     result[i, :len(tokens)] = torch.tensor(tokens)
-        # return result
 
 
