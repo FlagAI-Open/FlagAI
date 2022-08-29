@@ -56,7 +56,7 @@ class Tokenizer(BaseTokenizer):
         if self.tokenizer_class == "wp":
             self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
-            if self.tokenizer_model_name.startswith('clip'):
+            if self.tokenizer_model_name.lower().startswith('clip'):
                 self.text_tokenizer = MMBPETokenizer(self.vocab_file, self.merges_file)
             else:
                 self.text_tokenizer = BPETokenizer(self.vocab_file, self.merges_file)
@@ -65,7 +65,7 @@ class Tokenizer(BaseTokenizer):
         else:
             raise NotImplementedError("cannot assign a tokenize class")
 
-        self.is_glm = self.tokenizer_model_name.startswith('GLM')
+        self.is_glm = self.tokenizer_model_name.lower().startswith('glm')
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
         self.num_tokens = self.text_tokenizer.vocab_size
 
@@ -125,7 +125,7 @@ class Tokenizer(BaseTokenizer):
                     self.num_tokens += 2
                     self.num_command_tokens += 2
         elif self.tokenizer_class == "bpe":
-            if self.tokenizer_model_name.startswith('roberta'):
+            if self.tokenizer_model_name.lower().startswith('roberta'):
                 self.num_command_tokens = 6
                 self.num_text_tokens = self.num_tokens - 3
                 self._command_tokens = [
@@ -151,7 +151,7 @@ class Tokenizer(BaseTokenizer):
                     ])
                     self.num_tokens += 2
                     self.num_command_tokens += 2
-            elif self.tokenizer_model_name.startswith('clip'):
+            elif self.tokenizer_model_name.lower().startswith('clip'):
                 self.num_command_tokens = 2
                 self._command_tokens = [
                     CommandToken('sot', '<start_of_text>',
@@ -170,7 +170,7 @@ class Tokenizer(BaseTokenizer):
                                  self.text_tokenizer.convert_token_to_id('<|endoftext|>'))
                 ]
                 if add_block_symbols:
-                    if self.tokenizer_model_name.startswith('GLM'):
+                    if self.tokenizer_model_name.lower().startswith('glm'):
                         unk_token_id = self.num_tokens + 5
                         cls_token_id = self.num_tokens + 2
                         num_tokens_to_add = 5
@@ -215,7 +215,7 @@ class Tokenizer(BaseTokenizer):
             self.num_text_tokens = self.text_tokenizer.vocab_size
             self.num_tokens = self.num_text_tokens
 
-            if self.tokenizer_model_name.startswith('GLM'):
+            if self.tokenizer_model_name.lower().startswith('glm'):
                 pad_token_id = self.num_tokens
                 eos_token_id = self.num_tokens
                 unk_token_id = self.num_tokens + 4
@@ -508,7 +508,7 @@ class Tokenizer(BaseTokenizer):
             truncation=True,
             max_length=None,
     ):
-        if not self.tokenizer_model_name.startswith("GLM"):
+        if not self.tokenizer_model_name.lower().startswith("glm"):
             return self.encode_plus_non_glm(source_text, second_text, truncation, max_length)
         sop_id = self.get_command_id('sop')  #start of piece
         eop_id = self.get_command_id('eop')  #end of piece
