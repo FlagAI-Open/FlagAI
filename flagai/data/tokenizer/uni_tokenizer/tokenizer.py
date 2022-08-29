@@ -31,12 +31,12 @@ from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
 from typing import List, Union, Optional
 import unicodedata
 
+
 def is_control(ch):
     """
     https://en.wikipedia.org/wiki/Control_character
     https://www.fileformat.info/info/unicode/category/Cc/index.htm
     https://www.fileformat.info/info/unicode/category/Cf/index.htm
-    
     """
     return unicodedata.category(ch) in ('Cc', 'Cf')
 
@@ -62,8 +62,6 @@ class Tokenizer(BaseTokenizer):
         else:
             raise NotImplementedError("cannot assign a tokenize class")
 
-        self.is_glm = self.tokenizer_model_name.lower().startswith('glm')
-        # self.is_clip = self.tokenizer_model_name.startswith('clip')
         self.num_tokens = self.text_tokenizer.vocab_size
 
         if self.tokenizer_class == "wp":
@@ -470,6 +468,7 @@ class Tokenizer(BaseTokenizer):
             max_length=max_length,
         )
 
+
     def prepare_for_model(
         self,
         ids: List[int],
@@ -590,9 +589,7 @@ class Tokenizer(BaseTokenizer):
         eot_token = self.get_command_id('eot')
         return self.text_tokenizer.tokenize(texts, sot_token=sot_token, eot_token=eot_token)
 
-
     def tokenize(self, texts):
         return self.text_tokenizer.tokenize(texts)
-
 
 

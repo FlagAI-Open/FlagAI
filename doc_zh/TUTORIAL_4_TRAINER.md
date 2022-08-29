@@ -385,10 +385,9 @@ python train.py --test1=1
 ```
 更多的例子可以查看 :
 
-1. [vit-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/vit_cifar100/train_env_trainer.py)
+1. [vit-env-trainer](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/vit_cifar100/train_env_trainer.py)
 
-2. [glm-title-generation-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/glm_title_generation/train_env_trainer.py)
-
+2. [glm-title-generation-env-trainer](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/glm_title_generation/train_env_trainer.py)
 
 # 使用 pytorchDDP launcher 或 deepspeed launcher 运行
 如果你使用多个GPU来训练模型，你可以直接运行train.py来调用FlagAI训练器中的启动器。
