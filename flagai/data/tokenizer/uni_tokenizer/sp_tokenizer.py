@@ -32,7 +32,7 @@ class SentencePieceTokenizer(object):
         return self.sp_model.get_piece_size()
 
     def get_vocab(self):
-        vocab = {self.convert_ids_to_tokens(i): i for i in range(self.vocab_size)}
+        vocab = {self.convert_id_to_token(i): i for i in range(self.vocab_size)}
         # vocab.update(self.added_tokens_encoder)
         return vocab
 
