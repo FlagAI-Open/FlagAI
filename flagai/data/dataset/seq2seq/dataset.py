@@ -388,7 +388,7 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
                  src_seq_length=608,
                  tgt_seq_length=160):
         self.task_name = task_name
-        self.data_dir = data_dir + task_name + '/'
+        self.data_dir = data_dir 
         self.max_src_length, self.max_tgt_length = src_seq_length, tgt_seq_length
         self.dataset_type = dataset_type
         self.tokenizer = tokenizer
@@ -403,13 +403,13 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
             self.processor = SummmaryProcessor(self.task_name, self.data_dir,
                                                tokenizer)
         elif self.task_name in ["xsum"]:
-            self.processor = XSumProcessor(self.data_dir, tokenizer)
+            self.processor = XSumProcessor(self.data_dir+task_name, tokenizer)
         elif self.task_name in ["squad_generation"]:
-            self.processor = SQuADProcessor(self.data_dir, tokenizer)
+            self.processor = SQuADProcessor(self.data_dir+task_name, tokenizer)
         elif self.task_name in ['cmrc']:
-            self.processor = CMRCProcessor(self.data_dir, tokenizer)
+            self.processor = CMRCProcessor(self.data_dir+task_name, tokenizer)
         elif self.task_name in ['wsc']:
-            self.processor = WSCProcessor(self.data_dir, tokenizer)
+            self.processor = WSCProcessor(self.data_dir+task_name, tokenizer)
         else:
             raise NotImplementedError(self.task_name)
         example_list = self.processor.create_examples(dataset_type)
@@ -425,132 +425,6 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         example = self.example_list[idx]
         return example
-        # cls_id = self.tokenizer.get_command('ENC').Id
-        # mask_token = 'sMASK' if self.task_mask else 'MASK'
-        # mask_id = self.tokenizer.get_command(mask_token).Id
-        # pad_id = self.tokenizer.get_command('pad').Id
-        # sop_id = self.tokenizer.get_command('sop').Id
-        # eop_id = self.tokenizer.get_command('eop').Id
-        # if self.task_name in [
-        #         "gigaword", "cnn_dm", "cnn_dm_original", "xsum", "lang8_hsk"
-        # ]:
-        #     source_text, target_text = example.text_a, example.text_b
-        #     source_tokens = self.tokenizer.EncodeAsIds(" " + source_text)
-        #     prompt = [cls_id, mask_id
-        #               ] + self.tokenizer.EncodeAsIds(" Content:")
-        #     if len(source_tokens) > self.max_src_length - len(prompt):
-        #         source_tokens = source_tokens[:self.max_src_length -
-        #                                       len(prompt)]
-        #     source_tokens = prompt + source_tokens
-        # elif self.task_name == "squad_generation":
-        #     source_text = example.text_a
-        #     target_text, answer = example.meta["question"], example.meta[
-        #         "answer"]
-        #     source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip() +
-        #                                                " Question:")
-        #     answer_tokens = self.tokenizer.EncodeAsIds(" Answer: " + answer)
-        #     if len(source_tokens
-        #            ) > self.max_src_length - len(answer_tokens) - 2:
-        #         max_src_length = self.max_src_length - len(answer_tokens) - 2
-        #         answer_pattern = self.tokenizer.EncodeAsIds(" " + answer)
-        #
-        #         def sub_finder(mylist, pattern):
-        #             matches = []
-        #             for i in range(len(mylist)):
-        #                 if mylist[i] == pattern[0] and mylist[
-        #                         i:i + len(pattern)] == pattern:
-        #                     matches.append(i)
-        #             return matches
-        #
-        #         answer_indices = sub_finder(source_tokens, answer_pattern)
-        #         if len(answer_indices) == 0:
-        #             print(f"Answer {answer} not exists in the source text")
-        #             source_tokens = source_tokens[:max_src_length]
-        #         else:
-        #             start_index = max(answer_indices[0] - max_src_length // 2,
-        #                               0)
-        #             source_tokens = source_tokens[start_index:start_index +
-        #                                           max_src_length]
-        #     source_tokens = [cls_id] + source_tokens + [mask_id
-        #                                                 ] + answer_tokens
-        # elif self.task_name in ["cmrc"]:
-        #     mask_id = self.tokenizer.get_command('MASK').Id
-        #     source_text = example.text_a
-        #     target_text = example.meta["answer"].strip()
-        #     question = example.meta["question"].strip()
-        #     source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip())
-        #     question_tokens = self.tokenizer.EncodeAsIds("问题：" + question +
-        #                                                  "答案：")
-        #     max_src_length = self.max_src_length - len(question_tokens) - 2
-        #     if max_src_length <= 0:
-        #         question_tokens = question_tokens[self.max_src_length // 4]
-        #     source_tokens = [cls_id] + question_tokens + [
-        #         mask_id
-        #     ] + source_tokens[:max_src_length]
-        # elif self.task_name in ["wsc"]:
-        #     mask_id = self.tokenizer.get_command('MASK').Id
-        #     source_text = example.text_a
-        #     target_text = example.meta["answer"].strip()
-        #     question = example.meta["question"].strip()
-        #     source_tokens = self.tokenizer.EncodeAsIds(source_text.rstrip())
-        #     question_tokens = self.tokenizer.EncodeAsIds("what does " +
-        #                                                  question + "mean: ")
-        #     max_src_length = self.max_src_length - len(question_tokens) - 2
-        #     if max_src_length <= 0:
-        #         print(question)
-        #         question_tokens = question_tokens[self.max_src_length // 4]
-        #     source_tokens = [cls_id] + question_tokens + [
-        #         mask_id
-        #     ] + source_tokens[:max_src_length]
-        # else:
-        #     raise NotImplementedError
-        # if len(source_tokens) < self.max_src_length:
-        #     source_tokens = source_tokens + [pad_id] * (self.max_src_length -
-        #                                                 len(source_tokens))
-        # sep = len(source_tokens)
-        # position_ids = list(range(len(source_tokens)))
-        # block_position_ids = [0] * len(source_tokens)
-        # mask_pos = source_tokens.index(mask_id)
-        # if self.dataset_type == 'train' or self.dataset_type == "dev":
-        #     target_tokens = self.tokenizer.EncodeAsIds(" " + target_text)
-        #     target_tokens = target_tokens + [eop_id]
-        #     if len(target_tokens) > self.max_tgt_length:
-        #         target_tokens = target_tokens[:self.max_tgt_length]
-        #     loss_mask = [1] * len(target_tokens)
-        #     if len(target_tokens) < self.max_tgt_length:
-        #         loss_mask += [0] * (self.max_tgt_length - len(target_tokens))
-        #         target_tokens += [pad_id] * (self.max_tgt_length -
-        #                                      len(target_tokens))
-        #     tokens = source_tokens + [sop_id] + target_tokens[:-1]
-        #     loss_mask = [0] * len(source_tokens) + loss_mask
-        #     target_ids = [0] * len(source_tokens) + target_tokens
-        #     position_ids += [mask_pos] * len(target_tokens)
-        #     if self.no_block_position:
-        #         block_position_ids += [1] * len(target_tokens)
-        #     else:
-        #         block_position_ids += list(range(1, len(target_tokens) + 1))
-        #     position_ids = [position_ids, block_position_ids]
-        #     sample = {
-        #         'input_ids': np.array(tokens, dtype=np.int64),
-        #         'target_ids': np.array(target_ids, dtype=np.int64),
-        #         'attention_mask': np.array(sep, dtype=np.int64),
-        #         'loss_mask': np.array(loss_mask, dtype=np.int64),
-        #         "position_ids": np.array(position_ids, dtype=np.int64),
-        #         "uid": example.guid
-        #     }
-        # else:
-        #     tokens = source_tokens + [sop_id]
-        #     position_ids = position_ids + [mask_pos]
-        #     block_position_ids = block_position_ids + [1]
-        #     position_ids = [position_ids, block_position_ids]
-        #     sample = {
-        #         'input_ids': np.array(tokens, dtype=np.int64),
-        #         'attention_mask': np.array(sep, dtype=np.int64),
-        #         "position_ids": np.array(position_ids, dtype=np.int64),
-        #         "uid": example.guid
-        #     }
-        # return sample
-
 
 class ExtractionDataset(torch.utils.data.Dataset):
 
@@ -604,10 +478,10 @@ class ExtractionDataset(torch.utils.data.Dataset):
         example = self.example_list[idx]
         source_text, target_text = example.text_a, example.text_b
         mask_token = 'MASK'
-        mask_id = self.tokenizer.get_command(mask_token).Id
-        sop_id = self.tokenizer.get_command('sop').Id
-        eop_id = self.tokenizer.get_command('eop').Id
-        pad_id = self.tokenizer.get_command('pad').Id
+        mask_id = self.tokenizer.get_command_id(mask_token)
+        sop_id = self.tokenizer.get_command_id('sop')
+        eop_id = self.tokenizer.get_command_id('eop')
+        pad_id = self.tokenizer.get_command_id('pad')
 
         def pad_to(text, max_len, pad_id):
             if len(text) > max_len:
@@ -739,10 +613,10 @@ class BlankLMDataset(torch.utils.data.Dataset):
         example = self.example_list[idx]
         source_text = example.text_a
         mask_token = 'gMASK' if self.args.task_mask else 'MASK'
-        mask_id = self.tokenizer.get_command(mask_token).Id
-        sop_id = self.tokenizer.get_command('sop').Id
-        eop_id = self.tokenizer.get_command('eop').Id
-        pad_id = self.tokenizer.get_command('pad').Id
+        mask_id = self.tokenizer.get_command_id(mask_token)
+        sop_id = self.tokenizer.get_command_id('sop')
+        eop_id = self.tokenizer.get_command_id('eop')
+        pad_id = self.tokenizer.get_command_id('pad')
         if self.split in ['train', 'dev']:
             masked_src, masked_tgt = self.mask_text(source_text)
             source_text = masked_src

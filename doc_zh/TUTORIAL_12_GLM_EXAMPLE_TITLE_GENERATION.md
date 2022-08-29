@@ -118,7 +118,7 @@ class GLMTitleGenerationCollateFN():
 ```python
 train_src, train_tgt = read_file()
 print('-----------train data length:', len(train_src))
-my_collate_fn = GLMTitleGenerationCollateFN(pad_id=tokenizer.get_command('pad').Id)
+my_collate_fn = GLMTitleGenerationCollateFN(pad_id=tokenizer.get_command_id('pad'))
 train_dataset = GLMTitleGenerationDataset(train_src,
                                    train_tgt)
 ```

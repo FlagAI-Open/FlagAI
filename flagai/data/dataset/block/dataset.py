@@ -112,22 +112,22 @@ class BlockDataset(Dataset):
                                 tokens[strip_left_tokens - 1]):
                         strip_left_tokens += 1
                         move_count += 1
-            tokens = [self.tokenizer.get_command('ENC').Id
+            tokens = [self.tokenizer.get_command_id('cls')
                       ] + tokens[strip_left_tokens:]
             loss_mask = [0] + loss_mask[strip_left_tokens:]
-            if len(tokens) == 2 and tokens[1] == self.tokenizer.get_command(
-                    'eos').Id:
+            if len(tokens) == 2 and tokens[1] == self.tokenizer.get_command_id(
+                    'eos'):
                 tokens, loss_mask = [], []
             tokens, loss_mask = self.right_strip_seq(tokens, loss_mask,
                                                      self.max_seq_len)
         else:
-            tokens = [self.tokenizer.get_command('ENC').Id] + tokens
+            tokens = [self.tokenizer.get_command_id('cls')] + tokens
             loss_mask = [0] + loss_mask
             # Sample multiple documents
             if self.sample_across_doc:
                 while len(tokens) < self.max_seq_len:
                     new_tokens, new_loss_mask = self.get_weighted_samples(rng)
-                    new_tokens = [self.tokenizer.get_command('ENC').Id
+                    new_tokens = [self.tokenizer.get_command_id('cls')
                                   ] + new_tokens
                     new_loss_mask = [0] + new_loss_mask
                     is_last = len(new_tokens) >= self.max_seq_len - len(tokens)
@@ -159,7 +159,7 @@ class BlockDataset(Dataset):
     def getidx(self, data_idx):
         data = self.ds[data_idx]
         tokens, loss_masks = data['tokens'], data['loss_masks']
-        tokens = tokens + [self.tokenizer.get_command('eos').Id]
+        tokens = tokens + [self.tokenizer.get_command_id('eos')]
         loss_masks = loss_masks + [1]
         return tokens, loss_masks
 
@@ -167,7 +167,7 @@ class BlockDataset(Dataset):
         total_tokens = self.max_seq_len
         num_pad_tokens = max(0, total_tokens - len(seq))
         seq += [
-            self.tokenizer.get_command('pad').Id if pad_id is None else pad_id
+            self.tokenizer.get_command_id('pad') if pad_id is None else pad_id
         ] * (num_pad_tokens)
         return seq
 

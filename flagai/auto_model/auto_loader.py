@@ -7,7 +7,6 @@ import os
 from  flagai.model.file_utils import _get_model_id, _get_vocab_path
 import copy
 
-
 class LazyImport(object):
 
     def __init__(self, name):
@@ -21,25 +20,25 @@ class LazyImport(object):
             self.cache[self.mod_name] = mod
         return getattr(mod, name)
 
-
+# 2 columns : 1-package name,  2-class name
 ALL_TASK = {
     "bert_lm": ["flagai.model.bert_model", "BertModel"],
     "bert_seq2seq": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
     "bert_sequence-labeling":
-    ["flagai.model.bert_model", "BertForSequenceLabeling"],
+        ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_sequence-labeling-crf":
-    ["flagai.model.bert_model", "BertForSequenceLabeling"],
+        ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_sequence-labeling-gp":
-    ["flagai.model.bert_model", "BertForSequenceLabeling"],
+        ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner": ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner-crf": ["flagai.model.bert_model", "BertForSequenceLabelingCRF"],
     "bert_ner-gp": ["flagai.model.bert_model", "BertForSequenceLabelingGP"],
     "bert_embedding": ["flagai.model.bert_model", "BertForEmbedding"],
     "bert_classification": ["flagai.model.bert_model", "BertForClsClassifier"],
     "bert_semantic-matching":
-    ["flagai.model.bert_model", "BertForClsClassifier"],
+        ["flagai.model.bert_model", "BertForClsClassifier"],
     "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
     "gpt2_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "cpm_seq2seq": ("flagai.model.cpm_model", "CPMModel"),
@@ -50,14 +49,17 @@ ALL_TASK = {
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_classification":
-    ["flagai.model.glm_model", "GLMForSequenceClassification"],
+        ["flagai.model.glm_model", "GLMForSequenceClassification"],
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "opt_seq2seq": ("flagai.model.opt_model","OPTModel"),
     "opt_lm": ("flagai.model.opt_model","OPTModel"),
-    "vit_classification": ("flagai.model.vision.vit", "VisionTransformer")
-
+    "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
+    "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
+    "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
+    "swinv2_classification": ("flagai.model.vision.swinv2", "SwinTransformerV2"),
 }
 
+# 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
 MODEL_DICT = {
     "bert-base-en": ["flagai.model.bert_model", "BertModel", "bert", "nlp"],
     "roberta-base-ch": ["flagai.model.bert_model", "BertModel", "bert", "nlp"],
@@ -66,7 +68,7 @@ MODEL_DICT = {
     "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
-    "cpm-large-ch": ["flagai.model.cpm_model", "CPMModel", "cpm", "nlp"],
+    "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm", "nlp"],
     "opt-125m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
     "opt-350m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
     "opt-1.3b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
@@ -85,36 +87,18 @@ MODEL_DICT = {
     "vit-large-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+
+    "swinv1-base-patch4-window7-224": ["flagai.model.vision.swinv1", "SwinTransformer","swinv1","vision"],
+
+    "swinv2-base-patch4-window8-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "swinv2-base-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "swinv2-small-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
 }
 
-TOKENIZER_DICT = {
-    "bert-base-en": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "roberta-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "t5-base-en": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "t5-base-ch": ["flagai.data.tokenizer.t5.t5_pegasus_tokenizer", "T5PegasusTokenizer"],
-    "glm-large-ch": [
-        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
-        "GLMLargeChTokenizer"
-    ],
-    "glm-large-en": [
-        "flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer",
-        "GLMLargeEnWordPieceTokenizer"
-    ],
-    "glm-10b-ch": [
-        "flagai.data.tokenizer.glm_large_ch.glm_large_ch_tokenizer",
-        "GLMLargeChTokenizer"
-    ],
-    "gpt2-base-ch": ["flagai.data.tokenizer.bert.bert_tokenizer", "BertTokenizer"],
-    "cpm-large-ch": ["flagai.data.tokenizer.cpm_1.cpm1_tokenizer", "CPMTokenizer"],
-    "opt-125m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-350m-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-1.3b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-2.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-6.7b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-13b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-30b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-    "opt-66b-en": ["flagai.data.tokenizer.opt.opt_en_tokenizer","OPTTokenizer"],
-}
 
 class AutoLoader:
 
@@ -151,7 +135,7 @@ class AutoLoader:
                                          class_num=2)
 
         """
-        
+
         raw_model_name = copy.deepcopy(model_name)
 
         model_name = model_name.lower()
@@ -176,7 +160,6 @@ class AutoLoader:
             )
             return
 
-
         model_id = _get_model_id(f"{raw_model_name}-{task_name}")
         if model_id != 'null':
             model_name_ = f"{raw_model_name}-{task_name}"
@@ -186,49 +169,24 @@ class AutoLoader:
         os.makedirs(download_path, exist_ok=True)
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
-                                 download_path=model_dir,
-                                 model_name=model_name_,
-                                 only_download_config=only_download_config,
-                                 device=device,
-                                 **kwargs)
+            download_path=model_dir,
+            model_name=model_name_,
+            only_download_config=only_download_config,
+            device=device,
+            **kwargs)
 
-        model_id = _get_model_id(model_name)
+        try:
+            model_id = _get_model_id(model_name)
+        except:
+            print("Model hub is not reachable!")
+            model_id = -1
 
         print("*"*20, task_name, model_id, model_name)
-        if model_type == "nlp":
-            if "glm" in model_name and "ch" in model_name:
-                vocab_file = os.path.join(download_path,'cog-pretrained.model')
-                if not os.path.exists(vocab_file):
-                    vocab_file = _get_vocab_path(download_path, "cog-pretrain.model", model_id)
-            elif "glm" in model_name and "en" in model_name:
-                vocab_file = "GLM-large-en"
-            elif model_name == "cpm-large-ch":
-                # two files to load
-                vocab_file_1 = os.path.join(download_path, "vocab.json")
-                vocab_file_2 = os.path.join(download_path, "chinese_vocab.model")
-                if not os.path.exists(vocab_file_1):
-                    vocab_file_1 = _get_vocab_path(download_path, "vocab.json",
-                                                   model_id)
-                if not os.path.exists(vocab_file_2):
-                    vocab_file_2 = _get_vocab_path(download_path,
-                                                   "chinese_vocab.model", model_id)
-            else:
-                vocab_file = os.path.join(download_path, 'vocab.txt')
-                if not os.path.exists(vocab_file):
-                    vocab_file = _get_vocab_path(download_path, "vocab.txt",
-                                                 model_id)
-            tokenizer_class = TOKENIZER_DICT[model_name]
-            tokenizer_class = getattr(LazyImport(tokenizer_class[0]),
-                                        tokenizer_class[1])
-            if model_name == "cpm-large-ch":
-                self.tokenizer = tokenizer_class(vocab_file_1, vocab_file_2)
-            elif brief_model_name == "opt":
-                self.tokenizer = tokenizer_class("facebook/opt-350m")
-            elif model_name in ["glm-large-en", "glm-large-ch"]:
-                self.tokenizer = tokenizer_class()
-            else :
-                self.tokenizer = tokenizer_class(vocab_file)
-        elif model_type == "vision":
+        if model_type == "mm" or model_type == "nlp":
+            tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                      "Tokenizer")
+            self.tokenizer = tokenizer_class.from_pretrained(model_name)
+        else :
             self.tokenizer = None
 
     def get_task_name(self, brief_model_name):
@@ -246,5 +204,4 @@ class AutoLoader:
 
     def load_pretrain_params(self, model_path):
         self.model.load_huggingface_weights(model_path)
-
         print(f"Loading done: {model_path}")

@@ -134,7 +134,7 @@ class GLMPoetryDynamicCollateFN():  #padding process in each batch
 
 sents_src, sents_tgt = read_file()
 my_collate_fn = GLMPoetryDynamicCollateFN(
-    pad_id=tokenizer.get_command('pad').Id)
+    pad_id=tokenizer.get_command_id('pad'))
 
 data_len = len(sents_tgt)
 train_size = int(data_len * 0.8)

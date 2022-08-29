@@ -468,7 +468,7 @@ def t5_random_sample(model, tokenizer, text, input_max_length, out_max_length,
     token_ids = torch.tensor(token_ids, device=device,
                              dtype=torch.long).view(1, -1)
     output_ids = []
-    input_decoder_ids = torch.tensor(tokenizer.token_start_id,
+    input_decoder_ids = torch.tensor(tokenizer.get_command_id('cls'),
                                      device=device,
                                      dtype=torch.long).view(1, -1)
     lp = [
@@ -485,13 +485,13 @@ def t5_random_sample(model, tokenizer, text, input_max_length, out_max_length,
                 "decoder_input_ids": input_decoder_ids
             })["logits"]
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
             # filtered_logits = top_k_top_p_filtering(logit_score, top_k=top_k, top_p=top_p)
             filtered_logits = list_processor(input_decoder_ids, logit_score)
 
             filterd_logits_prob = F.softmax(filtered_logits, dim=-1)
             next_token = torch.multinomial(filterd_logits_prob, num_samples=1)
-            if tokenizer.token_end_id == next_token.item():
+            if tokenizer.get_command_id('eos') == next_token.item():
                 break
             output_ids.append(next_token.item())
             input_decoder_ids = torch.cat(
@@ -526,12 +526,12 @@ def bert_random_sample(model, tokenizer, text, input_max_length,
                 "segment_ids": token_type_ids
             })["logits"]
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
             filtered_logits = list_processor(token_ids, logit_score)
 
             filterd_logits_prob = F.softmax(filtered_logits, dim=-1)
             next_token = torch.multinomial(filterd_logits_prob, num_samples=1)
-            if tokenizer.token_end_id == next_token.item():
+            if tokenizer.get_command_id('eos') == next_token.item():
                 break
             output_ids.append(next_token.item())
             token_ids = torch.cat((token_ids, next_token.long()), dim=1)
@@ -546,7 +546,7 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
                       top_k, top_p, repetition_penalty, temperature, device):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
     token_ids = tokenizer_out["input_ids"]
-    token_end_id = tokenizer.token_end_id
+    token_end_id = tokenizer.get_command_id('eos')
     if token_ids[-1] == token_end_id:
         token_ids = token_ids[:-1]
 
@@ -561,12 +561,12 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
     token_ids = torch.tensor(token_ids, device=device,
                              dtype=torch.long).view(1, -1)
     output_ids = []
-    sep_id = tokenizer.token_end_id
+    sep_id = tokenizer.get_command_id('eos')
     with torch.no_grad():
         for step in range(out_max_length):
             scores = model(**{"input_ids": token_ids})["logits"]
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.token_unk_id] = -float('Inf')
+            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
 
             filtered_logits = list_processor(token_ids, logit_score)
             next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
@@ -670,7 +670,7 @@ def glm_beamsearch(model, tokenizer, text, out_max_length, beam_size):  #
 def bert_beamsearch(model, tokenizer, text, input_max_length, out_max_length,
                     beam_size):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
-    vocab = tokenizer.vocab
+    vocab = tokenizer.get_vocab()
     token_ids = tokenizer_out["input_ids"]
     token_ids = np.array(token_ids).reshape(1, -1)
     out_puts_ids = bert_beam_search(model,
@@ -752,8 +752,8 @@ def t5_beam_search(model,
                    beam_size=1,
                    out_max_length=50):
 
-    sep_id = tokenizer.token_end_id
-    decoder_input_ids = np.array(tokenizer.token_start_id,
+    sep_id = tokenizer.get_command_id('eos')
+    decoder_input_ids = np.array(tokenizer.get_command_id('cls'),
                                  dtype=np.int64).reshape(1, -1)
 
     output_ids = None
@@ -824,7 +824,7 @@ def glm_sample_sequence(model,
                         out_seq_length=512,
                         temperature=0.9,
                         top_k=40):
-    tokens = context_tokens.new_full((1, 1), tokenizer.get_command('sop').Id)
+    tokens = context_tokens.new_full((1, 1), tokenizer.get_command_id('sop'))
     counter = 0
     if mems is None:
         mems = []
@@ -879,9 +879,9 @@ def glm_generate_sample(
     if 'MASK]' not in text:
         text += ' ' + generation_mask
     context_tokens = tokenizer.EncodeAsIds(text)
-    context_tokens = [tokenizer.get_command('ENC').Id] + context_tokens
+    context_tokens = [tokenizer.get_command_id('cls')] + context_tokens
     if not text.endswith('[gMASK]'):
-        context_tokens = context_tokens + [tokenizer.get_command('eos').Id]
+        context_tokens = context_tokens + [tokenizer.get_command_id('eos')]
     context_length = len(context_tokens)
     context_length_tensor = torch.cuda.LongTensor([context_length])
     context_length = context_length_tensor[0].item()
@@ -905,8 +905,8 @@ def glm_generate_sample(
     position_ids = torch.stack((position_ids, block_position_ids), dim=0)
     position_ids = position_ids.unsqueeze(0)
     mask_tokens = ['MASK', 'sMASK', 'gMASK']
-    mask_tokens = [tokenizer.get_command(token).Id for token in mask_tokens]
-    end_tokens = [tokenizer.get_command('eop').Id, eod_token]
+    mask_tokens = [tokenizer.get_command_id(token) for token in mask_tokens]
+    end_tokens = [tokenizer.get_command_id('eop'), eod_token]
     mask_positions = []
     for token in mask_tokens:
         mask_positions += (context_tokens_tensor == token).nonzero(
@@ -938,7 +938,7 @@ def gpt_beam_search(model,
                     beam_size=1,
                     out_max_length=50):
 
-    sep_id = tokenizer.token_end_id
+    sep_id = tokenizer.get_command_id('eos')
 
     output_ids = None
     with torch.no_grad():

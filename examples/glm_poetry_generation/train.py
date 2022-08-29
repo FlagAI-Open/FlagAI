@@ -130,7 +130,7 @@ class GLMPoetryDynamicCollateFN():  #padding process in each batch
 train_src, train_tgt = read_file()
 print('-----------train data length:', len(train_src))
 my_collate_fn = GLMPoetryDynamicCollateFN(
-    pad_id=tokenizer.get_command('pad').Id)
+    pad_id=tokenizer.get_command_id('pad'))
 train_dataset = BertSeq2seqDataset(train_src, train_tgt)
 
 trainer.train(model, train_dataset=train_dataset, collate_fn=my_collate_fn)

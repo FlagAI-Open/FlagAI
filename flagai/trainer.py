@@ -481,7 +481,6 @@ class Trainer():
         best_score = float('inf')
         if len(self.metric_methods) > 0:
             best_score = -best_score
-
         for epoch in range(self.epochs):
             # log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
@@ -961,7 +960,7 @@ class Trainer():
                 all_losses = self._gather_all_mpu(all_losses)
 
             if all_losses.device != torch.device('cpu'):
-                all_losses = all_losses.cpu().detach().numpy()[0]
+                all_losses = all_losses.mean().cpu().detach().numpy()
 
             for i in range(len(self.metric_methods)):
                 eval_method = self.metric_methods[i][1]

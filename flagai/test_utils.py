@@ -14,10 +14,10 @@ def build_input_from_ids(text_a_ids=None,
                          mask_id=None,
                          masked_lm=False):
     if mask_id is None:
-        mask_id = tokenizer.get_command('MASK').Id
-    eos_id = tokenizer.get_command('eos').Id
-    cls_id = tokenizer.get_command('ENC').Id
-    sep_id = tokenizer.get_command('sep').Id
+        mask_id = tokenizer.get_command_id('MASK')
+    eos_id = tokenizer.get_command_id('eos')
+    cls_id = tokenizer.get_command_id('cls')
+    sep_id = tokenizer.get_command_id('sep')
     ids = []
     types = []
     paddings = []
@@ -61,7 +61,7 @@ def build_input_from_ids(text_a_ids=None,
     block_position_ids = [0] * len(ids)
     # Piece
     if add_piece or answer_ids is not None:
-        sop_id = tokenizer.get_command('sop').Id
+        sop_id = tokenizer.get_command_id('sop')
         mask_position = ids.index(
             mask_id
         ) if not args.sentinel_token else args.max_position_embeddings
