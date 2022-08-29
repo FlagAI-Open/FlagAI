@@ -32,7 +32,7 @@ from typing import List, Union, Optional
 import unicodedata
 
 def is_control(ch):
-    """控制类字符判断
+    """
     https://en.wikipedia.org/wiki/Control_character
     https://www.fileformat.info/info/unicode/category/Cc/index.htm
     https://www.fileformat.info/info/unicode/category/Cf/index.htm
