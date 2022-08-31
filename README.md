@@ -1,13 +1,13 @@
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
-[![Python application](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/BAAI-Open/FlagAI/actions/workflows/python-app.yml)
-![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/BAAI-Open/FlagAI?include_prereleases&style=social)
+[![Python application](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml)
+![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/FlagAI-Open/FlagAI?include_prereleases&style=social)
 [简体中文](README_zh.md)
 
 --------------------------------------------------------------------------------
 
 
-FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
+FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. Currently, we are focusing on NLP models and tasks. In near futher, we will support for other modalities.
 
 * Now it supports **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports **BERT**, **RoBERTa**, **GPT2**, **T5**, and models from Huggingface Transformers.
 
@@ -18,7 +18,7 @@ FlagAI (Fast LArge-scale General AI models) is an fast, easy-to-use and extensib
 * FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
 
-The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers), [timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 ## News
 - [29 Aug 2022] release v1.3.0, Added CLIP module and redesigned tokenizer apis in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
@@ -27,8 +27,6 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 - [17 May 2022] made our first contribution in [#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
 
 --------------------------------------------------------------------------------
-
-
 
 <!-- toc -->
 
@@ -59,8 +57,7 @@ pip install -U flagai
 - [Optional]To install FlagAI and develop locally:
 
 ```shell
-git clone https://github.com/BAAI-Open/FlagAI.git
-cd FlagAI 
+git clone https://github.com/FlagAI-Open/FlagAI.git
 python setup.py install
 ```
 
@@ -163,7 +160,7 @@ We provide a set of quick tutorials to get you started with the library:
 
 Thanks for your interest in contributing! There are many ways to get involved;
 start with our [contributor guidelines](CONTRIBUTING.md) and then
-check these [open issues](https://github.com/BAAI-Open/FlagAI/issues) for specific tasks.
+check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
 
 ## Contact us
 
