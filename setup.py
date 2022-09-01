@@ -28,5 +28,6 @@ setup(
         'datasets==2.0.0',
         'setuptools==59.5.0',
         'protobuf==3.20.1',
+        'ftfy == 6.1.1',
     ]
 )
