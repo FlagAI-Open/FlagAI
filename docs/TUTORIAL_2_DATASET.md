@@ -12,7 +12,7 @@ There are two forms of tuning for classification tasks: one is fine-tuning, and 
 
 ```python
 import torch
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
@@ -21,7 +21,7 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 cl_args = CollateArguments()
 
 # Create tokenizer
-tokenizer = GLMLargeEnWordPieceTokenizer()
+tokenizer = Tokenizer.from_pretrained("GLM-large-en")
             
 # Initially read and process the dataset
 dataset = SuperGlueDataset(task_name='cb',
@@ -254,17 +254,14 @@ Sample pre-training task data format:
 Pre-trained task processing example code:
 
 ```python
-tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
-                                add_task_mask=True,
-                                add_decoder_mask=False,
-                                fix_command_token=True)
+from flagai.data.tokenizer import Tokenizer
+from flagai.test_utils import PretrainDatasetArguments
+from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
+from flagai.data.dataset import BlockDataset
 
-ds_args = DatasetArguments()
+ds_args = PretrainDatasetArguments()
 
-tokenizer = GLMLargeChTokenizer(fix_command_token=True,
-                                add_block_symbols=True,
-                                add_task_mask=True,
-                                add_decoder_mask=False)
+tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
 
 ds_args = add_args(ds_args, tokenizer)
 
@@ -314,7 +311,7 @@ The code implementation is as follows:
 ```python 
 import torch
 from flagai.data.dataset import Seq2SeqDataset
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.test_utils import Seq2SeqCollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
@@ -322,10 +319,7 @@ from flagai.data.dataset import ConstructSeq2seqStrategy
 cl_args = Seq2SeqCollateArguments()
 
 # create tokenizer
-tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
-                       TUTORIAL_4_DATASET.md         add_task_mask=False,
-                                add_decoder_mask=False,
-                                fix_command_token=False)
+tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
             
 # Initially read and process the dataset
 dataset = Seq2SeqDataset(task_name='cmrc',
