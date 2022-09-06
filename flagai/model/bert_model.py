@@ -149,6 +149,8 @@ class BertModel(BaseModel):
         # So we can broadcast to [batch_size, num_heads, from_seq_length, to_seq_length]
         # this attention mask is more simple than the triangular masking of causal attention
         # used in OpenAI GPT, we just need to prepare the broadcast dimension here.
+        extended_attention_mask = extended_attention_mask.unsqueeze(
+            1).unsqueeze(2)
         if attention_mask is not None:
             extended_attention_mask = extended_attention_mask * attention_mask
         # extended_attention_mask = extended_attention_mask.unsqueeze(

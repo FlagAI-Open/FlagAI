@@ -51,7 +51,7 @@ class BaseModel(Module):
             model_id = _get_model_id(model_name)
         except:
             print("Model hub is not reachable!")
-        config_path = None
+        # config_path = None
         download_path = os.path.join(download_path, model_name)
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
         # prepare the download path
@@ -59,11 +59,11 @@ class BaseModel(Module):
         model: Union[Module, None]
         if model_id and model_id != "null":
             model_files = eval(_get_model_files(model_name))
-            if not os.path.exists(os.path.join(download_path, 'vocab.txt')):
-                if "vocab.txt" in model_files:
-                    _get_vocab_path(download_path, "vocab.txt", model_id)
+            for file_name in model_files:
+                if not file_name.endswith("bin"):
+                    _get_vocab_path(download_path, file_name, model_id)
 
-            if not only_download_config and not os.path.exists(os.path.join(download_path, 'config.json')):
+            if not only_download_config and os.path.exists(os.path.join(download_path, 'config.json')):
                 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
                     model_parallel_size = int(os.getenv("MODEL_PARALLEL_SIZE"))
                     if model_parallel_size > 1:
@@ -104,9 +104,7 @@ class BaseModel(Module):
                     torch.save(checkpoint_merge, os.path.join(download_path, "pytorch_model.bin"))
 
         config_path = os.path.join(download_path, "config.json")
-        if model_id and not os.path.exists(config_path) and model_id != "null":
-            config_path = _get_config_path(download_path, 'config.json',
-                                           model_id)
+
         if os.path.exists(config_path):
             model = cls.init_from_json(config_path, **kwargs)
             model.to(device)

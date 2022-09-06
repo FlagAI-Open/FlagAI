@@ -106,7 +106,7 @@ class WordpieceTokenizer(object):
                 output_tokens.extend(sub_tokens)
         return output_tokens
 
-    def tokenize(self, text):
+    def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
         if self.do_basic_tokenize:
             split_tokens = []
             for token in self.basic_tokenizer.tokenize(text):
@@ -114,7 +114,34 @@ class WordpieceTokenizer(object):
                     split_tokens.append(sub_token)
         else:
             split_tokens = self.word_piece(text)
+
+        if add_spatial_tokens:
+            split_tokens.insert(0, self._token_cls)
+            split_tokens.append(self._token_sep)
+
+        if maxlen is not None:
+            index = int(self._token_sep is not None) + 1
+            self.truncate_sequence(maxlen, split_tokens, pop_index=-index)
+        # print(f"split_tokens is {split_tokens}")
         return split_tokens
+
+    def truncate_sequence(self,
+                          max_length,
+                          first_sequence,
+                          second_sequence=None,
+                          pop_index=-1):
+
+        if second_sequence is None:
+            second_sequence = []
+
+        while True:
+            total_length = len(first_sequence) + len(second_sequence)
+            if total_length <= max_length:
+                break
+            elif len(first_sequence) > len(second_sequence):
+                first_sequence.pop(pop_index)
+            else:
+                second_sequence.pop(pop_index)
 
     def convert_token_to_id(self, token):
         """ Converts a sequence of tokens into ids using the vocab. """
