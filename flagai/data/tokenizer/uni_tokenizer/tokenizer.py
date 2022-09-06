@@ -71,8 +71,9 @@ class Tokenizer(BaseTokenizer):
             self.num_command_tokens = 6
             self.num_text_tokens = self.num_tokens - 5
             self.num_type_tokens = 2
-
-
+            self.token_start_id = None
+            self.token_end_id = None
+            self.token_pad_id = None
             try:
                 self._command_tokens = [
                     CommandToken('pad', '[PAD]', self.text_tokenizer.convert_token_to_id('[PAD]')),
@@ -82,7 +83,14 @@ class Tokenizer(BaseTokenizer):
                     CommandToken('unk', '[UNK]', self.text_tokenizer.convert_token_to_id('[UNK]')),
                     CommandToken('sep', '[SEP]', self.text_tokenizer.convert_token_to_id('[SEP]')),
                     CommandToken('eos', '[PAD]', self.text_tokenizer.convert_token_to_id('[PAD]')),
+
                 ]
+                self.token_start_id = self.text_tokenizer.convert_token_to_id('[CLS]')
+                self.token_end_id = self.text_tokenizer.convert_token_to_id('[SEP]')
+                self.token_pad_id = self.text_tokenizer.convert_token_to_id('[PAD]')
+                self.text_tokenizer._token_cls = "[CLS]"
+                self.text_tokenizer._token_sep = "[SEP]"
+
             except KeyError:
                 self._command_tokens = [
                     CommandToken('pad', '[PAD]', self.text_tokenizer.convert_token_to_id('<pad>')),
@@ -93,6 +101,11 @@ class Tokenizer(BaseTokenizer):
                     CommandToken('sep', '[SEP]', self.text_tokenizer.convert_token_to_id('<sep>')),
                     CommandToken('eos', '[PAD]', self.text_tokenizer.convert_token_to_id('</s>')),
                 ]
+                self.token_start_id = self.text_tokenizer.convert_token_to_id('<s>')
+                self.token_end_id = self.text_tokenizer.convert_token_to_id('</s>')
+                self.token_pad_id = self.text_tokenizer.convert_token_to_id('<pad>')
+                self.text_tokenizer._token_cls = "<s>"
+                self.text_tokenizer._token_sep = "</s>"
             if add_block_symbols:
                 self._command_tokens.extend([
                     CommandToken('sop', '<|startofpiece|>', self.num_tokens),
@@ -216,12 +229,10 @@ class Tokenizer(BaseTokenizer):
                 pad_token_id = self.num_tokens
                 eos_token_id = self.num_tokens
                 unk_token_id = self.num_tokens + 4
-                num_tokens_to_add = 4
             else:
                 pad_token_id = self.text_tokenizer.convert_token_to_id('<pad>')
                 eos_token_id = self.text_tokenizer.convert_token_to_id('</s>')
                 unk_token_id = self.text_tokenizer.convert_token_to_id('<unk>')
-                num_tokens_to_add = 3
             self._command_tokens = [
                 CommandToken('pad', '<|endoftext|>', pad_token_id),
                 CommandToken('eos', '<|endoftext|>', eos_token_id),
@@ -233,7 +244,7 @@ class Tokenizer(BaseTokenizer):
                              lstrip=True),
                 CommandToken('unk', '[UNK]', unk_token_id)
             ]
-            self.num_tokens += num_tokens_to_add
+            self.num_tokens += 5
             self.num_command_tokens += 6
             if add_block_symbols:
                 self._command_tokens.extend([
@@ -289,29 +300,54 @@ class Tokenizer(BaseTokenizer):
     def get_command_id(self, name):
         """get command token corresponding to `name`"""
         return self.command_name_map[name].Id
-    
-    def rematch(self, text, tokens):
-        text = text.lower()
 
+    def rematch(self, text, tokens):
+        """给出原始的text和tokenize后的tokens的映射关系
+        """
+        text = text.lower()
         normalized_text, char_mapping = '', []
+
         for i, ch in enumerate(text):
-            if True:
-                ch = unicodedata.normalize('NFD', ch)
-                ch = ''.join([c for c in ch if unicodedata.category(c) != 'Mn'])
             ch = ''.join([
                 c for c in ch
-                if not (ord(c) == 0 or ord(c) == 0xfffd or is_control(c))
+                if not (ord(c) == 0 or ord(c) == 0xfffd or self._is_control(c))
             ])
             normalized_text += ch
             char_mapping.extend([i] * len(ch))
 
         text, token_mapping, offset = normalized_text, [], 0
         for token in tokens:
-            start = text[offset:].index(token) + offset
-            end = start + len(token)
-            token_mapping.append(char_mapping[start:end])
-            offset = end
+            if self._is_special(token):
+                token_mapping.append([])
+            else:
+                token = self.stem(token)
+                start = text[offset:].index(token) + offset
+                end = start + len(token)
+                token_mapping.append(char_mapping[start:end])
+                offset = end
+
         return token_mapping
+
+    @staticmethod
+    def _is_control(ch):
+        """控制类字符判断
+        """
+        return unicodedata.category(ch) in ('Cc', 'Cf')
+
+    @staticmethod
+    def stem(token):
+        """获取token的“词干”（如果是##开头，则自动去掉##）
+        """
+        if token[:2] == '##':
+            return token[2:]
+        else:
+            return token
+
+    @staticmethod
+    def _is_special(ch):
+        """判断是不是有特殊含义的符号
+        """
+        return bool(ch) and (ch[0] == '[') and (ch[-1] == ']')
 
     def _encode(self, text):
         tokens = self.text_tokenizer.tokenize(text)
@@ -471,11 +507,12 @@ class Tokenizer(BaseTokenizer):
         )
 
     def prepare_for_model(
-        self,
-        ids: List[int],
-        pair_ids: Optional[List[int]] = None,
-        truncation: Union[bool, str] = True,
-        max_length: Optional[int] = None,
+            self,
+            ids: List[int],
+            pair_ids: Optional[List[int]] = None,
+            add_special_tokens: bool = True,
+            truncation: Union[bool, str] = True,
+            max_length: Optional[int] = None,
     ):
 
         pair = bool(pair_ids is not None)
@@ -495,10 +532,20 @@ class Tokenizer(BaseTokenizer):
                 pop_index=-1,
             )
 
-
-        sequence = ids + pair_ids if pair else ids
-        token_type_ids = [0] * len(ids) + ([0] *
-                                           len(pair_ids) if pair else [])
+        if add_special_tokens:
+            if pair_ids is not None:
+                sequence = [self.token_start_id] + ids + [
+                    self.token_end_id
+                ] + pair_ids + [self.token_end_id]
+                token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) +
+                                                               1)
+            else:
+                sequence = [self.token_start_id] + ids + [self.token_end_id]
+                token_type_ids = [0] * (len(ids) + 2)
+        else:
+            sequence = ids + pair_ids if pair else ids
+            token_type_ids = [0] * len(ids) + ([0] *
+                                               len(pair_ids) if pair else [])
 
         encoded_inputs["input_ids"] = sequence
         encoded_inputs["token_type_ids"] = token_type_ids
@@ -507,8 +554,8 @@ class Tokenizer(BaseTokenizer):
     def encode_plus(  #for Seq2seq
             self,
             source_text: str,
-            target_text=None,
             second_text=None,
+            target_text=None,
             truncation=True,
             max_length=None,
     ):

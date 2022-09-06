@@ -938,7 +938,7 @@ def gpt_beam_search(model,
                     beam_size=1,
                     out_max_length=50):
 
-    sep_id = tokenizer.get_command_id('eos')
+    sep_id = tokenizer.get_command_id('sep')
 
     output_ids = None
     with torch.no_grad():
