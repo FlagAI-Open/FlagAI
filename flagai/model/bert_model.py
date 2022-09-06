@@ -131,6 +131,7 @@ class BertModel(BaseModel):
 
         self.apply(init_bert_weights)
 
+
     def forward(self,
                 input_ids,
                 token_type_ids=None,
