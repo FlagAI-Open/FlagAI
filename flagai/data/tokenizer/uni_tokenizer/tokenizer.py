@@ -534,13 +534,13 @@ class Tokenizer(BaseTokenizer):
 
         if add_special_tokens:
             if pair_ids is not None:
-                sequence = [self.token_start_id] + ids + [
+                sequence = [self.get_command_id("cls")] + ids + [
                     self.token_end_id
                 ] + pair_ids + [self.token_end_id]
                 token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) +
                                                                1)
             else:
-                sequence = [self.token_start_id] + ids + [self.token_end_id]
+                sequence = [self.get_command_id("cls")] + ids + [self.get_command_id("eos")]
                 token_type_ids = [0] * (len(ids) + 2)
         else:
             sequence = ids + pair_ids if pair else ids
