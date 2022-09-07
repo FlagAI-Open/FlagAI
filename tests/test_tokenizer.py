@@ -72,7 +72,7 @@ class TokenizerTestCase(unittest.TestCase):
         tokenizer = Tokenizer.from_pretrained('opt-125m-en')
         self.assertEqual(tokenizer.encode("day"), [1208], '')
         self.assertEqual(tokenizer.encode_plus("fried chicken makes me happy")["input_ids"],
-                         [21209, 5884, 817, 162, 1372], '')
+                         [50260, 21209, 5884, 817, 162, 1372, 50260], '')
         self.assertEqual(tokenizer.decode([21209, 5884, 817, 162, 1372]),
                          'fried chicken makes me happy', 'DecodeIds Error')
 
