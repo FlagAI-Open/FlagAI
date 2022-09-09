@@ -51,7 +51,10 @@ class Tokenizer(BaseTokenizer):
         super().__init__(**kwargs)
 
         if self.tokenizer_class == "wp":
-            self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
+            if self.tokenizer_model_name.lower().endswith("ch"):
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file, is_ch=True)
+            else:
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
             if self.tokenizer_model_name.lower().startswith('clip'):
                 self.text_tokenizer = MMBPETokenizer(self.vocab_file, self.merges_file)
@@ -302,7 +305,7 @@ class Tokenizer(BaseTokenizer):
         return self.command_name_map[name].Id
 
     def rematch(self, text, tokens):
-        """给出原始的text和tokenize后的tokens的映射关系
+        """output the mapping relation between raw text and tokenizezd text
         """
         text = text.lower()
         normalized_text, char_mapping = '', []
@@ -325,7 +328,6 @@ class Tokenizer(BaseTokenizer):
                 end = start + len(token)
                 token_mapping.append(char_mapping[start:end])
                 offset = end
-
         return token_mapping
 
     @staticmethod

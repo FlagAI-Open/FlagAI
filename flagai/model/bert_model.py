@@ -150,9 +150,8 @@ class BertModel(BaseModel):
         # So we can broadcast to [batch_size, num_heads, from_seq_length, to_seq_length]
         # this attention mask is more simple than the triangular masking of causal attention
         # used in OpenAI GPT, we just need to prepare the broadcast dimension here.
-
-        input_attention_mask_dim = len(attention_mask.shape)
         if attention_mask is not None:
+            input_attention_mask_dim = len(attention_mask.shape)
             if input_attention_mask_dim == 4:
                 # seq2seq mask
                 extended_attention_mask = extended_attention_mask.unsqueeze(1).unsqueeze(2)
@@ -164,11 +163,12 @@ class BertModel(BaseModel):
             extended_attention_mask = extended_attention_mask * attention_mask
 
         # extended_attention_mask need to extend to 4 dimentions.
-        if input_attention_mask_dim == 2:
+        extended_attention_mask_dim = len(extended_attention_mask.shape)
+        if extended_attention_mask_dim == 2:
             extended_attention_mask = extended_attention_mask.unsqueeze(1).unsqueeze(2)
-        elif input_attention_mask_dim == 3:
+        elif extended_attention_mask_dim == 3:
             extended_attention_mask = extended_attention_mask.unsqueeze(1)
-        elif input_attention_mask_dim == 4:
+        elif extended_attention_mask_dim == 4:
             pass
         # Since attention_mask is 1.0 for positions we want to attend and 0.0 for
         # masked positions, this operation will create a tensor which is 0.0 for
