@@ -102,6 +102,7 @@ class BaseModel(Module):
         model: Union[Module, None]
         if model_id and model_id != "null":
             model_files = eval(_get_model_files(model_name))
+            print("model files:" + str(model_files))
             for file_name in model_files:
                 if not file_name.endswith("bin"):
                     _get_vocab_path(download_path, file_name, model_id)
