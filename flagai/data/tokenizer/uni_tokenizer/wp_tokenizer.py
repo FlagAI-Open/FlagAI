@@ -122,7 +122,6 @@ class WordpieceTokenizer(object):
         if maxlen is not None:
             index = int(self._token_sep is not None) + 1
             self.truncate_sequence(maxlen, split_tokens, pop_index=-index)
-        # print(f"split_tokens is {split_tokens}")
         return split_tokens
 
     def truncate_sequence(self,

@@ -168,12 +168,12 @@ class Predictor:
         model.eval()
         device = next(model.parameters()).device
         tokenizer = self.tokenizer
-        tokens = tokenizer.text_tokenizer.tokenize(text,
+        tokens = tokenizer.tokenize(text,
                                     maxlen=maxlen,
                                     add_spatial_tokens=True)
         
         mapping = tokenizer.rematch(text, tokens)
-        token_ids = tokenizer.text_tokenizer.convert_tokens_to_ids(tokens)
+        token_ids = tokenizer.convert_tokens_to_ids(tokens)
         token_ids = torch.tensor([token_ids], dtype=torch.long, device=device)
 
         trans = model.state_dict().get("crf_layer.trans", None)
