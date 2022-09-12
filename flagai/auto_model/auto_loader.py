@@ -173,7 +173,7 @@ class AutoLoader:
         if model_type == "mm" or model_type == "nlp":
             tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
                                       "Tokenizer")
-            self.tokenizer = tokenizer_class.from_pretrained(model_name, cache_dir=download_path)
+            self.tokenizer = tokenizer_class.from_pretrained(model_name)
         else :
             self.tokenizer = None
 
