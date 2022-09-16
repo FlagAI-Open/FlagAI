@@ -15,7 +15,7 @@ trainer = Trainer(
     env_type=env_type,
     experiment_name="vit-cifar100-deepspeed",
     batch_size=150,
-    num_gpus=8,
+    num_gpus=2,
     fp16=True,
     gradient_accumulation_steps=1,
     lr=lr,
@@ -29,6 +29,7 @@ trainer = Trainer(
     save_interval=1000,
     num_checkpoints=1,
     hostfile="./hostfile",
+    deepspeed_config='./deepspeed.json',
     training_script="train_deepspeed.py"
 )
 

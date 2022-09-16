@@ -330,14 +330,10 @@ class Tokenizer(BaseTokenizer):
 
     @staticmethod
     def _is_control(ch):
-        """控制类字符判断
-        """
         return unicodedata.category(ch) in ('Cc', 'Cf')
 
     @staticmethod
     def stem(token):
-        """获取token的“词干”（如果是##开头，则自动去掉##）
-        """
         if token[:2] == '##':
             return token[2:]
         else:
@@ -345,8 +341,6 @@ class Tokenizer(BaseTokenizer):
 
     @staticmethod
     def _is_special(ch):
-        """Determine if there are any special tokens.
-        """
         return bool(ch) and (ch[0] == '[') and (ch[-1] == ']')
 
     def _encode(self, text):
