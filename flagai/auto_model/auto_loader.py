@@ -105,7 +105,7 @@ class AutoLoader:
     def __init__(self,
                  task_name: str = "lm",
                  model_name: str = "RoBERTa-base-ch",
-                 model_dir: str = "./state_dict/",
+                 model_dir: str = "./checkpoints/",
                  only_download_config: bool = False,
                  device="cpu",
                  **kwargs):

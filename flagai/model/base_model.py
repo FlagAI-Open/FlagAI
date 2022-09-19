@@ -53,10 +53,7 @@ class BaseModel(Module):
         config_path = os.path.join(download_path, "config.json")
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
 
-        def load_local(checkpoint_path, config_path, **kwargs):
-            ''' The model will not be loaded if config file or checkpoint file do not exist.
-            '''
-            assert checkpoint_path is not None and config_path is not None
+        def load_local(checkpoint_path):
             model = cls.init_from_json(config_path, **kwargs)
             model.to(device)
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
@@ -93,8 +90,8 @@ class BaseModel(Module):
                     model.load_weights(checkpoint_path)
             return model
 
-        if os.path.exists(config_path) and os.path.exists(checkpoint_path):
-            return load_local(config_path, checkpoint_path, **kwargs)
+        if os.path.exists(config_path):
+            return load_local(checkpoint_path)
 
         try:
             model_id = _get_model_id(model_name)
@@ -149,4 +146,4 @@ class BaseModel(Module):
                                 checkpoint_merge[k] = v
                     # save all parameters
                     torch.save(checkpoint_merge, os.path.join(download_path, "pytorch_model.bin"))
-        return load_local(config_path, checkpoint_path, **kwargs)
+        return load_local(checkpoint_path)
