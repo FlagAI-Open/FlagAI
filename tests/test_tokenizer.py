@@ -59,7 +59,7 @@ class TokenizerTestCase(unittest.TestCase):
     def test_tokenizer_cpm1(self):
         loader = AutoLoader(task_name="lm",
                             model_name="CPM-large-ch",
-                            model_dir="./state_dict/",
+                            model_dir="./checkpoints/",
                             only_download_config=True)
         tokenizer = loader.get_tokenizer()
         self.assertEqual(tokenizer.encode("day"), [8, 8275], '')
