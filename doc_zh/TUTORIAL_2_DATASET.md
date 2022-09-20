@@ -33,7 +33,7 @@
 ### 分类任务应用代码
 ```python
 import torch
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import Tokenizer 
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSuperglueStrategy
@@ -42,7 +42,7 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 cl_args = CollateArguments()
 
 # 创建分词器
-tokenizer = GLMLargeEnWordPieceTokenizer()
+tokenizer = Tokenizer.from_pretrained("GLM-large-en")
             
 # 初步读取并处理数据集
 dataset = SuperGlueDataset(task_name='cb',
@@ -368,22 +368,15 @@ class ExamplePVP(PVP):
 ```
 ### 预训练的任务处理实例代码
 ```python
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer 
 from flagai.data.dataset import BlockDataset
 from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
 from flagai.test_utils import PretrainDatasetArguments
 
-tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
-                                add_task_mask=True,
-                                add_decoder_mask=False,
-                                fix_command_token=True)
 
 ds_args = PretrainDatasetArguments()
 
-tokenizer = GLMLargeChTokenizer(fix_command_token=True,
-                                add_block_symbols=True,
-                                add_task_mask=True,
-                                add_decoder_mask=False)
+tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
 
 ds_args = add_args(ds_args, tokenizer)
 
@@ -432,7 +425,7 @@ datasets = create_dataset(tokenizer, should_split=True)
 ```python 
 import torch
 from flagai.data.dataset import Seq2SeqDataset
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset import ConstructSeq2seqStrategy
 
@@ -440,10 +433,7 @@ from flagai.data.dataset import ConstructSeq2seqStrategy
 cl_args = Seq2SeqCollateArguments()
 
 # 创建分词器
-tokenizer = GLMLargeChTokenizer(add_block_symbols=True,
-                       TUTORIAL_4_DATASET.md         add_task_mask=False,
-                                add_decoder_mask=False,
-                                fix_command_token=False)
+tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
             
 # 初步读取并处理数据集
 dataset = Seq2SeqDataset(task_name='cmrc',

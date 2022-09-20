@@ -29,7 +29,7 @@ class SentencePieceTokenizer(object):
 
     @property
     def vocab_size(self):
-        return self.sp_model.get_piece_size()
+        return self.sp_model.GetPieceSize()
 
     def get_vocab(self):
         vocab = {self.convert_id_to_token(i): i for i in range(self.vocab_size)}

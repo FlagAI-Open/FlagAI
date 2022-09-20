@@ -38,15 +38,15 @@ class TokenizerTestCase(unittest.TestCase):
                          [3, 7704, 3832, 656, 140, 1095], '')
         self.assertEqual(tokenizer.DecodeIds([3, 7704, 3832, 656, 140, 1095]),
                          'fried chicken makes me happy', 'DecodeIds Error')
-    # # #
-    # def test_tokenizer_roberta(self):
-    #     tokenizer = ROBERTATokenizer(tokenizer_model_type='roberta-base')
-    #     tokenizer = Tokenizer.from_pretrained('t5-base-en')
-    #     self.assertEqual(tokenizer.TokenToId("day"), 1208, '')
-    #     self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
-    #                      [21209, 5884, 817, 162, 1372], '')
-    #     self.assertEqual(tokenizer.DecodeIds([21209, 5884, 817, 162, 1372]),
-    #                      'fried chicken makes me happy', 'DecodeIds Error')
+
+    def test_tokenizer_roberta(self):
+        tokenizer = Tokenizer.from_pretrained('RoBERTa-base-ch')
+        # print(tokenizer.DecodeIds([791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825]))
+        self.assertEqual(tokenizer.TokenToId("人"), 782, '')
+        self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
+                         [791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825], '')
+        self.assertEqual(tokenizer.DecodeIds([791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825]),
+                         '今天吃饭吃了肯德基', 'DecodeIds Error')
 
     def test_tokenizer_bert(self):
         tokenizer = Tokenizer.from_pretrained('BERT-base-en')
@@ -59,7 +59,7 @@ class TokenizerTestCase(unittest.TestCase):
     def test_tokenizer_cpm1(self):
         loader = AutoLoader(task_name="lm",
                             model_name="CPM-large-ch",
-                            model_dir="./state_dict/",
+                            model_dir="./checkpoints/",
                             only_download_config=True)
         tokenizer = loader.get_tokenizer()
         self.assertEqual(tokenizer.encode("day"), [8, 8275], '')
@@ -72,7 +72,7 @@ class TokenizerTestCase(unittest.TestCase):
         tokenizer = Tokenizer.from_pretrained('opt-125m-en')
         self.assertEqual(tokenizer.encode("day"), [1208], '')
         self.assertEqual(tokenizer.encode_plus("fried chicken makes me happy")["input_ids"],
-                         [21209, 5884, 817, 162, 1372], '')
+                         [50260, 21209, 5884, 817, 162, 1372, 50260], '')
         self.assertEqual(tokenizer.decode([21209, 5884, 817, 162, 1372]),
                          'fried chicken makes me happy', 'DecodeIds Error')
 
@@ -83,7 +83,7 @@ def suite():
     suite.addTest(TokenizerTestCase('test_tokenizer_GLM_large_en'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_glm_10_en'))
     suite.addTest(TokenizerTestCase('test_tokenizer_t5'))
-    # suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
     suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
     suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
     suite.addTest(TokenizerTestCase('test_tokenizer_opt'))

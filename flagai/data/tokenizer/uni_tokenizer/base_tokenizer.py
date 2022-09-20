@@ -22,11 +22,10 @@ class BaseTokenizer(object):
                 The directory that contains the vocab files, or will receive the downloaded vocab files
         """
         if cache_dir is None:
-            # cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs')
-            cache_dir = "/root/.cache/FlagAI/"+tokenizer_model_name
+            # cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs', f"{tokenizer_model_name}")
+            cache_dir = './checkpoints/'+tokenizer_model_name
         tokenizer_class = ""
         # search the cache directory for certain files
-
         if os.path.exists(cache_dir):
             files = os.listdir(cache_dir)
             if SP_MODEL_FILE in files:

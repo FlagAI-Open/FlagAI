@@ -3,8 +3,6 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import importlib
 import os
-
-from  flagai.model.file_utils import _get_model_id, _get_vocab_path
 import copy
 
 class LazyImport(object):
@@ -87,6 +85,7 @@ MODEL_DICT = {
     "vit-large-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+
     "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
@@ -161,32 +160,20 @@ class AutoLoader:
             )
             return
 
-        model_id = _get_model_id(f"{raw_model_name}-{task_name}")
-        if model_id != 'null':
-            model_name_ = f"{raw_model_name}-{task_name}"
-        else:
-            model_name_ = raw_model_name
-        download_path = os.path.join(model_dir, model_name_)
-        os.makedirs(download_path, exist_ok=True)
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
             download_path=model_dir,
-            model_name=model_name_,
+            model_name=raw_model_name,
             only_download_config=only_download_config,
             device=device,
             **kwargs)
 
-        try:
-            model_id = _get_model_id(model_name)
-        except:
-            print("Model hub is not reachable!")
-            model_id = -1
-
-        print("*"*20, task_name, model_id, model_name)
+        download_path = os.path.join(model_dir, raw_model_name)
+        print("*"*20, task_name, model_name)
         if model_type == "mm" or model_type == "nlp":
             tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
                                       "Tokenizer")
-            self.tokenizer = tokenizer_class.from_pretrained(model_name)
+            self.tokenizer = tokenizer_class.from_pretrained(model_name, cache_dir=download_path)
         else :
             self.tokenizer = None
 

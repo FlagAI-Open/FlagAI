@@ -17,29 +17,16 @@ and have different vocabulary files.
 
 [//]: # (An introduction to those algorithms can be viewed [here]&#40;tokenization.md&#41;.)
 
-Our projects currently support six tokenizers
-as listed below:
-
-| Tokenizer                    | Language |
-|------------------------------|----------|
-| GLMLargeEnWordPieceTokenizer | English  |
-| GLMLargeChTokenizer          | Chinese  |
-| GLM10bENBPETokenizer         | English  |
-| T5BPETokenizer               | Chinese  |
-| ROBERTATokenizer             | Chinese  |
-| BertWordPieceTokenizer       | Chinese  | 
-| CPMTokenizer                 | Chinese  |
-
 
 
 
 ## Loading a tokenizer
 ```python
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-
-tokenizer = GLMLargeEnWordPieceTokenizer()       # Load tokenizer
+from flagai.data.tokenizer import Tokenizer
+model_name = "GLM-large-en"
+tokenizer = Tokenizer.from_pretrained(model_name) # Load tokenizer 
 ```
-At this step, the vocab files from Modelhub will be automatically downloaded to the path specified in `cache_dir` parameter. It is set to `./vocab` directory under the tokenizer file in default.  
+At this step, the vocab files from Modelhub will be automatically downloaded to the path specified in `cache_dir` parameter. It is set to `./checkpoints/{model_name}` directory in default.  
 
 ## Applying a tokenizer
 The tokenizer can be used to encode text to a list of token IDs, as well as decoding the token IDs to the original text. 
@@ -68,28 +55,3 @@ class T5BPETokenizer(Tokenizer):
         self.text_tokenizer.max_len = int(1e12)
 ```
 
-### 3. Define Tokenizer APIs (without huggingface)
-If huggingface tokenizers are not used, you need to implement the following class functions by your own.
-
-```python
-def EncodeAsIds(self, text: str, process_fn=None):
-    """Input text string => a list of token ids"""
-
-def EncodeAsTokens(self, text: str, process_fn=None):
-    """Input text string => a list of tokens"""
-
-def IdToToken(self, Id: int):
-    """Token id => token"""
-
-def TokenToId(self, token: str):
-    """Token => token id"""
-    return self.text_tokenizer._convert_token_to_id(token)
-
-def DecodeIds(self, Ids: list[int]):
-    """A list of token ids => recovered text string"""
-    return self.DecodeTokens([self.IdToToken(id) for id in Ids])
-
-def DecodeTokens(self, tokens: list[str]):
-    """A list of tokens => recovered text string"""
-    return self.text_tokenizer.convert_tokens_to_string(tokens)
-```

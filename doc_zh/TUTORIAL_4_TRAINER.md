@@ -13,7 +13,7 @@
     - [deepspeed](#deepspeed)
     - [pytorchDDP](#pytorchddp)
     - [deepspeed + megatron-lm](#deepspeed--megatron-lm)
-- [EnvTrainer](#EnvTrainer)
+- [EnvTrainer](#envtrainer)
 
 Trainer 类提供了API用于多种并行框架的训练。API 支持在多个 GPU上使用Pytorch DDP/Deepspeed进行分布式训练，同时支持Megatron-LM+Deepspeed的混合并行分布式训练，同时也通过 NVIDIA Apex 实现混合精度。
 ## 入门
@@ -335,6 +335,7 @@ trainer = MyTrainer(
 )
 ```
 
+
 # EnvTrainer
 
 为了更容易的输入参数，我们提供了EnvTrainer代替原来的Trainer
@@ -385,9 +386,10 @@ python train.py --test1=1
 ```
 更多的例子可以查看 :
 
-1. [vit-env-trainer](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/vit_cifar100/train_env_trainer.py)
+1. [vit-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/vit_cifar100/train_env_trainer.py)
 
-2. [glm-title-generation-env-trainer](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/glm_title_generation/train_env_trainer.py)
+2. [glm-title-generation-env-trainer](https://github.com/BAAI-Open/FlagAI/tree/master/examples/glm_title_generation/train_env_trainer.py)
+
 
 # 使用 pytorchDDP launcher 或 deepspeed launcher 运行
 如果你使用多个GPU来训练模型，你可以直接运行train.py来调用FlagAI训练器中的启动器。

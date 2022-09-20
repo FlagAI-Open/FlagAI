@@ -13,7 +13,7 @@
     - [deepspeed](#deepspeed)
     - [pytorchDDP](#pytorchddp)
     - [deepspeed + megatron-lm](#deepspeed--megatron-lm)
-- [EnvTrainer](#EnvTrainer)
+- [EnvTrainer](#envtrainer)
 
 
 The Trainer class provides APIs for training with multiple parallel frameworks. The API supports distributed training with Pytorch DDP/Deepspeed on multiple GPUs, as well as mixed parallel distributed training with Megatron-LM+Deepspeed, and mixed precision via NVIDIA Apex.

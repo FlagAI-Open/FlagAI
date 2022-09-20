@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="flagai",
-    version="v1.3.0",
+    version="v1.3.2",
     description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP/CV/VL tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
@@ -28,5 +28,6 @@ setup(
         'datasets==2.0.0',
         'setuptools==59.5.0',
         'protobuf==3.20.1',
+        'ftfy == 6.1.1',
     ]
 )

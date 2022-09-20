@@ -37,17 +37,16 @@ GLM 对下游任务进行微调，并将它们重新定义为空白填充生成�
 ```python
 import torch
 from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples') 
-    tokenizer = GLMLargeChTokenizer(vocab_path='./checkpoints/glm-large-ch/cog-pretrain.model',
-                                    add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=False)
-    model = GLMModel.from_pretrain(model_name='glm-large-ch', only_download_config=False)
+    model_name = 'GLM-large-ch'
+    model = GLMModel.from_pretrain(model_name=model_name,
+                                   download_path="./state_dict/")
+    tokenizer = Tokenizer.from_pretrained(model_name)
+    tokenizer = Tokenizer.from_pretrained(model_name, only_download_config=False)
     model.cuda(torch.cuda.current_device())
     predictor = Predictor(model, tokenizer)
     # question-answering
@@ -60,17 +59,14 @@ if __name__ == "__main__":
 ```python
 import torch
 from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples') 
-    tokenizer = GLMLargeChTokenizer(vocab_path='./checkpoints/glm-large-ch/cog-pretrain.model',
-                                    add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=False)
-    model = GLMModel.from_pretrain(model_name='glm-large-ch', only_download_config=False)
+    model_name = 'GLM-large-ch'
+    tokenizer = Tokenizer.from_pretrained(model_name)
+    model = GLMModel.from_pretrain(model_name=model_name, only_download_config=False)
     model.cuda(torch.cuda.current_device())
     predictor = Predictor(model, tokenizer)
     # question-answering
@@ -88,12 +84,9 @@ from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples') 
-    tokenizer = GLMLargeChTokenizer(vocab_path='./checkpoints/glm-large-ch/cog-pretrain.model',
-                                    add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=False)
-    model = GLMModel.from_pretrain(model_name='glm-large-ch', only_download_config=False)
+    model_name = 'GLM-large-ch'
+    tokenizer = Tokenizer.from_pretrained(model_name)
+    model = GLMModel.from_pretrain(model_name=model_name, only_download_config=False)
     model.cuda(torch.cuda.current_device())
     predictor = Predictor(model, tokenizer)
     # question-answering

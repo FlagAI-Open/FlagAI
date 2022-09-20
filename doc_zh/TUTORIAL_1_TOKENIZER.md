@@ -9,25 +9,15 @@
 
 值得注意的是，不同的分词器可以有不同的文本分割方式，并且有不同的词表文件,  相关算法的介绍可以在 [这里](tokenization.md) 查看。
 
-目前我们支持下列七个分词器:
-
-| 分词器                          | 语言  |
-|------------------------------|-----|
-| GLMLargeEnWordPieceTokenizer | 英文  |
-| GLMLargeChTokenizer          | 中文  |
-| GLM10bENBPETokenizer         | 英文  |
-| T5BPETokenizer               | 中文  |
-| ROBERTATokenizer             | 中文  |
-| BertWordPieceTokenizer       | 中文  |
-| CPMTokenizer                 | 中文  |
-
 
 ## 加载分词器
 ```python
-from flagai.data.tokenizer import GLMLargeEnWordPieceTokenizer
-tokenizer = GLMLargeEnWordPieceTokenizer()
+from flagai.data.tokenizer import Tokenizer
+model_name = "GLM-large-ch"
+tokenizer = Tokenizer.from_pretrained(model_name)
 ```
-在这一步里，模型仓库中的词表文件将被自动下载到`cache_dir`参数中指定的路径。默认设置为分词器文件下的 ./vocab 目录。
+在这一步里，模型仓库中的词表文件将被自动下载到`cache_dir`参数中指定的路径。默认设置为 `./checkpoints/{model_name}` 目录。
+
 
 ## 应用分词器
 让我们使用一个分词器将原始文本编码成数字序列，然后将数字序列恢复成原始文本：
@@ -53,30 +43,4 @@ class T5BPETokenizer(Tokenizer):
         self.text_tokenizer = T5Tokenizer.from_pretrained(model_type_or_path,
                                                             cache_dir=cache_dir)
         self.text_tokenizer.max_len = int(1e12)
-```
-
-### 3. 自定义分词器的接口
-如果Hugging Face里的分词器不能满足您的需求，那么需要先准备好一份词表，然后手动实现下列函数的功能：
-
-```python
-def EncodeAsIds(self, text: str, process_fn=None):
-    """输入文本 => 一个token序号列表"""
-
-def EncodeAsTokens(self, text: str, process_fn=None):
-    """输入文本 => 一个token列表"""
-
-def IdToToken(self, Id: int):
-    """Token序号 => token"""
-
-def TokenToId(self, token: str):
-    """Token => token序号"""
-    return self.text_tokenizer._convert_token_to_id(token)
-
-def DecodeIds(self, Ids: list[int]):
-    """一个token序号列表 => 对应的文本"""
-    return self.DecodeTokens([self.IdToToken(id) for id in Ids])
-
-def DecodeTokens(self, tokens: list[str]):
-    """一个token列表 => 对应的文本"""
-    return self.text_tokenizer.convert_tokens_to_string(tokens)
 ```
