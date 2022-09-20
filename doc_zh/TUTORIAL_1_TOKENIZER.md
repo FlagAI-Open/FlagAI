@@ -16,7 +16,7 @@ from flagai.data.tokenizer import Tokenizer
 model_name = "GLM-large-ch"
 tokenizer = Tokenizer.from_pretrained(model_name)
 ```
-在这一步里，模型仓库中的词表文件将被自动下载到`cache_dir`参数中指定的路径。默认设置为分词器文件下的 ./vocab 目录。
+在这一步里，模型仓库中的词表文件将被自动下载到`cache_dir`参数中指定的路径。默认设置为 `./checkpoints/{model_name}` 目录。
 
 
 ## 应用分词器

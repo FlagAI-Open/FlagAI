@@ -91,6 +91,10 @@ class BaseModel(Module):
             return model
 
         if os.path.exists(config_path):
+            """
+            It is fine when checkpoint_path does not exist, for the case that only_download_config=True
+            At that time the model will not be loaded. 
+            """
             return load_local(checkpoint_path)
 
         try:
