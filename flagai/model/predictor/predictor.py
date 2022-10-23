@@ -9,6 +9,15 @@ from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_bea
     t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
+from Sampler import DDIMSampler,PLMSSampler
+import os
+from PIL import Image
+from tqdm import trange, tqdm
+import time
+from contextlib import contextmanager, nullcontext
+from einops import rearrange
+from torchvision.utils import make_grid 
+from flagai.model.predictor.utils import chunk
 
 
 class Predictor:
@@ -302,3 +311,133 @@ class Predictor:
             print("Unsupported decoding mode")
             import os
             os._exit(0)
+
+
+    def predict_generate_images(self,
+                                prompt: str,
+                                outpath: str = "open_CNCLIP_samples",
+                                n_samples:int = 4,
+                                n_rows:int = 0,
+                                skip_grid:bool = False,
+                                skip_save:bool = False,
+                                ddim_steps:int = 50,
+                                n_iter:int = 1,
+                                plms:bool = False,
+                                laion400m:bool = False,
+                                fixed_code:bool = False,
+                                ddim_eta:float = 0.0,
+                                H:int = 512,
+                                W:int = 512,
+                                C:int = 4,
+                                f:int = 8,
+                                scale:float = 7.5,
+                                from_file:str = None,
+                                precision:str = "autocast"):
+        """
+        Args:
+        text: The input text.
+        input_max_length: The max length of input text.
+        out_max_length: The max length of output text.
+        top_k: keep only top k tokens with highest probability (top-k filtering).
+        top_p: keep the top tokens with cumulative probability >= top_p (nucleus filtering).(http://arxiv.org/abs/1904.09751)
+        repetition_penalty: avoid the repetition out. (https://arxiv.org/pdf/1909.05858.pdf)
+        temperature: normalization the score.
+        """
+
+
+        assert "diffusion" in self.class_name.lower()
+        device = next(self.model.parameters()).device
+        if plms:
+            sampler = PLMSSampler(self.model)
+        else:
+            sampler = DDIMSampler(self.model)
+
+        os.makedirs(outpath, exist_ok=True)
+
+
+        batch_size = n_samples
+        n_rows = n_rows if n_rows > 0 else batch_size
+        if not from_file:
+            assert prompt is not None
+            data = [batch_size * [prompt]]
+
+        else:
+            print(f"reading prompts from {from_file}")
+            with open(from_file, "r") as f:
+                data = f.read().splitlines()
+                data = list(chunk(data, batch_size))
+
+        sample_path = os.path.join(outpath, "samples")
+        os.makedirs(sample_path, exist_ok=True)
+        base_count = len(os.listdir(sample_path))
+        grid_count = len(os.listdir(outpath)) - 1
+
+        start_code = None
+        if fixed_code:
+            start_code = torch.randn([n_samples, C, H // f, W // f], device=device)
+
+        precision_scope =  nullcontext
+        with torch.no_grad():
+            with precision_scope("cuda"):
+                with self.model.ema_scope():
+                    tic = time.time()
+                    all_samples = list()
+                    for n in trange(n_iter, desc="Sampling"):
+                        for prompts in tqdm(data, desc="data"):
+                            uc = None
+                            if scale != 1.0:
+                                uc = self.model.get_learned_conditioning(batch_size * [""])
+                            if isinstance(prompts, tuple):
+                                prompts = list(prompts)
+                            c = self.model.get_learned_conditioning(prompts)
+                            shape = [C, H // f, W // f]
+                            samples_ddim, _ = sampler.sample(S=ddim_steps,
+                                                            conditioning=c,
+                                                            batch_size=n_samples,
+                                                            shape=shape,
+                                                            verbose=False,
+                                                            unconditional_guidance_scale=scale,
+                                                            unconditional_conditioning=uc,
+                                                            eta=ddim_eta,
+                                                            x_T=start_code)
+
+                            x_samples_ddim = self.model.decode_first_stage(samples_ddim)
+                            x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+                            x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
+
+                            # x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+
+                            x_checked_image_torch = torch.from_numpy(x_samples_ddim).permute(0, 3, 1, 2)
+
+                            prompt_count = 0
+                            if not skip_save:
+                                for x_sample in x_checked_image_torch:
+                                    x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
+                                    img = Image.fromarray(x_sample.astype(np.uint8))
+                                    img.save(os.path.join(sample_path, f"{base_count:05}.png"))
+                                    #img.save(os.path.join(sample_path, f"{prompts[prompt_count]}.png"))
+
+                                    base_count += 1
+                                    prompt_count = prompt_count%batch_size
+                                    prompt_count+=1
+
+                            if not skip_grid:
+                                all_samples.append(x_checked_image_torch)
+
+                    if not skip_grid:
+                        # additionally, save as grid
+                        grid = torch.stack(all_samples, 0)
+                        grid = rearrange(grid, 'n b c h w -> (n b) c h w')
+                        grid = make_grid(grid, nrow=n_rows)
+
+                        # to image
+                        grid = 255. * rearrange(grid, 'c h w -> h w c').cpu().numpy()
+                        img = Image.fromarray(grid.astype(np.uint8))
+                        # img = put_watermark(img, wm_encoder)
+                        img.save(os.path.join(outpath, f'grid-{grid_count:04}.png'))
+                        grid_count += 1
+
+                    toc = time.time()
+
+        print(f"Your samples are ready and waiting for you here: \n{outpath} \n"
+            f" \nEnjoy.")

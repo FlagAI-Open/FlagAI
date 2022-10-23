@@ -11,6 +11,32 @@ import time
 
 join = os.path.join
 
+def chunk(it, size):
+    it = iter(it)
+    return iter(lambda: tuple(islice(it, size)), ())
+
+
+def numpy_to_pil(images):
+    """
+    Convert a numpy image or a batch of images to a PIL image.
+    """
+    if images.ndim == 3:
+        images = images[None, ...]
+    images = (images * 255).round().astype("uint8")
+    pil_images = [Image.fromarray(image) for image in images]
+
+    return pil_images
+
+
+def load_replacement(x):
+    try:
+        hwc = x.shape
+        y = Image.open("assets/rick.jpeg").convert("RGB").resize((hwc[1], hwc[0]))
+        y = (np.array(y)/255.0).astype(x.dtype)
+        assert y.shape == x.shape
+        return y
+    except Exception:
+        return x
 
 def load_config(config_path):
     with open(config_path) as f:

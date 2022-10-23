@@ -55,6 +55,7 @@ ALL_TASK = {
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
     "swinv2_classification": ("flagai.model.vision.swinv2", "SwinTransformerV2"),
+    "diffusion_text2img": ("flagai.model.mm.diffusion", "LatentDiffusion")
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -90,6 +91,9 @@ MODEL_DICT = {
     "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+
+    "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "diffusion-ddpm-cnclip":["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
 
     "swinv1-base-patch4-window7-224": ["flagai.model.vision.swinv1", "SwinTransformer","swinv1","vision"],
 

@@ -8,6 +8,7 @@ import json
 from typing import Union 
 from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path, _get_model_files
 import os
+import pdb
 
 # The base model for models
 class BaseModel(Module):
@@ -40,6 +41,23 @@ class BaseModel(Module):
         return cls(args, **kwargs)
 
     @classmethod
+    def _load_state_dict_into_model(cls, model, pretrained_model_name_or_path, verbose=False):
+        pl_sd = torch.load(pretrained_model_name_or_path, map_location="cpu")
+        sd = pl_sd["state_dict"]
+        if "global_step" in pl_sd:
+            print(f"Global Step: {pl_sd['global_step']}")
+        m, u = model.load_state_dict(sd, strict=False)
+        if len(m) > 0 and verbose:
+            print("missing keys:")
+            print(m)
+        if len(u) > 0 and verbose:
+            print("unexpected keys:")
+            print(u)
+        model.cuda()
+        model.eval()
+        return model
+
+    @classmethod
     def from_pretrain(cls,
                       download_path='./checkpoints/',
                       model_name='RoBERTa-base-ch',
@@ -50,6 +68,7 @@ class BaseModel(Module):
 
         # Try load model from local path
         download_path = os.path.join(download_path, model_name)
+        
         config_path = os.path.join(download_path, "config.json")
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
 
@@ -90,12 +109,32 @@ class BaseModel(Module):
                     model.load_weights(checkpoint_path)
             return model
 
-        if os.path.exists(config_path):
+        yaml_path = os.path.join(download_path, "config.yaml")
+        if os.path.exists(yaml_path):
+            """
+            Now only diffusion models requires yaml
+            """
+            from omegaconf import OmegaConf
+            checkpoint_path = os.path.join(download_path, "model.ckpt")   # Specific to diffusion models 
+
+            config = OmegaConf.load(f"{yaml_path}")
+            model_config = config.model 
+            model = cls(**model_config.get("params", dict()))
+
+            model= cls._load_state_dict_into_model(
+                    model,
+                    checkpoint_path,
+                )
+            return model
+        elif os.path.exists(config_path):
             """
             It is fine when checkpoint_path does not exist, for the case that only_download_config=True
             At that time the model will not be loaded. 
             """
             return load_local(checkpoint_path)
+
+
+
 
         try:
             model_id = _get_model_id(model_name)
