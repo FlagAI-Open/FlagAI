@@ -34,7 +34,7 @@ class WordpieceTokenizer(object):
     def __init__(self, vocab_file=None, do_basic_tokenize=True,
                          do_lower_case=True, max_len=None,
                          never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"),
-                         unk_token="[UNK]", max_input_chars_per_word=100, *input, **kwargs):
+                         unk_token="[UNK]", max_input_chars_per_word=100, is_ch=False, *input, **kwargs):
         if not os.path.isfile(vocab_file):
             raise ValueError(
                 "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "
@@ -51,6 +51,7 @@ class WordpieceTokenizer(object):
         self.max_len = max_len if max_len is not None else int(1e12)
         self.unk_token = unk_token
         self.max_input_chars_per_word = max_input_chars_per_word
+        self.is_ch = is_ch
 
     @property
     def vocab_size(self):
@@ -122,7 +123,6 @@ class WordpieceTokenizer(object):
         if maxlen is not None:
             index = int(self._token_sep is not None) + 1
             self.truncate_sequence(maxlen, split_tokens, pop_index=-index)
-        # print(f"split_tokens is {split_tokens}")
         return split_tokens
 
     def truncate_sequence(self,
@@ -168,7 +168,10 @@ class WordpieceTokenizer(object):
 
     def convert_tokens_to_string(self, tokens, all_command_token={}):
         """Converts a sequence of tokens (string) in a single string."""
-        out_string = " ".join(tokens).replace(" ##", "").strip()
+        if self.is_ch:
+            out_string = "".join(tokens).replace(" ", "").strip()
+        else:
+            out_string = " ".join(tokens).replace(" ##", "").strip()
         return out_string
 
 def load_vocab(vocab_file):

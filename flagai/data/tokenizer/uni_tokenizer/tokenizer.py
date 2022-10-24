@@ -51,7 +51,10 @@ class Tokenizer(BaseTokenizer):
         super().__init__(**kwargs)
 
         if self.tokenizer_class == "wp":
-            self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
+            if self.tokenizer_model_name.lower().endswith("ch"):
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file, is_ch=True)
+            else:
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
             if self.tokenizer_model_name.lower().startswith('clip'):
                 self.text_tokenizer = MMBPETokenizer(self.vocab_file, self.merges_file)
@@ -302,7 +305,7 @@ class Tokenizer(BaseTokenizer):
         return self.command_name_map[name].Id
 
     def rematch(self, text, tokens):
-        """给出原始的text和tokenize后的tokens的映射关系
+        """output the mapping relation between raw text and tokenizezd text
         """
         text = text.lower()
         normalized_text, char_mapping = '', []
@@ -325,19 +328,14 @@ class Tokenizer(BaseTokenizer):
                 end = start + len(token)
                 token_mapping.append(char_mapping[start:end])
                 offset = end
-
         return token_mapping
 
     @staticmethod
     def _is_control(ch):
-        """控制类字符判断
-        """
         return unicodedata.category(ch) in ('Cc', 'Cf')
 
     @staticmethod
     def stem(token):
-        """获取token的“词干”（如果是##开头，则自动去掉##）
-        """
         if token[:2] == '##':
             return token[2:]
         else:
@@ -345,8 +343,6 @@ class Tokenizer(BaseTokenizer):
 
     @staticmethod
     def _is_special(ch):
-        """判断是不是有特殊含义的符号
-        """
         return bool(ch) and (ch[0] == '[') and (ch[-1] == ']')
 
     def _encode(self, text):
@@ -637,9 +633,19 @@ class Tokenizer(BaseTokenizer):
         eot_token = self.get_command_id('eot')
         return self.text_tokenizer.tokenize(texts, sot_token=sot_token, eot_token=eot_token)
 
+    def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
+        tokens = self.text_tokenizer.tokenize(text)
 
-    def tokenize(self, texts):
-        return self.text_tokenizer.tokenize(texts)
+        if add_spatial_tokens:
+            tokens.insert(0, self.get_command_id('cls'))
+            tokens.append(self.get_command_id('sep'))
+
+        if maxlen is not None:
+            index = int(self.get_command_id('sep') is not None) + 1
+            self.truncate_sequence(maxlen, tokens, pop_index=-index)
+        return tokens
+
+
 
 
 

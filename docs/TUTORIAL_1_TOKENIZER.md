@@ -26,7 +26,7 @@ from flagai.data.tokenizer import Tokenizer
 model_name = "GLM-large-en"
 tokenizer = Tokenizer.from_pretrained(model_name) # Load tokenizer 
 ```
-At this step, the vocab files from Modelhub will be automatically downloaded to the path specified in `cache_dir` parameter. It is set to `~/.cache/FlagAI/{model_name}` directory under the tokenizer file in default.  
+At this step, the vocab files from Modelhub will be automatically downloaded to the path specified in `cache_dir` parameter. It is set to `./checkpoints/{model_name}` directory in default.  
 
 ## Applying a tokenizer
 The tokenizer can be used to encode text to a list of token IDs, as well as decoding the token IDs to the original text. 
