@@ -65,6 +65,8 @@ class Tokenizer(BaseTokenizer):
         else:
             raise NotImplementedError("cannot assign a tokenize class")
 
+        self.is_glm = self.tokenizer_model_name.lower().startswith('glm')
+        # self.is_clip = self.tokenizer_model_name.startswith('clip')
         self.num_tokens = self.text_tokenizer.vocab_size
 
         if self.tokenizer_class == "wp":
@@ -642,6 +644,7 @@ class Tokenizer(BaseTokenizer):
             index = int(self.get_command_id('sep') is not None) + 1
             self.truncate_sequence(maxlen, tokens, pop_index=-index)
         return tokens
+
 
 
 

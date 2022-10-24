@@ -183,7 +183,7 @@ class Predictor:
                                     add_spatial_tokens=add_spatial_token)
         
         mapping = tokenizer.rematch(text, tokens)
-        token_ids = tokenizer.convert_tokens_to_ids(tokens)
+        token_ids = tokenizer.text_tokenizer.convert_tokens_to_ids(tokens)
         token_ids = torch.tensor([token_ids], dtype=torch.long, device=device)
 
         trans = model.state_dict().get("crf_layer.trans", None)
