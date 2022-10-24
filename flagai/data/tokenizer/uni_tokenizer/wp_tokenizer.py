@@ -33,8 +33,8 @@ import json
 class WordpieceTokenizer(object):
     def __init__(self, vocab_file=None, do_basic_tokenize=True,
                          do_lower_case=True, max_len=None,
-                         never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"),
-                         unk_token="[UNK]", max_input_chars_per_word=100, *input, **kwargs):
+                         never_split=("<unk>", "<sep>", "<pad>", "[CLS]", "<mask>"),
+                         unk_token="<unk>", max_input_chars_per_word=100, *input, **kwargs):
         if not os.path.isfile(vocab_file):
             raise ValueError(
                 "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "

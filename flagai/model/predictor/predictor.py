@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_beamsearch,\
     t5_random_sample, gpt_random_sample, \
-    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample
+    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample, cpm_beamsearch
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
 
@@ -244,6 +244,14 @@ class Predictor:
 
         elif "gpt" in self.class_name.lower():
             return gpt_beamsearch(self.model,
+                                  self.tokenizer,
+                                  text,
+                                  input_max_length=input_max_length,
+                                  out_max_length=out_max_length,
+                                  beam_size=beam_size)
+        elif "cpm" in self.class_name.lower():
+            print('self.tokenizer', self.tokenizer)
+            return cpm_beamsearch(self.model,
                                   self.tokenizer,
                                   text,
                                   input_max_length=input_max_length,
