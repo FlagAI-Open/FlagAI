@@ -119,6 +119,7 @@ class BaseModel(Module):
 
             config = OmegaConf.load(f"{yaml_path}")
             model_config = config.model 
+            model_config.params.cond_stage_config.params.download_path = download_path
             model = cls(**model_config.get("params", dict()))
 
             model= cls._load_state_dict_into_model(

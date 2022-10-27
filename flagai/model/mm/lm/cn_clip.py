@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 from einops import rearrange, repeat
 import json
+from clip_cn.model import CLIP
+from clip_cn.clip import tokenize
+
 
 class AbstractEncoder(nn.Module):
     def __init__(self):
@@ -29,12 +32,10 @@ class LayerNorm(nn.Module):
 class CN_CLIP(AbstractEncoder):
     def __init__(self, version='ViT-L/14', device="cuda", max_length=77, n_repeat=1, normalize=True, **kwargs):
         super().__init__()
-
-        chkpt = kwargs.get("model_dir", None)
-        text_model_config_file = kwargs.get("text_model_config_file", None)
-        vision_model_config_file = kwargs.get("vision_model_config_file", None)
-        from clip_cn.model import CLIP
-        from clip_cn.clip import tokenize
+        root_path = kwargs.get("download_path", None)
+        chkpt = root_path + kwargs.get("model_dir", None)
+        text_model_config_file = root_path + kwargs.get("text_model_config_file", None)
+        vision_model_config_file = root_path + kwargs.get("vision_model_config_file", None)
         self.tokenize = tokenize
 
         self.device = device
