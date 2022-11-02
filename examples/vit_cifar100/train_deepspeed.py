@@ -29,6 +29,7 @@ trainer = Trainer(
     save_interval=1000,
     num_checkpoints=1,
     hostfile="./hostfile",
+    deepspeed_config='./deepspeed.json',
     training_script="train_deepspeed.py"
 )
 

@@ -157,7 +157,8 @@ class Predictor:
     def predict_ner(self,
                     text: str,
                     target: List[str],
-                    maxlen: int = 256) -> List[Tuple[int, int, str]]:
+                    maxlen: int = 256,
+                    add_spatial_token=False) -> List[Tuple[int, int, str]]:
         """
         Args:
           text: The input text.
@@ -168,9 +169,9 @@ class Predictor:
         model.eval()
         device = next(model.parameters()).device
         tokenizer = self.tokenizer
-        tokens = tokenizer.text_tokenizer.tokenize(text,
+        tokens = tokenizer.tokenize(text,
                                     maxlen=maxlen,
-                                    add_spatial_tokens=True)
+                                    add_spatial_tokens=add_spatial_token)
         
         mapping = tokenizer.rematch(text, tokens)
         token_ids = tokenizer.text_tokenizer.convert_tokens_to_ids(tokens)
