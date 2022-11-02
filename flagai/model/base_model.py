@@ -72,7 +72,7 @@ class BaseModel(Module):
         config_path = os.path.join(download_path, "config.json")
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
 
-        def load_local(checkpoint_path):
+        def load_local(config_path, checkpoint_path):
             model = cls.init_from_json(config_path, **kwargs)
             model.to(device)
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
@@ -109,8 +109,7 @@ class BaseModel(Module):
                     model.load_weights(checkpoint_path)
             return model
 
-        yaml_path = os.path.join(download_path, "config.yaml")
-        if os.path.exists(yaml_path):
+        def load_diffusion_local(yaml_path):
             """
             Now only diffusion models requires yaml
             """
@@ -127,6 +126,13 @@ class BaseModel(Module):
                     checkpoint_path,
                 )
             return model
+
+        yaml_path = os.path.join(download_path, "config.yaml")
+        if os.path.exists(yaml_path):
+            """
+            Now only diffusion models requires yaml
+            """
+            return load_diffusion_local(yaml_path)
         elif os.path.exists(config_path):
             """
             It is fine when checkpoint_path does not exist, for the case that only_download_config=True
@@ -190,4 +196,6 @@ class BaseModel(Module):
                                 checkpoint_merge[k] = v
                     # save all parameters
                     torch.save(checkpoint_merge, os.path.join(download_path, "pytorch_model.bin"))
+        if os.path.exists(yaml_path):
+            return load_diffusion_local(yaml_path)
         return load_local(checkpoint_path)

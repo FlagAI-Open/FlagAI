@@ -1,8 +1,8 @@
 import torch
 from PIL import Image
 import sys
-sys.path.append("/home/yanzhaodong/test/FlagAI-internal/")
-sys.path.append("/home/yanzhaodong/test/FlagAI-internal/flagai/model/mm/")
+sys.path.append("/home/yanzhaodong/FlagAI-internal/")
+sys.path.append("/home/yanzhaodong/FlagAI-internal/flagai/model/mm/")
 # sys.path.append("/home/yanzhaodong/FlagAI-internal/flagai/model/predictor/")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.dataset.mm.clip_dataset import clip_transform
@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="text2img", #contrastive learning
                     model_name="diffusion-ddpm-cnclip",
-                    model_dir="/sharefs/baai-mrnd/yzd")
+                    model_dir="/sharefs/baai-mrnd/yzd/")
 
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
