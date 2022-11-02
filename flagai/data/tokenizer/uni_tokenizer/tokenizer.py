@@ -22,7 +22,6 @@
 
 import itertools
 import logging
-from flagai.data.tokenizer.cpm_3.cpm3_tokenizer import CPM3Tokenizer
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
 from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
