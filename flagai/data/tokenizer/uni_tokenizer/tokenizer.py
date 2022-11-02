@@ -22,6 +22,7 @@
 
 import itertools
 import logging
+from flagai.data.tokenizer.cpm_3.cpm3_tokenizer import CPM3Tokenizer
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
 from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
@@ -51,7 +52,10 @@ class Tokenizer(BaseTokenizer):
         super().__init__(**kwargs)
 
         if self.tokenizer_class == "wp":
-            self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
+            if self.tokenizer_model_name.lower().startswith('cpm3'):
+                self.text_tokenizer = CPM3Tokenizer(self.vocab_file)
+            else:
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
             if self.tokenizer_model_name.lower().startswith('clip'):
                 self.text_tokenizer = MMBPETokenizer(self.vocab_file, self.merges_file)
