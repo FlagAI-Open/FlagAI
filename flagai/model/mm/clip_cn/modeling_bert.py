@@ -28,7 +28,8 @@ import torch
 from torch import nn
 
 from .configuration_bert import BertConfig
-
+if sys.version_info[0] >= 3:
+    unicode = str
 logger = logging.getLogger(__name__)
 
 def gelu(x):
