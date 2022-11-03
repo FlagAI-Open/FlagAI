@@ -5,7 +5,7 @@
 import os
 import torch
 
-from flagai.model.layers.linear import CPM3bmtLinear
+from flagai.model.layers.linear_bmt import CPM3bmtLinear
 
 from .layer_norm_bmt import CPM3bmtLayerNorm
 

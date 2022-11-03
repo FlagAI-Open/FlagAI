@@ -3,7 +3,7 @@ from flagai.model.blocks.cpm_block import CPM3bmtBlock
 from flagai.model.layers.layer_norm_bmt import CPM3bmtLayerNorm
 from flagai.model.layers.embeddings_bmt import CPM3bmtEmbedding
 from flagai.model.layers.embeddings_bmt import CPM3bmtSegmentPositionEmbedding
-from flagai.model.layers.linear import CPM3bmtLinear
+from flagai.model.layers.linear_bmt import CPM3bmtLinear
 
 from flagai.model.base_model import BaseModel
 

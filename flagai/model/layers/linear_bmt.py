@@ -16,8 +16,10 @@
 import torch
 import math
 import torch.nn.functional as F
+import bmtrain as bmt
 
-class CPM3Linear(torch.nn.Module):
+
+class CPM3bmtLinear(bmt.DistributedModule):
     r"""A fully connected layer, which performs :math:`\pmb{y} = \mathbf{W} \pmb{x} + \pmb{b}`
 
     Args:
@@ -35,15 +37,19 @@ class CPM3Linear(torch.nn.Module):
                  length_scale_before : bool = False,
                  dtype = torch.half,
                  int8 : bool = False,
+                 init_mean : float = 0.0,
+                 init_std : float = 1,
                  bias : bool = False,
                 ):
         super().__init__()
         self.dim_in = dim_in
-        self.weight = torch.nn.Parameter(
-            torch.empty((dim_out, dim_in), dtype=dtype)
+        self.weight = bmt.DistributedParameter(
+            torch.empty((dim_out, dim_in), dtype=dtype),
+            init_method=bmt.ParameterInitializer(torch.nn.init.normal_, mean=init_mean, std=init_std)
         )
-        self.bias = torch.nn.Parameter(
-            torch.empty((dim_out,), dtype=dtype)
+        self.bias = bmt.DistributedParameter(
+            torch.empty((dim_out,), dtype=dtype),
+            init_method=bmt.ParameterInitializer(torch.nn.init.zeros_)
         ) if bias else None
         self.length_scale = length_scale
         self.length_scale_before = length_scale_before

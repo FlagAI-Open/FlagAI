@@ -26,7 +26,7 @@ from flagai.model.layers.layer_norm_bmt import CPM3bmtLayerNorm
 import bmtrain as bmt
 
 
-from flagai.model.layers.linear import CPM3bmtLinear
+from flagai.model.layers.linear_bmt import CPM3bmtLinear
 
 
 class CPM3bmtAttention(bmt.DistributedModule):
