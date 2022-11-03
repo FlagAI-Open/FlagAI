@@ -13,10 +13,8 @@ import os
 import copy
 from typing import Any, Dict, Union
 
-try:
-    import bmtrain as bmt
-except:
-    pass
+import bmtrain as bmt
+
 
 class CPM3bmtStack(torch.nn.Module):
     """ Layers of encoder transformer blocks plus an final layernorm.

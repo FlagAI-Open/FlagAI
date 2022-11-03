@@ -26,11 +26,7 @@ from torch.nn.parameter import Parameter
 import torch.nn as nn
 import os
 from .layer_norm import BertLayerNorm
-try:
-    import bmtrain as bmt
-except:
-    pass
-
+import bmtrain as bmt
 
 import math
 

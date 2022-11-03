@@ -16,10 +16,7 @@
 import torch
 import math
 import torch.nn.functional as F
-try:
-    import bmtrain as bmt
-except:
-    pass
+import bmtrain as bmt
 
 class CPM3Linear(torch.nn.Module):
     r"""A fully connected layer, which performs :math:`\pmb{y} = \mathbf{W} \pmb{x} + \pmb{b}`

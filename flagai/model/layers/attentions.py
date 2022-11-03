@@ -43,10 +43,8 @@ if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
 elif os.getenv('ENV_TYPE') == 'bmtrain':
     pass
 
-try:
-    import bmtrain as bmt
-except:
-    pass
+import bmtrain as bmt
+
 
 from flagai.model.layers.linear import CPM3Linear, CPM3bmtLinear
 
