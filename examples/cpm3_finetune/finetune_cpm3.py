@@ -1,7 +1,10 @@
 import time
 import random
 import torch
-import bmtrain as bmp
+try:
+    import bmtrain as bmp
+except:
+    pass
 from bmtrain import nccl
 from bmtrain.global_var import config
 import numpy as np

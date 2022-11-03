@@ -22,7 +22,10 @@ from flagai.model.layers.linear import CPM3Linear, CPM3bmtLinear
 
 from .layer_norm import CPM3LayerNorm, CPM3bmtLayerNorm
 
-import bmtrain as bmt
+try:
+    import bmtrain as bmt
+except:
+    pass
 
 
 def _initialize_affine_weight(weight,

@@ -8,7 +8,10 @@ import torch.nn as nn
 
 import torch.nn.functional as F
 
-import bmtrain as bmt
+try:
+    import bmtrain as bmt
+except:
+    pass
 
 def rms_layernorm(hidden : torch.Tensor, weight : torch.Tensor, eps :float):
     old_dtype = hidden.dtype
