@@ -19,12 +19,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
 import collections
 import re
 import unicodedata
 import six
 from functools import lru_cache
 import os
+unicode = str
+
 
 @lru_cache()
 def default_vocab():
