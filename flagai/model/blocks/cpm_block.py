@@ -1,7 +1,10 @@
 import torch
-from flagai.model.layers.attentions import CPM3SelfAttention, CPM3bmtSelfAttention
-from flagai.model.layers.attentions import CPM3CrossAttention, CPM3bmtCrossAttention
-from flagai.model.layers.feedforward import CPM3FFN, CPM3bmtFFN
+from flagai.model.layers.attentions import CPM3SelfAttention
+from flagai.model.layers.attentions_bmt import CPM3bmtSelfAttention
+from flagai.model.layers.attentions import CPM3CrossAttention
+from flagai.model.layers.attentions_bmt import CPM3bmtCrossAttention
+from flagai.model.layers.feedforward import CPM3FFN
+from flagai.model.layers.feedforward_bmt import CPM3bmtFFN
 from typing import *
 
 
