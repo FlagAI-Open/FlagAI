@@ -1138,8 +1138,8 @@ class LatentDiffusion(DDPM):
                              crop_coordinates):  # TODO: move to dataset
 
         def rescale_bbox(bbox):
-            x0 = clamp((bbox[0] - crop_coordinates[0]) / crop_coordinates[2])
-            y0 = clamp((bbox[1] - crop_coordinates[1]) / crop_coordinates[3])
+            x0 = torch.clamp((bbox[0] - crop_coordinates[0]) / crop_coordinates[2])
+            y0 = torch.clamp((bbox[1] - crop_coordinates[1]) / crop_coordinates[3])
             w = min(bbox[2] / crop_coordinates[2], 1 - x0)
             h = min(bbox[3] / crop_coordinates[3], 1 - y0)
             return x0, y0, w, h
