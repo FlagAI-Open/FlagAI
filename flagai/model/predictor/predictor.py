@@ -9,7 +9,7 @@ from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_bea
     t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
-from Sampler import DDIMSampler,PLMSSampler
+from flagai.model.mm.Sampler import DDIMSampler,PLMSSampler
 import os
 from PIL import Image
 from tqdm import trange, tqdm
