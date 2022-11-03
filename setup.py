@@ -29,5 +29,6 @@ setup(
         'setuptools==59.5.0',
         'protobuf==3.20.1',
         'ftfy == 6.1.1',
+        'Pillow == 9.2.0',
     ]
 )
