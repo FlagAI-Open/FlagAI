@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from abc import abstractmethod
 import math
-from utils import (
+from flagai.model.mm.utils import (
     checkpoint,
     conv_nd,
     linear,
@@ -15,7 +15,7 @@ from utils import (
     normalization,
     timestep_embedding,
 )
-from attentions.attention import SpatialTransformer
+from flagai.model.mm.attentions.attention import SpatialTransformer
 
 
 # dummy replace

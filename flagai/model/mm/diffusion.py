@@ -9,10 +9,10 @@ from functools import partial
 from tqdm import tqdm
 from torchvision.utils import make_grid
 from pytorch_lightning.utilities.distributed import rank_zero_only
-from utils import exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config, log_txt_as_img
-from autoencoders import VQModelInterface, IdentityFirstStage, AutoencoderKL
-from utils import make_beta_schedule, extract_into_tensor, noise_like
-from Sampler import DDIMSampler
+from flagai.model.mm.utils import exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config, log_txt_as_img
+from flagai.model.mm.autoencoders import VQModelInterface, IdentityFirstStage, AutoencoderKL
+from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise_like
+from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
 import pdb
 

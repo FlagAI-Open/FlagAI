@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 from einops import rearrange, repeat
 import json
-from clip_cn.model import CLIP
-from clip_cn.clip import tokenize
+from flagai.model.mm.clip_cn.model import CLIP
+from flagai.model.mm.clip_cn.clip import tokenize
 
 
 class AbstractEncoder(nn.Module):

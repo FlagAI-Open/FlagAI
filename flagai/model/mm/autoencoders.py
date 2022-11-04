@@ -5,9 +5,9 @@ from contextlib import contextmanager
 
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from torch.optim.lr_scheduler import LambdaLR
-from model import Encoder, Decoder
+from flagai.model.mm.model import Encoder, Decoder
 import numpy as np
-from utils import instantiate_from_config
+from flagai.model.mm.utils import instantiate_from_config
 
 
 class VQModel(torch.nn.Module):

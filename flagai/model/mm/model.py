@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from einops import rearrange
-from utils import instantiate_from_config
+from flagai.model.mm.utils import instantiate_from_config
 
 
 class LinearAttention(nn.Module):

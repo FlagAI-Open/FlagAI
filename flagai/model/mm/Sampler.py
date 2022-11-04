@@ -2,9 +2,7 @@
 import torch
 import numpy as np
 from tqdm import tqdm
-from functools import partial
-
-from utils import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like,extract_into_tensor
+from flagai.model.mm.utils import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like,extract_into_tensor
 import pdb
 
 class DDIMSampler(object):

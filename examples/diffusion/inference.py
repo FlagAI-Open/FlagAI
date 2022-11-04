@@ -1,8 +1,6 @@
 import torch
 from PIL import Image
 import sys
-sys.path.append("/home/yanzhaodong/FlagAI-internal/")
-sys.path.append("/home/yanzhaodong/FlagAI-internal/flagai/model/mm/")
 # sys.path.append("/home/yanzhaodong/FlagAI-internal/flagai/model/predictor/")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.dataset.mm.clip_dataset import clip_transform
