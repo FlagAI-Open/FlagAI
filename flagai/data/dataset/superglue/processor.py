@@ -985,7 +985,7 @@ class TNewsProcessor(CLUEProcessor):
     def _create_examples(path: str, set_type: str) -> List[InputExample]:
         examples = []
 
-        with open(path) as file:
+        with open(path, encoding='utf8') as file:
             for idx, line in enumerate(file):
                 guid = f"{set_type}-{idx}"
                 data = json.loads(line)
@@ -1012,7 +1012,7 @@ class AFQMCProcessor(CLUEProcessor):
     def _create_examples(path: str, set_type: str) -> List[InputExample]:
         examples = []
 
-        with open(path) as file:
+        with open(path, encoding='utf8') as file:
             for idx, line in enumerate(file):
                 guid = f"{set_type}-{idx}"
                 data = json.loads(line)
