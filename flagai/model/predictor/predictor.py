@@ -9,21 +9,19 @@ from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_bea
     t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
-from flagai.model.mm.Sampler import DDIMSampler,PLMSSampler
+from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
 import os
 from PIL import Image
 from tqdm import trange, tqdm
 import time
 from contextlib import contextmanager, nullcontext
-from einops import rearrange 
+from einops import rearrange
 from flagai.model.predictor.utils import chunk
 
 
 class Predictor:
 
-    def __init__(self,
-                 model,
-                 tokenizer):
+    def __init__(self, model, tokenizer):
         """
         Args:
             model: The model loaded by the AutoLoader class.
@@ -50,7 +48,8 @@ class Predictor:
         if getattr(self.tokenizer, "token_start_id", None) is None:
             if word2idx is not None:
                 if word2idx.get("[CLS]", None) is not None:
-                    setattr(self.tokenizer, "token_start_id", word2idx["[CLS]"])
+                    setattr(self.tokenizer, "token_start_id",
+                            word2idx["[CLS]"])
                 elif word2idx.get("<s>", None) is not None:
                     setattr(self.tokenizer, "token_start_id", word2idx["<s>"])
                 else:
@@ -73,7 +72,6 @@ class Predictor:
                     setattr(self.tokenizer, "token_pad_id", word2idx["<pad>"])
                 else:
                     setattr(self.tokenizer, "token_pad_id", 0)
-
 
         self.model = model
         self.model.eval()
@@ -180,7 +178,7 @@ class Predictor:
         tokens = tokenizer.tokenize(text,
                                     maxlen=maxlen,
                                     add_spatial_tokens=add_spatial_token)
-        
+
         mapping = tokenizer.rematch(text, tokens)
         token_ids = tokenizer.text_tokenizer.convert_tokens_to_ids(tokens)
         token_ids = torch.tensor([token_ids], dtype=torch.long, device=device)
@@ -288,11 +286,13 @@ class Predictor:
                                     top_p, repetition_penalty, temperature,
                                     device)
 
-        elif "gpt" in self.class_name.lower() or "opt" in self.class_name.lower():
-            return gpt_random_sample_use_cache(self.model, self.tokenizer, text,
-                                     input_max_length, out_max_length, top_k,
-                                     top_p, repetition_penalty, temperature,
-                                     device)
+        elif "gpt" in self.class_name.lower(
+        ) or "opt" in self.class_name.lower():
+            return gpt_random_sample_use_cache(self.model, self.tokenizer,
+                                               text, input_max_length,
+                                               out_max_length, top_k, top_p,
+                                               repetition_penalty, temperature,
+                                               device)
         elif "glm" in self.class_name.lower():
             return glm_random_sample(self.model, self.tokenizer, text,
                                      out_max_length, top_k, top_p,
@@ -311,27 +311,26 @@ class Predictor:
             import os
             os._exit(0)
 
-
     def predict_generate_images(self,
                                 prompt: str,
                                 outpath: str = "open_CNCLIP_samples",
-                                n_samples:int = 4,
-                                n_rows:int = 0,
-                                skip_grid:bool = False,
-                                skip_save:bool = False,
-                                ddim_steps:int = 50,
-                                n_iter:int = 1,
-                                plms:bool = False,
-                                laion400m:bool = False,
-                                fixed_code:bool = False,
-                                ddim_eta:float = 0.0,
-                                H:int = 512,
-                                W:int = 512,
-                                C:int = 4,
-                                f:int = 8,
-                                scale:float = 7.5,
-                                from_file:str = None,
-                                precision:str = "autocast"):
+                                n_samples: int = 4,
+                                n_rows: int = 0,
+                                skip_grid: bool = False,
+                                skip_save: bool = False,
+                                ddim_steps: int = 50,
+                                n_iter: int = 1,
+                                plms: bool = False,
+                                laion400m: bool = False,
+                                fixed_code: bool = False,
+                                ddim_eta: float = 0.0,
+                                H: int = 512,
+                                W: int = 512,
+                                C: int = 4,
+                                f: int = 8,
+                                scale: float = 7.5,
+                                from_file: str = None,
+                                precision: str = "autocast"):
         from torchvision.utils import make_grid
         """
         Args:
@@ -344,7 +343,6 @@ class Predictor:
         temperature: normalization the score.
         """
 
-
         assert "diffusion" in self.class_name.lower()
         device = next(self.model.parameters()).device
         if plms:
@@ -353,7 +351,6 @@ class Predictor:
             sampler = DDIMSampler(self.model)
 
         os.makedirs(outpath, exist_ok=True)
-
 
         batch_size = n_samples
         n_rows = n_rows if n_rows > 0 else batch_size
@@ -374,9 +371,10 @@ class Predictor:
 
         start_code = None
         if fixed_code:
-            start_code = torch.randn([n_samples, C, H // f, W // f], device=device)
+            start_code = torch.randn([n_samples, C, H // f, W // f],
+                                     device=device)
 
-        precision_scope =  nullcontext
+        precision_scope = nullcontext
         with torch.no_grad():
             with precision_scope("cuda"):
                 with self.model.ema_scope():
@@ -386,40 +384,51 @@ class Predictor:
                         for prompts in tqdm(data, desc="data"):
                             uc = None
                             if scale != 1.0:
-                                uc = self.model.get_learned_conditioning(batch_size * [""])
+                                uc = self.model.get_learned_conditioning(
+                                    batch_size * [""])
                             if isinstance(prompts, tuple):
                                 prompts = list(prompts)
                             c = self.model.get_learned_conditioning(prompts)
                             shape = [C, H // f, W // f]
-                            samples_ddim, _ = sampler.sample(S=ddim_steps,
-                                                            conditioning=c,
-                                                            batch_size=n_samples,
-                                                            shape=shape,
-                                                            verbose=False,
-                                                            unconditional_guidance_scale=scale,
-                                                            unconditional_conditioning=uc,
-                                                            eta=ddim_eta,
-                                                            x_T=start_code)
+                            samples_ddim, _ = sampler.sample(
+                                S=ddim_steps,
+                                conditioning=c,
+                                batch_size=n_samples,
+                                shape=shape,
+                                verbose=False,
+                                unconditional_guidance_scale=scale,
+                                unconditional_conditioning=uc,
+                                eta=ddim_eta,
+                                x_T=start_code)
 
-                            x_samples_ddim = self.model.decode_first_stage(samples_ddim)
-                            x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
-                            x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
+                            x_samples_ddim = self.model.decode_first_stage(
+                                samples_ddim)
+                            x_samples_ddim = torch.clamp(
+                                (x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+                            x_samples_ddim = x_samples_ddim.cpu().permute(
+                                0, 2, 3, 1).numpy()
 
                             # x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
 
-                            x_checked_image_torch = torch.from_numpy(x_samples_ddim).permute(0, 3, 1, 2)
+                            x_checked_image_torch = torch.from_numpy(
+                                x_samples_ddim).permute(0, 3, 1, 2)
 
                             prompt_count = 0
                             if not skip_save:
                                 for x_sample in x_checked_image_torch:
-                                    x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
-                                    img = Image.fromarray(x_sample.astype(np.uint8))
-                                    img.save(os.path.join(sample_path, f"{base_count:05}.png"))
+                                    x_sample = 255. * rearrange(
+                                        x_sample.cpu().numpy(),
+                                        'c h w -> h w c')
+                                    img = Image.fromarray(
+                                        x_sample.astype(np.uint8))
+                                    img.save(
+                                        os.path.join(sample_path,
+                                                     f"{base_count:05}.png"))
                                     #img.save(os.path.join(sample_path, f"{prompts[prompt_count]}.png"))
 
                                     base_count += 1
-                                    prompt_count = prompt_count%batch_size
-                                    prompt_count+=1
+                                    prompt_count = prompt_count % batch_size
+                                    prompt_count += 1
 
                             if not skip_grid:
                                 all_samples.append(x_checked_image_torch)
@@ -431,13 +440,16 @@ class Predictor:
                         grid = make_grid(grid, nrow=n_rows)
 
                         # to image
-                        grid = 255. * rearrange(grid, 'c h w -> h w c').cpu().numpy()
+                        grid = 255. * rearrange(
+                            grid, 'c h w -> h w c').cpu().numpy()
                         img = Image.fromarray(grid.astype(np.uint8))
                         # img = put_watermark(img, wm_encoder)
-                        img.save(os.path.join(outpath, f'grid-{grid_count:04}.png'))
+                        img.save(
+                            os.path.join(outpath, f'grid-{grid_count:04}.png'))
                         grid_count += 1
 
                     toc = time.time()
 
-        print(f"Your samples are ready and waiting for you here: \n{outpath} \n"
+        print(
+            f"Your samples are ready and waiting for you here: \n{outpath} \n"
             f" \nEnjoy.")

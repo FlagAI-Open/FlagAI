@@ -1,19 +1,9 @@
 import torch
 import torch.nn as nn
-from einops import rearrange, repeat
-import json
 from flagai.model.mm.clip_cn.model import CLIP
-# from flagai.model.mm.clip_cn.clip import tokenize
-# from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer
 import pdb
 from flagai.model.base_model import BaseModel
 
-# class AbstractEncoder(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-
-#     def encode(self, *args, **kwargs):
-#         raise NotImplementedError
 
 class LayerNorm(nn.Module):
 
@@ -31,14 +21,17 @@ class LayerNorm(nn.Module):
         x = (x - u) / torch.sqrt(s + self.variance_epsilon)
         return self.weight * x + self.bias
 
+
 class CN_CLIP(BaseModel):
+
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
         max_length = config["max_length"]
         normalize = config["normalize"]
         self.tokenizer = kwargs.get("tokenizer")
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
         self.max_length = max_length
 
         self.model = CLIP(config, **kwargs)
@@ -51,9 +44,8 @@ class CN_CLIP(BaseModel):
         self.layer_norm1 = LayerNorm(768)
         self.layer_norm2 = LayerNorm(768)
 
-        self.proj = nn.Linear(768,768)
+        self.proj = nn.Linear(768, 768)
 
-        
     def forward(self, text):
         text = self.tokenizer.tokenize(text).to(self.device)
         z = self.model.encode_text(text)
@@ -65,10 +57,10 @@ class CN_CLIP(BaseModel):
 
     def encode(self, text):
         z = self(text)
-        if z.ndim==2:
+        if z.ndim == 2:
             z = z[:, None, :]
         return z
-    
+
     def load_weights(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path)
         sd = checkpoint["state_dict"]

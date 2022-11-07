@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Tokenization classes."""
 
 from __future__ import absolute_import
@@ -28,12 +27,15 @@ from functools import lru_cache
 import torch
 import os
 from typing import Union, List
+
 unicode = str
 
 
 @lru_cache()
 def default_vocab():
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "vocab.txt")
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "vocab.txt")
+
 
 def validate_case_matches_checkpoint(do_lower_case, init_checkpoint):
     """Checks whether the casing config is consistent with the checkpoint name."""
@@ -81,8 +83,9 @@ def validate_case_matches_checkpoint(do_lower_case, init_checkpoint):
             "However, `%s` seems to be a %s model, so you "
             "should pass in `--do_lower_case=%s` so that the fine-tuning matches "
             "how the model was pre-training. If this error is wrong, please "
-            "just comment out this check." % (actual_flag, init_checkpoint,
-                                              model_name, case_name, opposite_flag))
+            "just comment out this check." %
+            (actual_flag, init_checkpoint, model_name, case_name,
+             opposite_flag))
 
 
 def convert_to_unicode(text):
@@ -185,7 +188,9 @@ class FullTokenizer(object):
 
         return split_tokens
 
-    def tokenize(self, texts: Union[str, List[str]], context_length: int = 64) -> torch.LongTensor:
+    def tokenize(self,
+                 texts: Union[str, List[str]],
+                 context_length: int = 64) -> torch.LongTensor:
         """
         Returns the tokenized representation of given input string(s)
         Parameters
@@ -203,7 +208,9 @@ class FullTokenizer(object):
 
         all_tokens = []
         for text in texts:
-            all_tokens.append([self.vocab['[CLS]']] + self.convert_tokens_to_ids(self._tokenize(text))[:context_length - 2] + [self.vocab['[SEP]']])
+            all_tokens.append([self.vocab['[CLS]']] +
+                              self.convert_tokens_to_ids(self._tokenize(text))
+                              [:context_length - 2] + [self.vocab['[SEP]']])
 
         result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 
@@ -215,7 +222,7 @@ class FullTokenizer(object):
 
     def convert_tokens_to_ids(self, tokens):
         return convert_by_vocab(self.vocab, tokens)
-    
+
     def convert_token_to_id(self, token):
         return self.vocab[token]
 
@@ -230,18 +237,12 @@ class FullTokenizer(object):
             """ Clean up a list of simple English tokenization artifacts
             like spaces before punctuations and abreviated forms.
             """
-            out_string = (
-                out_string.replace(" .", ".")
-                    .replace(" ?", "?")
-                    .replace(" !", "!")
-                    .replace(" ,", ",")
-                    .replace(" ' ", "'")
-                    .replace(" n't", "n't")
-                    .replace(" 'm", "'m")
-                    .replace(" 's", "'s")
-                    .replace(" 've", "'ve")
-                    .replace(" 're", "'re")
-            )
+            out_string = (out_string.replace(" .", ".").replace(
+                " ?", "?").replace(" !", "!").replace(" ,", ",").replace(
+                    " ' ",
+                    "'").replace(" n't", "n't").replace(" 'm", "'m").replace(
+                        " 's", "'s").replace(" 've",
+                                             "'ve").replace(" 're", "'re"))
             return out_string
 
         text = ' '.join(tokens).replace(' ##', '').strip()
@@ -250,7 +251,7 @@ class FullTokenizer(object):
             return clean_text
         else:
             return text
-            
+
     @property
     def vocab_size(self):
         return len(self.vocab)
@@ -352,7 +353,7 @@ class BasicTokenizer(object):
             (cp >= 0x2B740 and cp <= 0x2B81F) or  #
             (cp >= 0x2B820 and cp <= 0x2CEAF) or
             (cp >= 0xF900 and cp <= 0xFAFF) or  #
-                (cp >= 0x2F800 and cp <= 0x2FA1F)):  #
+            (cp >= 0x2F800 and cp <= 0x2FA1F)):  #
             return True
 
         return False
@@ -464,8 +465,8 @@ def _is_punctuation(char):
     # Characters such as "^", "$", and "`" are not in the Unicode
     # Punctuation class but we treat them as punctuation anyways, for
     # consistency.
-    if ((cp >= 33 and cp <= 47) or (cp >= 58 and cp <= 64) or
-            (cp >= 91 and cp <= 96) or (cp >= 123 and cp <= 126)):
+    if ((cp >= 33 and cp <= 47) or (cp >= 58 and cp <= 64)
+            or (cp >= 91 and cp <= 96) or (cp >= 123 and cp <= 126)):
         return True
     cat = unicodedata.category(char)
     if cat.startswith("P"):

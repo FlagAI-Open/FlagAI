@@ -637,12 +637,12 @@ class LatentDiffusion(DDPM):
                 self.cond_stage_model = None
                 # self.be_unconditional = True
             else:
-                loader = AutoLoader(task_name="txt_img_matching", #contrastive learning
+                loader = AutoLoader(
+                    task_name="txt_img_matching",  #contrastive learning
                     model_name=dct["model_name"],
                     model_dir=model_dir)
                 model = loader.get_model()
                 model.to(self.device)
-
 
                 # model = instantiate_from_config(config)
                 self.cond_stage_model = model.eval()
@@ -653,7 +653,8 @@ class LatentDiffusion(DDPM):
             assert config != '__is_first_stage__'
             assert config != '__is_unconditional__'
             # model = instantiate_from_config(config)
-            loader = AutoLoader(task_name="txt_img_matching", #contrastive learning
+            loader = AutoLoader(
+                task_name="txt_img_matching",  #contrastive learning
                 model_name=dct["model_name"],
                 model_dir=model_dir)
             model = loader.get_model()
@@ -1152,8 +1153,10 @@ class LatentDiffusion(DDPM):
                              crop_coordinates):  # TODO: move to dataset
 
         def rescale_bbox(bbox):
-            x0 = torch.clamp((bbox[0] - crop_coordinates[0]) / crop_coordinates[2])
-            y0 = torch.clamp((bbox[1] - crop_coordinates[1]) / crop_coordinates[3])
+            x0 = torch.clamp(
+                (bbox[0] - crop_coordinates[0]) / crop_coordinates[2])
+            y0 = torch.clamp(
+                (bbox[1] - crop_coordinates[1]) / crop_coordinates[3])
             w = min(bbox[2] / crop_coordinates[2], 1 - x0)
             h = min(bbox[3] / crop_coordinates[3], 1 - y0)
             return x0, y0, w, h
