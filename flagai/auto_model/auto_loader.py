@@ -55,6 +55,8 @@ ALL_TASK = {
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
     "swinv2_classification": ("flagai.model.vision.swinv2", "SwinTransformerV2"),
+    "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
+    "cpm3_trian": ("flagai.model.cpm3_trian_model", "CPM3"),
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -76,6 +78,8 @@ MODEL_DICT = {
     "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
     "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
     "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "cpm3": ["flagai.model.cpm3_model", "CPM3", "cpm3", "nlp"],
+    "cpm3-train": ["flagai.model.cpm3_train_model", "CPM3", "cpm3", "nlp"],
 
     "vit-base-p16-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
