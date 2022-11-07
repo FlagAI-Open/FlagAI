@@ -12,6 +12,9 @@ from .bert_tokenizer import FullTokenizer
 _tokenizer = FullTokenizer()
 from .modeling_bert import BertModel
 from .configuration_bert import BertConfig
+from flagai.model.base_model import BaseModel
+import pdb
+
 
 class Bottleneck(nn.Module):
     expansion = 4
@@ -241,29 +244,51 @@ class VisualTransformer(nn.Module):
 
         return x
 
-class CLIP(nn.Module):
+class CLIP(BaseModel):
     def __init__(self,
-                 embed_dim: int,
-                 # vision
-                 image_resolution: int,
-                 vision_layers: Union[Tuple[int, int, int, int], int],
-                 vision_width: int,
-                 vision_patch_size: int,
-                 # text
-                 vocab_size: int,
-                 text_attention_probs_dropout_prob: float, 
-                 text_hidden_act: str, 
-                 text_hidden_dropout_prob: float, 
-                 text_hidden_size: int,
-                 text_initializer_range: float, 
-                 text_intermediate_size: int, 
-                 text_max_position_embeddings: int, 
-                 text_num_attention_heads: int, 
-                 text_num_hidden_layers: int, 
-                 text_type_vocab_size: int,
-                 tokenizer = _tokenizer,
-                 ):
-        super().__init__()
+                config, **kwargs):
+                #  embed_dim: int,
+                #  # vision
+                #  image_resolution: int,
+                #  vision_layers: Union[Tuple[int, int, int, int], int],
+                #  vision_width: int,
+                #  vision_patch_size: int,
+                #  # text
+                #  vocab_size: int,
+                #  text_attention_probs_dropout_prob: float, 
+                #  text_hidden_act: str, 
+                #  text_hidden_dropout_prob: float, 
+                #  text_hidden_size: int,
+                #  text_initializer_range: float, 
+                #  text_intermediate_size: int, 
+                #  text_max_position_embeddings: int, 
+                #  text_num_attention_heads: int, 
+                #  text_num_hidden_layers: int, 
+                #  text_type_vocab_size: int,
+                #  tokenizer = _tokenizer,
+                #  ):
+        super().__init__(config, **kwargs)
+        self.config = config
+        embed_dim = config["embed_dim"]
+        # vision
+        image_resolution = config["image_resolution"]
+        vision_layers = config["vision_layers"]
+        vision_width = config["vision_width"]
+        vision_patch_size = config["vision_patch_size"]
+        # text
+        vocab_size = config["vocab_size"]
+        text_attention_probs_dropout_prob = config["text_attention_probs_dropout_prob"]
+        text_hidden_act = config["text_hidden_act"]
+        text_hidden_dropout_prob = config["text_hidden_dropout_prob"]
+        checkpoint_activations = config["checkpoint_activations"]      # TODO: implement checkpoint activations
+        text_hidden_size = config["text_hidden_size"]
+        text_initializer_range = config["text_initializer_range"]
+        text_intermediate_size = config["text_intermediate_size"]
+        text_max_position_embeddings = config["text_max_position_embeddings"]
+        text_num_attention_heads = config["text_num_attention_heads"]
+        text_num_hidden_layers = config.get("text_num_hidden_layers", None)
+        text_type_vocab_size = config["text_type_vocab_size"]
+        tokenizer = config["tokenizer"]
 
         if isinstance(vision_layers, (tuple, list)):
             vision_heads = vision_width * 32 // 64
@@ -335,7 +360,7 @@ class CLIP(nn.Module):
         return self.visual(image.type(self.dtype))
 
     def encode_text(self, text):
-        pad_index = self.tokenizer.vocab['[PAD]']
+        pad_index = self.tokenizer.get_command_id('pad')
         attn_mask = text.ne(pad_index).type(self.dtype)
         x = self.bert(text, attention_mask=attn_mask)[0].type(self.dtype) # [batch_size, seq_length, hidden_size]
         #return x[:, 0, :] @ self.text_projection

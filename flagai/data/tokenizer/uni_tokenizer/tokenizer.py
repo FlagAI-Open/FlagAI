@@ -28,8 +28,10 @@ from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer, MMBPETokenizer
 from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
+from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer import FullTokenizer
 from typing import List, Union, Optional
 import unicodedata
+import pdb
 
 def is_control(ch):
     """
@@ -53,6 +55,8 @@ class Tokenizer(BaseTokenizer):
         if self.tokenizer_class == "wp":
             if self.tokenizer_model_name.lower().endswith("ch"):
                 self.text_tokenizer = WordpieceTokenizer(self.vocab_file, is_ch=True)
+            elif self.tokenizer_model_name.lower().startswith('clip-cn'):
+                self.text_tokenizer = FullTokenizer(self.vocab_file)
             else:
                 self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
@@ -644,6 +648,8 @@ class Tokenizer(BaseTokenizer):
             index = int(self.get_command_id('sep') is not None) + 1
             self.truncate_sequence(maxlen, tokens, pop_index=-index)
         return tokens
+
+
 
 
 

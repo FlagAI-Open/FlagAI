@@ -30,5 +30,6 @@ setup(
         'protobuf==3.20.1',
         'ftfy == 6.1.1',
         'Pillow == 9.2.0',
+        'einops == 0.3.0',
     ]
 )

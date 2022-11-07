@@ -1,7 +1,7 @@
 import torch
 from PIL import Image
 import sys
-# sys.path.append("/home/yanzhaodong/FlagAI-internal/flagai/model/predictor/")
+sys.path.append("/home/yanzhaodong/FlagAI-internal/")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.dataset.mm.clip_dataset import clip_transform
 from flagai.model.predictor.predictor import Predictor
@@ -19,6 +19,5 @@ model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 model.eval()
 model.to(device)
-
 predictor = Predictor(model, tokenizer)
 predictor.predict_generate_images("两只老虎")

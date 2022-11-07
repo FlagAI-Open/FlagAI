@@ -55,7 +55,8 @@ ALL_TASK = {
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
     "swinv2_classification": ("flagai.model.vision.swinv2", "SwinTransformerV2"),
-    "diffusion_text2img": ("flagai.model.mm.diffusion", "LatentDiffusion")
+    "diffusion_text2img": ("flagai.model.mm.diffusion", "LatentDiffusion"),
+    "clipcn_txt_img_matching":("flagai.model.mm.lm.cn_clip", "CN_CLIP")
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -100,6 +101,7 @@ MODEL_DICT = {
     "swinv2-base-patch4-window8-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
     "swinv2-base-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
     "swinv2-small-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "clip-cn-b-16":["flagai.model.mm.lm.cn_clip", "CN_CLIP", "clipcn", "mm"]
 }
 
 
@@ -164,13 +166,7 @@ class AutoLoader:
             )
             return
 
-        self.model = getattr(LazyImport(self.model_name[0]),
-                             self.model_name[1]).from_pretrain(
-            download_path=model_dir,
-            model_name=raw_model_name,
-            only_download_config=only_download_config,
-            device=device,
-            **kwargs)
+
 
         download_path = os.path.join(model_dir, raw_model_name)
         print("*"*20, task_name, model_name)
@@ -180,6 +176,15 @@ class AutoLoader:
             self.tokenizer = tokenizer_class.from_pretrained(model_name, cache_dir=download_path)
         else :
             self.tokenizer = None
+
+        kwargs["tokenizer"] = self.tokenizer
+        self.model = getattr(LazyImport(self.model_name[0]),
+                            self.model_name[1]).from_pretrain(
+                            download_path=model_dir,
+                            model_name=raw_model_name,
+                            only_download_config=only_download_config,
+                            device=device,
+                            **kwargs)
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())

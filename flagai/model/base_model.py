@@ -32,8 +32,9 @@ class BaseModel(Module):
 
     @classmethod
     def init_from_json(cls, config_file='./config.json', **kwargs):
-        with open(config_file, 'r', encoding='utf8') as js:
-            args = json.load(js)
+        # with open(config_file, 'r', encoding='utf8') as js:
+        #     args = json.load(js)
+        args = json.load(open(config_file, 'r', encoding='utf8'))
         for k in kwargs:
             args[k] = kwargs[k]
         if 'checkpoint_activations' not in args:
@@ -66,13 +67,13 @@ class BaseModel(Module):
                       **kwargs):
         model_id = None
 
+        raw_download_path = download_path
         # Try load model from local path
         download_path = os.path.join(download_path, model_name)
         
         config_path = os.path.join(download_path, "config.json")
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
-
-        def load_local(config_path, checkpoint_path):
+        def load_local(checkpoint_path):
             model = cls.init_from_json(config_path, **kwargs)
             model.to(device)
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
@@ -118,8 +119,8 @@ class BaseModel(Module):
 
             config = OmegaConf.load(f"{yaml_path}")
             model_config = config.model 
-            model_config.params.cond_stage_config.params.download_path = download_path
-            model = cls(**model_config.get("params", dict()))
+            model_config.params.cond_stage_config.params.download_path = raw_download_path
+            model = cls(**model_config.get("params", dict()), )
 
             model= cls._load_state_dict_into_model(
                     model,
@@ -139,9 +140,6 @@ class BaseModel(Module):
             At that time the model will not be loaded. 
             """
             return load_local(checkpoint_path)
-
-
-
 
         try:
             model_id = _get_model_id(model_name)

@@ -4,14 +4,15 @@ from einops import rearrange, repeat
 import json
 from flagai.model.mm.clip_cn.model import CLIP
 from flagai.model.mm.clip_cn.clip import tokenize
+import pdb
+from flagai.model.base_model import BaseModel
 
+# class AbstractEncoder(nn.Module):
+#     def __init__(self):
+#         super().__init__()
 
-class AbstractEncoder(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    def encode(self, *args, **kwargs):
-        raise NotImplementedError
+#     def encode(self, *args, **kwargs):
+#         raise NotImplementedError
 
 class LayerNorm(nn.Module):
 
@@ -29,30 +30,18 @@ class LayerNorm(nn.Module):
         x = (x - u) / torch.sqrt(s + self.variance_epsilon)
         return self.weight * x + self.bias
 
-class CN_CLIP(AbstractEncoder):
-    def __init__(self, version='ViT-L/14', device="cuda", max_length=77, n_repeat=1, normalize=True, **kwargs):
-        super().__init__()
-        root_path = kwargs.get("download_path", None)
-        chkpt = root_path + kwargs.get("model_dir", None)
-        text_model_config_file = root_path + kwargs.get("text_model_config_file", None)
-        vision_model_config_file = root_path + kwargs.get("vision_model_config_file", None)
+class CN_CLIP(BaseModel):
+    def __init__(self, config, **kwargs):
+        super().__init__(config, **kwargs)
+        max_length = config["max_length"]
+        normalize = config["normalize"]
         self.tokenize = tokenize
 
-        self.device = device
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.max_length = max_length
 
-        with open(vision_model_config_file, 'r') as fv, open(text_model_config_file, 'r') as ft:
-            model_info = json.load(fv)
-            for k, v in json.load(ft).items():
-                model_info[k] = v
+        self.model = CLIP(config, **kwargs)
 
-        self.model = CLIP(**model_info)
-        checkpoint = torch.load(chkpt)
-
-        sd = checkpoint["state_dict"]
-        if next(iter(sd.items()))[0].startswith('module'):
-            sd = {k[len('module.'):]: v for k, v in sd.items()}
-        self.model.load_state_dict(sd)
         # 冻结权重
         # for param in self.model.parameters():
         #     param.requires_grad = False
@@ -78,4 +67,10 @@ class CN_CLIP(AbstractEncoder):
         if z.ndim==2:
             z = z[:, None, :]
         return z
-
+    
+    def load_weights(self, checkpoint_path):
+        checkpoint = torch.load(checkpoint_path)
+        sd = checkpoint["state_dict"]
+        if next(iter(sd.items()))[0].startswith('module'):
+            sd = {k[len('module.'):]: v for k, v in sd.items()}
+        self.model.load_state_dict(sd)

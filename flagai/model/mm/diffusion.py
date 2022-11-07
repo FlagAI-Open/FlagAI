@@ -14,6 +14,7 @@ from flagai.model.mm.autoencoders import VQModelInterface, IdentityFirstStage, A
 from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise_like
 from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
+from flagai.auto_model.auto_loader import AutoLoader
 import pdb
 
 __conditioning_keys__ = {
@@ -560,7 +561,6 @@ class LatentDiffusion(DDPM):
         else:
             self.register_buffer('scale_factor', torch.tensor(scale_factor))
         self.instantiate_first_stage(first_stage_config)
-        # pdb.set_trace()
         self.instantiate_cond_stage(cond_stage_config)
         self.cond_stage_forward = cond_stage_forward
         self.clip_denoised = False
@@ -622,8 +622,11 @@ class LatentDiffusion(DDPM):
             param.requires_grad = False
 
     def instantiate_cond_stage(self, config):
-        # print(config)
-        # pdb.set_trace()
+        pdb.set_trace() 
+        dct = config.get("params", dict())
+        model_dir = dct.get("model_dir", None)
+        if not model_dir:
+            model_dir = dct.get("download_path", None)
         if not self.cond_stage_trainable:
             if config == "__is_first_stage__":
                 print("Using first stage also as cond stage.")
@@ -635,7 +638,14 @@ class LatentDiffusion(DDPM):
                 self.cond_stage_model = None
                 # self.be_unconditional = True
             else:
-                model = instantiate_from_config(config)
+                loader = AutoLoader(task_name="txt_img_matching", #contrastive learning
+                    model_name=dct["model_name"],
+                    model_dir=model_dir)
+                model = loader.get_model()
+                model.to(self.device)
+
+
+                # model = instantiate_from_config(config)
                 self.cond_stage_model = model.eval()
                 self.cond_stage_model.train = disabled_train
                 for param in self.cond_stage_model.parameters():
@@ -643,7 +653,12 @@ class LatentDiffusion(DDPM):
         else:
             assert config != '__is_first_stage__'
             assert config != '__is_unconditional__'
-            model = instantiate_from_config(config)
+            # model = instantiate_from_config(config)
+            loader = AutoLoader(task_name="txt_img_matching", #contrastive learning
+                model_name=dct["model_name"],
+                model_dir=model_dir)
+            model = loader.get_model()
+            model.to(self.device)
             self.cond_stage_model = model
 
     def _get_denoise_row_from_list(self,
