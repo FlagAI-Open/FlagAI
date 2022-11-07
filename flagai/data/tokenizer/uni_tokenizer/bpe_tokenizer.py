@@ -65,7 +65,7 @@ class BPETokenizer(object):
                 vocab.append(''.join(merge))
             self.encoder = dict(zip(vocab, range(len(vocab))))
         else:
-            with open(vocab_file) as file:
+            with open(vocab_file, encoding='utf8') as file:
                 self.encoder = json.load(file)
         self.decoder = {v: k for k, v in self.encoder.items()}
 

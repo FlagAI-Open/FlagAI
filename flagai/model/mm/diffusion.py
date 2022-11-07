@@ -622,7 +622,6 @@ class LatentDiffusion(DDPM):
             param.requires_grad = False
 
     def instantiate_cond_stage(self, config):
-        pdb.set_trace() 
         dct = config.get("params", dict())
         model_dir = dct.get("model_dir", None)
         if not model_dir:

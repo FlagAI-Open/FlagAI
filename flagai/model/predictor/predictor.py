@@ -15,8 +15,7 @@ from PIL import Image
 from tqdm import trange, tqdm
 import time
 from contextlib import contextmanager, nullcontext
-from einops import rearrange
-from torchvision.utils import make_grid 
+from einops import rearrange 
 from flagai.model.predictor.utils import chunk
 
 
@@ -333,6 +332,7 @@ class Predictor:
                                 scale:float = 7.5,
                                 from_file:str = None,
                                 precision:str = "autocast"):
+        from torchvision.utils import make_grid
         """
         Args:
         text: The input text.

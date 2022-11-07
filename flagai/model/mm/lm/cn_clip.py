@@ -3,7 +3,8 @@ import torch.nn as nn
 from einops import rearrange, repeat
 import json
 from flagai.model.mm.clip_cn.model import CLIP
-from flagai.model.mm.clip_cn.clip import tokenize
+# from flagai.model.mm.clip_cn.clip import tokenize
+# from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer
 import pdb
 from flagai.model.base_model import BaseModel
 
@@ -35,7 +36,7 @@ class CN_CLIP(BaseModel):
         super().__init__(config, **kwargs)
         max_length = config["max_length"]
         normalize = config["normalize"]
-        self.tokenize = tokenize
+        self.tokenizer = kwargs.get("tokenizer")
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.max_length = max_length
@@ -54,7 +55,7 @@ class CN_CLIP(BaseModel):
 
         
     def forward(self, text):
-        text = self.tokenize(text).to(self.device)
+        text = self.tokenizer.tokenize(text).to(self.device)
         z = self.model.encode_text(text)
         z = self.layer_norm1(z)
         z = self.proj(z)

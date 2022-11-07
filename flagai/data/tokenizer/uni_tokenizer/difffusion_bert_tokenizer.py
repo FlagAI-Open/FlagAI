@@ -25,7 +25,9 @@ import re
 import unicodedata
 import six
 from functools import lru_cache
+import torch
 import os
+from typing import Union, List
 unicode = str
 
 
@@ -175,13 +177,41 @@ class FullTokenizer(object):
         self.basic_tokenizer = BasicTokenizer(do_lower_case=do_lower_case)
         self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab)
 
-    def tokenize(self, text):
+    def _tokenize(self, text):
         split_tokens = []
         for token in self.basic_tokenizer.tokenize(text):
             for sub_token in self.wordpiece_tokenizer.tokenize(token):
                 split_tokens.append(sub_token)
 
         return split_tokens
+
+    def tokenize(self, texts: Union[str, List[str]], context_length: int = 64) -> torch.LongTensor:
+        """
+        Returns the tokenized representation of given input string(s)
+        Parameters
+        ----------
+        texts : Union[str, List[str]]
+            An input string or a list of input strings to tokenize
+        context_length : int
+            The context length to use; all baseline models use 24 as the context length
+        Returns
+        -------
+        A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]
+        """
+        if isinstance(texts, str):
+            texts = [texts]
+
+        all_tokens = []
+        for text in texts:
+            all_tokens.append([self.vocab['[CLS]']] + self.convert_tokens_to_ids(self._tokenize(text))[:context_length - 2] + [self.vocab['[SEP]']])
+
+        result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
+
+        for i, tokens in enumerate(all_tokens):
+            assert len(tokens) <= context_length
+            result[i, :len(tokens)] = torch.tensor(tokens)
+
+        return result
 
     def convert_tokens_to_ids(self, tokens):
         return convert_by_vocab(self.vocab, tokens)
