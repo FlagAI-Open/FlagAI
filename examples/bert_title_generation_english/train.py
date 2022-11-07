@@ -2,7 +2,6 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import sys
-sys.path.append('/mnt/liuguang/FlagAI')
 import os
 import torch
 from torch.utils.data import Dataset
@@ -24,7 +23,7 @@ trainer = Trainer(
     weight_decay=1e-3,
     epochs=100,
     log_interval=1,
-    eval_interval=10000,
+    eval_interval=10,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints-bert-title-generation-en",
@@ -33,7 +32,6 @@ trainer = Trainer(
     fp16 = False)
 
 model_dir = "../state_dict/"  # download_path for the model 
-
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 256
 

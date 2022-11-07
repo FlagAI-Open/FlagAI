@@ -18,11 +18,13 @@
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
 
 import logging
+
 logger = logging.getLogger(__name__)
 import sentencepiece as spm
 
 
 class SentencePieceTokenizer(object):
+
     def __init__(self, model_path):
         self.sp_model = spm.SentencePieceProcessor()
         self.sp_model.Load(model_path)
@@ -35,7 +37,10 @@ class SentencePieceTokenizer(object):
         return self.sp_model.GetPieceSize()
 
     def get_vocab(self):
-        vocab = {self.convert_id_to_token(i): i for i in range(self.vocab_size)}
+        vocab = {
+            self.convert_id_to_token(i): i
+            for i in range(self.vocab_size)
+        }
         # vocab.update(self.added_tokens_encoder)
         return vocab
 
@@ -61,10 +66,10 @@ class SentencePieceTokenizer(object):
         for token in tokens:
             # make sure that special tokens are not decoded using sentencepiece model
             if token in all_command_token:
-                out_string += self.sp_model.decode_pieces(current_sub_tokens) + token + " "
+                out_string += self.sp_model.decode_pieces(
+                    current_sub_tokens) + token + " "
                 current_sub_tokens = []
             else:
                 current_sub_tokens.append(token)
         out_string += self.sp_model.decode_pieces(current_sub_tokens)
         return out_string.strip()
-
