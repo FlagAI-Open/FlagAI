@@ -32,7 +32,6 @@ trainer = Trainer(
     fp16 = False)
 
 model_dir = "../state_dict/"  # download_path for the model 
-model_dir = "/sharefs/baai-mrnd/yanzhaodong"
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 256
 
