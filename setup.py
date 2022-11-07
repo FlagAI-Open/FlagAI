@@ -31,5 +31,6 @@ setup(
         'ftfy == 6.1.1',
         'Pillow == 9.2.0',
         'einops == 0.3.0',
+        'torchvision == 0.9.0a0',
     ]
 )
