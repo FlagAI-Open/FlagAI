@@ -29,11 +29,8 @@ setup(
         'setuptools==59.5.0',
         'protobuf==3.20.1',
         'ftfy == 6.1.1',
-<<<<<<< HEAD
+        'bmtrain',
         'Pillow == 9.2.0',
         'einops == 0.3.0',
-=======
-        'bmtrain',
->>>>>>> master
     ]
 )
