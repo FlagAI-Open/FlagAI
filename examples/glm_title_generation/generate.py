@@ -4,10 +4,9 @@
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Note "./checkpoints_glm_title_generation/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_glm_title_generation.
+
 model_save_path = "./checkpoints_glm_title_generation/8/mp_rank_00_model_states.pt"
 
 auto_loader = AutoLoader("seq2seq",
@@ -18,7 +17,7 @@ tokenizer = auto_loader.get_tokenizer()
 
 model.load_state_dict(
     torch.load(model_save_path, map_location=device)["module"])
-
+    
 model.to(device)
 model.eval()
 predictor = Predictor(model, tokenizer)
