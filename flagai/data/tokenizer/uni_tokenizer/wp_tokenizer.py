@@ -19,9 +19,8 @@
 # from collections import namedtuple
 # import itertools
 
-
-
 import logging
+
 logger = logging.getLogger(__name__)
 import os
 # from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
@@ -31,15 +30,23 @@ import json
 
 
 class WordpieceTokenizer(object):
-    def __init__(self, vocab_file=None, do_basic_tokenize=True,
-                         do_lower_case=True, max_len=None,
-                         never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"),
-                         unk_token="[UNK]", max_input_chars_per_word=100, is_ch=False, *input, **kwargs):
+
+    def __init__(self,
+                 vocab_file=None,
+                 do_basic_tokenize=True,
+                 do_lower_case=True,
+                 max_len=None,
+                 never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"),
+                 unk_token="[UNK]",
+                 max_input_chars_per_word=100,
+                 is_ch=False,
+                 *input,
+                 **kwargs):
         if not os.path.isfile(vocab_file):
             raise ValueError(
                 "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "
                 "model use `tokenizer = BertTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)`"
-                    .format(vocab_file))
+                .format(vocab_file))
         self.vocab = load_vocab(vocab_file)
         self.ids_to_tokens = collections.OrderedDict([
             (ids, tok) for tok, ids in self.vocab.items()
@@ -174,6 +181,7 @@ class WordpieceTokenizer(object):
             out_string = " ".join(tokens).replace(" ##", "").strip()
         return out_string
 
+
 def load_vocab(vocab_file):
     """Loads a vocabulary file into a dictionary."""
     vocab = collections.OrderedDict()
@@ -203,7 +211,6 @@ def whitespace_tokenize(text):
 class BasicTokenizer(object):
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
 
-
     def __init__(self,
                  do_lower_case=True,
                  never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]")):
@@ -213,7 +220,6 @@ class BasicTokenizer(object):
         """
         self.do_lower_case = do_lower_case
         self.never_split = never_split
-
 
     def tokenize(self, text):
         """Tokenizes a piece of text."""
@@ -236,7 +242,6 @@ class BasicTokenizer(object):
         output_tokens = whitespace_tokenize(" ".join(split_tokens))
         return output_tokens
 
-
     def _run_strip_accents(self, text):
         """Strips accents from a piece of text."""
         text = unicodedata.normalize("NFD", text)
@@ -247,7 +252,6 @@ class BasicTokenizer(object):
                 continue
             output.append(char)
         return "".join(output)
-
 
     def _run_split_on_punc(self, text):
         """Splits punctuation on a piece of text."""
@@ -271,7 +275,6 @@ class BasicTokenizer(object):
 
         return ["".join(x) for x in output]
 
-
     def _tokenize_chinese_chars(self, text):
         """Adds whitespace around any CJK character."""
         output = []
@@ -285,7 +288,6 @@ class BasicTokenizer(object):
                 output.append(char)
         return "".join(output)
 
-
     def _is_chinese_char(self, cp):
         """Checks whether CP is the codepoint of a CJK character."""
         # This defines a "chinese character" as anything in the CJK Unicode block:
@@ -297,17 +299,16 @@ class BasicTokenizer(object):
         # space-separated words, so they are not treated specially and handled
         # like the all of the other languages.
         if ((cp >= 0x4E00 and cp <= 0x9FFF) or  #
-                (cp >= 0x3400 and cp <= 0x4DBF) or  #
-                (cp >= 0x20000 and cp <= 0x2A6DF) or  #
-                (cp >= 0x2A700 and cp <= 0x2B73F) or  #
-                (cp >= 0x2B740 and cp <= 0x2B81F) or  #
-                (cp >= 0x2B820 and cp <= 0x2CEAF) or
-                (cp >= 0xF900 and cp <= 0xFAFF) or  #
-                (cp >= 0x2F800 and cp <= 0x2FA1F)):  #
+            (cp >= 0x3400 and cp <= 0x4DBF) or  #
+            (cp >= 0x20000 and cp <= 0x2A6DF) or  #
+            (cp >= 0x2A700 and cp <= 0x2B73F) or  #
+            (cp >= 0x2B740 and cp <= 0x2B81F) or  #
+            (cp >= 0x2B820 and cp <= 0x2CEAF) or
+            (cp >= 0xF900 and cp <= 0xFAFF) or  #
+            (cp >= 0x2F800 and cp <= 0x2FA1F)):  #
             return True
 
         return False
-
 
     def _clean_text(self, text):
         """Performs invalid character removal and whitespace cleanup on text."""
@@ -361,7 +362,3 @@ def _is_punctuation(char):
     if cat.startswith("P"):
         return True
     return False
-
-
-
-

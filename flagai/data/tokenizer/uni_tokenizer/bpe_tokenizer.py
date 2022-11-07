@@ -29,6 +29,7 @@ import os
 import ftfy
 from functools import lru_cache
 import regex as re
+
 logger = logging.getLogger(__name__)
 # from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode, get_pairs
 import sys
@@ -42,6 +43,7 @@ except ImportError:
 
 
 class BPETokenizer(object):
+
     def __init__(self,
                  vocab_file,
                  merges_file,
@@ -50,7 +52,7 @@ class BPETokenizer(object):
                  **kwargs):
         super().__init__(**kwargs)
         self.max_len = max_len if max_len is not None else int(1e12)
-        
+
         self.errors = errors  # how to handle errors in decoding
         self.byte_encoder = bytes_to_unicode()
         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
@@ -178,8 +180,10 @@ class BPETokenizer(object):
     def convert_tokens_to_string(self, tokens, all_command_token={}):
         """Converts a sequence of tokens (string) in a single string."""
         text = "".join(tokens)
-        text = bytearray([self.byte_decoder[c] for c in text]).decode("utf-8", errors=self.errors)
+        text = bytearray([self.byte_decoder[c]
+                          for c in text]).decode("utf-8", errors=self.errors)
         return text
+
 
 @lru_cache()
 def bytes_to_unicode():
@@ -208,6 +212,7 @@ def bytes_to_unicode():
     cs = [_chr(n) for n in cs]
     return dict(zip(bs, cs))
 
+
 def get_pairs(word):
     """Return set of symbol pairs in a word.
 
@@ -220,58 +225,67 @@ def get_pairs(word):
         prev_char = char
     return pairs
 
+
 def basic_clean(text):
     text = ftfy.fix_text(text)
     text = html.unescape(html.unescape(text))
     return text.strip()
+
 
 def whitespace_clean(text):
     text = re.sub(r'\s+', ' ', text)
     text = text.strip()
     return text
 
+
 class MMBPETokenizer(BPETokenizer):
+
     def __init__(self,
-                vocab_file,
-                merges_file,
-                errors='replace',
-                max_len=None,
-                special_tokens=None,
-                **kwargs):
+                 vocab_file,
+                 merges_file,
+                 errors='replace',
+                 max_len=None,
+                 special_tokens=None,
+                 **kwargs):
         self.byte_encoder = bytes_to_unicode()
         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
         merges = open(merges_file).read().split('\n')
-        merges = merges[1:49152-256-2+1]
+        merges = merges[1:49152 - 256 - 2 + 1]
         merges = [tuple(merge.split()) for merge in merges]
         vocab = list(bytes_to_unicode().values())
-        vocab = vocab + [v+'</w>' for v in vocab]
+        vocab = vocab + [v + '</w>' for v in vocab]
         for merge in merges:
             vocab.append(''.join(merge))
         if not special_tokens:
             special_tokens = ['<start_of_text>', '<end_of_text>']
         else:
-            special_tokens = ['<start_of_text>', '<end_of_text>'] + special_tokens
+            special_tokens = ['<start_of_text>', '<end_of_text>'
+                              ] + special_tokens
         vocab.extend(special_tokens)
         self.encoder = dict(zip(vocab, range(len(vocab))))
         self.decoder = {v: k for k, v in self.encoder.items()}
         self.bpe_ranks = dict(zip(merges, range(len(merges))))
-        self.cache = {t:t for t in special_tokens}
+        self.cache = {t: t for t in special_tokens}
         special = "|".join(special_tokens)
-        self.pat = re.compile(special + r"""|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+""", re.IGNORECASE)
+        self.pat = re.compile(
+            special +
+            r"""|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+""",
+            re.IGNORECASE)
 
         # self.vocab_size = len(self.encoder)
         # self.all_special_ids = [self.encoder[t] for t in special_tokens]
     def bpe(self, token):
         if token in self.cache:
             return self.cache[token]
-        word = tuple(token[:-1]) + ( token[-1] + '</w>',)
+        word = tuple(token[:-1]) + (token[-1] + '</w>', )
         pairs = get_pairs(word)
 
         if not pairs:
-            return token+'</w>'
+            return token + '</w>'
 
         while True:
-            bigram = min(pairs, key = lambda pair: self.bpe_ranks.get(pair, float('inf')))
+            bigram = min(
+                pairs, key=lambda pair: self.bpe_ranks.get(pair, float('inf')))
             if bigram not in self.bpe_ranks:
                 break
             first, second = bigram
@@ -286,8 +300,9 @@ class MMBPETokenizer(BPETokenizer):
                     new_word.extend(word[i:])
                     break
 
-                if word[i] == first and i < len(word)-1 and word[i+1] == second:
-                    new_word.append(first+second)
+                if word[i] == first and i < len(word) - 1 and word[
+                        i + 1] == second:
+                    new_word.append(first + second)
                     i += 2
                 else:
                     new_word.append(word[i])
@@ -306,16 +321,24 @@ class MMBPETokenizer(BPETokenizer):
         bpe_tokens = []
         text = whitespace_clean(basic_clean(text)).lower()
         for token in re.findall(self.pat, text):
-            token = ''.join(self.byte_encoder[b] for b in token.encode('utf-8'))
-            bpe_tokens.extend(self.encoder[bpe_token] for bpe_token in self.bpe(token).split(' '))
+            token = ''.join(self.byte_encoder[b]
+                            for b in token.encode('utf-8'))
+            bpe_tokens.extend(self.encoder[bpe_token]
+                              for bpe_token in self.bpe(token).split(' '))
         return bpe_tokens
 
     def decode(self, tokens):
         text = ''.join([self.decoder[token] for token in tokens])
-        text = bytearray([self.byte_decoder[c] for c in text]).decode('utf-8', errors="replace").replace('</w>', ' ')
+        text = bytearray([self.byte_decoder[c] for c in text
+                          ]).decode('utf-8',
+                                    errors="replace").replace('</w>', ' ')
         return text
 
-    def tokenize(self, texts: Union[str, List[str]], sot_token: int, eot_token: int, context_length: int = 77) -> torch.LongTensor:
+    def tokenize(self,
+                 texts: Union[str, List[str]],
+                 sot_token: int,
+                 eot_token: int,
+                 context_length: int = 77) -> torch.LongTensor:
         """
         Returns the tokenized representation of given input string(s)
 
@@ -333,7 +356,8 @@ class MMBPETokenizer(BPETokenizer):
         if isinstance(texts, str):
             texts = [texts]
 
-        all_tokens = [[sot_token] + self.encode(text) + [eot_token] for text in texts]
+        all_tokens = [[sot_token] + self.encode(text) + [eot_token]
+                      for text in texts]
         result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 
         for i, tokens in enumerate(all_tokens):
