@@ -58,6 +58,8 @@ ALL_TASK = {
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
     "swinv2_classification": ("flagai.model.vision.swinv2",
                               "SwinTransformerV2"),
+    "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
+    "cpm3_trian": ("flagai.model.cpm3_trian_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.diffusion", "LatentDiffusion"),
     "clipcn_txt_img_matching": ("flagai.model.mm.lm.cn_clip", "CN_CLIP")
 }
@@ -81,6 +83,8 @@ MODEL_DICT = {
     "opt-30b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
     "opt-66b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
     "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "cpm3": ["flagai.model.cpm3_model", "CPM3", "cpm3", "nlp"],
+    "cpm3-train": ["flagai.model.cpm3_train_model", "CPM3", "cpm3", "nlp"],
     "vit-base-p16-224":
     ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":
