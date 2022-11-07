@@ -342,13 +342,18 @@ class Predictor:
         from torchvision.utils import make_grid
         """
         Args:
-        text: The input text.
-        input_max_length: The max length of input text.
-        out_max_length: The max length of output text.
-        top_k: keep only top k tokens with highest probability (top-k filtering).
-        top_p: keep the top tokens with cumulative probability >= top_p (nucleus filtering).(http://arxiv.org/abs/1904.09751)
-        repetition_penalty: avoid the repetition out. (https://arxiv.org/pdf/1909.05858.pdf)
-        temperature: normalization the score.
+        prompt: the prompt text
+        out_path: the output path
+        n_samples: how many images to be generated
+        skip_grid: not to grid images
+        skip_save: do not save images
+        ddim_step: number of steps in ddim model
+        n_iter: number of iterations
+        plms: use PLMSSampler
+        fixed_code: sampled from a initial start code
+        H: height of image
+        W: width of image
+        C: channels of images, 4 for colored images
         """
 
         assert "diffusion" in self.class_name.lower()

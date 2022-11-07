@@ -1,7 +1,4 @@
 import torch
-from PIL import Image
-import sys
-# sys.path.append("/home/yanzhaodong/FlagAI-internal/")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 import pdb
