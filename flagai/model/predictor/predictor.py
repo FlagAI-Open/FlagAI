@@ -329,7 +329,6 @@ class Predictor:
                                 ddim_steps: int = 50,
                                 n_iter: int = 1,
                                 plms: bool = False,
-                                laion400m: bool = False,
                                 fixed_code: bool = False,
                                 ddim_eta: float = 0.0,
                                 H: int = 512,
@@ -338,8 +337,9 @@ class Predictor:
                                 f: int = 8,
                                 scale: float = 7.5,
                                 from_file: str = None,
-                                precision: str = "autocast"):
+                                seed: int = 34234):
         from torchvision.utils import make_grid
+        from pytorch_lightning import seed_everything
         """
         Args:
         prompt: the prompt text
@@ -351,10 +351,12 @@ class Predictor:
         n_iter: number of iterations
         plms: use PLMSSampler
         fixed_code: sampled from a initial start code
+        seed: Random seed
         H: height of image
         W: width of image
         C: channels of images, 4 for colored images
         """
+        seed_everything(seed)
 
         assert "diffusion" in self.class_name.lower()
         device = next(self.model.parameters()).device

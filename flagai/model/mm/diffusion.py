@@ -15,7 +15,6 @@ from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise
 from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
 from flagai.auto_model.auto_loader import AutoLoader
-import pdb
 
 __conditioning_keys__ = {
     'concat': 'c_concat',
@@ -389,9 +388,9 @@ class DDPM(BaseModel):
         return self.p_losses(x, t, *args, **kwargs)
 
     def get_input(self, batch, k):
-        # 这里的k是key的意思，默认是image用来解决batch中同时有image和caption的情况
+        # The k here stands for key, and is primarily used to handle the case that batch contains both image and caption
         x = batch[k]
-        # 无监督训练不需要k
+        # In unsupervised learning, k is not used
         #x = batch
         if len(x.shape) == 3:
             x = x[..., None]
@@ -510,14 +509,6 @@ class DDPM(BaseModel):
                 return {key: log[key] for key in return_keys}
         return log
 
-    # def configure_optimizers(self):
-    #     lr = self.learning_rate
-    #     params = list(self.model.parameters())
-    #     if self.learn_logvar:
-    #         params = params + [self.logvar]
-    #     opt = torch.optim.AdamW(params, lr=lr)
-    #     return opt
-
 
 class LatentDiffusion(DDPM):
     """main class"""
@@ -580,7 +571,7 @@ class LatentDiffusion(DDPM):
                            self.num_timesteps_cond)).long()
         self.cond_ids[:self.num_timesteps_cond] = ids
 
-    # 开始训练时的预先处理，会报一个位置参数的错误
+    # In the preprocessing before the start of training, an error about positional parameter will appear
     @rank_zero_only
     @torch.no_grad()
     #def on_train_batch_start(self, batch, batch_idx, dataloader_idx):
@@ -592,7 +583,7 @@ class LatentDiffusion(DDPM):
             print("### USING STD-RESCALING ###")
             x = super().get_input(batch, self.first_stage_key)
             x = x.to(self.device)
-            # 先进行x的压缩
+            # There will be an compression of x
             encoder_posterior = self.encode_first_stage(x)
             z = self.get_first_stage_encoding(encoder_posterior).detach()
             del self.scale_factor
@@ -692,7 +683,7 @@ class LatentDiffusion(DDPM):
         return self.scale_factor * z
 
     def get_learned_conditioning(self, c):
-        # c为空直接返回
+        # C will be directly returned if it is None
         if c is None:
             return None
         if self.cond_stage_forward is None:
@@ -849,12 +840,12 @@ class LatentDiffusion(DDPM):
         if bs is not None:
             x = x[:bs]
         x = x.to(self.device)
-        # 默认用的vae形式的压缩
+        # VAE-style compression by default
         encoder_posterior = self.encode_first_stage(x)
 
         z = self.get_first_stage_encoding(encoder_posterior).detach()
-        # self.model.conditioning_key 默认是字符串类型,不能再配置文件中直接:None 否则出来的是字符串
-        # 如果不设置则直接在yaml中注释掉
+        # self.model.conditioning_key is of type str by default. Note that setting it to None in config file will return string 'None'
+        # Comment it in yaml if you do not want to set it
 
         if self.model.conditioning_key is not None:
             if cond_key is None:
@@ -865,22 +856,22 @@ class LatentDiffusion(DDPM):
                     xc = batch[cond_key]
                 elif cond_key == 'class_label':
                     xc = batch
-                # 添加图文修改条件
+                # Add the condition for text-image modification
                 elif cond_key == "img_and_caption":
                     xc = batch["img_and_caption"]
                 else:
                     xc = super().get_input(batch, cond_key).to(self.device)
             else:
-                # 先根据字典取出xc
+                # Obtain xc according to the dictionary
                 xc = x
 
             if not self.cond_stage_trainable or force_c_encode:
                 if isinstance(xc, dict) or isinstance(xc, list):
                     # import pudb; pudb.set_trace()
-                    # 判断是否对cond进行学习,不学习就直接返回
-                    # 如果是文本驱动的图像编辑，则分别对init_img 和 caption进行处理
+                    # Determine if learning the cond, otherwise it will return
+                    # if the image editing is driven by texts, we will process the init_img and caption
                     if cond_key == "img_and_caption":
-                        # 为了防止xc["init_img"] encoder后被保存，每次重新从batch取
+                        # To prevent xc["init_img"] saved after being encoded, we fetch it from batch at each time
                         c = {}
                         init_img = batch["img_and_caption"]["init_img"]
                         caption = batch["img_and_caption"]["caption"]

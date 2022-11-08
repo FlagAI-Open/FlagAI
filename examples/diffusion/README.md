@@ -26,18 +26,24 @@ predictor.predict_generate_images("两只老虎")
 More parameters of predict_generate_images for you to adjust:
 
 
-`prompt`: the prompt text
+`prompt: str`: The prompt text
 
-`out_path`: the output path to save images
+`out_path: str`: The output path to save images
 
-`n_samples`: number of images to be generated
+`n_samples: int`: Number of images to be generated
 
-`skip_grid`: not to grid images
+`skip_grid: bool`: If set to true, image gridding step will be skipped
 
-`ddim_step`: number of steps in ddim model
+`ddim_step: int`: Number of steps in ddim model
 
-`H`: height of image
+`plms: bool`: If set to true, PLMS Sampler instead of DDIM Sampler will be applied
 
-`W`: width of image
+`scale: float` : This value determines how important the prompt incluences generate images
 
-`C`: channels of images
+`H: int`: Height of image
+
+`W: int`: Width of image
+
+`C: int`: Numeber of channels of generated images
+
+`seed: int`: Random seed number 
