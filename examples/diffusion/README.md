@@ -1,6 +1,6 @@
 Stable diffusion is a powerful text-to-image model, which can generate high-quality images given any text input. Running the following code will automatically download the model and produce 4 images under /open_CNCLIP_samples. The settings file is `config.yaml` under the download path, and can be modified according to your needs. 
 
-Note that our stable diffusion model has a size of 11.4 G, and requires A100 GPU with at least 32G memory to run.
+Note that our stable diffusion model has a size of 11.4 G, and we suggest to run it with A100 GPU and at least 32G memory.
 
 The following example will generate image results for text input `两只老虎` under `./open_CNCLIP_samples`
 
