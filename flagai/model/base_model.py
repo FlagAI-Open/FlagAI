@@ -205,3 +205,23 @@ class BaseModel(Module):
         if os.path.exists(yaml_path):
             return load_diffusion_local(yaml_path)
         return load_local(checkpoint_path)
+
+    @classmethod
+    def download(cls,
+                download_path='./checkpoints/',
+                model_name='RoBERTa-base-ch',
+                **kwargs):
+        try:
+            model_id = _get_model_id(model_name)
+        except:
+            print("Model hub is not reachable!")
+        # prepare the download path
+        # downloading the files
+        if model_id and model_id != "null":
+            model_files = eval(_get_model_files(model_name))
+            print("model files:" + str(model_files))
+            for file_name in model_files:
+                if not file_name.endswith("bin"):
+                    _get_vocab_path(download_path, file_name, model_id)
+                else :
+                    _get_checkpoint_path(download_path, file_name, model_id)
