@@ -61,7 +61,9 @@ ALL_TASK = {
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
     "cpm3_trian": ("flagai.model.cpm3_trian_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.diffusion", "LatentDiffusion"),
-    "clipcn_txt_img_matching": ("flagai.model.mm.lm.cn_clip", "CN_CLIP")
+    # "clipcn_txt_img_matching": ("flagai.model.mm.lm.cn_clip", "CN_CLIP"),
+    "clipcn_txt_img_matching": ("flagai.model.mm.flag_clip", "ChineseCLIP"),
+
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -117,9 +119,10 @@ MODEL_DICT = {
     "swinv2-small-patch4-window16-256": [
         "flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"
     ],
-    "clip-cn-b-16": ["flagai.model.mm.lm.cn_clip", "CN_CLIP", "clipcn", "mm"]
+    "clip-cn-b-16": ["flagai.model.mm.lm.cn_clip", "CN_CLIP", "clipcn", "mm"],
+    "clip-xlmroberta-large": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcess"],
+    "clip-bert-base": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcessBert"],
 }
-
 
 class AutoLoader:
 
@@ -183,13 +186,21 @@ class AutoLoader:
 
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
-        if model_type == "mm" or model_type == "nlp":
+        if model_type == "nlp":
             tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
                                       "Tokenizer")
             self.tokenizer = tokenizer_class.from_pretrained(
                 model_name, cache_dir=download_path)
-        else:
+
+        elif model_type == "mm":
+            self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                             MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
+            self.transform = self.process.feature_extractor
+            self.tokenizer = self.process.tokenizer
+
+        else :
             self.tokenizer = None
+            self.transform = None
 
         kwargs["tokenizer"] = self.tokenizer
         self.model = getattr(LazyImport(self.model_name[0]),
@@ -212,6 +223,9 @@ class AutoLoader:
 
     def get_model(self):
         return self.model
+    
+    def get_transform(self):
+        return self.transform
 
     def load_pretrain_params(self, model_path):
         self.model.load_huggingface_weights(model_path)
