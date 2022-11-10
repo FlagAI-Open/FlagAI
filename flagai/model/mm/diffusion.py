@@ -628,7 +628,6 @@ class LatentDiffusion(DDPM):
                     f"Training {self.__class__.__name__} as an unconditional model."
                 )
                 self.cond_stage_model = None
-                # self.be_unconditional = True
             else:
                 loader = AutoLoader(
                     task_name="txt_img_matching",  #contrastive learning
@@ -638,8 +637,6 @@ class LatentDiffusion(DDPM):
                 tokenizer = loader.get_tokenizer()
                 self.tokenizer = tokenizer
                 model.to(self.device)
-
-                # model = instantiate_from_config(config)
                 self.cond_stage_model = model.eval()
                 self.cond_stage_model.train = disabled_train
                 for param in self.cond_stage_model.parameters():
@@ -647,7 +644,6 @@ class LatentDiffusion(DDPM):
         else:
             assert config != '__is_first_stage__'
             assert config != '__is_unconditional__'
-            # model = instantiate_from_config(config)
             loader = AutoLoader(
                 task_name="txt_img_matching",  #contrastive learning
                 model_name=dct["model_name"],
@@ -677,9 +673,7 @@ class LatentDiffusion(DDPM):
 
     def get_first_stage_encoding(self, encoder_posterior):
         if isinstance(encoder_posterior, DiagonalGaussianDistribution):
-            # .sample()返回 压缩后的x
             z = encoder_posterior.sample()
-        # 如果是tensor类型直接返回
         elif isinstance(encoder_posterior, torch.Tensor):
             z = encoder_posterior
         else:

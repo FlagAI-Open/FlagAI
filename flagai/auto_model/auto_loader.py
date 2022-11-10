@@ -186,6 +186,14 @@ class AutoLoader:
 
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
+        self.model = getattr(LazyImport(self.model_name[0]),
+                             self.model_name[1]).from_pretrain(
+                                 download_path=model_dir,
+                                 model_name=raw_model_name,
+                                 only_download_config=only_download_config,
+                                 device=device,
+                                 **kwargs)
+
         if model_type == "nlp":
             tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
                                       "Tokenizer")
@@ -205,14 +213,6 @@ class AutoLoader:
             self.tokenizer = None
             self.transform = None
 
-        # kwargs["tokenizer"] = self.tokenizer
-        self.model = getattr(LazyImport(self.model_name[0]),
-                             self.model_name[1]).from_pretrain(
-                                 download_path=model_dir,
-                                 model_name=raw_model_name,
-                                 only_download_config=only_download_config,
-                                 device=device,
-                                 **kwargs)
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())

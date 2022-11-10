@@ -1,5 +1,3 @@
-import sys
-sys.path.append("/home/yanzhaodong/test/FlagAI/")
 import torch
 from PIL import Image
 from flagai.auto_model.auto_loader import AutoLoader
@@ -8,8 +6,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(
     task_name="txt_img_matching",
-    model_dir="/sharefs/baai-mrnd/xingzhaohu/",
-    model_name="clip-xlmr-large"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_name="AltCLIP-XLMR-L",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_dir="/sharefs/baai-mrnd/yzd/test/"
 )
 
 model = loader.get_model()

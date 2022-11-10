@@ -321,7 +321,7 @@ class Predictor:
 
     def predict_generate_images(self,
                                 prompt: str,
-                                outpath: str = "open_CNCLIP_samples",
+                                outpath: str = "AltDiffusionOutputs",
                                 n_samples: int = 4,
                                 n_rows: int = 0,
                                 skip_grid: bool = False,
