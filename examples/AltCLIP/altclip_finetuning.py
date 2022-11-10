@@ -11,7 +11,7 @@ from torchvision.datasets import (
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-dataset_root = "/sharefs/baai-mmdataset/clip_benchmark_datasets"
+dataset_root = "./clip_benchmark_datasets"
 dataset_name = "cifar10"
 
 batch_size = 4
@@ -19,8 +19,8 @@ classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'hors
 
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
-    model_dir="/sharefs/baai-mrnd/xingzhaohu/",
-    model_name="clip-xlmroberta-large"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_dir="./checkpoints",
+    model_name="AltCLIP-XLMR-L"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 )
 
 model = auto_loader.get_model()
@@ -39,7 +39,7 @@ trainer = Trainer(env_type="pytorch",
 
 dataset = CIFAR10(root=os.path.join(dataset_root, dataset_name), 
                 transform=transform,   
-                download=False)
+                download=True)
 
 def cifar10_collate_fn(batch):
     # image shape is (batch, 3, 224, 224)
