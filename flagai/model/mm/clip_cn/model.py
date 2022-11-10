@@ -10,7 +10,6 @@ from torch import nn
 from .modeling_bert import BertModel
 from .configuration_bert import BertConfig
 from flagai.model.base_model import BaseModel
-import pdb
 
 
 class Bottleneck(nn.Module):

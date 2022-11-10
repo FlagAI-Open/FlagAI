@@ -8,7 +8,6 @@ import json
 from typing import Union
 from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path, _get_model_files
 import os
-import pdb
 
 
 # The base model for models

@@ -31,7 +31,6 @@ from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
 from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer import FullTokenizer
 from typing import List, Union, Optional
 import unicodedata
-import pdb
 
 
 def is_control(ch):
