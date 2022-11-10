@@ -7,7 +7,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 loader = AutoLoader(
     task_name="txt_img_matching",
     model_name="AltCLIP-XLMR-L",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
-    model_dir="/sharefs/baai-mrnd/yzd/test/"
+    model_dir="./checkpoints"
 )
 
 model = loader.get_model()
