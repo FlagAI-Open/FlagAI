@@ -87,7 +87,6 @@ class DDIMSampler(object):
         C, H, W = shape
         size = (batch_size, C, H, W)
         print(f'Data shape for DDIM sampling is {size}, eta {eta}')
-
         samples, intermediates = self.ddim_sampling(conditioning, size,
                                                     callback=callback,
                                                     img_callback=img_callback,
@@ -326,7 +325,6 @@ class PLMSSampler(object):
         C, H, W = shape
         size = (batch_size, C, H, W)
         print(f'Data shape for PLMS sampling is {size}')
-        pdb.set_trace()
         samples, intermediates = self.plms_sampling(conditioning, size,
                                                     callback=callback,
                                                     img_callback=img_callback,
@@ -351,7 +349,6 @@ class PLMSSampler(object):
                       mask=None, x0=None, img_callback=None, log_every_t=100,
                       temperature=1., noise_dropout=0., score_corrector=None, corrector_kwargs=None,
                       unconditional_guidance_scale=1., unconditional_conditioning=None,):
-        # pdb.set_trace()
         device = self.model.betas.device
         b = shape[0]
         if x_T is None:

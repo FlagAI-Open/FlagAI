@@ -16,12 +16,12 @@ from tqdm import trange, tqdm
 import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
-from flagai.model.predictor.utils import chunk
+from flagai.model.predictor.utils import chunk, check_safety
 
 
 class Predictor:
 
-    def __init__(self, model, tokenizer):
+    def __init__(self, model, tokenizer=None):
         """
         Args:
             model: The model loaded by the AutoLoader class.
@@ -423,7 +423,7 @@ class Predictor:
                             x_samples_ddim = x_samples_ddim.cpu().permute(
                                 0, 2, 3, 1).numpy()
 
-                            # x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                            x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
 
                             x_checked_image_torch = torch.from_numpy(
                                 x_samples_ddim).permute(0, 3, 1, 2)

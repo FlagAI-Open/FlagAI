@@ -524,8 +524,10 @@ class LatentDiffusion(DDPM):
                  conditioning_key=None,
                  scale_factor=1.0,
                  scale_by_std=False,
+                 tokenizer=None,
                  *args,
                  **kwargs):
+        self.tokenizer = tokenizer
         self.num_timesteps_cond = default(num_timesteps_cond, 1)
         self.scale_by_std = scale_by_std
         assert self.num_timesteps_cond <= kwargs['timesteps']
@@ -633,6 +635,8 @@ class LatentDiffusion(DDPM):
                     model_name=dct["model_name"],
                     model_dir=model_dir)
                 model = loader.get_model()
+                tokenizer = loader.get_tokenizer()
+                self.tokenizer = tokenizer
                 model.to(self.device)
 
                 # model = instantiate_from_config(config)
@@ -648,6 +652,8 @@ class LatentDiffusion(DDPM):
                 task_name="txt_img_matching",  #contrastive learning
                 model_name=dct["model_name"],
                 model_dir=model_dir)
+            tokenizer = loader.get_tokenizer()
+            self.tokenizer = tokenizer
             model = loader.get_model()
             model.to(self.device)
             self.cond_stage_model = model
@@ -689,7 +695,7 @@ class LatentDiffusion(DDPM):
         if self.cond_stage_forward is None:
             if hasattr(self.cond_stage_model, 'encode') and callable(
                     self.cond_stage_model.encode):
-                c = self.cond_stage_model.encode(c)
+                c = self.cond_stage_model.encode(c, self.tokenizer)
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:

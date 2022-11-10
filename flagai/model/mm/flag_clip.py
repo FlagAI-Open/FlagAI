@@ -149,6 +149,81 @@ class ChineseCLIPHF(CLIPPreTrainedModel):
 
         return text_features
 
+    def get_text_features_diffusion(
+        self,
+        input_ids: Optional[torch.Tensor] = None,
+        attention_mask: Optional[torch.Tensor] = None,
+        position_ids: Optional[torch.Tensor] = None,
+        token_type_ids=None,
+        output_attentions: Optional[bool] = None,
+        output_hidden_states: Optional[bool] = None,
+        return_dict: Optional[bool] = None,
+    ) -> torch.FloatTensor:
+        r"""
+        Returns:
+            text_features (`torch.FloatTensor` of shape `(batch_size, output_dim`): The text embeddings obtained by
+            applying the projection layer to the pooled output of [`CLIPTextModel`].
+
+        Examples:
+
+        ```python
+        >>> from transformers import CLIPTokenizer, CLIPModel
+
+        >>> model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+        >>> tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+
+        >>> inputs = tokenizer(["a photo of a cat", "a photo of a dog"], padding=True, return_tensors="pt")
+        >>> text_features = model.get_text_features(**inputs)
+        ```"""
+        # Use CLIP model's config for some fields (if specified) instead of those of vision & text components.
+        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+        output_hidden_states = (
+            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+        )
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        text_outputs = self.text_model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            token_type_ids=token_type_ids,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+        text_features = text_outputs['projection_state']
+        # text_features = self.text_projection(pooled_output)
+
+        return text_features
+
+    def tokenize(self, texts, tokenizer, context_length: int = 77):
+
+        if isinstance(texts, str):
+            texts = [texts]
+
+        all_tokens = []
+        for text in texts:
+            all_tokens.append([tokenizer.vocab['<s>']] + tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))[:context_length - 2] + [tokenizer.vocab['</s>']])
+
+        result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
+
+        for i, tokens in enumerate(all_tokens):
+            assert len(tokens) <= context_length
+            result[i, :len(tokens)] = torch.tensor(tokens)
+
+        return result
+
+
+    def encode(self, text, tokenizer, padding="max_length", truncation=True, max_length=77):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        text = tokenizer(text, truncation=True, max_length=77, return_length=False,return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
+        text["input_ids"] = torch.tensor(text["input_ids"]).to(device)
+        text["attention_mask"]=torch.tensor(text['attention_mask']).to(device)
+        # text = torch.tensor(text).to(device
+        features =  self.get_text_features_diffusion(**text)
+        return features
+
+
     def get_text_encoder_out(
         self,
         input_ids: Optional[torch.Tensor] = None,

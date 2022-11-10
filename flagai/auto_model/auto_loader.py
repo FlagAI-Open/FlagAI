@@ -108,7 +108,7 @@ MODEL_DICT = {
     "clip-large-p14-224": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
-    "diffusion-ddpm-cnclip":
+    "altdiffusion":
     ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
     "swinv1-base-patch4-window7-224":
     ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
@@ -120,8 +120,8 @@ MODEL_DICT = {
         "flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"
     ],
     "clip-cn-b-16": ["flagai.model.mm.lm.cn_clip", "CN_CLIP", "clipcn", "mm"],
-    "clip-xlmroberta-large": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcess"],
-    "clip-bert-base": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcessBert"],
+    "altclip-xlmr-l": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcess"],
+    "altclip-bert-base": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcessBert"],
 }
 
 class AutoLoader:
@@ -193,16 +193,19 @@ class AutoLoader:
                 model_name, cache_dir=download_path)
 
         elif model_type == "mm":
-            self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
-                             MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
-            self.transform = self.process.feature_extractor
-            self.tokenizer = self.process.tokenizer
+            if model_name.startswith("altdiffusion"):
+                self.tokenizer = None
+            else:
+                self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
+                self.transform = self.process.feature_extractor
+                self.tokenizer = self.process.tokenizer
 
         else :
             self.tokenizer = None
             self.transform = None
 
-        kwargs["tokenizer"] = self.tokenizer
+        # kwargs["tokenizer"] = self.tokenizer
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
                                  download_path=model_dir,
