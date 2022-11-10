@@ -35,7 +35,8 @@ prompt = "Anime portrait of natalie portman as an anime girl by stanley artgerm 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="text2img", #contrastive learning
-                    model_name="diffusion-ddpm-cnclip",)
+                    model_name="AltDiffusion",
+                    model_dir="./checkpoints")
 
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
