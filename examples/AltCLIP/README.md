@@ -205,7 +205,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 loader = AutoLoader(
     task_name="txt_img_matching",
     model_dir="./checkpoints",
-    model_name="clip-xlmr-large"
+    model_name="AltCLIP-XLMR-L"
 )
 ## 获取加载好的模型
 model = loader.get_model()
@@ -260,8 +260,8 @@ classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'hors
 
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
-    model_dir="/sharefs/baai-mrnd/xingzhaohu/",
-    model_name="clip-xlmr-large"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_dir="./checkpoints/",
+    model_name="AltCLIP-XLMR-L"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 )
 
 model = auto_loader.get_model()
@@ -327,7 +327,7 @@ dataset_name = "cifar10"
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
     model_dir="./checkpoints/",
-    model_name="clip-xlmr-large"
+    model_name="AltCLIP-XLMR-L"
 )
 
 model = auto_loader.get_model()
