@@ -6,7 +6,6 @@ from torch import nn, einsum
 from einops import rearrange, repeat
 
 from flagai.model.mm.utils import checkpoint
-import ipdb
 
 def exists(val):
     return val is not None
