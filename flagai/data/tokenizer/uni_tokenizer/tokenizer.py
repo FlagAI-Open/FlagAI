@@ -209,6 +209,8 @@ class Tokenizer(BaseTokenizer):
                     ])
                     self.num_tokens += 2
                     self.num_command_tokens += 2
+                self.token_end_id = self.text_tokenizer.convert_token_to_id(
+                    '</s>')
             elif self.tokenizer_model_name.lower().startswith('clip'):
                 self.num_command_tokens = 2
                 self._command_tokens = [
@@ -220,6 +222,8 @@ class Tokenizer(BaseTokenizer):
                         self.text_tokenizer.convert_token_to_id('</s>')),
                 ]
                 self.num_tokens += self.num_command_tokens
+                self.token_end_id = self.text_tokenizer.convert_token_to_id(
+                    '</s>')
             else:
                 self.num_command_tokens = 2
                 self.num_text_tokens = self.num_tokens - 1
@@ -233,6 +237,8 @@ class Tokenizer(BaseTokenizer):
                         self.text_tokenizer.convert_token_to_id(
                             '<|endoftext|>'))
                 ]
+                self.token_end_id = self.text_tokenizer.convert_token_to_id(
+                    '<|endoftext|>')
                 if add_block_symbols:
                     if self.tokenizer_model_name.lower().startswith('glm'):
                         unk_token_id = self.num_tokens + 5
@@ -259,6 +265,7 @@ class Tokenizer(BaseTokenizer):
                     ])
                     self.num_tokens += num_tokens_to_add
                     self.num_command_tokens += 6
+
             if add_block_symbols:
                 if add_task_mask:
                     self._command_tokens.extend([
@@ -278,6 +285,7 @@ class Tokenizer(BaseTokenizer):
                         [CommandToken('dBLOCK', '[dBLOCK]', self.num_tokens)])
                     self.num_tokens += 1
                     self.num_command_tokens += 1
+
         elif self.tokenizer_class == "sp":
             self.num_command_tokens = 0
             self.num_text_tokens = self.text_tokenizer.vocab_size
@@ -302,8 +310,11 @@ class Tokenizer(BaseTokenizer):
                              lstrip=True),
                 CommandToken('unk', '[UNK]', unk_token_id)
             ]
+
             self.num_tokens += 5
             self.num_command_tokens += 6
+            self.token_end_id = self.text_tokenizer.convert_token_to_id(
+                '</s>')
             if add_block_symbols:
                 self._command_tokens.extend([
                     CommandToken('sop', '<|startofpiece|>',
