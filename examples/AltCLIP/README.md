@@ -12,7 +12,9 @@ We propose a simple and efficient method to train a better bilingual CLIP model.
 There are two phases of training.
 In the parallel knowledge distillation phase, we only use parallel corpus texts for distillation (parallel corpus is easier to obtain and larger in number compared to image text pairs). In the bilingual comparison learning phase, we use a small number of Chinese-English image-text pairs (about 2 million in total) to train our text encoder to better fit the image encoder.
 
+AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
 
+The AltCLIP model can provide support for the AltDiffusion model in this project. For specific information about the AltDiffusion model, see [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
 
 模型与权重已经在FlagAI(https://github.com/FlagAI-Open/FlagAI)上开源，我们还提供了微调，推理，验证的脚本，欢迎试用。
 

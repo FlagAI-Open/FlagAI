@@ -15,9 +15,15 @@ When fine-tuning, we use stable-diffusion v1-4 as initialization, freeze the bil
 
 And during training, we divide the data set into bucketed according to the aspect ratio of the image, and the data in the same batch are cropped to a fixed size similar to the image size, so as to overcome the problem of generating multiple heads for the long and wide images of the original stable diffusion.
 
+AltDiffusion 模型由名为 AltCLIP 的双语 CLIP 模型支持，该模型也可在本项目中访问。您可以阅读 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 了解更多信息。
+
+AltDiffusion model is backed by a bilingual CLIP model named AltCLIP, which is also accessible in FlagAI. You can read [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) for more information. 
+
 所有的训练都在40G的A100上进行，总训练时间为160个A100小时，模型推理要求一张至少10G以上的GPU。
 
 All the training is performed on A100 of 40G, the total training time is 160 A100 hours, and the model inference requires a GPU of at least 10G above.
+
+
 
 ## 示例 Example
 
@@ -72,6 +78,18 @@ More parameters of predict_generate_images for you to adjust for `predict_genera
 `C: int`: 图片的channel数; Numeber of channels of generated images
 
 `seed: int`: 随机种子; Random seed number 
+
+## 模型权重 Model Weights
+
+第一次运行AltDiffusion模型时会自动下载下列权重:
+
+The following weights are automatically downloaded when the AltDiffusion model is run for the first time: 
+
+| 模型名称 Model name              | 大小 Size | 描述 Description                                        |
+|------------------------------|---------|-------------------------------------------------------|
+| StableDiffusionSafetyChecker | 1.13G   | 图片的安全检查器；Safety checker for image                     |
+| AltDiffusion                 | 8.0G    | 我们的双语AltDiffusion模型； Our bilingual AltDiffusion model |
+| AltCLIP                      | 3.22G   | 我们的双语AltCLIP模型；Our bilingual AltCLIP model            |
 
 # 更多生成结果 More Results
 
