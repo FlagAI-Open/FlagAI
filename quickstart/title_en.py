@@ -13,6 +13,7 @@ auto_loader = AutoLoader(
     model_name="BERT-base-en"
 )
 model = auto_loader.get_model()
+model.to(device)
 tokenizer = auto_loader.get_tokenizer()
 
 predictor = Predictor(model, tokenizer)

@@ -43,8 +43,10 @@ model = GLMModel.from_pretrain(download_path="./state_dict", model_name="GLM-lar
 
 ## All supported models
 We can use `from_pretrain` to automatically download following models
-| ClassName | ModelName | Language | Model Type |
-|-----------------------------------|------------- ----|----------|------------|
+
+
+| ClassName                                 | ModelName | Language | Model Type  |
+|-------------------------------------------|-----------|----------|-------------|
 | flagai.model.glm_model.GLMModel | ** GLM-10b-ch** | chinese | encoder |
 | flagai.model.glm_model.GLMModel | **GLM-large-ch** | chinese | encoder |
 | flagai.model.bert_model.BertModel | **RoBERTa-base-ch** | chinese | encoder |

@@ -3,12 +3,16 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
+import torch 
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 if __name__ == '__main__':
     loader = AutoLoader("seq2seq",
                         "GPT2-base-ch",
                         model_dir="./state_dict/")
     model = loader.get_model()
+    model.to(device)
     tokenizer = loader.get_tokenizer()
     predictor = Predictor(model, tokenizer)
 

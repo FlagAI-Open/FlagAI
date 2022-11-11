@@ -8,10 +8,49 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 import time
-
+from PIL import Image
+from itertools import islice
+from transformers import AutoFeatureExtractor
 import math
 
 join = os.path.join
+
+def get_safety_checker():
+    # load safety model
+    from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+    safety_model_id = "CompVis/stable-diffusion-safety-checker"
+    safety_feature_extractor = AutoFeatureExtractor.from_pretrained(
+        safety_model_id)
+    safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id)
+    return safety_checker, safety_feature_extractor
+
+def chunk(it, size):
+    it = iter(it)
+    return iter(lambda: tuple(islice(it, size)), ())
+
+
+def numpy_to_pil(images):
+    """
+    Convert a numpy image or a batch of images to a PIL image.
+    """
+    if images.ndim == 3:
+        images = images[None, ...]
+    images = (images * 255).round().astype("uint8")
+    pil_images = [Image.fromarray(image) for image in images]
+
+    return pil_images
+
+
+def load_replacement(x):
+    try:
+        hwc = x.shape
+        y = Image.open("assets/rick.jpeg").convert("RGB").resize(
+            (hwc[1], hwc[0]))
+        y = (np.array(y) / 255.0).astype(x.dtype)
+        assert y.shape == x.shape
+        return y
+    except Exception:
+        return x
 
 
 def load_config(config_path):
@@ -19,6 +58,30 @@ def load_config(config_path):
         j = json.load(f)
 
     return j
+
+
+def load_replacement(x):
+    try:
+        hwc = x.shape
+        y = Image.open("assets/rick.jpeg").convert("RGB").resize(
+            (hwc[1], hwc[0]))
+        y = (np.array(y) / 255.0).astype(x.dtype)
+        assert y.shape == x.shape
+        return y
+    except Exception:
+        return x
+
+
+def check_safety(safety_checker, safety_feature_extractor, x_image):
+    safety_checker_input = safety_feature_extractor(numpy_to_pil(x_image),
+                                                    return_tensors="pt")
+    x_checked_image, has_nsfw_concept = safety_checker(
+        images=x_image, clip_input=safety_checker_input.pixel_values)
+    assert x_checked_image.shape[0] == len(has_nsfw_concept)
+    for i in range(len(has_nsfw_concept)):
+        if has_nsfw_concept[i]:
+            x_checked_image[i] = load_replacement(x_checked_image[i])
+    return x_checked_image, has_nsfw_concept
 
 
 class LogitsProcessor:
@@ -188,7 +251,12 @@ class ListProcessor(LogitsProcessor):
 
 class BeamHypotheses(object):
 
-    def __init__(self, n_hyp, max_len, length_penalty, early_stopping, tokenizer=None):
+    def __init__(self,
+                 n_hyp,
+                 max_len,
+                 length_penalty,
+                 early_stopping,
+                 tokenizer=None):
         """
         Initialize n-best list of hypotheses.
         """
@@ -210,17 +278,19 @@ class BeamHypotheses(object):
         """
         Add a new hypothesis to the list.
         """
-        score = sum_logprobs / len(hyp) ** self.length_penalty
+        score = sum_logprobs / len(hyp)**self.length_penalty
 
         if len(self) < self.n_hyp or score > self.worst_score:
             self.hyp.append((score, hyp))
             if len(self) > self.n_hyp:
-                sorted_scores = sorted([(s, idx) for idx, (s, _) in enumerate(self.hyp)])
+                sorted_scores = sorted([
+                    (s, idx) for idx, (s, _) in enumerate(self.hyp)
+                ])
                 del self.hyp[sorted_scores[0][1]]
                 self.worst_score = sorted_scores[1][0]
             else:
                 self.worst_score = min(score, self.worst_score)
-        
+
     def is_done(self, best_sum_logprobs, cur_len):
         """
         If there are enough hypotheses and that none of the hypotheses being generated
@@ -231,8 +301,7 @@ class BeamHypotheses(object):
         elif self.early_stopping:
             return True
         else:
-            return self.worst_score >= best_sum_logprobs / cur_len ** self.length_penalty
-
+            return self.worst_score >= best_sum_logprobs / cur_len**self.length_penalty
 
 
 def viterbi_decode(nodes, trans):
@@ -763,6 +832,7 @@ def gpt_beamsearch(model, tokenizer, text, input_max_length, out_max_length,
     output = tokenizer.decode(out_puts_ids)
     return output
 
+
 def cpm_beamsearch(model, tokenizer, text, input_max_length, out_max_length,
                    beam_size):
     # tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
@@ -1055,6 +1125,7 @@ def convert_to_ids(tokenizer, text):
     ids = [j for j in ids if j != tokenizer.unk_id]
     return ids
 
+
 def get_control(control, tokenizer, task):
     sep_id1 = 30665
     sep_id2 = 30666
@@ -1067,11 +1138,16 @@ def get_control(control, tokenizer, task):
                 keywords += convert_to_ids(tokenizer, keyword)
             if i != len(control['keywords']) - 1:
                 keywords += [sep_id1]
-        keywords = [tokenizer.begin_of_keyword_id] + keywords +[tokenizer.end_of_keyword_id]
+        keywords = [tokenizer.begin_of_keyword_id
+                    ] + keywords + [tokenizer.end_of_keyword_id]
 
-    if 'genre' in control and control['genre'] != "" and control['genre'] not in ['新闻', '学术', '公文', '诗歌', '武侠仙侠', '玄幻奇幻', '科幻灵异', '军事历史', '言情']:
+    if 'genre' in control and control['genre'] != "" and control[
+            'genre'] not in [
+                '新闻', '学术', '公文', '诗歌', '武侠仙侠', '玄幻奇幻', '科幻灵异', '军事历史', '言情'
+            ]:
         style = convert_to_ids(tokenizer, control['genre'])
-        style = [tokenizer.begin_of_style_id] + style +[tokenizer.end_of_style_id]
+        style = [tokenizer.begin_of_style_id
+                 ] + style + [tokenizer.end_of_style_id]
     else:
         style = []
 
@@ -1087,22 +1163,27 @@ def get_control(control, tokenizer, task):
                     relation += convert_to_ids(tokenizer, item)
                     if i != len(items) - 1:
                         relation += [sep_id1]
-                ids = [tokenizer.begin_of_relation_id] + relation + [tokenizer.end_of_relation_id]
+                ids = [tokenizer.begin_of_relation_id
+                       ] + relation + [tokenizer.end_of_relation_id]
                 relations = relations + ids
 
     events = []
     if 'events' in control and control['events'] != []:
         events_set = set()
         for i in control['events']:
-            event_join = "/".join([":".join(x) for x in sorted(i.items(), key=lambda x:x[0])])
+            event_join = "/".join(
+                [":".join(x) for x in sorted(i.items(), key=lambda x: x[0])])
             if event_join not in events_set:
                 events_set.add(event_join)
                 event = []
                 for idx, j in enumerate(i):
-                    event += convert_to_ids(tokenizer, j) + [sep_id2] + convert_to_ids(tokenizer, i[j])
+                    event += convert_to_ids(tokenizer,
+                                            j) + [sep_id2] + convert_to_ids(
+                                                tokenizer, i[j])
                     if idx != len(i) - 1:
                         event += [sep_id1]
-                ids = [tokenizer.begin_of_event_id] + event + [tokenizer.end_of_event_id]
+                ids = [tokenizer.begin_of_event_id
+                       ] + event + [tokenizer.end_of_event_id]
                 events = events + ids
 
     if task == 0:
@@ -1128,19 +1209,19 @@ def get_control(control, tokenizer, task):
         res = keywords + relations + events
     else:
         raise ValueError("task id error")
-    
+
     return res
 
 
 def encode(tokenizer, i, target_span_len=100, use_target=False):
     task_ids = {
-        'lm':0,
-        'compress':1,
-        'expand':2,
-        'rewrite':3,
-        'rewrite_s':4,
-        'compress_para':5,
-        'expand_para':6,
+        'lm': 0,
+        'compress': 1,
+        'expand': 2,
+        'rewrite': 3,
+        'rewrite_s': 4,
+        'compress_para': 5,
+        'expand_para': 6,
     }
 
     task = task_ids[i['mode']]
@@ -1155,14 +1236,14 @@ def encode(tokenizer, i, target_span_len=100, use_target=False):
 
     ids += control
     info.append(len(control))
-    
+
     assert len(i['source']) <= 2
     src = i['source'][0]
 
     src_ids = convert_to_ids(tokenizer, src)
     src_ids = [tokenizer.bos_id] + src_ids
     if task != 0:
-         src_ids += [tokenizer.eos_id]
+        src_ids += [tokenizer.eos_id]
     ids += src_ids
     info.append(len(src_ids))
     if not use_target:
@@ -1199,64 +1280,61 @@ def encode(tokenizer, i, target_span_len=100, use_target=False):
         ids += tgt_ids
         # 不控制长度，eos自己生成
         info.extend([len(tgt_ids), 0])
-        
+
     info = info[:1] + np.cumsum(info[1:]).tolist()
 
     assert len(ids) == info[-1]
-    assert len(info) % 2 == 1 # task, control, src, tgt, src, tgt, ...., end
+    assert len(info) % 2 == 1  # task, control, src, tgt, src, tgt, ...., end
     return ids, info
 
 
 def make_input_cpm3(ctx, info, prompt_length):
     task = info[0]
     len_ctx = len(ctx)
-    inp = np.arange((prompt_length+len_ctx), dtype = np.int64) + prompt_length * task
+    inp = np.arange(
+        (prompt_length + len_ctx), dtype=np.int64) + prompt_length * task
     inp[prompt_length:] = ctx[:len_ctx]
     len_inp = len(inp)
 
     info = [x + prompt_length for x in info[1:]]
     context_inp = np.full(len_inp, True)
     # 保证end一定能看见
-    for i in range(1, len(info)-1, 2):
-        context_inp[info[i]:info[i+1]] = False
-    
-    tgt = np.full((len_inp), -100, dtype = np.int64)
-    tgt[:-1] = np.where(
-        context_inp[1:],
-        -100,
-        inp[1:]
-    )
+    for i in range(1, len(info) - 1, 2):
+        context_inp[info[i]:info[i + 1]] = False
 
-    position_inp = np.arange((len_inp), dtype = np.float32) / prompt_length
-    segment_inp = np.zeros((len_inp), dtype = np.int64)
+    tgt = np.full((len_inp), -100, dtype=np.int64)
+    tgt[:-1] = np.where(context_inp[1:], -100, inp[1:])
+
+    position_inp = np.arange((len_inp), dtype=np.float32) / prompt_length
+    segment_inp = np.zeros((len_inp), dtype=np.int64)
 
     if task == 0:
         arr = [(2, info[0]), (1, 0), (1, info[-1])]
     else:
-        arr = [(2, info[0]), (2+task, info[1]), (1, info[-1])]
-    
+        arr = [(2, info[0]), (2 + task, info[1]), (1, info[-1])]
+
     last = prompt_length
     for (typ, end) in arr:
         if end > last:
             segment_inp[last:end] = typ
-            position_inp[last:end] = np.arange(end-last) / (end-last)
+            position_inp[last:end] = np.arange(end - last) / (end - last)
             last = end
     assert last == len_inp
 
     max_length = (len_inp + 2 - 1) // 2 * 2
 
-    _ctx = torch.zeros((max_length,), dtype=torch.long)
+    _ctx = torch.zeros((max_length, ), dtype=torch.long)
     _ctx[:len_inp] = torch.from_numpy(inp)[:len_inp].long()
-    _context = torch.full((max_length,), False, dtype=torch.bool)
+    _context = torch.full((max_length, ), False, dtype=torch.bool)
     _context[:len_inp] = torch.from_numpy(context_inp)[:len_inp].bool()
-    _position = torch.full((max_length,), False, dtype=torch.float)
+    _position = torch.full((max_length, ), False, dtype=torch.float)
     _position[:len_inp] = torch.from_numpy(position_inp)[:len_inp].float()
-    _segment = torch.full((max_length,), False, dtype=torch.long)
+    _segment = torch.full((max_length, ), False, dtype=torch.long)
     _segment[:len_inp] = torch.from_numpy(segment_inp)[:len_inp].long()
-    _tgt = torch.full((max_length,), -100, dtype=torch.long)
+    _tgt = torch.full((max_length, ), -100, dtype=torch.long)
     _tgt[:len_inp] = torch.from_numpy(tgt)[:len_inp].long()
 
-    _span = torch.zeros((max_length + 1,), dtype=torch.long)
+    _span = torch.zeros((max_length + 1, ), dtype=torch.long)
     _span[len_inp] = 1  # 每个拼接的句子结尾的后一位是1
     _span = torch.cumsum(_span, dim=-1)[:-1]
 
@@ -1272,34 +1350,38 @@ def top_k_logits(logits, top_k=0, top_p=0.0, filter_value=-float("inf")):
 
     if top_k > 0:
         # Remove all tokens with a probability less than the last token of the top-k
-        indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
+        indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1,
+                                                                  None]
         logits[indices_to_remove] = filter_value
 
     batch_size = logits.size()[0]
     if top_p > 0.0:
-        logits=logits.view(batch_size, -1).contiguous()
+        logits = logits.view(batch_size, -1).contiguous()
         for index in range(len(logits)):
 
-            sorted_logits, sorted_indices = torch.sort(logits[index].view(-1), descending=True)
-            cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+            sorted_logits, sorted_indices = torch.sort(logits[index].view(-1),
+                                                       descending=True)
+            cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1),
+                                            dim=-1)
             # Remove tokens with cumulative probability above the threshold
             sorted_indices_to_remove = cumulative_probs > top_p
             # Shift the indices to the right to keep also the first token above the threshold
-            sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+            sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[
+                ..., :-1].clone()
             sorted_indices_to_remove[..., 0] = 0
             indices_to_remove = sorted_indices[sorted_indices_to_remove]
             logits[index][indices_to_remove] = filter_value
 
-        logits=logits.view(batch_size, -1).contiguous()
+        logits = logits.view(batch_size, -1).contiguous()
 
     return logits
 
 
-def enforce_repetition_penalty_(tokenizer, 
-                                lprobs, 
-                                batch_size, 
-                                num_beams, 
-                                prev_output_tokens, 
+def enforce_repetition_penalty_(tokenizer,
+                                lprobs,
+                                batch_size,
+                                num_beams,
+                                prev_output_tokens,
                                 repetition_penalty,
                                 start_idx=None,
                                 end_idx=None,
@@ -1312,9 +1394,12 @@ def enforce_repetition_penalty_(tokenizer,
         else:
             if end_idx >= start_idx:
                 if window_size:
-                    output_tokens = prev_output_tokens[i][max(start_idx, end_idx + 1 - window_size): end_idx+1].tolist()
+                    output_tokens = prev_output_tokens[
+                        i][max(start_idx, end_idx + 1 - window_size):end_idx +
+                           1].tolist()
                 else:
-                    output_tokens = prev_output_tokens[i][start_idx: end_idx+1].tolist()
+                    output_tokens = prev_output_tokens[i][start_idx:end_idx +
+                                                          1].tolist()
             else:
                 output_tokens = []
         #print(output_tokens)
@@ -1333,7 +1418,8 @@ def _get_ngrams(ngram_size: int, prev_input_ids: torch.Tensor, num_hypos: int):
         generated_ngram = generated_ngrams[idx]
         for ngram in zip(*[gen_tokens[i:] for i in range(ngram_size)]):
             prev_ngram_tuple = tuple(ngram[:-1])
-            generated_ngram[prev_ngram_tuple] = generated_ngram.get(prev_ngram_tuple, []) + [ngram[-1]]
+            generated_ngram[prev_ngram_tuple] = generated_ngram.get(
+                prev_ngram_tuple, []) + [ngram[-1]]
     return generated_ngrams
 
 
@@ -1345,17 +1431,24 @@ def _get_generated_ngrams(banned_ngrams, prev_input_ids, ngram_size, cur_len):
     return banned_ngrams.get(ngram_idx, [])
 
 
-def calc_banned_ngram_tokens(
-    prev_input_ids: torch.Tensor, num_hypos: int, ngram_size: int, start_idx=None, end_idx=None, window_size=None, tokenizer=None):
+def calc_banned_ngram_tokens(prev_input_ids: torch.Tensor,
+                             num_hypos: int,
+                             ngram_size: int,
+                             start_idx=None,
+                             end_idx=None,
+                             window_size=None,
+                             tokenizer=None):
     """Copied from fairseq for no_repeat_ngram in beam_search"""
     if start_idx is not None and end_idx is not None:
         if window_size:
-            prev_input_ids = prev_input_ids[:, max(start_idx, end_idx + 1 - window_size): end_idx+1]
+            prev_input_ids = prev_input_ids[:,
+                                            max(start_idx, end_idx + 1 -
+                                                window_size):end_idx + 1]
         else:
-            prev_input_ids = prev_input_ids[:, start_idx: end_idx+1]
-        
+            prev_input_ids = prev_input_ids[:, start_idx:end_idx + 1]
+
     cur_len = prev_input_ids.size(1)
-    
+
     if cur_len + 1 < ngram_size:
         # return no banned tokens if we haven't generated no_repeat_ngram_size tokens yet
         return [[] for _ in range(num_hypos)]
@@ -1363,16 +1456,21 @@ def calc_banned_ngram_tokens(
     generated_ngrams = _get_ngrams(ngram_size, prev_input_ids, num_hypos)
 
     banned_tokens = [
-        _get_generated_ngrams(generated_ngrams[hypo_idx], prev_input_ids[hypo_idx], ngram_size, cur_len)
+        _get_generated_ngrams(generated_ngrams[hypo_idx],
+                              prev_input_ids[hypo_idx], ngram_size, cur_len)
         for hypo_idx in range(num_hypos)
     ]
 
     return banned_tokens
 
-def calc_banned_bad_words_ids(prev_input_ids, bad_words_ids, start_idx=None,  end_idx=None):
+
+def calc_banned_bad_words_ids(prev_input_ids,
+                              bad_words_ids,
+                              start_idx=None,
+                              end_idx=None):
     if start_idx is not None and end_idx is not None:
-        prev_input_ids = prev_input_ids[:, start_idx: end_idx+1]
-        
+        prev_input_ids = prev_input_ids[:, start_idx:end_idx + 1]
+
     banned_tokens = []
 
     def _tokens_match(prev_tokens, tokens):
@@ -1383,7 +1481,7 @@ def calc_banned_bad_words_ids(prev_input_ids, bad_words_ids, start_idx=None,  en
             # if bad word tokens are longer then prev input_ids they can't be equal
             return False
 
-        if prev_tokens[-len(tokens) :] == tokens:
+        if prev_tokens[-len(tokens):] == tokens:
             # if tokens match
             return True
         else:
@@ -1393,11 +1491,13 @@ def calc_banned_bad_words_ids(prev_input_ids, bad_words_ids, start_idx=None,  en
         banned_tokens_slice = []
 
         for banned_token_seq in bad_words_ids:
-            assert len(banned_token_seq) > 0, "Banned words token sequences {} cannot have an empty list".format(
-                bad_words_ids
-            )
+            assert len(
+                banned_token_seq
+            ) > 0, "Banned words token sequences {} cannot have an empty list".format(
+                bad_words_ids)
 
-            if _tokens_match(prev_input_ids_slice.tolist(), banned_token_seq[:-1]) is False:
+            if _tokens_match(prev_input_ids_slice.tolist(),
+                             banned_token_seq[:-1]) is False:
                 # if tokens do not match continue
                 continue
             banned_tokens_slice.append(banned_token_seq[-1])
@@ -1428,21 +1528,26 @@ def postprocess_next_token_scores(tokenizer,
 
     # repetition penalty (from CTRL paper https://arxiv.org/abs/1909.05858)
     if repetition_penalty != 1.0:
-        enforce_repetition_penalty_(
-            tokenizer, scores, batch_size, num_beams, input_ids, repetition_penalty, start_idx, end_idx, window_size
-        )
+        enforce_repetition_penalty_(tokenizer, scores, batch_size, num_beams,
+                                    input_ids, repetition_penalty, start_idx,
+                                    end_idx, window_size)
 
     if no_repeat_ngram_size > 0:
         # calculate a list of banned tokens to prevent repetitively generating the same ngrams
         num_batch_hypotheses = batch_size * num_beams
         # from fairseq: https://github.com/pytorch/fairseq/blob/a07cb6f40480928c9e0548b737aadd36ee66ac76/fairseq/sequence_generator.py#L345
-        banned_batch_tokens = calc_banned_ngram_tokens(input_ids, num_batch_hypotheses, no_repeat_ngram_size, start_idx, end_idx, window_size, tokenizer)
+        banned_batch_tokens = calc_banned_ngram_tokens(input_ids,
+                                                       num_batch_hypotheses,
+                                                       no_repeat_ngram_size,
+                                                       start_idx, end_idx,
+                                                       window_size, tokenizer)
         for i, banned_tokens in enumerate(banned_batch_tokens):
             scores[i, banned_tokens] = -float("inf")
 
     if bad_words_ids is not None:
         # calculate a list of banned tokens according to bad words
-        banned_tokens = calc_banned_bad_words_ids(input_ids, bad_words_ids, start_idx, end_idx)
+        banned_tokens = calc_banned_bad_words_ids(input_ids, bad_words_ids,
+                                                  start_idx, end_idx)
 
         for i, banned_tokens in enumerate(banned_tokens):
             scores[i, banned_tokens] = -float("inf")
@@ -1451,40 +1556,62 @@ def postprocess_next_token_scores(tokenizer,
     scores[:, [0, 1, 2, 3, 4, 5] + [x for x in range(8, 20)]] = -float("inf")
 
     if start_idx is not None and end_idx is not None and min_len is not None:
-        min_length_constraint(scores, end_idx - start_idx + 2, min_len, tokenizer)
+        min_length_constraint(scores, end_idx - start_idx + 2, min_len,
+                              tokenizer)
 
     return scores
 
 
-def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size = 3,
-                     temperature = .9, top_k = 0, top_p = 0.9,
-                     no_repeat_ngram_size = 0, repetition_penalty = 1.2, random_sample=False, min_len=None, **kwags):
+def cpm_beam_search(model,
+                    tokenizer,
+                    instance,
+                    target_span_len=100,
+                    beam_size=3,
+                    temperature=.9,
+                    top_k=0,
+                    top_p=0.9,
+                    no_repeat_ngram_size=0,
+                    repetition_penalty=1.2,
+                    random_sample=False,
+                    min_len=None,
+                    **kwags):
     print('tokenizer is', tokenizer)
     vocab_size = tokenizer.vocab_size
 
     ids, info = encode(tokenizer, instance, target_span_len)
 
     prompt_length = 64
-    input_tokens, input_length, context_input, position_input, segment_input, span_input, _ = make_input_cpm3(ids, info, prompt_length)
+    input_tokens, input_length, context_input, position_input, segment_input, span_input, _ = make_input_cpm3(
+        ids, info, prompt_length)
 
-    # (batch, max_length) 
+    # (batch, max_length)
     max_length = input_tokens.size(-1)
     batch_size = input_tokens.size(0)
 
-    # (batch, beam_size, max_length)    
-    input_tokens = input_tokens.unsqueeze(1).expand(batch_size, beam_size, max_length)
+    # (batch, beam_size, max_length)
+    input_tokens = input_tokens.unsqueeze(1).expand(batch_size, beam_size,
+                                                    max_length)
     input_length = input_length.unsqueeze(1).expand(batch_size, beam_size)
-    span_input = span_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
-    context_input = context_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
-    position_input = position_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
-    segment_input = segment_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
-    # (batch * beam_size, max_length)    
-    input_tokens = input_tokens.contiguous().view(batch_size * beam_size, max_length)
-    input_length = input_length.contiguous().view(batch_size * beam_size,)
-    span_input = span_input.contiguous().view(batch_size * beam_size, max_length)
-    context_input = context_input.contiguous().view(batch_size * beam_size, max_length)
-    position_input = position_input.contiguous().view(batch_size * beam_size, max_length)
-    segment_input = segment_input.contiguous().view(batch_size * beam_size, max_length)
+    span_input = span_input.unsqueeze(1).expand(batch_size, beam_size,
+                                                max_length)
+    context_input = context_input.unsqueeze(1).expand(batch_size, beam_size,
+                                                      max_length)
+    position_input = position_input.unsqueeze(1).expand(
+        batch_size, beam_size, max_length)
+    segment_input = segment_input.unsqueeze(1).expand(batch_size, beam_size,
+                                                      max_length)
+    # (batch * beam_size, max_length)
+    input_tokens = input_tokens.contiguous().view(batch_size * beam_size,
+                                                  max_length)
+    input_length = input_length.contiguous().view(batch_size * beam_size, )
+    span_input = span_input.contiguous().view(batch_size * beam_size,
+                                              max_length)
+    context_input = context_input.contiguous().view(batch_size * beam_size,
+                                                    max_length)
+    position_input = position_input.contiguous().view(batch_size * beam_size,
+                                                      max_length)
+    segment_input = segment_input.contiguous().view(batch_size * beam_size,
+                                                    max_length)
 
     input_tokens = input_tokens.int().cuda()
     input_length = input_length.int().cuda()
@@ -1495,9 +1622,11 @@ def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size
 
     done = [False for _ in range(batch_size)]
     # (batch_size * beam_size, 0)
-    
-    beam_scores = torch.zeros((batch_size, beam_size), dtype=torch.float, device=input_tokens.device)
-    beam_scores[:, 1:] = -1e9 # 确保第一次只在一个vocab大小里选取
+
+    beam_scores = torch.zeros((batch_size, beam_size),
+                              dtype=torch.float,
+                              device=input_tokens.device)
+    beam_scores[:, 1:] = -1e9  # 确保第一次只在一个vocab大小里选取
     beam_scores = beam_scores.view(-1)
 
     # current position
@@ -1510,10 +1639,12 @@ def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size
 
     # generated hypotheses
     generated_hyps = [
-        BeamHypotheses(beam_size, span_length, length_penalty=1 , early_stopping=False, tokenizer=tokenizer)
-        for _ in range(batch_size)
+        BeamHypotheses(beam_size,
+                       span_length,
+                       length_penalty=1,
+                       early_stopping=False,
+                       tokenizer=tokenizer) for _ in range(batch_size)
     ]
-
 
     with torch.inference_mode():
         past_key_values = None
@@ -1521,13 +1652,19 @@ def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size
         for i in range(lef - 1, rig):
             # skip all steps when we are done with each sentence
             if all(done):
-                break # Note: break not supports multi-GPUs
+                break  # Note: break not supports multi-GPUs
 
             if i == lef - 1:
                 # for the first time step, we will move the right context to the beginning inside model
-                logits, _, past_key_values, cached_attn_mask_pos_bias = model(input_tokens, input_length, context_input, position_input, segment_input, span_input, past_key_values, rig, i, cached_attn_mask_pos_bias)
+                logits, _, past_key_values, cached_attn_mask_pos_bias = model(
+                    input_tokens, input_length, context_input, position_input,
+                    segment_input, span_input, past_key_values, rig, i,
+                    cached_attn_mask_pos_bias)
             else:
-                logits, _, past_key_values, cached_attn_mask_pos_bias = model(input_tokens[:, i:i+1], input_length, context_input, position_input, segment_input, span_input, past_key_values, rig, i, cached_attn_mask_pos_bias)
+                logits, _, past_key_values, cached_attn_mask_pos_bias = model(
+                    input_tokens[:, i:i + 1], input_length, context_input,
+                    position_input, segment_input, span_input, past_key_values,
+                    rig, i, cached_attn_mask_pos_bias)
 
             logits = logits[:, -1, :]
 
@@ -1543,52 +1680,69 @@ def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size
                 start_idx=lef,
                 end_idx=i,
                 window_size=None,
-                min_len=min_len
-            )
+                min_len=min_len)
             scores = F.log_softmax(logits, dim=-1)
 
             if random_sample:
                 assert temperature != 0, "temperature should not be zero!"
                 scores = scores - math.log(temperature)
                 _scores = scores + beam_scores[:, None].expand_as(scores)
-                             
+
                 _scores = top_k_logits(_scores, top_k=top_k, top_p=top_p)
-                _scores = _scores.contiguous().view(batch_size, beam_size * vocab_size)
+                _scores = _scores.contiguous().view(batch_size,
+                                                    beam_size * vocab_size)
                 # Sample 2 next tokens for each beam (so we have some spare tokens and match output of greedy beam search)
                 probs = F.softmax(_scores, dim=-1)
-                next_words = torch.multinomial(probs, num_samples=2 * beam_size)  # (batch_size, beam_size * 2)
+                next_words = torch.multinomial(
+                    probs,
+                    num_samples=2 * beam_size)  # (batch_size, beam_size * 2)
                 # Compute next scores
-                next_scores = torch.gather(_scores, -1, next_words)  # (batch_size, beam_size * 2)
+                next_scores = torch.gather(
+                    _scores, -1, next_words)  # (batch_size, beam_size * 2)
                 # sort the sampled vector to make sure that the first beam_size samples are the best
-                next_scores, next_scores_indices = torch.sort(next_scores, descending=True, dim=1)
-                next_words = torch.gather(next_words, -1, next_scores_indices)  # (batch_size, beam_size * 2)            
+                next_scores, next_scores_indices = torch.sort(next_scores,
+                                                              descending=True,
+                                                              dim=1)
+                next_words = torch.gather(
+                    next_words, -1,
+                    next_scores_indices)  # (batch_size, beam_size * 2)
             else:
-                next_scores = scores + beam_scores[:, None].expand_as(scores)  # (batch_size * beam_size, vocab_size)
+                next_scores = scores + beam_scores[:, None].expand_as(
+                    scores)  # (batch_size * beam_size, vocab_size)
 
                 # re-organize to group the beam together (we are keeping top hypothesis accross beams)
                 next_scores = next_scores.view(
-                    batch_size, beam_size * vocab_size
-                )  # (batch_size, beam_size * vocab_size)
+                    batch_size, beam_size *
+                    vocab_size)  # (batch_size, beam_size * vocab_size)
 
-                next_scores, next_words = torch.topk(next_scores, 2 * beam_size, dim=1, largest=True, sorted=True)
+                next_scores, next_words = torch.topk(next_scores,
+                                                     2 * beam_size,
+                                                     dim=1,
+                                                     largest=True,
+                                                     sorted=True)
 
-            assert next_scores.size() == next_words.size() == (batch_size, 2 * beam_size)
+            assert next_scores.size() == next_words.size() == (batch_size,
+                                                               2 * beam_size)
             # next batch beam content
             next_batch_beam = []
 
             for sent_id in range(batch_size):
 
-                 # if we are done with this sentence
-                done[sent_id] = done[sent_id] or generated_hyps[sent_id].is_done(next_scores[sent_id].max().item(), cur_len)
+                # if we are done with this sentence
+                done[sent_id] = done[
+                    sent_id] or generated_hyps[sent_id].is_done(
+                        next_scores[sent_id].max().item(), cur_len)
                 if done[sent_id]:
-                    next_batch_beam.extend([(0, tokenizer.pad_id, 0)] * beam_size)  # pad the batch
+                    next_batch_beam.extend([(0, tokenizer.pad_id, 0)] *
+                                           beam_size)  # pad the batch
                     continue
 
                 # next sentence beam content
                 next_sent_beam = []
 
                 # next words for this sentence
-                for idx, value in zip(next_words[sent_id], next_scores[sent_id]):
+                for idx, value in zip(next_words[sent_id],
+                                      next_scores[sent_id]):
 
                     # get beam and word IDs
                     beam_id = idx // vocab_size
@@ -1597,25 +1751,31 @@ def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size
                     # end of sentence, or next word
                     if word_id == tokenizer.eos_id or cur_len == span_length:
                         if cur_len > 0:
-                            generated_hyps[sent_id].add(input_tokens[sent_id * beam_size + beam_id, lef:lef+cur_len].clone(), value.item())
+                            generated_hyps[sent_id].add(
+                                input_tokens[sent_id * beam_size + beam_id,
+                                             lef:lef + cur_len].clone(),
+                                value.item())
                     else:
-                        next_sent_beam.append((value, word_id, sent_id * beam_size + beam_id))
+                        next_sent_beam.append(
+                            (value, word_id, sent_id * beam_size + beam_id))
 
                     # the beam for next step is full
                     if len(next_sent_beam) == beam_size:
                         break
 
                 # update next beam content
-                assert len(next_sent_beam) == 0 if cur_len == span_length else beam_size
+                assert len(next_sent_beam
+                           ) == 0 if cur_len == span_length else beam_size
                 if len(next_sent_beam) == 0:
-                    next_sent_beam = [(0, tokenizer.pad_id, 0)] * beam_size  # pad the batch
+                    next_sent_beam = [(0, tokenizer.pad_id, 0)
+                                      ] * beam_size  # pad the batch
                 next_batch_beam.extend(next_sent_beam)
                 assert len(next_batch_beam) == beam_size * (sent_id + 1)
 
             # At the last step, we should not add the token to the next position
             if i == rig - 1:
                 break
-            
+
             # sanity check / prepare next batch
             assert len(next_batch_beam) == batch_size * beam_size
             beam_scores = beam_scores.new([x[0] for x in next_batch_beam])
@@ -1625,7 +1785,7 @@ def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size
             # re-order batch and internal states
             input_tokens = input_tokens[beam_idx, :]
             input_tokens[:, lef + cur_len] = beam_words
-            
+
             for key_value_layer in past_key_values:
                 key_value_layer[0] = key_value_layer[0][beam_idx]
                 key_value_layer[1] = key_value_layer[1][beam_idx]
@@ -1639,11 +1799,11 @@ def cpm_beam_search(model, tokenizer, instance, target_span_len = 100, beam_size
         for i, hypotheses in enumerate(generated_hyps):
             best_hyp = max(hypotheses.hyp, key=lambda x: x[0])[1]
             best.append(best_hyp)
-        
+
         if instance['mode'] == 'lm':
             decode_start_idx = 0
         else:
-            decode_start_idx = 1  
+            decode_start_idx = 1
         return best[0][decode_start_idx:].cpu().numpy()
         # for id in best[0][decode_start_idx:].cpu().numpy():
         #     token = tokenizer.decode([id])

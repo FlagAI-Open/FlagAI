@@ -4,6 +4,8 @@
 import importlib
 import os
 import copy
+from  flagai.model.file_utils import _get_model_id
+
 
 class LazyImport(object):
 
@@ -18,6 +20,7 @@ class LazyImport(object):
             self.cache[self.mod_name] = mod
         return getattr(mod, name)
 
+
 # 2 columns : 1-package name,  2-class name
 ALL_TASK = {
     "bert_lm": ["flagai.model.bert_model", "BertModel"],
@@ -25,18 +28,18 @@ ALL_TASK = {
     "bert_title-generation": ["flagai.model.bert_model", "BertForSeq2seq"],
     "bert_masklm": ["flagai.model.bert_model", "BertForMaskLM"],
     "bert_sequence-labeling":
-        ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_sequence-labeling-crf":
-        ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_sequence-labeling-gp":
-        ["flagai.model.bert_model", "BertForSequenceLabeling"],
+    ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner": ["flagai.model.bert_model", "BertForSequenceLabeling"],
     "bert_ner-crf": ["flagai.model.bert_model", "BertForSequenceLabelingCRF"],
     "bert_ner-gp": ["flagai.model.bert_model", "BertForSequenceLabelingGP"],
     "bert_embedding": ["flagai.model.bert_model", "BertForEmbedding"],
     "bert_classification": ["flagai.model.bert_model", "BertForClsClassifier"],
     "bert_semantic-matching":
-        ["flagai.model.bert_model", "BertForClsClassifier"],
+    ["flagai.model.bert_model", "BertForClsClassifier"],
     "gpt2_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
     "gpt2_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "cpm_seq2seq": ("flagai.model.gpt2_model", "GPT2Model"),
@@ -47,16 +50,21 @@ ALL_TASK = {
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_classification":
-        ["flagai.model.glm_model", "GLMForSequenceClassification"],
+    ["flagai.model.glm_model", "GLMForSequenceClassification"],
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
-    "opt_seq2seq": ("flagai.model.opt_model","OPTModel"),
-    "opt_lm": ("flagai.model.opt_model","OPTModel"),
+    "opt_seq2seq": ("flagai.model.opt_model", "OPTModel"),
+    "opt_lm": ("flagai.model.opt_model", "OPTModel"),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
-    "swinv2_classification": ("flagai.model.vision.swinv2", "SwinTransformerV2"),
+    "swinv2_classification": ("flagai.model.vision.swinv2",
+                              "SwinTransformerV2"),
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
     "cpm3_trian": ("flagai.model.cpm3_trian_model", "CPM3"),
+    "diffusion_text2img": ("flagai.model.mm.diffusion", "LatentDiffusion"),
+    # "clipcn_txt_img_matching": ("flagai.model.mm.lm.cn_clip", "CN_CLIP"),
+    "clipcn_txt_img_matching": ("flagai.model.mm.flag_clip", "ChineseCLIP"),
+
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -69,40 +77,53 @@ MODEL_DICT = {
     "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
     "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm", "nlp"],
-    "opt-125m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
-    "opt-350m-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
-    "opt-1.3b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
-    "opt-2.7b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
-    "opt-6.7b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
-    "opt-13b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
-    "opt-30b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
-    "opt-66b-en": ["flagai.model.opt_model","OPTModel", "opt", "nlp"],
+    "opt-125m-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
+    "opt-350m-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
+    "opt-1.3b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
+    "opt-2.7b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
+    "opt-6.7b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
+    "opt-13b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
+    "opt-30b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
+    "opt-66b-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
     "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "cpm3": ["flagai.model.cpm3_model", "CPM3", "cpm3", "nlp"],
     "cpm3-train": ["flagai.model.cpm3_train_model", "CPM3", "cpm3", "nlp"],
-
-    "vit-base-p16-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-    "vit-base-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-    "vit-base-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-    "vit-base-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-    "vit-large-p16-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-    "vit-large-p16-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-    "vit-large-p32-224":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-    "vit-large-p32-384":["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
-
-    "clip-base-p32-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
-    "clip-base-p16-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
-    "clip-large-p14-224":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
-    "clip-large-p14-336":["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
-
-    "swinv1-base-patch4-window7-224": ["flagai.model.vision.swinv1", "SwinTransformer","swinv1","vision"],
-
-    "swinv2-base-patch4-window8-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
-    "swinv2-base-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
-    "swinv2-small-patch4-window16-256": ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "vit-base-p16-224":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p16-384":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p32-224":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-base-p32-384":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p16-224":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p16-384":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p32-224":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "vit-large-p32-384":
+    ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
+    "clip-base-p32-224": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-base-p16-224": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-large-p14-224": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
+    "altdiffusion":
+    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
+    "swinv1-base-patch4-window7-224":
+    ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
+    "swinv2-base-patch4-window8-256":
+    ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "swinv2-base-patch4-window16-256":
+    ["flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"],
+    "swinv2-small-patch4-window16-256": [
+        "flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"
+    ],
+    "clip-cn-b-16": ["flagai.model.mm.lm.cn_clip", "CN_CLIP", "clipcn", "mm"],
+    "altclip-xlmr-l": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcess"],
+    "altclip-bert-base": ["flagai.models.mm.flag_clip", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.flag_clip", "CHCLIPProcessBert"],
 }
-
-
 
 class AutoLoader:
 
@@ -164,22 +185,42 @@ class AutoLoader:
             )
             return
 
+        download_path = os.path.join(model_dir, raw_model_name)
+        print("*" * 20, task_name, model_name)
+
+        model_id = _get_model_id(f"{raw_model_name}-{task_name}")
+        if model_id != 'null':
+            model_name_ = f"{raw_model_name}-{task_name}"
+        else:
+            model_name_ = raw_model_name
+
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
-            download_path=model_dir,
-            model_name=raw_model_name,
-            only_download_config=only_download_config,
-            device=device,
-            **kwargs)
+                                 download_path=model_dir,
+                                 model_name=model_name_,
+                                 only_download_config=only_download_config,
+                                 device=device,
+                                 **kwargs)
 
-        download_path = os.path.join(model_dir, raw_model_name)
-        print("*"*20, task_name, model_name)
-        if model_type == "mm" or model_type == "nlp":
+        if model_type == "nlp":
             tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
                                       "Tokenizer")
-            self.tokenizer = tokenizer_class.from_pretrained(model_name, cache_dir=download_path)
+            self.tokenizer = tokenizer_class.from_pretrained(
+                model_name, cache_dir=download_path)
+
+        elif model_type == "mm":
+            if model_name.startswith("altdiffusion"):
+                self.tokenizer = None
+            else:
+                self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
+                self.transform = self.process.feature_extractor
+                self.tokenizer = self.process.tokenizer
+
         else :
             self.tokenizer = None
+            self.transform = None
+
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())
@@ -193,6 +234,9 @@ class AutoLoader:
 
     def get_model(self):
         return self.model
+    
+    def get_transform(self):
+        return self.transform
 
     def load_pretrain_params(self, model_path):
         self.model.load_huggingface_weights(model_path)
