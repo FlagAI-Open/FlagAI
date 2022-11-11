@@ -11,7 +11,7 @@ from torchvision.datasets import CIFAR10
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 maxlen = 256
 
-dataset_root = "./clip_benchmark_datasets"
+dataset_root = "clip_benchmark_datasets"
 dataset_name = "cifar10"
 
 auto_loader = AutoLoader(
@@ -63,11 +63,13 @@ def evaluate():
         )
 
         zeroshot_templates = template["cifar10"]
+        classnames = dataset.classes if hasattr(dataset, "classes") else None
+
         metrics = zeroshot_classification.evaluate(
             model,
             dataloader,
             tokenizer,
-            "cifar10", 
+            classnames, 
             zeroshot_templates,
             device=device,
             amp=True,

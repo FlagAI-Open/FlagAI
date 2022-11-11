@@ -11,17 +11,18 @@ import time
 from PIL import Image
 from itertools import islice
 from transformers import AutoFeatureExtractor
-from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
 import math
 
 join = os.path.join
 
-# load safety model
-safety_model_id = "CompVis/stable-diffusion-safety-checker"
-safety_feature_extractor = AutoFeatureExtractor.from_pretrained(
-    safety_model_id)
-safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id)
-
+def get_safety_checker():
+    # load safety model
+    from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+    safety_model_id = "CompVis/stable-diffusion-safety-checker"
+    safety_feature_extractor = AutoFeatureExtractor.from_pretrained(
+        safety_model_id)
+    safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id)
+    return safety_checker, safety_feature_extractor
 
 def chunk(it, size):
     it = iter(it)
@@ -71,7 +72,7 @@ def load_replacement(x):
         return x
 
 
-def check_safety(x_image):
+def check_safety(safety_checker, safety_feature_extractor, x_image):
     safety_checker_input = safety_feature_extractor(numpy_to_pil(x_image),
                                                     return_tensors="pt")
     x_checked_image, has_nsfw_concept = safety_checker(

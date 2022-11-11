@@ -2,23 +2,24 @@
 
 我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。
 
-We propose a simple and efficient method to train a better bilingual CLIP model. It is named AltCLIP.
-
-
-
 训练共有两个阶段。
 在平行知识蒸馏阶段，我们只是使用平行语料文本来进行蒸馏（平行语料相对于图文对更容易获取且数量更大）。在双语对比学习阶段，我们使用少量的中-英 图像-文本对（一共约2百万）来训练我们的文本编码器以更好地适应图像编码器。
+
+AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
+
+模型与权重已经在FlagAI([https://github.com/FlagAI-Open/FlagAI](https://github.com/FlagAI-Open/FlagAI))上开源，我们还提供了微调，推理，验证的脚本，欢迎试用。
+
+We propose a simple and efficient method to train a better bilingual CLIP model. It is named AltCLIP.
 
 There are two phases of training.
 In the parallel knowledge distillation phase, we only use parallel corpus texts for distillation (parallel corpus is easier to obtain and larger in number compared to image text pairs). In the bilingual comparison learning phase, we use a small number of Chinese-English image-text pairs (about 2 million in total) to train our text encoder to better fit the image encoder.
 
-AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
 
 The AltCLIP model can provide support for the AltDiffusion model in this project. For specific information about the AltDiffusion model, see [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
 
-模型与权重已经在FlagAI(https://github.com/FlagAI-Open/FlagAI)上开源，我们还提供了微调，推理，验证的脚本，欢迎试用。
 
-The model and weights have been open sourced on FlagAI (https://github.com/FlagAI-Open/FlagAI), and we also provide scripts for fine-tuning, inference, and evaluation, so feel free to try them out.
+
+The model and weights have been open sourced on FlagAI ([https://github.com/FlagAI-Open/FlagAI](https://github.com/FlagAI-Open/FlagAI)), and we also provide scripts for fine-tuning, inference, and evaluation, so feel free to try them out.
 
 # 下游效果 Performance
 
@@ -207,7 +208,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 loader = AutoLoader(
     task_name="txt_img_matching",
     model_dir="./checkpoints",
-    model_name="clip-xlmr-large"
+    model_name="AltCLIP-XLMR-L"
 )
 ## 获取加载好的模型
 model = loader.get_model()
@@ -263,7 +264,7 @@ classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'hors
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
     model_dir="/sharefs/baai-mrnd/xingzhaohu/",
-    model_name="clip-xlmr-large"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_name="AltCLIP-XLMR-L"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 )
 
 model = auto_loader.get_model()
@@ -329,7 +330,7 @@ dataset_name = "cifar10"
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
     model_dir="./checkpoints/",
-    model_name="clip-xlmr-large"
+    model_name="AltCLIP-XLMR-L"
 )
 
 model = auto_loader.get_model()
@@ -373,13 +374,14 @@ def evaluate():
             shuffle=False,
             num_workers=num_workers,
         )
+        classnames = dataset.classes if hasattr(dataset, "classes") else None
 
         zeroshot_templates = template["cifar10"]
         metrics = zeroshot_classification.evaluate(
             model,
             dataloader,
             tokenizer,
-            "cifar10", 
+            classnames, 
             zeroshot_templates,
             device=device,
             amp=True,

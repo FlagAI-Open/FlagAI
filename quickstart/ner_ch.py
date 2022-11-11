@@ -3,6 +3,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
+import torch 
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 task_name = "ner"
 model_name = "RoBERTa-base-ch"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
@@ -14,6 +17,7 @@ auto_loader = AutoLoader(task_name,
                          class_num=len(target))
 
 model = auto_loader.get_model()
+model.to(device)
 tokenizer = auto_loader.get_tokenizer()
 
 predictor = Predictor(model, tokenizer)
