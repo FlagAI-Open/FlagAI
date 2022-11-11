@@ -19,13 +19,13 @@ AltDiffusion 模型由名为 AltCLIP 的双语 CLIP 模型支持，该模型也�
 
 AltDiffusion model is backed by a bilingual CLIP model named AltCLIP, which is also accessible in FlagAI. You can read [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) for more information. 
 
-所有的训练都在40G的A100上进行，总训练时间为160个A100小时，模型推理要求一张至少10G以上的GPU。
+注意：模型推理要求一张至少10G以上的GPU。
 
-All the training is performed on A100 of 40G, the total training time is 160 A100 hours, and the model inference requires a GPU of at least 10G above.
+Note that the model inference requires a GPU of at least 10G above.
 
 
 
-## 示例 Example
+# 示例 Example
 
 以下示例将为文本输入`Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation` 在目录`./AltDiffusionOutputs`下生成图片结果。
 
@@ -79,7 +79,7 @@ More parameters of predict_generate_images for you to adjust for `predict_genera
 
 `seed: int`: 随机种子; Random seed number 
 
-## 模型权重 Model Weights
+# 模型权重 Model Weights
 
 第一次运行AltDiffusion模型时会自动下载下列权重:
 
@@ -121,3 +121,7 @@ The following weights are automatically downloaded when the AltDiffusion model i
 
 ## prompt:带墨镜的中国男孩肖像，充满细节，8K高清
 ![image](./imgs/cn_小男孩.png)
+
+# License
+
+The model is licensed with a [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license). The authors claim no rights on the outputs you generate, you are free to use them and are accountable for their use which must not go against the provisions set in this license. The license forbids you from sharing any content that violates any laws, produce any harm to a person, disseminate any personal information that would be meant for harm, spread misinformation and target vulnerable groups. You can modify and use the model for commercial purposes, but a copy of the same use restrictions must be included. For the full list of restrictions please [read the license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)

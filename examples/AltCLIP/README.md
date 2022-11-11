@@ -184,7 +184,7 @@ The model and weights have been open sourced on FlagAI (https://github.com/FlagA
 
 
 
-![](https://raw.githubusercontent.com/920232796/test/master/image6.png)
+![](imgs/imagenet.png)
 
 # 可视化效果 Visualization effects
 
