@@ -93,15 +93,6 @@ The following weights are automatically downloaded when the AltDiffusion model i
 
 # 更多生成结果 More Results
 
-## 长图生成能力
-
-### prompt: 一只带着帽子的小狗 
-### 原版 stable diffusion：
-![image](./imgs/多尺度狗（不好）.png)
-
-### Ours:
-![image](./imgs/多尺度狗（好）.png)
-
 ## 中英文对齐能力
 
 ### prompt:dark elf princess, highly detailed, d & d, fantasy, highly detailed, digital painting, trending on artstation, concept art, sharp focus, illustration, art by artgerm and greg rutkowski and fuji choko and viktoria gavrilenko and hoang lap
@@ -121,6 +112,19 @@ The following weights are automatically downloaded when the AltDiffusion model i
 
 ## prompt:带墨镜的中国男孩肖像，充满细节，8K高清
 ![image](./imgs/cn_小男孩.png)
+
+## 长图生成能力
+
+### prompt: 一只带着帽子的小狗 
+### 原版 stable diffusion：
+![image](./imgs/多尺度狗（不好）.png)
+
+### Ours:
+![image](./imgs/多尺度狗（好）.png)
+
+注: 此处长图生成技术由[右脑科技(RightBrain AI)](http://www.rightbrainai.com/) 提供。
+
+Note: Note: The long image generation technology here is provided by [Right Brain Technology](http://www.rightbrainai.com/).
 
 # License
 
