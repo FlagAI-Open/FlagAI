@@ -13,6 +13,7 @@ auto_loader = AutoLoader(
     model_name="RoBERTa-base-ch"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 )
 model = auto_loader.get_model()
+model.to(device)
 tokenizer = auto_loader.get_tokenizer()
 
 predictor = Predictor(model, tokenizer)

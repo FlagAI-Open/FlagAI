@@ -44,17 +44,9 @@ def zero_shot_classifier(model, tokenizer, classnames, templates, device, amp=Tr
             raw_texts = texts
             if isinstance(tokenizer,Callable):
                 texts = tokenizer(texts,padding=True,truncation=True,max_length=77,return_tensors='pt').to(device)  # tokenize
-            if hasattr(model,'text_encoder'):
-                text_output = model.text_encoder(**texts,mode='text')  
-                text_feat = text_output.last_hidden_state
-                text_embed = F.normalize(model.text_proj(text_feat[:,0,:]))
-                class_embeddings = text_embed
-            elif hasattr(model,'tokenize'):
-                class_embeddings = model({'text':raw_texts})['text_embedding']
-            elif isinstance(model,tuple):
-                class_embeddings = model[0](**texts).logits
-            else:
-                class_embeddings = model.get_text_features(**texts)
+            
+            class_embeddings = model.get_text_features(**texts)
+            
             class_embedding = F.normalize(class_embeddings, dim=-1).mean(dim=0)
             class_embedding /= class_embedding.norm()
             zeroshot_weights.append(class_embedding)
@@ -121,16 +113,8 @@ def run_classification(model, classifier, dataloader, device, amp=True):
             target = target.to(device)
 
             with autocast():
-                # predict
-                if hasattr(model,'visual_encoder'):
-                    image_feat = model.visual_encoder(images)
-                    image_features = model.vision_proj(image_feat[:,0,:])            
-                elif hasattr(model,'tokenize'):
-                    image_features = model({'img':images})['img_embedding']
-                elif isinstance(model,tuple):
-                    image_features = model[1].get_image_features(**images)
-                else:
-                    image_features = model.get_image_features(**images)
+                
+                image_features = model.get_image_features(**images)
 
                 image_features = F.normalize(image_features, dim=-1)
                 logits = 100. * image_features @ classifier

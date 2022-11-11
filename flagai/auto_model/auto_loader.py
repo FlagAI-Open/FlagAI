@@ -4,6 +4,7 @@
 import importlib
 import os
 import copy
+from  flagai.model.file_utils import _get_model_id
 
 
 class LazyImport(object):
@@ -186,10 +187,17 @@ class AutoLoader:
 
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
+
+        model_id = _get_model_id(f"{raw_model_name}-{task_name}")
+        if model_id != 'null':
+            model_name_ = f"{raw_model_name}-{task_name}"
+        else:
+            model_name_ = raw_model_name
+
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
                                  download_path=model_dir,
-                                 model_name=raw_model_name,
+                                 model_name=model_name_,
                                  only_download_config=only_download_config,
                                  device=device,
                                  **kwargs)
