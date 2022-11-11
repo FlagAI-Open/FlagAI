@@ -91,7 +91,7 @@ The model and weights have been open sourced on FlagAI ([https://github.com/Flag
       <td>77.3 </td>
    </tr>
    <tr>
-      <td>AlterCLIP</td>
+      <td>AltCLIP</td>
       <td>66.3 </td>
       <td>87.8 </td>
       <td>92.7 </td>
@@ -101,7 +101,7 @@ The model and weights have been open sourced on FlagAI ([https://github.com/Flag
       <td>88.3 </td>
    </tr>
    <tr>
-      <td>AlterCLIP∗</td>
+      <td>AltCLIP∗</td>
       <td>72.5 </td>
       <td>91.6 </td>
       <td>95.4 </td>
@@ -162,7 +162,7 @@ The model and weights have been open sourced on FlagAI ([https://github.com/Flag
       <td>87.9 </td>
    </tr>
    <tr>
-      <td>AlterCLIP</td>
+      <td>AltCLIP</td>
       <td>63.7 </td>
       <td>86.3 </td>
       <td>92.1 </td>
@@ -172,7 +172,7 @@ The model and weights have been open sourced on FlagAI ([https://github.com/Flag
       <td>87.2 </td>
    </tr>
    <tr>
-      <td>AlterCLIP∗</td>
+      <td>AltCLIP∗</td>
       <td>69.8 </td>
       <td>89.9 </td>
       <td>94.7 </td>
@@ -183,9 +183,10 @@ The model and weights have been open sourced on FlagAI ([https://github.com/Flag
    </tr>
 </table>
 
+![image-20221111172255521](imgs/image.png)
 
 
-![](imgs/imagenet.png)
+
 
 # 可视化效果 Visualization effects
 
