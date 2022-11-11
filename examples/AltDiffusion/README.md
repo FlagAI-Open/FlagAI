@@ -9,17 +9,17 @@
 
 我们的版本在中英文对齐方面表现非常出色，是目前市面上开源的最强版本，保留了原版stable diffusion的大部分能力，并且在某些例子上比有着比原版模型更出色的能力。
 
+AltDiffusion 模型由名为 AltCLIP 的双语 CLIP 模型支持，该模型也可在本项目中访问。您可以阅读 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 了解更多信息。
+
+注意：模型推理要求一张至少10G以上的GPU。
+
 We use the pre-trained bilingual language model as our text encoder and fine-tune it using the WuDao dataset (6M) with an aesthetic score above 5.5 and the Laion data (5M) with an aesthetic score above 5.5.
 
 When fine-tuning, we use stable-diffusion v1-4 as initialization, freeze the bilingual language model, and only fine-tune the key module and vuale module of the Transformer Block in the Unet model.
 
 And during training, we divide the data set into bucketed according to the aspect ratio of the image, and the data in the same batch are cropped to a fixed size similar to the image size, so as to overcome the problem of generating multiple heads for the long and wide images of the original stable diffusion.
 
-AltDiffusion 模型由名为 AltCLIP 的双语 CLIP 模型支持，该模型也可在本项目中访问。您可以阅读 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 了解更多信息。
-
 AltDiffusion model is backed by a bilingual CLIP model named AltCLIP, which is also accessible in FlagAI. You can read [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) for more information. 
-
-注意：模型推理要求一张至少10G以上的GPU。
 
 Note that the model inference requires a GPU of at least 10G above.
 
@@ -122,9 +122,9 @@ The following weights are automatically downloaded when the AltDiffusion model i
 ### Ours:
 ![image](./imgs/多尺度狗（好）.png)
 
-注: 此处长图生成技术由[右脑科技(RightBrain AI)](http://www.rightbrainai.com/) 提供。
+注: 此处长图生成技术由右脑科技(RightBrain AI)提供。
 
-Note: Note: The long image generation technology here is provided by [Right Brain Technology](http://www.rightbrainai.com/).
+Note: Note: The long image generation technology here is provided by Right Brain Technology.
 
 # License
 
