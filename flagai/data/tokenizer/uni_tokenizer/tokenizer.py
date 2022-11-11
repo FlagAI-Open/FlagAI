@@ -608,7 +608,7 @@ class Tokenizer(BaseTokenizer):
                                                                1)
             else:
                 sequence = [self.get_command_id("cls")
-                            ] + ids + [self.get_command_id("eos")]
+                            ] + ids + [self.token_end_id]
                 token_type_ids = [0] * (len(ids) + 2)
         else:
             sequence = ids + pair_ids if pair else ids

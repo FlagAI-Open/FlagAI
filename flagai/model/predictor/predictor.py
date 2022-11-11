@@ -16,8 +16,6 @@ from tqdm import trange, tqdm
 import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
-from flagai.model.predictor.utils import chunk, check_safety
-
 
 class Predictor:
 
@@ -340,6 +338,8 @@ class Predictor:
                                 seed: int = 34234):
         from torchvision.utils import make_grid
         from pytorch_lightning import seed_everything
+        from flagai.model.predictor.utils import chunk, check_safety, get_safety_checker
+        safety_checker, safety_feature_extractor = get_safety_checker()
         """
         Args:
         prompt: the prompt text
@@ -423,7 +423,7 @@ class Predictor:
                             x_samples_ddim = x_samples_ddim.cpu().permute(
                                 0, 2, 3, 1).numpy()
 
-                            x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                            x_checked_image, has_nsfw_concept = check_safety(safety_checker, safety_feature_extractor, x_samples_ddim)
 
                             x_checked_image_torch = torch.from_numpy(
                                 x_samples_ddim).permute(0, 3, 1, 2)
