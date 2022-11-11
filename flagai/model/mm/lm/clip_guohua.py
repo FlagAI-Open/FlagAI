@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from flagai.model.mm.clip_cn.model import CLIP
+from flagai.model.mm.clip_guohua.model import CLIP
 from flagai.model.base_model import BaseModel
 
 
