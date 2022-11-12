@@ -7,13 +7,7 @@
 
 AltDiffusion 模型由名为 AltCLIP 的双语 CLIP 模型支持，该模型也可在本项目中访问。您可以阅读 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 了解更多信息。
 
-
-
-
-
 AltDiffusion模型现在支持线上演示，点击 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) 在线试玩！
-
-
 
 Our model performs well in aligning Chinese and English, and is the strongest open source version on the market today, retaining most of the stable diffusion capabilities of the original, and in some cases even better than the original model.
 
