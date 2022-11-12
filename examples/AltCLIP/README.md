@@ -1,27 +1,44 @@
 
 
-我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。
 
-训练共有两个阶段。
-在平行知识蒸馏阶段，我们只是使用平行语料文本来进行蒸馏（平行语料相对于图文对更容易获取且数量更大）。在双语对比学习阶段，我们使用少量的中-英 图像-文本对（一共约2百万）来训练我们的文本编码器以更好地适应图像编码器。
+
+# AltCLIP
+
+## 简介/Overview
+
+我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus) 
 
 AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
 
-模型与权重已经在FlagAI([https://github.com/FlagAI-Open/FlagAI](https://github.com/FlagAI-Open/FlagAI))上开源，我们还提供了微调，推理，验证的脚本，欢迎试用。
+模型代码已经在 [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 上开源，权重位于我们搭建的 [modelhub](https://model.baai.ac.cn/model-detail/100075) 上。我们还提供了微调，推理，验证的脚本，欢迎试用。
 
-We propose a simple and efficient method to train a better bilingual CLIP model. It is named AltCLIP.
+首次运行AltCLIP时，下列权重将会自动从modelhub上下载。
+
+| 模型名称 Model name | 大小 Size | 描述 Description                                   |
+| ------------------- | --------- | -------------------------------------------------- |
+| AltCLIP             | 3.22G     | 我们的双语AltCLIP模型；Our bilingual AltCLIP model |
+
+
+
+We propose a simple and efficient method to train a better bilingual CLIP model. Named AltCLIP. AltCLIP is trained based on [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [Liaon](https://huggingface.co/datasets/laion/laion2B-en).
+
+The AltCLIP model can provide support for the AltDiffusion model in this project. Specific information on the AltDiffusion model can be found in [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
+
+The model code has been open sourced on [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and the weights are located on [modelhub](https://model.baai.ac.cn/model-detail/100075). We also provide scripts for fine-tuning, inference, and validation, so feel free to try them out.
+
+
+
+## 训练/Training
+
+训练共有两个阶段。
+在平行知识蒸馏阶段，我们只是使用平行语料文本来进行蒸馏（平行语料相对于图文对更容易获取且数量更大）。在双语对比学习阶段，我们使用少量的中-英 图像-文本对（一共约2百万）来训练我们的文本编码器以更好地适应图像编码器。
 
 There are two phases of training.
 In the parallel knowledge distillation phase, we only use parallel corpus texts for distillation (parallel corpus is easier to obtain and larger in number compared to image text pairs). In the bilingual comparison learning phase, we use a small number of Chinese-English image-text pairs (about 2 million in total) to train our text encoder to better fit the image encoder.
 
 
-The AltCLIP model can provide support for the AltDiffusion model in this project. For specific information about the AltDiffusion model, see [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
 
-
-
-The model and weights have been open sourced on FlagAI ([https://github.com/FlagAI-Open/FlagAI](https://github.com/FlagAI-Open/FlagAI)), and we also provide scripts for fine-tuning, inference, and evaluation, so feel free to try them out.
-
-# 下游效果 Performance
+## 下游效果/Performance
 
 <table>
    <tr>
@@ -183,12 +200,12 @@ The model and weights have been open sourced on FlagAI ([https://github.com/Flag
    </tr>
 </table>
 
-![image-20221111172255521](imgs/image.png)
+![image-20221111172255521](https://raw.githubusercontent.com/920232796/test/master/image.png)
 
 
 
 
-# 可视化效果 Visualization effects
+## 可视化效果/Visualization effects
 
 基于AltCLIP，我们还开发了AltDiffusion模型，可视化效果如下。
 
@@ -196,7 +213,7 @@ Based on AltCLIP, we have also developed the AltDiffusion model, visualized as f
 
 ![](https://raw.githubusercontent.com/920232796/test/master/image7.png)
 
-# 模型推理 Inference
+## 模型推理 Inference
 
 ```python
 import torch
@@ -237,7 +254,7 @@ with torch.no_grad():
 print(text_probs.cpu().numpy()[0].tolist())
 ```
 
-# CLIP微调 Finetuning
+## CLIP微调/Finetuning
 
 微调采用cifar10数据集，并使用FlagAI的Trainer快速开始训练过程。
 
@@ -264,7 +281,7 @@ classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'hors
 
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
-    model_dir="/sharefs/baai-mrnd/xingzhaohu/",
+    model_dir="./checkpoints/",
     model_name="AltCLIP-XLMR-L"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 )
 
@@ -303,7 +320,7 @@ if __name__ == "__main__":
 
 
 
-# 模型验证 Evaluation
+## 模型验证/Evaluation
 
 我们提供了可以直接运行的验证脚本，在cifar10数据集上进行验证。
 
