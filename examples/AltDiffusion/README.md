@@ -8,9 +8,12 @@
 AltDiffusion 模型由名为 AltCLIP 的双语 CLIP 模型支持，该模型也可在本项目中访问。您可以阅读 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 了解更多信息。
 
 
-注意：模型推理要求一张至少10G以上的GPU。
 
-同时，AltDiffusion的 web demo 也部署在huggingface spaces上，欢迎试用！网址为：[https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)
+
+
+AltDiffusion模型现在支持线上演示，点击 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) 在线试玩！
+
+
 
 Our model performs well in aligning Chinese and English, and is the strongest open source version on the market today, retaining most of the stable diffusion capabilities of the original, and in some cases even better than the original model.
 
@@ -18,9 +21,7 @@ We used [AltCLIP](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Alt
 
 AltDiffusion model is backed by a bilingual CLIP model named AltCLIP, which is also accessible in FlagAI. You can read [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) for more information. 
 
-Note that the model inference requires a GPU of at least 10G above.
-
-Also, AltDiffusion's web demo is deployed on huggingface spaces, feel free to try it out! The web address is: [https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion) 
+AltDiffusion now supports online demo，Try out it by clicking [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) !
 
 # 模型权重/Model Weights
 
@@ -62,6 +63,7 @@ predictor = Predictor(model)
 predictor.predict_generate_images(prompt)
 ```
 
+
 您可以在`predict_generate_images`函数里通过改变参数来调整设置，具体信息如下:
 
 More parameters of predict_generate_images for you to adjust for `predict_generate_images` are listed below:
@@ -80,6 +82,10 @@ More parameters of predict_generate_images for you to adjust for `predict_genera
 | W | int   | 图片的宽度; Width of image                    |
 | C | int   | 图片的channel数; Numeber of channels of generated images                    |
 | seed | int   | 随机种子; Random seed number                     |
+
+注意：模型推理要求一张至少10G以上的GPU。
+
+Note that the model inference requires a GPU of at least 10G above.
 
 
 # 更多生成结果/More Results
