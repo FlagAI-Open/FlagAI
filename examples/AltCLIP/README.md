@@ -6,7 +6,7 @@
 
 ## 简介/Overview
 
-我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/laion/laion2B-en) 
+我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus) 
 
 AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
 

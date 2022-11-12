@@ -1,7 +1,7 @@
 
 #  模型信息/Model Information
 
-我们使用 [AltCLIP](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 作为text encoder，基于 [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion) 训练了双语Diffusion模型，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LAION](https://huggingface.co/datasets/laion/laion2B-en) 。
+我们使用 [AltCLIP](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 作为text encoder，基于 [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion) 训练了双语Diffusion模型，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LAION](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus) 。
 
 我们的版本在中英文对齐方面表现非常出色，是目前市面上开源的最强版本，保留了原版stable diffusion的大部分能力，并且在某些例子上比有着比原版模型更出色的能力。
 
@@ -67,27 +67,19 @@ predictor.predict_generate_images(prompt)
 More parameters of predict_generate_images for you to adjust for `predict_generate_images` are listed below:
 
 
-`prompt: str`: 提示文本; The prompt text
-
-`out_path: str`: 输出路径; The output path to save images
-
-`n_samples: int`: 输出图片数量; Number of images to be generated
-
-`skip_grid: bool`: 如果为True, 会将所有图片拼接在一起，输出一张新的图片; If set to true, image gridding step will be skipped
-
-`ddim_step: int`: DDIM模型的步数; Number of steps in ddim model
-
-`plms: bool`: 如果为True, 则会使用plms模型; If set to true, PLMS Sampler instead of DDIM Sampler will be applied
-
-`scale: float` : 这个值决定了文本在多大程度上影响生成的图片，值越大影响力越强; This value determines how important the prompt incluences generate images
-
-`H: int`: 图片的高度; Height of image
-
-`W: int`: 图片的宽度; Width of image
-
-`C: int`: 图片的channel数; Numeber of channels of generated images
-
-`seed: int`: 随机种子; Random seed number 
+| 参数名 Parameter             | 类型 Type | 描述 Description                                        |
+|--------------------------------|------------|-------------------------------------------------------|
+| prompt | str   | 提示文本; The prompt text                    |
+| out_path | str   | 输出路径; The output path to save images                  |
+| n_samples | int   | 输出图片数量; Number of images to be generate                   |
+| skip_grid | bool   | 如果为True, 会将所有图片拼接在一起，输出一张新的图片; If set to true, image gridding step will be skipped                    |
+| ddim_step | int   | DDIM模型的步数; Number of steps in ddim model                    |
+| plms | bool  | 如果为True, 则会使用plms模型; If set to true, PLMS Sampler instead of DDIM Sampler will be applied                    |
+| scale | float   | 这个值决定了文本在多大程度上影响生成的图片，值越大影响力越强; This value determines how important the prompt incluences generate images                    |
+| H | int   | 图片的高度; Height of image                    |
+| W | int   | 图片的宽度; Width of image                    |
+| C | int   | 图片的channel数; Numeber of channels of generated images                    |
+| seed | int   | 随机种子; Random seed number                     |
 
 
 # 更多生成结果/More Results
