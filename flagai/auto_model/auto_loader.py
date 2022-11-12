@@ -62,8 +62,7 @@ ALL_TASK = {
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
     "cpm3_trian": ("flagai.model.cpm3_trian_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.AltDiffusion", "LatentDiffusion"),
-    # "clipcn_txt_img_matching": ("flagai.model.mm.lm.cn_clip", "CN_CLIP"),
-    "clipcn_txt_img_matching": ("flagai.model.mm.AltCLIP", "ChineseCLIP"),
+    "altclip_txt_img_matching": ("flagai.model.mm.AltCLIP", "AltCLIP"),
 
 }
 
@@ -120,8 +119,8 @@ MODEL_DICT = {
     "swinv2-small-patch4-window16-256": [
         "flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"
     ],
-    "altclip-xlmr-l": ["flagai.models.mm.AltCLIP", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.AltCLIP", "CHCLIPProcess"],
-    "altclip-bert-base": ["flagai.models.mm.AltCLIP", "ChineseCLIP", "clipcn", "mm", "flagai.model.mm.AltCLIP", "CHCLIPProcessBert"],
+    "altclip-xlmr-l": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    "altclip-bert-b": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcessBert"],
 }
 
 class AutoLoader:
