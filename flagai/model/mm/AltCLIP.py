@@ -42,7 +42,7 @@ class OursCLIPOutput(CLIPOutput):
             for k in self.keys())
 
 
-class CHCLIPProcess(CLIPProcessor):
+class AltCLIPProcess(CLIPProcessor):
     tokenizer_class = ("XLMRobertaTokenizer", "XLMRobertaTokenizerFast")
 
     # tokenizer_class = ("BertTokenizer", "BertTokenizerFast")
@@ -54,7 +54,7 @@ class CHCLIPProcess(CLIPProcessor):
         #     self.tokenizer = BertTokenizer.from_pretrained(tokenizer.name_or_path)
 
 
-class CHCLIPProcessBert(CLIPProcessor):
+class AltCLIPProcessBert(CLIPProcessor):
     # tokenizer_class = ("XLMRobertaTokenizer","XLMRobertaTokenizerFast")
     tokenizer_class = ("BertTokenizer", "BertTokenizerFast")
 
@@ -66,7 +66,7 @@ class CHCLIPProcessBert(CLIPProcessor):
         #     self.tokenizer = BertTokenizer.from_pretrained(tokenizer.name_or_path)
 
 
-class ChCLIPConfig(CLIPConfig):
+class AltCLIPConfig(CLIPConfig):
 
     def __init__(self,
                  text_model_name=None,
@@ -91,10 +91,10 @@ class ChCLIPConfig(CLIPConfig):
         self.variant = variant
 
 
-class ChineseCLIPHF(CLIPPreTrainedModel):
-    config_class = ChCLIPConfig
+class CLIPHF(CLIPPreTrainedModel):
+    config_class = AltCLIPConfig
 
-    def __init__(self, config: ChCLIPConfig, clip_model=None):
+    def __init__(self, config: AltCLIPConfig, clip_model=None):
         super().__init__(config)
 
         if not isinstance(config.vision_config, CLIPVisionConfig):
@@ -436,7 +436,7 @@ class ChineseCLIPHF(CLIPPreTrainedModel):
         }
 
 
-class ChineseCLIP(BaseModel):
+class AltCLIP(BaseModel):
 
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
@@ -451,4 +451,4 @@ class ChineseCLIP(BaseModel):
         super().download(download_path, model_name)
         pretrained_model_name_or_path = os.path.join(download_path, model_name)
         print(pretrained_model_name_or_path)
-        return ChineseCLIPHF.from_pretrained(pretrained_model_name_or_path)
+        return CLIPHF.from_pretrained(pretrained_model_name_or_path)
