@@ -17,6 +17,19 @@ AltDiffusion model is backed by a bilingual CLIP model named AltCLIP, which is a
 
 AltDiffusion now supports online demo，Try out it by clicking [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) !
 
+If you find this work helpful, please consider to cite
+```
+@article{https://doi.org/10.48550/arxiv.2211.06679,
+  doi = {10.48550/ARXIV.2211.06679},
+  url = {https://arxiv.org/abs/2211.06679},
+  author = {Chen, Zhongzhi and Liu, Guang and Zhang, Bo-Wen and Ye, Fulong and Yang, Qinghong and Wu, Ledell},
+  keywords = {Computation and Language (cs.CL), FOS: Computer and information sciences},
+  title = {AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities},
+  publisher = {arXiv},
+  year = {2022},
+  copyright = {arXiv.org perpetual, non-exclusive license}
+}
+```
 # 模型权重/Model Weights
 
 第一次运行AltDiffusion模型时会自动从 [这里](https://model.baai.ac.cn/model-detail/100076)  下载如下权重,  
