@@ -22,7 +22,7 @@ if __name__ == "__main__":
     loader = AutoLoader(task_name="lm",
                         model_name="GLM-large-ch",
                         )
-    model = loader.get_model()
+    model = loader.get_model().half()
     tokenizer = loader.get_tokenizer()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
