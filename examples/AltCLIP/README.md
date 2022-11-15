@@ -26,6 +26,22 @@ The AltCLIP model can provide support for the AltDiffusion model in this project
 
 The model code has been open sourced on [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and the weights are located on [modelhub](https://model.baai.ac.cn/model-detail/100075). We also provide scripts for fine-tuning, inference, and validation, so feel free to try them out.
 
+## 引用
+关于AltCLIP，我们已经推出了相关论文，有更多细节可以查阅，如对您的工作有帮助，欢迎引用。
+
+If you find this work helpful, please consider to cite
+```
+@article{https://doi.org/10.48550/arxiv.2211.06679,
+  doi = {10.48550/ARXIV.2211.06679},
+  url = {https://arxiv.org/abs/2211.06679},
+  author = {Chen, Zhongzhi and Liu, Guang and Zhang, Bo-Wen and Ye, Fulong and Yang, Qinghong and Wu, Ledell},
+  keywords = {Computation and Language (cs.CL), FOS: Computer and information sciences},
+  title = {AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities},
+  publisher = {arXiv},
+  year = {2022},
+  copyright = {arXiv.org perpetual, non-exclusive license}
+}
+```
 
 
 ## 训练/Training
