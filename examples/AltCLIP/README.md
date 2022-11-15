@@ -1,14 +1,11 @@
 
-
-
-
 # AltCLIP
 
 ## 简介/Overview
 
-我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus) 
+我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [OpenAI CLIP](https://github.com/openai/CLIP) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus) 
 
-AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
+AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
 
 模型代码已经在 [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 上开源，权重位于我们搭建的 [modelhub](https://model.baai.ac.cn/model-detail/100075) 上。我们还提供了微调，推理，验证的脚本，欢迎试用。
 
@@ -20,7 +17,7 @@ AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltD
 
 
 
-We propose a simple and efficient method to train a better bilingual CLIP model. Named AltCLIP. AltCLIP is trained based on [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [Liaon](https://huggingface.co/datasets/laion/laion2B-en).
+We propose a simple and efficient method to train a better bilingual CLIP model. Named AltCLIP. AltCLIP is trained based on [OpenAI CLIP](https://github.com/openai/CLIP) with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [Liaon](https://huggingface.co/datasets/laion/laion2B-en).
 
 The AltCLIP model can provide support for the AltDiffusion model in this project. Specific information on the AltDiffusion model can be found in [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
 
@@ -40,6 +37,10 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
 
 ## 下游效果/Performance
 
+我们提出的模型与SOTA CLIP模型在双语跨模态基准(即Flickr30k的中英文版本)上的比较结果。AltCLIP表示经过知识蒸馏过程后的模型，AltCLIP*表示经过对比学习过程后的模型。这些模型中使用的图像编码器均为ViT-L，便于比较。
+
+Comparison results between our proposed model and SOTA CLIP model on a bilingual cross-modal benchmark (i.e., the English and Chinese versions of Flickr30k.) AltCLIP denotes the model after the knowledge distillation process and AltCLIP* denotes the model after the contrastive learning process. The image encoders used in these models are ViT-L for easy comparison.
+
 <table>
    <tr>
       <td rowspan=2>Language</td>
@@ -57,7 +58,7 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
       <td>R@10</td>
    </tr>
    <tr>
-      <td rowspan=7>English</td>
+      <td rowspan=7>Flickr30k-English</td>
       <td>CLIP</td>
       <td>65.0 </td>
       <td>87.1 </td>
@@ -128,7 +129,7 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
       <td>90.4 </td>
    </tr>
    <tr>
-      <td rowspan=7>Chinese</td>
+      <td rowspan=7>Flickr30k-Chinese</td>
       <td>CLIP</td>
       <td>0.0 </td>
       <td>2.4 </td>
@@ -200,7 +201,6 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
    </tr>
 </table>
 
-![image-20221111172255521](https://raw.githubusercontent.com/920232796/test/master/image.png)
 
 
 
