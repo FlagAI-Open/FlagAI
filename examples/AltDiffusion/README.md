@@ -16,8 +16,6 @@ We used [AltCLIP](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Alt
 AltDiffusion model is backed by a bilingual CLIP model named AltCLIP, which is also accessible in FlagAI. You can read [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) for more information. 
 
 AltDiffusion now supports online demo，Try out it by clicking [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) !
-# 引用
-关于AltCLIP，我们已经推出了相关论文，有更多细节可以查阅，如对您的工作有帮助，欢迎引用。
 
 If you find this work helpful, please consider to cite
 ```
