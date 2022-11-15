@@ -1,12 +1,9 @@
 
-
-
-
 # AltCLIP
 
 ## 简介/Overview
 
-我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus) 
+我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [OpenAI CLIP](https://github.com/openai/CLIP) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus)
 
 AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
 
@@ -55,6 +52,9 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
 
 
 ## 下游效果/Performance
+我们提出的模型与SOTA CLIP模型在双语跨模态基准(即Flickr30k的中英文版本)上的比较结果。这些模型中使用的图像编码器均为ViT-L，便于比较。
+
+Comparison results between our proposed model and SOTA CLIP model on a bilingual cross-modal benchmark (i.e., the English and Chinese versions of Flickr30k.)  The image encoders used in these models are ViT-L for easy comparison.
 
 <table>
    <tr>
@@ -73,7 +73,7 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
       <td>R@10</td>
    </tr>
    <tr>
-      <td rowspan=7>English</td>
+      <td rowspan=6>Flickr30k-English</td>
       <td>CLIP</td>
       <td>65.0 </td>
       <td>87.1 </td>
@@ -125,16 +125,6 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
    </tr>
    <tr>
       <td>AltCLIP</td>
-      <td>66.3 </td>
-      <td>87.8 </td>
-      <td>92.7 </td>
-      <td>85.9 </td>
-      <td>97.7 </td>
-      <td>99.1 </td>
-      <td>88.3 </td>
-   </tr>
-   <tr>
-      <td>AltCLIP∗</td>
       <td>72.5 </td>
       <td>91.6 </td>
       <td>95.4 </td>
@@ -144,7 +134,7 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
       <td>90.4 </td>
    </tr>
    <tr>
-      <td rowspan=7>Chinese</td>
+      <td rowspan=6>Flickr30k-Chinese</td>
       <td>CLIP</td>
       <td>0.0 </td>
       <td>2.4 </td>
@@ -196,16 +186,6 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
    </tr>
    <tr>
       <td>AltCLIP</td>
-      <td>63.7 </td>
-      <td>86.3 </td>
-      <td>92.1 </td>
-      <td>84.7 </td>
-      <td>97.4 </td>
-      <td>98.7 </td>
-      <td>87.2 </td>
-   </tr>
-   <tr>
-      <td>AltCLIP∗</td>
       <td>69.8 </td>
       <td>89.9 </td>
       <td>94.7 </td>
@@ -215,11 +195,6 @@ In the parallel knowledge distillation phase, we only use parallel corpus texts 
       <td>89.2 </td>
    </tr>
 </table>
-
-![image-20221111172255521](https://raw.githubusercontent.com/920232796/test/master/image.png)
-
-
-
 
 ## 可视化效果/Visualization effects
 
@@ -435,4 +410,3 @@ if __name__ == "__main__":
     evaluate()
 
 ```
-
