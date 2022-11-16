@@ -57,7 +57,7 @@ class SentencePieceTokenizer(object):
         return self.sp_model.IdToPiece(int(idx))
 
     def convert_ids_to_tokens(self, idxs):
-        return [self.sp_model.IdToPiece(idx) for idx in idxs]
+        return [self.sp_model.IdToPiece(int(idx)) for idx in idxs]
 
     def convert_tokens_to_string(self, tokens, all_command_token={}):
         """Converts a sequence of tokens (string) in a single string."""
