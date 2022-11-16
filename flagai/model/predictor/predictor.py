@@ -426,7 +426,7 @@ class Predictor:
                             x_checked_image, has_nsfw_concept = check_safety(safety_checker, safety_feature_extractor, x_samples_ddim)
 
                             x_checked_image_torch = torch.from_numpy(
-                                x_samples_ddim).permute(0, 3, 1, 2)
+                                x_checked_image).permute(0, 3, 1, 2)
 
                             prompt_count = 0
                             if not skip_save:

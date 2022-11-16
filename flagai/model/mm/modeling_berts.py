@@ -15,12 +15,11 @@ class BertSeriesConfig(BertConfig):
 
 class RobertaSeriesConfig(XLMRobertaConfig):
     def __init__(self, pad_token_id=1, bos_token_id=0, eos_token_id=2,project_dim=512,pooler_fn='cls',learn_encoder=False, **kwargs):
-        super().__init__(pad_token_id, bos_token_id, eos_token_id, **kwargs)
+        super().__init__(pad_token_id=pad_token_id, bos_token_id=bos_token_id, eos_token_id=eos_token_id, **kwargs)
         self.project_dim = project_dim
         self.pooler_fn = pooler_fn
         self.learn_encoder = learn_encoder
 
-    
 
 class BertSeriesModelWithTransformation(BertPreTrainedModel):
 

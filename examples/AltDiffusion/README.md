@@ -102,29 +102,29 @@ Note that the model inference requires a GPU of at least 10G above.
 ### prompt:dark elf princess, highly detailed, d & d, fantasy, highly detailed, digital painting, trending on artstation, concept art, sharp focus, illustration, art by artgerm and greg rutkowski and fuji choko and viktoria gavrilenko and hoang lap
 ### 英文生成结果/Generated results from English prompts
 
-![image](./imgs/en_暗黑精灵.png)
+![image](https://raw.githubusercontent.com/BAAI-OpenPlatform/test_open/main/en_dark_elf.png)
 
 ### prompt:黑暗精灵公主，非常详细，幻想，非常详细，数字绘画，概念艺术，敏锐的焦点，插图
 ### 中文生成结果/Generated results from Chinese prompts
-![image](./imgs/cn_暗黑精灵.png)
+![image](https://raw.githubusercontent.com/BAAI-OpenPlatform/test_open/main/cn_dark_elf.png)
 
 ## 中文表现能力/The performance for Chinese prompts
 
 ## prompt:带墨镜的男孩肖像，充满细节，8K高清
-![image](./imgs/小男孩.png)
+![image](https://raw.githubusercontent.com/BAAI-OpenPlatform/test_open/main/boy.png)
 
 
 ## prompt:带墨镜的中国男孩肖像，充满细节，8K高清
-![image](./imgs/cn_小男孩.png)
+![image](https://raw.githubusercontent.com/BAAI-OpenPlatform/test_open/main/cn_boy.png)
 
 ## 长图生成能力/The ability to generate long images
 
 ### prompt: 一只带着帽子的小狗 
 ### 原版 stable diffusion：
-![image](./imgs/多尺度狗（不好）.png)
+![image](https://raw.githubusercontent.com/BAAI-OpenPlatform/test_open/main/dog_other.png)
 
 ### Ours:
-![image](./imgs/多尺度狗（好）.png)
+![image](https://raw.githubusercontent.com/BAAI-OpenPlatform/test_open/main/dog.png)
 
 注: 此处长图生成技术由右脑科技(RightBrain AI)提供。
 
