@@ -491,9 +491,9 @@ def glm_beam_search(model,
                                 exception=["eop", "gMASK"])] = -float(
                                     'Inf')  #Don't generate special tokens
                 #logits process:
-                logit_score = list_processor(
-                    torch.tensor(output_ids, device=device, dtype=torch.long),
-                    logit_score)
+                # logit_score = list_processor(
+                #     torch.tensor(output_ids, device=device, dtype=torch.long),
+                #     logit_score)
 
             logit_score = output_scores.reshape(
                 [-1, 1]) + logit_score.cpu().numpy()  #(beam_size,vocab_size)
