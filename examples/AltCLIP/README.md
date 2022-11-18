@@ -14,10 +14,11 @@ AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltD
 | 模型名称 Model name | 大小 Size | 描述 Description                                   |
 | ------------------- | --------- | -------------------------------------------------- |
 | AltCLIP             | 3.22G     | 我们的双语AltCLIP模型；Our bilingual AltCLIP model |
+| AltCLIP-m9             | 3.22G     | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It) |
 
+Our AltCLIP support 
 
-
-We propose a simple and efficient method to train a better bilingual CLIP model. Named AltCLIP. AltCLIP is trained based on [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [Liaon](https://huggingface.co/datasets/laion/laion2B-en).
+We propose a simple and efficient method to train a better multilingual CLIP model. Named AltCLIP. AltCLIP is trained based on [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [Liaon](https://huggingface.co/datasets/laion/laion2B-en).
 
 The AltCLIP model can provide support for the AltDiffusion model in this project. Specific information on the AltDiffusion model can be found in [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
 
@@ -44,10 +45,10 @@ If you find this work helpful, please consider to cite
 ## 训练/Training
 
 训练共有两个阶段。
-在平行知识蒸馏阶段，我们只是使用平行语料文本来进行蒸馏（平行语料相对于图文对更容易获取且数量更大）。在双语对比学习阶段，我们使用少量的中-英 图像-文本对（一共约2百万）来训练我们的文本编码器以更好地适应图像编码器。
+在平行知识蒸馏阶段，我们只是使用平行语料文本来进行蒸馏（平行语料相对于图文对更容易获取且数量更大）。在双语对比学习阶段，我们使用少量的中-英图像-文本对（一共约2百万）来训练我们的文本编码器以更好地适应图像编码器。
 
 There are two phases of training.
-In the parallel knowledge distillation phase, we only use parallel corpus texts for distillation (parallel corpus is easier to obtain and larger in number compared to image text pairs). In the bilingual comparison learning phase, we use a small number of Chinese-English image-text pairs (about 2 million in total) to train our text encoder to better fit the image encoder.
+In the parallel knowledge distillation phase, we only use parallel corpus texts for distillation (parallel corpus is easier to obtain and larger in number compared to image text pairs). In the mltilingual comparison learning phase, we use a small number of Chinese-English image-text pairs (about 2 million in total) to train our text encoder to better fit the image encoder.
 
 
 
@@ -195,6 +196,12 @@ Comparison results between our proposed model and SOTA CLIP model on a bilingual
       <td>89.2 </td>
    </tr>
 </table>
+
+## 多语言性能/Multi-lingual performance
+We achieve the SOTA zero-shot results on XTD. 
+
+我们AltCLIP-m9在多语言的多模态检索数据集上的zero-shot性能。
+![](imgs/m9.png)
 
 ## 可视化效果/Visualization effects
 
