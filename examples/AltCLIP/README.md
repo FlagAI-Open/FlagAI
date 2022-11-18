@@ -207,42 +207,25 @@ Based on AltCLIP, we have also developed the AltDiffusion model, visualized as f
 ## 模型推理 Inference
 
 ```python
-import torch
 from PIL import Image
-from flagai.auto_model.auto_loader import AutoLoader
+import requests
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-## 一行代码直接自动下载权重到'./checkpoints/clip-xlmr-large'，并自动加载CLIP模型权重
-## modelhub地址: Modelhub(https://model.baai.ac.cn/models)
-loader = AutoLoader(
-    task_name="txt_img_matching",
-    model_dir="./checkpoints",
-    model_name="AltCLIP-XLMR-L"
-)
-## 获取加载好的模型
-model = loader.get_model()
-## 获取tokenizer
-tokenizer = loader.get_tokenizer()
-## 获取transform用来处理图像
-transform = loader.get_transform()
+# transformers version >= 4.21.0
+from hf_altclip.modeling_altclip import AltCLIP
+from hf_altclip.processing_altclip import AltCLIPProcessor
 
-model.eval()
-model.to(device)
+model = AltCLIP.from_pretrained("BAAI/AltCLIP")
+processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
 
-## 推理过程,图像与文本匹配
-image = Image.open("./dog.jpeg")
-image = transform(image)
-image = torch.tensor(image["pixel_values"]).to(device)
-text = tokenizer(["a rat", "a dog", "a cat"])["input_ids"]
+url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+image = Image.open(requests.get(url, stream=True).raw)
 
-text = torch.tensor(text).to(device)
+inputs = processor(text=["a photo of a cat", "a photo of a dog"], images=image, return_tensors="pt", padding=True)
 
-with torch.no_grad():
-    image_features = model.get_image_features(image)
-    text_features = model.get_text_features(text)
-    text_probs = (image_features @ text_features.T).softmax(dim=-1)
+outputs = model(**inputs)
+logits_per_image = outputs.logits_per_image # this is the image-text similarity score
+probs = logits_per_image.softmax(dim=1) # we can take the softmax to get the label probabilities
 
-print(text_probs.cpu().numpy()[0].tolist())
 ```
 
 ## CLIP微调/Finetuning
