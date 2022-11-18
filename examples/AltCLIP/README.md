@@ -14,8 +14,7 @@ AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltD
 | 模型名称 Model name | 大小 Size | 描述 Description                                   |
 | ------------------- | --------- | -------------------------------------------------- |
 | AltCLIP             | 3.22G     | 我们的双语AltCLIP模型；Our bilingual AltCLIP model |
-| AltCLIP-m9             | 3.22G     | English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), 
-Arabic(Ar) and Italian(It) |
+| AltCLIP-m9             | 3.22G     | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It) |
 
 Our AltCLIP support 
 
@@ -201,7 +200,7 @@ Comparison results between our proposed model and SOTA CLIP model on a bilingual
 ## 多语言性能/Multi-lingual performance
 We achieve the SOTA zero-shot results on XTD. 
 
-我们AltCLIP-m9在多语言的多模态检索数据集上的zero-shot性能能。其支持
+我们AltCLIP-m9在多语言的多模态检索数据集上的zero-shot性能。
 ![](imgs/m9.png)
 
 ## 可视化效果/Visualization effects

@@ -38,11 +38,9 @@ The following weights are automatically downloaded from [here](https://model.baa
 
 | 模型名称 Model name              | 大小 Size | 描述 Description                                        |
 |------------------------------|---------|-------------------------------------------------------|
-| StableDiffusionSafetyChecker | 1.13G   | 图片的安全检查器；Safety checker for image                     |
 | AltDiffusion                 | 8.0G    | 我们的双语AltDiffusion模型； Our bilingual AltDiffusion model |
-| AltCLIP                      | 3.22G   | 我们的双语AltCLIP模型；Our bilingual AltCLIP model            |
-|AltDiffusion-m9                 | 8.0G    | 我们的九语AltDiffusion模型； multilingual AltDiffusion model |
-|AltCLIP-m9                      | 3.22G   |  9-language CLIP [more info](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)       |
+|AltDiffusion-m9                 | 8.0G    | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It)  |
+
 
 
 # 示例/Example
@@ -132,9 +130,9 @@ Note that the model inference requires a GPU of at least 10G above.
 
 Note: The long image generation technology here is provided by Right Brain Technology.
 ### AltDiffusion-m9
-不同语言生成的人脸不一样！！！
+同一句prompts不同语言生成的人脸不一样！
 
-Different Language show different faces!!!
+One prompts in different Languages generate different faces!!!
 
 ![image](imgs/m9.png)
 # 许可/License
