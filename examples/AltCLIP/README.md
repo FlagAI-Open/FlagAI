@@ -410,3 +410,12 @@ if __name__ == "__main__":
     evaluate()
 
 ```
+# Huggingface Version
+
+我们已经上传了模型权重到 `transformers` ，只需要几行代码就能快速使用我们的模型！ [Huggingface Model Card](https://huggingface.co/BAAI/AltCLIP)
+
+we have uploaded our model to `transformers`. you can use our model by a few lines of code. If you find it useful, feel free to star🌟!
+
+更多信息可查看 `hf_altclip/`
+
+more details please refer directory `hf_altclip/`
