@@ -32,14 +32,14 @@ If you find this work helpful, please consider to cite
 ```
 # 模型权重/Model Weights
 
-第一次运行AltDiffusion模型时会自动从 [这里](https://model.baai.ac.cn/model-detail/100076)  下载如下权重,  
+第一次运行AltDiffusion模型时会自动下载如下权重,  
 
-The following weights are automatically downloaded from [here](https://model.baai.ac.cn/model-detail/100076) when the AltDiffusion model is run for the first time: 
+The following weights are automatically downloaded from when the AltDiffusion model is run for the first time: 
 
 | 模型名称 Model name              | 大小 Size | 描述 Description                                        |
 |------------------------------|---------|-------------------------------------------------------|
-| AltDiffusion                 | 8.0G    | 我们的双语AltDiffusion模型； Our bilingual AltDiffusion model |
-|AltDiffusion-m9                 | 8.0G    | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It)  |
+| [AltDiffusion](https://model.baai.ac.cn/model-detail/100076)                 | 8.0G    | 我们的双语AltDiffusion模型； Our bilingual AltDiffusion model |
+|[AltDiffusion-m9](https://model.baai.ac.cn/model-detail/100077)                 | 8.0G    | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It)  |
 
 
 
@@ -60,7 +60,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 loader = AutoLoader(task_name="text2img", #contrastive learning
-                    model_name="AltDiffusion",
+                    model_name="AltDiffusion-m9",
                     model_dir="./checkpoints")
 
 model = loader.get_model()
