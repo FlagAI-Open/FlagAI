@@ -110,6 +110,8 @@ MODEL_DICT = {
     "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "altdiffusion":
     ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
+    "altdiffusion-m9":
+    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
     "swinv1-base-patch4-window7-224":
     ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
     "swinv2-base-patch4-window8-256":
@@ -120,6 +122,7 @@ MODEL_DICT = {
         "flagai.model.vision.swinv2", "SwinTransformerV2", "swinv2", "vision"
     ],
     "altclip-xlmr-l": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    "altclip-xlmr-l-m9": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altclip-bert-b": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcessBert"],
 }
 
