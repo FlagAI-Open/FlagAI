@@ -13,8 +13,8 @@ AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltD
 
 | 模型名称 Model name | 大小 Size | 描述 Description                                   |
 | ------------------- | --------- | -------------------------------------------------- |
-| AltCLIP             | 3.22G     | 我们的双语AltCLIP模型；Our bilingual AltCLIP model |
-| AltCLIP-m9             | 3.22G     | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It) |
+| [AltCLIP](https://model.baai.ac.cn/model-detail/100075)             | 3.22G     | 我们的双语AltCLIP模型；Our bilingual AltCLIP model |
+| [AltCLIP-m9](https://model.baai.ac.cn/model-detail/100077)             | 3.22G     | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It) |
 
 Our AltCLIP support 
 
