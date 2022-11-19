@@ -8,7 +8,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples')
-    # Random seeds for reproducability.
+    # Random seeds for reproducibility.
     # Model,
     loader = AutoLoader(task_name='lm',
                                 model_name='GLM-large-en',
