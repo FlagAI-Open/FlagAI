@@ -1,23 +1,28 @@
 
 #  模型信息/Model Information
 
+| 模型名称 Model name              | 描述 Description                                        |
+|------------------------------|-------------------------------------------------------|
+|[AltDiffusion-m9](https://model.baai.ac.cn/model-detail/100077)                 | Multilingual: English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It)  |
+| [AltDiffusion](https://model.baai.ac.cn/model-detail/100076)                 | Bilingual: Chinese(Zh), English(En) |
+
+We use [AltCLIP](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) as the text encoder, and trained a multilingual Diffusion model based on [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion), with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [LAION](https://huggingface.co/datasets/laion/laion2B-en).
+
+AltDiffusion performs well in aligning multiple languages, retaining most of the stable diffusion capabilities of the original, and in some cases even better than the original model.
+
+AltDiffusion-m9 supports text-to-image generation for 9 different languages, which are English, Chinese, Spanish, French, Japanese, Korean, Arabic, Russian and Italian. 
+
+For the multilingual AltCLIP model, check [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) for more information. 
+
+Our online demo currently only supports Chinese and English. Try out it by clicking [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) !
+
+
 我们使用 [AltCLIP](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 作为text encoder，基于 [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion) 训练了中英双语Diffusion模型(AltDiffusion)及支持9种语言的多语Diffusion模型(AltDiffusion-m9)。训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LAION](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus) 。
 
-AltDiffusion在中英文对齐方面表现非常出色，是目前市面上开源的最强版本，保留了原版stable diffusion的大部分能力，并且在某些例子上比有着比原版模型更出色的能力。多语言版本AltDiffusion-m9则是目前业界首个支持多语言文生图的Diffusion模型，包括对英语、中文、日语、法语、韩语、西班牙语、俄语、意大利语、阿拉伯语的支持。
+AltDiffusion在中英文对齐方面表现非常出色，保留了原版stable diffusion的大部分能力，并且在某些例子上比有着比原版模型更出色的能力。多语言版本AltDiffusion-m9则是目前业界首个支持多语言文生图的Diffusion模型，包括对英语、中文、日语、法语、韩语、西班牙语、俄语、意大利语、阿拉伯语的支持。
 
-AltDiffusion 模型由名为 AltCLIP 的多语 CLIP 模型支持，该模型也可在本项目中访问。您可以阅读 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 了解更多信息。
-
-AltDiffusion 中英文双语版模型现在支持线上演示，点击 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) 在线试玩！
-
-AltDiffusion performs well in aligning multiple languages, and is the strongest open source version in the market today, retaining most of the stable diffusion capabilities of the original, and in some cases even better than the original model.
-
-AltDiffusion model supports Chinese and English text-to-image generation. AltDiffusion-m9 supports text-to-image generation for 9 different languages, which are English, Chinese, Spanish, French, Japanese, Korean, Arabic, Russian and Italian. 
-
-We used [AltCLIP](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) as the text encoder, and trained a multilingual Diffusion model based on [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion), with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [LAION](https://huggingface.co/datasets/laion/laion2B-en).
-
-AltDiffusion model is backed by a multilingual CLIP model named AltCLIP, which is also accessible in FlagAI. You can read [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) for more information. 
-
-AltDiffusion now supports online demo (support Chinese and English)，Try out it by clicking [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) !
+AltDiffusion 模型由名为 AltCLIP 的多语 CLIP 模型支持，您可以阅读 [此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP/README.md) 了解更多信息。
+中英文双语版模型现在支持线上演示，点击 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/BAAI/FlagStudio) 在线试玩！
 
 If you find this work helpful, please consider to cite
 ```
