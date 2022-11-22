@@ -114,6 +114,12 @@ class AutoLoaderTestCase(unittest.TestCase):
                 f"task_name is lm, model_name is {m_name}"
             )
 
+    def test_EVA_CLIP_model(self):
+        loader = AutoLoader(task_name="txt_img_matching", 
+                            model_name="eva-clip")
+        print(
+                "task_name is txt_img_matching, model_name is eva-clip"
+            )
    
 def suite():
     suite = unittest.TestSuite()
@@ -125,6 +131,7 @@ def suite():
     suite.addTest(AutoLoaderTestCase('test_GPT2_base_ch'))
     suite.addTest(AutoLoaderTestCase('test_CPM_large_ch'))
     suite.addTest(AutoLoaderTestCase('test_OPT_model'))
+    suite.addTest(AutoLoaderTestCase('test_EVA_CLIP_model'))
 
     return suite
 
