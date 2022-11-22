@@ -1,5 +1,6 @@
 import distutils.version
 import errno
+import sys
 import os
 import random
 import time
