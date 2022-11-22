@@ -6,13 +6,15 @@ combined modules like IABN or EvoNorms.
 
 Hacked together by / Copyright 2020 Ross Wightman
 """
-import types
 import functools
+import types
 
 from .evo_norm import *
-from .filter_response_norm import FilterResponseNormAct2d, FilterResponseNormTlu2d
-from .norm_act import BatchNormAct2d, GroupNormAct, LayerNormAct, LayerNormAct2d
+from .filter_response_norm import (FilterResponseNormAct2d,
+                                   FilterResponseNormTlu2d)
 from .inplace_abn import InplaceAbn
+from .norm_act import (BatchNormAct2d, GroupNormAct, LayerNormAct,
+                       LayerNormAct2d)
 
 _NORM_ACT_MAP = dict(
     batchnorm=BatchNormAct2d,

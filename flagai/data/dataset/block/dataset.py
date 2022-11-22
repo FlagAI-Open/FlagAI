@@ -1,14 +1,16 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from pkgutil import get_loader
-from torch.utils.data import Dataset
-from itertools import accumulate
-from bisect import bisect_right
+import os
 import random
+from bisect import bisect_right
+from itertools import accumulate
+from pkgutil import get_loader
+
 import numpy as np
 import torch
-import os
+from torch.utils.data import Dataset
+
 from flagai.logger import log_dist
 
 TRAIN_SET = "train"

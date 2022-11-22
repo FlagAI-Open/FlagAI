@@ -1,15 +1,19 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import torch
-from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze, GLMForSequenceClassification
-from flagai.data.tokenizer import Tokenizer
-from flagai.data.dataset import SuperGlueDataset
-from flagai.test_utils import CollateArguments
-from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
 import unittest
-from flagai.data.dataset import ConstructSuperglueStrategy
+
+import torch
+
+from flagai.data.dataset import ConstructSuperglueStrategy, SuperGlueDataset
+from flagai.data.dataset.superglue.control import (CH_TASKS, DEFAULT_METRICS,
+                                                   MULTI_TOKEN_TASKS)
+from flagai.data.tokenizer import Tokenizer
+from flagai.model.glm_model import (GLMForMultiTokenCloze,
+                                    GLMForSequenceClassification,
+                                    GLMForSingleTokenCloze)
+from flagai.test_utils import CollateArguments
+from flagai.trainer import Trainer
 
 
 class TrainerTestCase(unittest.TestCase):

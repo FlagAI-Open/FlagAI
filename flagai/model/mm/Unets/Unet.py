@@ -1,21 +1,15 @@
-from abc import abstractmethod
 import math
+from abc import abstractmethod
+
 import numpy as np
 import torch as th
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
-from abc import abstractmethod
-import math
-from flagai.model.mm.utils import (
-    checkpoint,
-    conv_nd,
-    linear,
-    avg_pool_nd,
-    zero_module,
-    normalization,
-    timestep_embedding,
-)
+
 from flagai.model.mm.attentions.attention import SpatialTransformer
+from flagai.model.mm.utils import (avg_pool_nd, checkpoint, conv_nd, linear,
+                                   normalization, timestep_embedding,
+                                   zero_module)
 
 
 # dummy replace
@@ -956,4 +950,3 @@ class EncoderUNetModel(nn.Module):
         else:
             h = h.type(x.dtype)
             return self.out(h)
-

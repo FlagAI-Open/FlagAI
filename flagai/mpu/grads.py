@@ -22,8 +22,7 @@
 import torch
 from torch._six import inf
 
-from .initialize import get_model_parallel_group
-from .initialize import get_model_parallel_rank
+from .initialize import get_model_parallel_group, get_model_parallel_rank
 
 
 def clip_grad_norm(parameters, max_norm, norm_type=2):

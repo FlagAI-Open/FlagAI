@@ -4,9 +4,10 @@
 
 import torch
 
-from flagai.model.glm_model import GLMModel
 from flagai.data.tokenizer import Tokenizer
+from flagai.model.glm_model import GLMModel
 from flagai.model.predictor.predictor import Predictor
+
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples')

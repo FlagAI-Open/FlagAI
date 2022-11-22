@@ -8,8 +8,8 @@ some tasks, especially fine-grained it seems. I may end up removing this impl.
 Hacked together by / Copyright 2020 Ross Wightman
 """
 import torch
-from torch import nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 from .conv_bn_act import ConvNormAct
 from .create_act import create_act_layer, get_act_layer
@@ -22,7 +22,7 @@ class ChannelAttn(nn.Module):
     def __init__(
             self, channels, rd_ratio=1./16, rd_channels=None, rd_divisor=1,
             act_layer=nn.ReLU, gate_layer='sigmoid', mlp_bias=False):
-        super(ChannelAttn, self).__init__()
+        super().__init__()
         if not rd_channels:
             rd_channels = make_divisible(channels * rd_ratio, rd_divisor, round_limit=0.)
         self.fc1 = nn.Conv2d(channels, rd_channels, 1, bias=mlp_bias)
@@ -42,7 +42,7 @@ class LightChannelAttn(ChannelAttn):
     def __init__(
             self, channels, rd_ratio=1./16, rd_channels=None, rd_divisor=1,
             act_layer=nn.ReLU, gate_layer='sigmoid', mlp_bias=False):
-        super(LightChannelAttn, self).__init__(
+        super().__init__(
             channels, rd_ratio, rd_channels, rd_divisor, act_layer, gate_layer, mlp_bias)
 
     def forward(self, x):
@@ -55,7 +55,7 @@ class SpatialAttn(nn.Module):
     """ Original CBAM spatial attention module
     """
     def __init__(self, kernel_size=7, gate_layer='sigmoid'):
-        super(SpatialAttn, self).__init__()
+        super().__init__()
         self.conv = ConvNormAct(2, 1, kernel_size, apply_act=False)
         self.gate = create_act_layer(gate_layer)
 
@@ -69,7 +69,7 @@ class LightSpatialAttn(nn.Module):
     """An experimental 'lightweight' variant that sums avg_pool and max_pool results.
     """
     def __init__(self, kernel_size=7, gate_layer='sigmoid'):
-        super(LightSpatialAttn, self).__init__()
+        super().__init__()
         self.conv = ConvNormAct(1, 1, kernel_size, apply_act=False)
         self.gate = create_act_layer(gate_layer)
 
@@ -83,7 +83,7 @@ class CbamModule(nn.Module):
     def __init__(
             self, channels, rd_ratio=1./16, rd_channels=None, rd_divisor=1,
             spatial_kernel_size=7, act_layer=nn.ReLU, gate_layer='sigmoid', mlp_bias=False):
-        super(CbamModule, self).__init__()
+        super().__init__()
         self.channel = ChannelAttn(
             channels, rd_ratio=rd_ratio, rd_channels=rd_channels,
             rd_divisor=rd_divisor, act_layer=act_layer, gate_layer=gate_layer, mlp_bias=mlp_bias)
@@ -99,7 +99,7 @@ class LightCbamModule(nn.Module):
     def __init__(
             self, channels, rd_ratio=1./16, rd_channels=None, rd_divisor=1,
             spatial_kernel_size=7, act_layer=nn.ReLU, gate_layer='sigmoid', mlp_bias=False):
-        super(LightCbamModule, self).__init__()
+        super().__init__()
         self.channel = LightChannelAttn(
             channels, rd_ratio=rd_ratio, rd_channels=rd_channels,
             rd_divisor=rd_divisor, act_layer=act_layer, gate_layer=gate_layer, mlp_bias=mlp_bias)
@@ -109,4 +109,3 @@ class LightCbamModule(nn.Module):
         x = self.channel(x)
         x = self.spatial(x)
         return x
-

@@ -18,8 +18,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import json
 from io import open
-import sentencepiece as spm
+
 import jieba
+import sentencepiece as spm
 
 try:
     from functools import lru_cache
@@ -30,7 +31,7 @@ except ImportError:
         return lambda func: func
 
 
-class CPMTokenizer(object):
+class CPMTokenizer():
 
     def __init__(self, vocab_file, model_file, max_length=None):
         self.max_len = max_length if max_length is not None else int(1e12)

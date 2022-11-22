@@ -1,14 +1,15 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from tqdm import tqdm
+import numpy as np
 import torch
 from torch.utils.data import Dataset
+from tqdm import tqdm
+
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.trainer import Trainer
 from flagai.data.collate_utils import bert_sequence_label_gp_collate_fn
 from flagai.model.predictor.predictor import Predictor
-import numpy as np
+from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -79,7 +80,7 @@ tokenizer = auto_loader.get_tokenizer()
 class NERDataset(Dataset):
 
     def __init__(self, data):
-        super(NERDataset, self).__init__()
+        super().__init__()
         self.data = data
 
     def __getitem__(self, i):

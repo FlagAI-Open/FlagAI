@@ -1,9 +1,11 @@
 import os
+
 import torch
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
-from flagai.trainer import Trainer
+from torchvision import datasets
+from torchvision import transforms
+
 from flagai.auto_model import AutoLoader
+from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 data_path = "./imagenet2012/"

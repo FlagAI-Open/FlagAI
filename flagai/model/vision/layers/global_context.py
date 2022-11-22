@@ -7,8 +7,8 @@ Official code consulted as reference: https://github.com/xvjiarui/GCNet
 
 Hacked together by / Copyright 2021 Ross Wightman
 """
-from torch import nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 from .create_act import create_act_layer, get_act_layer
 from .helpers import make_divisible
@@ -20,7 +20,7 @@ class GlobalContext(nn.Module):
 
     def __init__(self, channels, use_attn=True, fuse_add=False, fuse_scale=True, init_last_zero=False,
                  rd_ratio=1./8, rd_channels=None, rd_divisor=1, act_layer=nn.ReLU, gate_layer='sigmoid'):
-        super(GlobalContext, self).__init__()
+        super().__init__()
         act_layer = get_act_layer(act_layer)
 
         self.conv_attn = nn.Conv2d(channels, 1, kernel_size=1, bias=True) if use_attn else None

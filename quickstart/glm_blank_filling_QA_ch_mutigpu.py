@@ -1,11 +1,13 @@
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
-import torch
-import os
 import argparse
+import os
+import random
+
+import numpy as np
+import torch
+
 from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
-import random
-import numpy as np
 from flagai.model.predictor.predictor import Predictor
 
 # run script : python -m torch.distributed.launch --nproc_per_node=2 --nnodes=1 glm_blank_filling_QA_ch_mutigpu.py
@@ -73,5 +75,3 @@ predictor = Predictor(model, tokenizer)
 out = predictor.predict_generate_randomsample(text)
 if mpu.get_model_parallel_rank() == 0:
     print(f"pred is {out}")
-
-

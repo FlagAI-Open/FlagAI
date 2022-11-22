@@ -3,13 +3,13 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 # feedforward
 import os
+
+import bmtrain as bmt
 import torch
 
 from flagai.model.layers.linear_bmt import CPM3bmtLinear
 
 from .layer_norm_bmt import CPM3bmtLayerNorm
-
-import bmtrain as bmt
 
 
 class bmtDenseGatedACT(bmt.DistributedModule):
@@ -57,16 +57,16 @@ class bmtDenseGatedACT(bmt.DistributedModule):
             self.act = torch.nn.GELU()
         else:
             raise ValueError("Unsupported activation function: %s" % (activate_fn))
-    
+
     def forward(self, x : torch.Tensor):
-        """ This model inherits from bmt.DistributedModule. 
+        """ This model inherits from bmt.DistributedModule.
             Transform an input tensor from one feature space to another via a nonlinear operation
-        
+
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): Tensor that will be subject to nonlinear operations.
 
         Return:
-            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``) 
+            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``)
 
         """
         gelu_score = self.act( self.w_0(x) )
@@ -102,7 +102,7 @@ class bmtDenseACT(bmt.DistributedModule):
             init_std = init_std,
             bias = bias,
         )
-        
+
         if activate_fn == "relu":
             self.act = torch.nn.ReLU()
         elif activate_fn == "gelu":
@@ -111,18 +111,18 @@ class bmtDenseACT(bmt.DistributedModule):
             raise ValueError("Unsupported activation function: %s" % (activate_fn))
 
     def forward(self, x : torch.Tensor):
-        """ This model inherits from bmt.DistributedModule. 
+        """ This model inherits from bmt.DistributedModule.
             Transform an input tensor from one feature space to another via a nonlinear operation
-        
+
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): Tensor that will be subject to nonlinear operations.
 
         Return:
-            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``) 
+            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``)
         """
         x = self.w(x)
         x = self.act(x)
-        
+
         return x
 
 
@@ -142,12 +142,12 @@ class CPM3bmtFeedForward(bmt.DistributedModule):
     """
 
     def __init__(self,
-                 dim_in : int, 
+                 dim_in : int,
                  dim_ff : int,
                  dim_out : int = None,
-                 dtype = torch.half, 
+                 dtype = torch.half,
                  int8 = False,
-                 init_mean = 0.0, 
+                 init_mean = 0.0,
                  init_std = 0.02,
                  bias = False,
                  activate_fn = "gated_gelu",
@@ -209,7 +209,7 @@ class CPM3bmtFeedForward(bmt.DistributedModule):
         self.length_scale = length_scale
 
     def forward(self, x : torch.Tensor):
-        """ 
+        """
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): The input of feed-forward module.
 
@@ -244,15 +244,15 @@ class CPM3bmtFFN(torch.nn.Module):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, 
-                 dim_model : int, 
+    def __init__(self,
+                 dim_model : int,
                  dim_ff : int,
-                 dtype = torch.half, 
+                 dtype = torch.half,
                  int8 = False,
                  norm_init_var : float = 1.0,
                  norm_bias : bool = False,
-                 norm_eps : float = 1e-5, 
-                 ffn_init_mean : float = 0.0, 
+                 norm_eps : float = 1e-5,
+                 ffn_init_mean : float = 0.0,
                  ffn_init_std : float = 0.02,
                  ffn_bias : bool = False,
                  ffn_activate_fn : str = "gated_gelu",
@@ -263,20 +263,20 @@ class CPM3bmtFFN(torch.nn.Module):
         super().__init__()
 
         self.layernorm_before_ffn = CPM3bmtLayerNorm(
-            dim_norm = dim_model, 
-            bias = norm_bias, 
+            dim_norm = dim_model,
+            bias = norm_bias,
             dtype = dtype,
-            eps = norm_eps, 
+            eps = norm_eps,
             init_var = norm_init_var,
         )
 
         self.ffn = CPM3bmtFeedForward(
-            dim_in = dim_model, 
-            dim_ff = dim_ff, 
-            dim_out = dim_model, 
-            dtype = dtype, 
+            dim_in = dim_model,
+            dim_ff = dim_ff,
+            dim_out = dim_model,
+            dtype = dtype,
             int8 = int8,
-            init_mean = ffn_init_mean, 
+            init_mean = ffn_init_mean,
             init_std = ffn_init_std,
             bias = ffn_bias,
             activate_fn = ffn_activate_fn,
@@ -293,14 +293,14 @@ class CPM3bmtFFN(torch.nn.Module):
     def forward(self,
                 hidden_states : torch.Tensor,
                ):
-        """ 
+        """
         Args:
             hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Hidden states before feed forward layer.
 
         Return:
             :obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``: The output of feed-forward block
 
-        """ 
+        """
         x = self.layernorm_before_ffn(hidden_states)
         if self.post_layer_norm:
             hidden_states = x

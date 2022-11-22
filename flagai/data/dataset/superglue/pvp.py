@@ -21,10 +21,15 @@ import random
 import string
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Tuple, List, Union, Dict
+from typing import Dict, List, Tuple, Union
+
 import numpy as np
-from flagai.data.dataset.data_utils import build_input_from_ids, build_sample, InputExample
-from flagai.data.dataset.data_utils import build_decoder_input, build_decoder_sample, num_special_tokens_to_add
+
+from flagai.data.dataset.data_utils import (InputExample, build_decoder_input,
+                                            build_decoder_sample,
+                                            build_input_from_ids, build_sample,
+                                            num_special_tokens_to_add)
+
 # from data.data_utils import *
 # from utils.utils import print_rank_0
 

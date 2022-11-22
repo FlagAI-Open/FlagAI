@@ -1,10 +1,12 @@
+import ssl
+
 import torch
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
-import ssl
+
 ssl._create_default_https_context = ssl._create_unverified_context
-from flagai.trainer import Trainer
 from flagai.auto_model.auto_loader import AutoLoader
+from flagai.trainer import Trainer
 
 lr = 2e-5
 n_epochs = 50
@@ -78,8 +80,3 @@ if __name__ == '__main__':
                   valid_dataset=val_dataset,
                   metric_methods=[["accuracy", validate]],
                   collate_fn=collate_fn)
-
-
-
-
-

@@ -3,31 +3,33 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 # Arguments for training
 try:
-    import deepspeed.utils
     import deepspeed
-except:
+    import deepspeed.utils
+except Exception:
     pass
 try:
     from flagai import mpu
 except Exception:
     pass
 
-import torch
 import argparse
 import os
 import random
+
 import numpy as np
+import torch
 import torch.distributed as dist
-from flagai.logger import log_dist
-from torch.utils.tensorboard import SummaryWriter
-from flagai.utils import load_checkpoint, save_checkpoint, load_optim, load_rng
-from flagai.schedulers import AnnealingLR
-from flagai.optimizers import get_optimizer, get_optimizer_param_groups
-from flagai.fp16 import FP16_Module
-from flagai.utils import Timers
-from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from flagai.fp16 import DynamicLossScaler
+from torch.utils.tensorboard import SummaryWriter
+
+from flagai.fp16 import DynamicLossScaler, FP16_Module
+from flagai.launch import launch_dist
+from flagai.logger import log_dist
+from flagai.optimizers import get_optimizer, get_optimizer_param_groups
+from flagai.schedulers import AnnealingLR
+from flagai.utils import (Timers, load_checkpoint, load_optim, load_rng,
+                          save_checkpoint)
+
 """
 The Trainer class, to easily train a pytorh model on a new task.
 """
@@ -442,7 +444,7 @@ class EnvTrainer():
                             self.tb_writer.add_scalar(
                                 'eval_metrics/%s' % (name), score,
                                 self.iteration + 1)
-                                
+
                         if self.save_best is not None and self.save_best(best_score, eval_dict) != best_score:
                             best_score = self.save_best(best_score, eval_dict)
                             log_dist("saving best model with score {:.4f}".format(best_score))

@@ -1,12 +1,13 @@
-import torch
-import pytorch_lightning as pl
-import torch.nn.functional as F
 from contextlib import contextmanager
 
+import numpy as np
+import pytorch_lightning as pl
+import torch
+import torch.nn.functional as F
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from torch.optim.lr_scheduler import LambdaLR
-from flagai.model.mm.model import Encoder, Decoder
-import numpy as np
+
+from flagai.model.mm.model import Decoder, Encoder
 from flagai.model.mm.utils import instantiate_from_config
 
 
@@ -244,7 +245,8 @@ class VQModel(torch.nn.Module):
         if plot_ema:
             with self.ema_scope():
                 xrec_ema, _ = self(x)
-                if x.shape[1] > 3: xrec_ema = self.to_rgb(xrec_ema)
+                if x.shape[1] > 3:
+                    xrec_ema = self.to_rgb(xrec_ema)
                 log["reconstructions_ema"] = xrec_ema
         return log
 
@@ -440,7 +442,7 @@ class IdentityFirstStage(torch.nn.Module):
 
 
 
-class DiagonalGaussianDistribution(object):
+class DiagonalGaussianDistribution():
     def __init__(self, parameters, deterministic=False):
         self.parameters = parameters
         self.mean, self.logvar = torch.chunk(parameters, 2, dim=1)
@@ -479,5 +481,3 @@ class DiagonalGaussianDistribution(object):
 
     def mode(self):
         return self.mean
-
-

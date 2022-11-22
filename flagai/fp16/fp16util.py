@@ -17,9 +17,9 @@
 # limitations under the License.
 
 import torch
-import torch.nn as nn
-from torch.autograd import Variable
+from torch import nn
 from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
+from torch.autograd import Variable
 
 
 class tofp16(nn.Module):
@@ -31,7 +31,7 @@ class tofp16(nn.Module):
     """
 
     def __init__(self):
-        super(tofp16, self).__init__()
+        super().__init__()
 
     def forward(self, input):
         return input.half()
@@ -95,7 +95,7 @@ class FP16Model(nn.Module):
     """
 
     def __init__(self, network):
-        super(FP16Model, self).__init__()
+        super().__init__()
         self.network = convert_network(network, dtype=torch.half)
 
     def forward(self, *inputs):
@@ -140,7 +140,7 @@ def prep_param_lists(model, flat_master=False):
             # http://pytorch.org/docs/master/_modules/torch/_utils.html
             master_params = _flatten_dense_tensors(
                 [param.data for param in model_params]).float()
-        except:
+        except Exception:
             print(
                 "Error in prep_param_lists:  model may contain a mixture of parameters "
                 "of different types.  Use flat_master=False, or use F16_Optimizer."

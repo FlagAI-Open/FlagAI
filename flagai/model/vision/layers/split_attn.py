@@ -15,7 +15,7 @@ from .helpers import make_divisible
 
 class RadixSoftmax(nn.Module):
     def __init__(self, radix, cardinality):
-        super(RadixSoftmax, self).__init__()
+        super().__init__()
         self.radix = radix
         self.cardinality = cardinality
 
@@ -36,7 +36,7 @@ class SplitAttn(nn.Module):
     def __init__(self, in_channels, out_channels=None, kernel_size=3, stride=1, padding=None,
                  dilation=1, groups=1, bias=False, radix=2, rd_ratio=0.25, rd_channels=None, rd_divisor=8,
                  act_layer=nn.ReLU, norm_layer=None, drop_layer=None, **kwargs):
-        super(SplitAttn, self).__init__()
+        super().__init__()
         out_channels = out_channels or in_channels
         self.radix = radix
         mid_chs = out_channels * radix

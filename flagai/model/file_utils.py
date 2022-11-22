@@ -1,12 +1,11 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import json
+import os
 from time import sleep
 
 import requests
-import json
-import os
-
 import torch
 from tqdm.auto import tqdm
 
@@ -145,4 +144,3 @@ def _get_model_files(model_name):
     return requests.get('https://model.baai.ac.cn/api/searchModelFileByName', {
         'model_name': model_name
     }).text
-

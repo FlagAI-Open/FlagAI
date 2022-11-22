@@ -2,12 +2,12 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
-from torch import nn
 import torch.nn.functional as F
+from localAttention import (similar_backward, similar_forward,
+                            weighting_backward_ori, weighting_backward_weight,
+                            weighting_forward)
+from torch import nn
 from torch.autograd import Function
-from localAttention import (similar_forward, similar_backward,
-                            weighting_forward, weighting_backward_ori,
-                            weighting_backward_weight)
 
 __all__ = ['f_similar', 'f_weighting']
 

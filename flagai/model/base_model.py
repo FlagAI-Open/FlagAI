@@ -1,13 +1,17 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import json
+import os
+from typing import Union
+
+import torch
 from sklearn.linear_model import HuberRegressor
 from torch.nn import Module
-import torch
-import json
-from typing import Union
-from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path, _get_model_files
-import os
+
+from flagai.model.file_utils import (_get_checkpoint_path, _get_config_path,
+                                     _get_model_files, _get_model_id,
+                                     _get_vocab_path)
 
 
 # The base model for models
@@ -91,7 +95,9 @@ class BaseModel(Module):
                         "preparing the model weights for model parallel size = {:02d}"
                         .format(model_parallel_size))
                     from flagai.auto_model.auto_loader import MODEL_DICT
-                    from flagai.mp_tools import change_pytorch_model_mp_from_1_to_n_new, check_pytorch_model_mp_size
+                    from flagai.mp_tools import (
+                        change_pytorch_model_mp_from_1_to_n_new,
+                        check_pytorch_model_mp_size)
                     if model_parallel_size > 1 and not check_pytorch_model_mp_size(
                             download_path, model_parallel_size):
                         brief_model_name = MODEL_DICT[model_name.lower()][2]
@@ -143,13 +149,13 @@ class BaseModel(Module):
         elif os.path.exists(config_path):
             """
             It is fine when checkpoint_path does not exist, for the case that only_download_config=True
-            At that time the model will not be loaded. 
+            At that time the model will not be loaded.
             """
             return load_local(checkpoint_path)
 
         try:
             model_id = _get_model_id(model_name)
-        except:
+        except Exception:
             print("Model hub is not reachable!")
         # prepare the download path
         # downloading the files
@@ -213,7 +219,7 @@ class BaseModel(Module):
                 **kwargs):
         try:
             model_id = _get_model_id(model_name)
-        except:
+        except Exception:
             print("Model hub is not reachable!")
         # prepare the download path
         # downloading the files

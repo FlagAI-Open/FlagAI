@@ -17,12 +17,13 @@ import random
 from typing import List, Optional, Tuple, Union
 
 import torch
-import torch.utils.checkpoint
+from torch.utils import checkpoint
 from torch import nn
 from torch.nn import CrossEntropyLoss
-from flagai.model.layers.activations import ACT2FN
-from flagai.model.gpt2_model import GPT2Model, GPT2Stack, GPT2Config
 from torch.utils.checkpoint import checkpoint
+
+from flagai.model.gpt2_model import GPT2Config, GPT2Model, GPT2Stack
+from flagai.model.layers.activations import ACT2FN
 
 OPT_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "facebook/opt-125m",
@@ -59,7 +60,7 @@ class OPTLearnedPositionalEmbedding(nn.Embedding):
 
 class OPTStack(GPT2Stack):
     def __init__(self, config: GPT2Config):
-        super(OPTStack, self).__init__(config)
+        super().__init__(config)
         self.wpe = OPTLearnedPositionalEmbedding(config.n_positions, config.hidden_size)
         self.ln_f = None
         if config.do_layer_norm_before:
@@ -106,7 +107,7 @@ class OPTModel(GPT2Model):
 
     def __init__(self, config, **kwargs):
         config = trans_opt_to_gpt_config(config)
-        super(OPTModel, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.transformer = OPTStack(self.config)
 
     def load_weights(self, checkpoint_path):

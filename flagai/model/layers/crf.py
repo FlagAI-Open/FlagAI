@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 
 
@@ -11,7 +11,7 @@ class CRFLayer(nn.Module):
     """
 
     def __init__(self, output_dim):
-        super(CRFLayer, self).__init__()
+        super().__init__()
 
         self.output_dim = output_dim
         self.trans = nn.Parameter(torch.Tensor(output_dim, output_dim))

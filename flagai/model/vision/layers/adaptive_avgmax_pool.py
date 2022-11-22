@@ -10,7 +10,7 @@ Both a functional and a nn.Module version of the pooling is provided.
 Hacked together by / Copyright 2020 Ross Wightman
 """
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 
 
@@ -51,7 +51,7 @@ def select_adaptive_pool2d(x, pool_type='avg', output_size=1):
 
 class FastAdaptiveAvgPool2d(nn.Module):
     def __init__(self, flatten=False):
-        super(FastAdaptiveAvgPool2d, self).__init__()
+        super().__init__()
         self.flatten = flatten
 
     def forward(self, x):
@@ -60,7 +60,7 @@ class FastAdaptiveAvgPool2d(nn.Module):
 
 class AdaptiveAvgMaxPool2d(nn.Module):
     def __init__(self, output_size=1):
-        super(AdaptiveAvgMaxPool2d, self).__init__()
+        super().__init__()
         self.output_size = output_size
 
     def forward(self, x):
@@ -69,7 +69,7 @@ class AdaptiveAvgMaxPool2d(nn.Module):
 
 class AdaptiveCatAvgMaxPool2d(nn.Module):
     def __init__(self, output_size=1):
-        super(AdaptiveCatAvgMaxPool2d, self).__init__()
+        super().__init__()
         self.output_size = output_size
 
     def forward(self, x):
@@ -80,7 +80,7 @@ class SelectAdaptivePool2d(nn.Module):
     """Selectable global pooling layer with dynamic input kernel size
     """
     def __init__(self, output_size=1, pool_type='fast', flatten=False):
-        super(SelectAdaptivePool2d, self).__init__()
+        super().__init__()
         self.pool_type = pool_type or ''  # convert other falsy values to empty string for consistent TS typing
         self.flatten = nn.Flatten(1) if flatten else nn.Identity()
         if pool_type == '':
@@ -115,4 +115,3 @@ class SelectAdaptivePool2d(nn.Module):
         return self.__class__.__name__ + ' (' \
                + 'pool_type=' + self.pool_type \
                + ', flatten=' + str(self.flatten) + ')'
-

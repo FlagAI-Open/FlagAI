@@ -1,17 +1,20 @@
-import time
+import distutils.version
+import os
 import random
-import torch
+import time
+
 import bmtrain as bmp
+import numpy as np
+import torch
+from arguments import get_args
 from bmtrain import nccl
 from bmtrain.global_var import config
-import numpy as np
-import os
-from flagai.model.cpm3_train_model import CPM3Config, CPM3
-from flagai.data.tokenizer.cpm_3 import CPM3Tokenizer
-from flagai.data.dataset.cpm3_data import DistributedMMapIndexedDataset, CPM3_Dataset_Merge
-from arguments import get_args
-import distutils.version
 from torch.utils.tensorboard import SummaryWriter
+
+from flagai.data.dataset.cpm3_data import (CPM3_Dataset_Merge,
+                                           DistributedMMapIndexedDataset)
+from flagai.data.tokenizer.cpm_3 import CPM3Tokenizer
+from flagai.model.cpm3_train_model import CPM3, CPM3Config
 
 task_ids = {
         'lm':0,
@@ -39,8 +42,8 @@ def get_model(args):
     return model
 
 def get_optimizer(args, model):
-    optimizer = bmp.optim.AdamOffloadOptimizer(model.parameters(), 
-                                               weight_decay=args.weight_decay, 
+    optimizer = bmp.optim.AdamOffloadOptimizer(model.parameters(),
+                                               weight_decay=args.weight_decay,
                                                scale=args.loss_scale)
     # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     return optimizer
@@ -48,13 +51,13 @@ def get_optimizer(args, model):
 def get_learning_rate_scheduler(args, optimizer):
     if args.lr_decay_iters is None:
         args.lr_decay_iters = args.train_iters * args.epochs
-    lr_scheduler = bmp.lr_scheduler.Noam(optimizer, 
+    lr_scheduler = bmp.lr_scheduler.Noam(optimizer,
                                          start_lr = args.lr,
-                                         warmup_iter = args.warmup_iters, 
+                                         warmup_iter = args.warmup_iters,
                                          end_iter = args.lr_decay_iters,
                                          num_iter = args.start_step)
     # lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
-                                        
+
     return lr_scheduler
 
 def setup_model_and_optimizer(args):
@@ -75,7 +78,7 @@ def setup_model_and_optimizer(args):
 def initialize():
     # get arguments
     args = get_args()
-    # init bmp 
+    # init bmp
     bmp.init_distributed(seed = args.seed, loss_scale_factor = 2, loss_scale_steps = 1024)
     # init save folder
     if args.save != None:
@@ -140,7 +143,7 @@ def batch_iter(args, dataset, start_step = 0):
                 for bindex in range(args.batch_size):
                     for sindex in span[bindex]:
                         _span[bindex][sindex] = 1
-                
+
                 yield {
                     "ctx": torch.stack(ctx[:args.batch_size]),
                     "tgt": torch.stack(tgt[:args.batch_size]),
@@ -239,9 +242,9 @@ def pretrain(args, tokenizer, model, optimizer, lr_scheduler, dataset):
 
         loss = optimizer.loss_scale(loss)
         loss.backward()
-        
+
         grad_norm = clip_grad_norm(optimizer.param_groups, 1.0, scale = optimizer.scale / config['world_size'], norm_type = 2)
-    
+
         bmp.optim_step(optimizer, lr_scheduler)
 
         iteration_time = time.time() - st
@@ -269,7 +272,7 @@ def pretrain(args, tokenizer, model, optimizer, lr_scheduler, dataset):
             writer.add_scalar("Loss/train", global_loss, iteration)
             for i in task_ids.keys():
                 writer.add_scalar("Loss/train/{}".format(i), task_loss_list[task_ids[i]], iteration)
-        
+
         if args.save != None and iteration % args.save_iters == 0:
             bmp.save(model, os.path.join(args.save, args.save_name+("-%d.pt" % iteration)))
 

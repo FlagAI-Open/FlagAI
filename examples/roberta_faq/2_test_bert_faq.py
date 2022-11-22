@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import faiss
 import torch
+
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 

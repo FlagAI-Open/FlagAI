@@ -1,14 +1,16 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.trainer import Trainer
-from flagai.model.t5_model import T5ForConditionalGeneration
+import os
+
+import torch
+from torch.utils.data import Dataset
 from transformers import T5Tokenizer
+
 from flagai.data.tokenizer import Tokenizer
 from flagai.model.predictor.predictor import Predictor
-from torch.utils.data import Dataset
-import os
-import torch
+from flagai.model.t5_model import T5ForConditionalGeneration
+from flagai.trainer import Trainer
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -69,7 +71,7 @@ predictor = Predictor(model, tokenizer)
 class T5Seq2seqDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(T5Seq2seqDataset, self).__init__()
+        super().__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer

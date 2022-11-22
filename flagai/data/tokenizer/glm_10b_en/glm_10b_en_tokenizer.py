@@ -19,12 +19,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import sys
 import json
 import logging
 import os
-import regex as re
+import sys
 from io import open
+
+import regex as re
 import requests
 
 try:
@@ -103,7 +104,7 @@ def get_pairs(word):
     return pairs
 
 
-class GLM10bENTokenizer(object):
+class GLM10bENTokenizer():
     """
     GPT-2 BPE tokenizer. Peculiarities:
         - Byte-level BPE
@@ -148,7 +149,7 @@ class GLM10bENTokenizer(object):
         else:
             special_tokens = kwargs.pop('special_tokens', [])
 
-        if not os.path.exists(resolved_merges_file):  
+        if not os.path.exists(resolved_merges_file):
             if pretrained_model_name_or_path in VOCAB_ARCHIVE_URLS_MAP:
                 for key, url in VOCAB_ARCHIVE_URLS_MAP[
                         pretrained_model_name_or_path].items():
@@ -250,7 +251,7 @@ class GLM10bENTokenizer(object):
                     j = word.index(first, i)
                     new_word.extend(word[i:j])
                     i = j
-                except:
+                except Exception:
                     new_word.extend(word[i:])
                     break
 
@@ -343,7 +344,7 @@ class GLM10bENTokenizer(object):
 
         index = 0
         with open(merge_file, "w", encoding="utf-8") as writer:
-            writer.write(u'#version: 0.2\n')
+            writer.write('#version: 0.2\n')
             for bpe_tokens, token_index in sorted(self.bpe_ranks.items(),
                                                   key=lambda kv: kv[1]):
                 if index != token_index:
@@ -352,7 +353,7 @@ class GLM10bENTokenizer(object):
                         " Please check that the tokenizer is not corrupted!".
                         format(merge_file))
                     index = token_index
-                writer.write(' '.join(bpe_tokens) + u'\n')
+                writer.write(' '.join(bpe_tokens) + '\n')
                 index += 1
 
         index = len(self.encoder)
@@ -365,7 +366,7 @@ class GLM10bENTokenizer(object):
                         " Please check that the tokenizer is not corrupted!".
                         format(special_tokens_file))
                     index = token_index
-                writer.write(token + u'\n')
+                writer.write(token + '\n')
                 index += 1
 
         return vocab_file, merge_file, special_tokens_file

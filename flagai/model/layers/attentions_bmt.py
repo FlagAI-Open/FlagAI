@@ -16,21 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """attentions."""
-import os
 import math
+import os
+
+import bmtrain as bmt
 import torch
 
 from flagai.model.layers.layer_norm_bmt import CPM3bmtLayerNorm
-
-
-import bmtrain as bmt
-
-
 from flagai.model.layers.linear_bmt import CPM3bmtLinear
 
 
 class CPM3bmtAttention(bmt.DistributedModule):
-    r"""attention module consisting procedure of Q, K, V combination and its output projection. 
+    r"""attention module consisting procedure of Q, K, V combination and its output projection.
     For more detail, see `Attention is All you Need <https://arxiv.org/abs/1706.03762>`_.
 
     Args:
@@ -48,13 +45,13 @@ class CPM3bmtAttention(bmt.DistributedModule):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, dim_in : int, 
+    def __init__(self, dim_in : int,
                        dim_head : int,
-                       num_heads : int, 
+                       num_heads : int,
                        dim_out : int = None,
                        dtype = torch.half,
-                       int8 = False, 
-                       init_mean = 0.0, 
+                       int8 = False,
+                       init_mean = 0.0,
                        init_std = 0.02,
                        bias = False,
                        mask_value : float = float("-inf"),
@@ -115,7 +112,7 @@ class CPM3bmtAttention(bmt.DistributedModule):
             init_std = init_std,
             bias = bias,
         )
-    
+
         self.dim_in = dim_in
         self.num_heads = num_heads
         self.dim_head = dim_head
@@ -133,19 +130,19 @@ class CPM3bmtAttention(bmt.DistributedModule):
         self.pos_bias_type = pos_bias_type
         self.softmax = torch.nn.Softmax(dim=-1)
 
-    def forward(self, 
+    def forward(self,
             query : torch.Tensor,
             key_value : torch.Tensor,
             mask : torch.Tensor,
             position_bias = None,
         ):
-        """ This model inherits from bmt.DistributedModule. 
+        """ This model inherits from bmt.DistributedModule.
 
         Args:
             query (:obj:`torch.Tensor` of shape ``(batch, len_q, dim_model)``): Indices of input sequence tokens. It will be embedded by model's internal embedding lookup matrix.
-            key_value (:obj:`torch.Tensor` of shape ``(batch, len_k, dim_model)``): Length of input sequence before padding.  
+            key_value (:obj:`torch.Tensor` of shape ``(batch, len_k, dim_model)``): Length of input sequence before padding.
             mask (:obj:`torch.Tensor` of shape ``(batch, len_q, len_k)``): Used to avoid performing attention on padding token indices.
-            position_bias(:obj:`torch.Tensor` of shape ``(num_heads, len_q, len_k)`` or ``(1, num_heads, len_k, len_q)``): Provide positional information about tensor `key_value` and `query`. 
+            position_bias(:obj:`torch.Tensor` of shape ``(num_heads, len_q, len_k)`` or ``(1, num_heads, len_k, len_q)``): Provide positional information about tensor `key_value` and `query`.
 
         Return:
             out (:obj:`torch.Tensor` of shape ``(batch, len_q, dim_model)``): The attention output.
@@ -170,21 +167,21 @@ class CPM3bmtAttention(bmt.DistributedModule):
         if self.pos_bias_type == "rotary":
             h_q, h_k = position_bias(h_q, h_k)
 
-        # (batch * num_heads, len_q, dim_head) @ (batch * num_heads, len_k, dim_head)T 
+        # (batch * num_heads, len_q, dim_head) @ (batch * num_heads, len_k, dim_head)T
         # => (batch * num_heads, len_q, len_k)
-        
+
         score = torch.matmul( h_q, h_k.transpose(1, 2))
         if self.attn_scale:
             score = score / math.sqrt(self.dim_head)
 
-        # (batch, num_heads, len_q, len_k) 
+        # (batch, num_heads, len_q, len_k)
         score = score.view(batch_size, self.num_heads, len_q, len_k)
 
         if self.pos_bias_type == "relative":
             if position_bias is not None:
-                # (batch, num_heads, len_q, len_k) + (1, num_heads, len_q, len_k) 
+                # (batch, num_heads, len_q, len_k) + (1, num_heads, len_q, len_k)
                 score = score + position_bias
-        
+
         score = torch.masked_fill(
             score,
             mask.view(batch_size, 1, len_q, len_k)==False,
@@ -236,16 +233,16 @@ class CPM3bmtCrossAttention(torch.nn.Module):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, 
-                 dim_model : int, 
-                 num_heads : int, 
-                 dim_head : int, 
+    def __init__(self,
+                 dim_model : int,
+                 num_heads : int,
+                 dim_head : int,
                  dtype = torch.half,
-                 int8 = False, 
+                 int8 = False,
                  norm_init_var : float = 1.0,
                  norm_bias : bool = False,
-                 norm_eps : float = 1e-5, 
-                 att_init_mean : float = 0.0, 
+                 norm_eps : float = 1e-5,
+                 att_init_mean : float = 0.0,
                  att_init_std : float = 0.02,
                  att_bias : bool = False,
                  att_mask_value : float = float("-inf"),
@@ -259,20 +256,20 @@ class CPM3bmtCrossAttention(torch.nn.Module):
         super().__init__()
 
         self.layernorm_before_attention = CPM3bmtLayerNorm(
-            dim_norm = dim_model, 
-            bias = norm_bias, 
+            dim_norm = dim_model,
+            bias = norm_bias,
             dtype = dtype,
-            eps = norm_eps, 
+            eps = norm_eps,
             init_var = norm_init_var,
         )
 
         self.self_attention = CPM3bmtAttention(
-            dim_in = dim_model, 
-            num_heads = num_heads, 
+            dim_in = dim_model,
+            num_heads = num_heads,
             dim_head = dim_head,
-            dim_out = dim_model, 
+            dim_out = dim_model,
             dtype = dtype,
-            int8 = int8, 
+            int8 = int8,
             init_mean = att_init_mean,
             init_std = att_init_std,
             bias = att_bias,
@@ -299,14 +296,14 @@ class CPM3bmtCrossAttention(torch.nn.Module):
         """
         Args:
             hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Input of cross-attention block. It can be seen as query in the coming self-attention operation.
-            key_value_states(:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Used as key_value in coming self_attention operation. 
-            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation.  
+            key_value_states(:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Used as key_value in coming self_attention operation.
+            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation.
             position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_cross)``): Provide positional information to self-attention block.
 
         Return:
             :obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``: The output of cross-attention block.
 
-        """ 
+        """
         x = self.layernorm_before_attention(hidden_states)
         if self.post_layer_norm:
             hidden_states = x
@@ -338,16 +335,16 @@ class CPM3bmtSelfAttention(torch.nn.Module):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, 
-                 dim_model : int, 
-                 num_heads : int, 
-                 dim_head : int, 
+    def __init__(self,
+                 dim_model : int,
+                 num_heads : int,
+                 dim_head : int,
                  dtype = torch.half,
-                 int8 = False, 
+                 int8 = False,
                  norm_init_var : float = 1.0,
                  norm_bias : bool = False,
-                 norm_eps : float = 1e-5, 
-                 att_init_mean : float = 0.0, 
+                 norm_eps : float = 1e-5,
+                 att_init_mean : float = 0.0,
                  att_init_std : float = 0.02,
                  att_bias : bool = False,
                  att_mask_value : float = float("-inf"),
@@ -361,20 +358,20 @@ class CPM3bmtSelfAttention(torch.nn.Module):
         super().__init__()
 
         self.layernorm_before_attention = CPM3bmtLayerNorm(
-            dim_norm = dim_model, 
-            bias = norm_bias, 
+            dim_norm = dim_model,
+            bias = norm_bias,
             dtype = dtype,
-            eps = norm_eps, 
+            eps = norm_eps,
             init_var = norm_init_var,
         )
 
         self.self_attention = CPM3bmtAttention(
-            dim_in = dim_model, 
-            num_heads = num_heads, 
+            dim_in = dim_model,
+            num_heads = num_heads,
             dim_head = dim_head,
-            dim_out = dim_model, 
+            dim_out = dim_model,
             dtype = dtype,
-            int8 = int8, 
+            int8 = int8,
             init_mean = att_init_mean,
             init_std = att_init_std,
             bias = att_bias,
@@ -400,13 +397,13 @@ class CPM3bmtSelfAttention(torch.nn.Module):
         """
         Args:
             hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Input of self-attention block. It can be the embedding of a batch of sequences.
-            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation.  
+            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation.
             position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_self)``): Provide positional information to self-attention block.
 
         Return:
             :obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``: The output of attention block.
 
-        """    
+        """
         x = self.layernorm_before_attention(hidden_states)
         if self.post_layer_norm:
             hidden_states = x

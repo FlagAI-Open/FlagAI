@@ -14,19 +14,18 @@
 # limitations under the License.
 """Tokenization classes."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-import sys
 import collections
-import re
-import unicodedata
-import six
-from functools import lru_cache
-import torch
 import os
-from typing import Union, List
+import re
+import sys
+import unicodedata
+from functools import lru_cache
+from typing import List, Union
+
+import six
+import torch
 
 unicode = str
 
@@ -171,7 +170,7 @@ def whitespace_tokenize(text):
     return tokens
 
 
-class FullTokenizer(object):
+class FullTokenizer():
     """Runs end-to-end tokenziation."""
 
     def __init__(self, vocab_file=default_vocab(), do_lower_case=True):
@@ -257,7 +256,7 @@ class FullTokenizer(object):
         return len(self.vocab)
 
 
-class BasicTokenizer(object):
+class BasicTokenizer():
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
 
     def __init__(self, do_lower_case=True):
@@ -372,7 +371,7 @@ class BasicTokenizer(object):
         return "".join(output)
 
 
-class WordpieceTokenizer(object):
+class WordpieceTokenizer():
     """Runs WordPiece tokenziation."""
 
     def __init__(self, vocab, unk_token="[UNK]", max_input_chars_per_word=200):

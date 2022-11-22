@@ -1,14 +1,15 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import torch
+import functools
+import math
 import re
-from sklearn.metrics import f1_score
+import string
 from collections import defaultdict
 from typing import List
-import functools
-import string
-import math
+
+import torch
+from sklearn.metrics import f1_score
 
 
 def sigmoid(x):

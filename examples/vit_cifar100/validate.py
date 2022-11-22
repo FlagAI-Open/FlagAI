@@ -1,12 +1,16 @@
-import torch
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR100
 import ssl
+
+import torch
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from torchvision.datasets import CIFAR100
+
 ssl._create_default_https_context = ssl._create_unverified_context
-from flagai.auto_model.auto_loader import AutoLoader
 import os
+
 from tqdm import tqdm
+
+from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -44,7 +48,7 @@ if __name__ == '__main__':
     model = loader.get_model()
 
     model.load_state_dict(torch.load(os.path.join(model_save_dir, "38000", "pytorch_model.bin"), map_location=device)["module"])
-    print(f"model load success.......")
+    print("model load success.......")
     model.to(device)
 
     val_dataset = build_cifar()
@@ -64,13 +68,3 @@ if __name__ == '__main__':
         accuracy += acc
 
     print(f"accuracy is {accuracy / index}")
-
-
-
-
-
-
-
-
-
-

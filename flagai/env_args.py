@@ -1,5 +1,6 @@
 import argparse
 
+
 def save_best(best_score, eval_dict):
     return best_score if best_score < eval_dict['loss'] else eval_dict['loss']
 
@@ -107,4 +108,3 @@ class EnvArgs:
             args.not_call_launch = True
 
         return args
-

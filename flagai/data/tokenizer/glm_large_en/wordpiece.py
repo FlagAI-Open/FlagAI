@@ -17,13 +17,15 @@
 # limitations under the License.
 """Tokenization classes. Provided as is from https://github.com/huggingface/pytorch-pretrained-BERT/blob/master/pytorch_pretrained_bert/tokenization.py"""
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import collections
 import logging
 import os
 import unicodedata
 from io import open
+
 from flagai.model.file_utils import _get_model_id, _get_vocab_path
 
 logger = logging.getLogger(__name__)
@@ -54,7 +56,7 @@ def whitespace_tokenize(text):
     return tokens
 
 
-class GLMLargeEnTokenizer(object):
+class GLMLargeEnTokenizer():
     """Runs end-to-end tokenization: punctuation splitting + wordpiece"""
 
     def __init__(self,
@@ -148,7 +150,7 @@ class GLMLargeEnTokenizer(object):
         return tokenizer
 
 
-class BasicTokenizer(object):
+class BasicTokenizer():
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
 
     def __init__(self,
@@ -264,7 +266,7 @@ class BasicTokenizer(object):
         return "".join(output)
 
 
-class WordpieceTokenizer(object):
+class WordpieceTokenizer():
     """Runs WordPiece tokenization."""
 
     def __init__(self, vocab, unk_token="[UNK]", max_input_chars_per_word=100):

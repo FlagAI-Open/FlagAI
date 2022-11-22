@@ -19,11 +19,11 @@
 # Parts of the code here are adapted from PyTorch
 # repo: https://github.com/pytorch/pytorch
 
-import torch
-import torch.nn.functional as F
+import math
 
 import bmtrain as bmt
-import math
+import torch
+import torch.nn.functional as F
 
 
 class CPM3bmtEmbedding(bmt.DistributedModule):
@@ -55,7 +55,7 @@ class CPM3bmtEmbedding(bmt.DistributedModule):
         self.int8 = int8
 
     def forward(self, ids : torch.Tensor):
-        """ 
+        """
         Args:
             ids (:obj:`torch.Tensor` of shape ``(batch_size, seq_len)``): Indices of input sequence tokens.
 
@@ -66,7 +66,7 @@ class CPM3bmtEmbedding(bmt.DistributedModule):
         if self.length_scale:
             embeds = embeds / math.sqrt(self.dim_model)
         return embeds
-    
+
     def projection(self, x : torch.Tensor):
         """
         Projection based on embedding's weight. For example, embedding map vocab_size to embed_size, than projection map embed_size back to vocab_size.
@@ -84,18 +84,18 @@ class CPM3bmtEmbedding(bmt.DistributedModule):
 
 class CPM3bmtSegmentPositionEmbedding(bmt.DistributedModule):
 
-    def __init__(self, num_heads, 
+    def __init__(self, num_heads,
     	               num_segments = 1,
-                       num_buckets = 32, 
-                       max_distance = 128, 
+                       num_buckets = 32,
+                       max_distance = 128,
                        max_exact_rate = 0.25,
                        max_distance_rate = 1.0,
-                       bidirectional = False, 
+                       bidirectional = False,
                        dtype = torch.half,
                        absolute_inner_segment = True):
 
         super().__init__()
-        
+
         self.num_heads = num_heads
         self.num_buckets = num_buckets
         self.max_distance = max_distance
@@ -122,7 +122,7 @@ class CPM3bmtSegmentPositionEmbedding(bmt.DistributedModule):
             out : (batch_size, num_heads, query_len, key_len)   fp16
         """
         with torch.no_grad():
-        
+
             batch = key_pos.size(0)
             keylen = key_pos.size(1)
             querylen = query_pos.size(1)
@@ -157,7 +157,7 @@ class CPM3bmtSegmentPositionEmbedding(bmt.DistributedModule):
                 )
                 relative_position_bucket = torch.where((key_segment == query_segment), absolute_position_bucket[None, :, :], relative_position_bucket)
             # (batch, len_q, len_k)
- 
+
         # (batch, len_q, len_k, num_heads)
         embeds = F.embedding(relative_position_bucket, self.relative_attention_bias)
         # (batch, num_heads, len_q, len_k)

@@ -2,15 +2,14 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 
+from flagai.data.dataset import BlockDataset, ConstructBlockStrategy
+from flagai.data.dataset.block.data_utils import (add_args, get_dataset_lazy,
+                                                  split_ds)
+from flagai.data.dataset.superglue.control import DEFAULT_METRICS
 from flagai.data.tokenizer import Tokenizer
 from flagai.model.glm_model import GLMForSeq2Seq
-from flagai.trainer import Trainer
-from flagai.data.dataset import ConstructBlockStrategy
-from flagai.data.dataset import BlockDataset
-from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
-from flagai.data.dataset.superglue.control import DEFAULT_METRICS
 from flagai.test_utils import PretrainDatasetArguments
-
+from flagai.trainer import Trainer
 
 if __name__ == '__main__':
 

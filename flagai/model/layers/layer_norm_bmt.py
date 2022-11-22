@@ -3,11 +3,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 # layer norm
 
-import torch
-
-import torch.nn.functional as F
-
 import bmtrain as bmt
+import torch
+import torch.nn.functional as F
 
 
 def rms_layernorm(hidden : torch.Tensor, weight : torch.Tensor, eps :float):
@@ -30,9 +28,9 @@ class CPM3bmtLayerNorm(bmt.DistributedModule):
         eps (float, optional): :math:`\text{eps}` term. Defaults to 1e-5.
         init_var (float, optional): weight will be all initialized to init_var. Defaults to 1.0.
     """
-    def __init__(self, dim_norm : int, 
-                       dtype=torch.half, 
-                       bias=True, 
+    def __init__(self, dim_norm : int,
+                       dtype=torch.half,
+                       bias=True,
                        eps : float = 1e-5,
                        init_var = 1.0
                        ):
@@ -45,18 +43,18 @@ class CPM3bmtLayerNorm(bmt.DistributedModule):
             torch.ones(dim_norm, dtype=dtype) * init_var)
         self.bias = bmt.DistributedParameter(
             torch.zeros(dim_norm, dtype=dtype)) if bias else None
-    
+
     def forward(self, x : torch.Tensor):
-        """ 
+        """
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch_size, seq_len, dim_norm)``): Input tensor that need to be normalized.
 
         Return:
-            :obj:`torch.Tensor` of shape ``(batch_size, seq_len, dim_norm)``: The layernorm output. 
+            :obj:`torch.Tensor` of shape ``(batch_size, seq_len, dim_norm)``: The layernorm output.
 
         """
         assert x.size(-1) == self.dim_norm
-        
+
         if self.bias is not None:
             return F.layer_norm(x, (self.dim_norm,), self.weight, self.bias, self.eps)
         else:

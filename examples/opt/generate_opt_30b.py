@@ -1,6 +1,7 @@
-from flagai.model.predictor.predictor import Predictor
-from flagai.auto_model.auto_loader import AutoLoader
 import torch
+
+from flagai.auto_model.auto_loader import AutoLoader
+from flagai.model.predictor.predictor import Predictor
 
 loader = AutoLoader(task_name="lm",
                     model_name="opt-30b-en")

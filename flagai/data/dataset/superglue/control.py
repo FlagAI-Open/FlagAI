@@ -3,8 +3,8 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.data.dataset.superglue.processor import *
 from flagai.data.dataset.superglue.pvp import *
-
-from flagai.metrics import qa_exact_match, qa_f1, accuracy_metric, f1_macro_metric, f1_metric, multirc_em
+from flagai.metrics import (accuracy_metric, f1_macro_metric, f1_metric,
+                            multirc_em, qa_exact_match, qa_f1)
 
 PROCESSOR_DICT = {
     "ax-b": AxBProcessor,
@@ -173,7 +173,7 @@ class SuperGlueProcessor:
             try:
                 if f.lower() == dname:
                     os.rename(dirname + '/' + f, dirname + '/' + dname)
-            except:
+            except Exception:
                 pass
 
     def _unzip_file(self, src_file, dst_dir):

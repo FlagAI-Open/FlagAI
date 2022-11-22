@@ -2,20 +2,21 @@
 
 Hacked together by / Copyright 2021 Ross Wightman
 """
-import torch
 from functools import partial
+
+import torch
 
 from .bottleneck_attn import BottleneckAttn
 from .cbam import CbamModule, LightCbamModule
-from .eca import EcaModule, CecaModule
+from .eca import CecaModule, EcaModule
 from .gather_excite import GatherExcite
 from .global_context import GlobalContext
 from .halo_attn import HaloAttn
 from .lambda_layer import LambdaLayer
-from .non_local_attn import NonLocalAttn, BatNonLocalAttn
+from .non_local_attn import BatNonLocalAttn, NonLocalAttn
 from .selective_kernel import SelectiveKernel
 from .split_attn import SplitAttn
-from .squeeze_excite import SEModule, EffectiveSEModule
+from .squeeze_excite import EffectiveSEModule, SEModule
 
 
 def get_attn(attn_type):

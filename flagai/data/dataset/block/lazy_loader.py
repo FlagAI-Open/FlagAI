@@ -16,13 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """utils for loading text from disk"""
-import os
 import mmap
+import os
 import pickle as pkl
 import time
-import numpy as np
 from itertools import accumulate
 
+import numpy as np
 import torch
 from torch.multiprocessing import Lock
 
@@ -131,7 +131,7 @@ class ProcessorTokenizer:
         return string
 
 
-class LazyLoader(object):
+class LazyLoader():
     """
     Arguments:
         path: path to directory where array entries are concatenated into one big string file

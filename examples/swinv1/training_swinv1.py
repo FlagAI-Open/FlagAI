@@ -1,8 +1,10 @@
 import os
+
 import torch
-import torchvision.datasets as datasets
-from flagai.auto_model.auto_loader import AutoLoader
+from torchvision import datasets
 from torchvision import transforms
+
+from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 
 data_path = "./imagenet2012/"

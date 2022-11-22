@@ -1,11 +1,13 @@
+from typing import *
+
 import torch
-from flagai.model.layers.attentions import CPM3SelfAttention
-from flagai.model.layers.attentions_bmt import CPM3bmtSelfAttention
-from flagai.model.layers.attentions import CPM3CrossAttention
-from flagai.model.layers.attentions_bmt import CPM3bmtCrossAttention
+
+from flagai.model.layers.attentions import (CPM3CrossAttention,
+                                            CPM3SelfAttention)
+from flagai.model.layers.attentions_bmt import (CPM3bmtCrossAttention,
+                                                CPM3bmtSelfAttention)
 from flagai.model.layers.feedforward import CPM3FFN
 from flagai.model.layers.feedforward_bmt import CPM3bmtFFN
-from typing import *
 
 
 class CPM3Block(torch.nn.Module):
@@ -41,15 +43,15 @@ class CPM3Block(torch.nn.Module):
         self.is_decoder = config.is_decoder
 
         self.self_att = CPM3SelfAttention(
-            dim_model = config.dim_model, 
-            num_heads = config.num_heads, 
-            dim_head = config.dim_head, 
+            dim_model = config.dim_model,
+            num_heads = config.num_heads,
+            dim_head = config.dim_head,
             dtype = config.dtype,
-            int8 = config.int8, 
-            norm_eps = config.norm_eps, 
+            int8 = config.int8,
+            norm_eps = config.norm_eps,
             norm_init_var = config.norm_init_var,
             norm_bias = config.norm_bias,
-            att_init_mean = config.att_init_mean, 
+            att_init_mean = config.att_init_mean,
             att_init_std = config.att_init_std,
             att_bias = config.att_bias,
             att_mask_value = config.att_mask_value,
@@ -62,15 +64,15 @@ class CPM3Block(torch.nn.Module):
 
         if self.is_decoder:
             self.cross_att = CPM3CrossAttention(
-                dim_model = config.dim_model, 
-                num_heads = config.num_heads, 
-                dim_head = config.dim_head, 
+                dim_model = config.dim_model,
+                num_heads = config.num_heads,
+                dim_head = config.dim_head,
                 dtype = config.dtype,
-                int8 = config.int8, 
-                norm_eps = config.norm_eps, 
+                int8 = config.int8,
+                norm_eps = config.norm_eps,
                 norm_init_var = config.norm_init_var,
                 norm_bias = config.norm_bias,
-                att_init_mean = config.att_init_mean, 
+                att_init_mean = config.att_init_mean,
                 att_init_std = config.att_init_std,
                 att_bias = config.att_bias,
                 att_mask_value = config.att_mask_value,
@@ -83,14 +85,14 @@ class CPM3Block(torch.nn.Module):
             self.cross_att = None
 
         self.ffn = CPM3FFN(
-            dim_model = config.dim_model, 
+            dim_model = config.dim_model,
             dim_ff = config.dim_ff,
-            dtype = config.dtype, 
+            dtype = config.dtype,
             int8 = config.int8,
-            norm_eps = config.norm_eps, 
+            norm_eps = config.norm_eps,
             norm_init_var = config.norm_init_var,
             norm_bias = config.norm_bias,
-            ffn_init_mean = config.ffn_init_mean, 
+            ffn_init_mean = config.ffn_init_mean,
             ffn_init_std = config.ffn_init_std,
             ffn_bias = config.ffn_bias,
             ffn_activate_fn = config.ffn_activate_fn,
@@ -113,10 +115,10 @@ class CPM3Block(torch.nn.Module):
         """
         Args:
             self_hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Input of transformer block(self-attention block). It can be the raw embedding of a batch of sequences.
-            self_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation of self-attention.  
+            self_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation of self-attention.
             self_position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_self)``): Provide positional information to self-attention block.
-            cross_hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Input of cross-attention block. 
-            cross_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation of cross-attention.  
+            cross_hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Input of cross-attention block.
+            cross_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation of cross-attention.
             cross_position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_cross)``): Provide positional information to cross-attention block.
 
         Return:
@@ -179,15 +181,15 @@ class CPM3bmtBlock(torch.nn.Module):
         self.is_decoder = config.is_decoder
 
         self.self_att = CPM3bmtSelfAttention(
-            dim_model = config.dim_model, 
-            num_heads = config.num_heads, 
-            dim_head = config.dim_head, 
+            dim_model = config.dim_model,
+            num_heads = config.num_heads,
+            dim_head = config.dim_head,
             dtype = config.dtype,
-            int8 = config.int8, 
-            norm_eps = config.norm_eps, 
+            int8 = config.int8,
+            norm_eps = config.norm_eps,
             norm_init_var = config.norm_init_var,
             norm_bias = config.norm_bias,
-            att_init_mean = config.att_init_mean, 
+            att_init_mean = config.att_init_mean,
             att_init_std = config.att_init_std,
             att_bias = config.att_bias,
             att_mask_value = config.att_mask_value,
@@ -200,15 +202,15 @@ class CPM3bmtBlock(torch.nn.Module):
 
         if self.is_decoder:
             self.cross_att = CPM3bmtCrossAttention(
-                dim_model = config.dim_model, 
-                num_heads = config.num_heads, 
-                dim_head = config.dim_head, 
+                dim_model = config.dim_model,
+                num_heads = config.num_heads,
+                dim_head = config.dim_head,
                 dtype = config.dtype,
-                int8 = config.int8, 
-                norm_eps = config.norm_eps, 
+                int8 = config.int8,
+                norm_eps = config.norm_eps,
                 norm_init_var = config.norm_init_var,
                 norm_bias = config.norm_bias,
-                att_init_mean = config.att_init_mean, 
+                att_init_mean = config.att_init_mean,
                 att_init_std = config.att_init_std,
                 att_bias = config.att_bias,
                 att_mask_value = config.att_mask_value,
@@ -221,14 +223,14 @@ class CPM3bmtBlock(torch.nn.Module):
             self.cross_att = None
 
         self.ffn = CPM3bmtFFN(
-            dim_model = config.dim_model, 
+            dim_model = config.dim_model,
             dim_ff = config.dim_ff,
-            dtype = config.dtype, 
+            dtype = config.dtype,
             int8 = config.int8,
-            norm_eps = config.norm_eps, 
+            norm_eps = config.norm_eps,
             norm_init_var = config.norm_init_var,
             norm_bias = config.norm_bias,
-            ffn_init_mean = config.ffn_init_mean, 
+            ffn_init_mean = config.ffn_init_mean,
             ffn_init_std = config.ffn_init_std,
             ffn_bias = config.ffn_bias,
             ffn_activate_fn = config.ffn_activate_fn,
@@ -250,10 +252,10 @@ class CPM3bmtBlock(torch.nn.Module):
         """
         Args:
             self_hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Input of transformer block(self-attention block). It can be the raw embedding of a batch of sequences.
-            self_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation of self-attention.  
+            self_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation of self-attention.
             self_position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_self)``): Provide positional information to self-attention block.
-            cross_hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Input of cross-attention block. 
-            cross_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation of cross-attention.  
+            cross_hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Input of cross-attention block.
+            cross_attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation of cross-attention.
             cross_position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_cross)``): Provide positional information to cross-attention block.
 
         Return:

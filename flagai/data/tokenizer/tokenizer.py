@@ -16,8 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
-from collections import namedtuple
 import itertools
+from collections import namedtuple
 
 print_rank_0 = print
 """define some default command tokens for the tokenizer to use"""
@@ -33,7 +33,7 @@ def prep_command_tokens(tokenlist, token_format=token_format):
     ]
 
 
-class CommandToken(object):
+class CommandToken():
 
     def __init__(self, name, token, Id, lstrip=False, rstrip=False):
         self.name = name
@@ -69,7 +69,7 @@ def prep_type_tokens(tokenlist, token_format=token_format):
     ]
 
 
-class TypeToken(object):
+class TypeToken():
 
     def __init__(self, name, token, Id):
         self.name = name
@@ -99,7 +99,7 @@ DEFAULT_TYPE_TOKENS = prep_type_tokens(DEFAULT_TYPE_TOKENS)
 
 
 
-class GLMTokenizer(object):
+class GLMTokenizer():
     """
     Tokenizer object that handles text tokenization, command tokens, and type tokens.
 
@@ -372,7 +372,7 @@ class GLMTokenizer(object):
 
 
 
-class Tokenizer(object):
+class Tokenizer():
     """
     Tokenizer object that handles text tokenization, command tokens, and type tokens.
 
@@ -458,9 +458,9 @@ class Tokenizer(object):
         return self.text_tokenizer.convert_tokens_to_string(tokens)
 
 
-# class BaseTokenizer(object):
+# class BaseTokenizer():
 
-class TextTokenizer(object):
+class TextTokenizer():
     """
     Interface for text tokenizer
     """

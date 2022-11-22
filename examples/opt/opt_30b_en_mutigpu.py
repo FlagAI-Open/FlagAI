@@ -1,14 +1,16 @@
 
-import torch
-import os
 import argparse
+import glob
+import os
+import random
+import time
+
+import numpy as np
+import torch
+
 from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
-import random
-import numpy as np
 from flagai.model.predictor.predictor import Predictor
-import glob
-import time
 
 os.environ["ENV_TYPE"] = "deepspeed+mpu"
 model_parallel_size = 4
@@ -59,7 +61,7 @@ initialize_distributed()
 
 set_random_seed(123)
 
-print(f"building model...")
+print("building model...")
 loader = AutoLoader("lm", model_name="opt-30b-en")
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
@@ -78,4 +80,3 @@ predictor = Predictor(model, tokenizer)
 out = predictor.predict_generate_randomsample(text)
 if mpu.get_model_parallel_rank() == 0:
     print(f"pred is {out}")
-

@@ -18,24 +18,28 @@
 """ PyTorch T5 model. """
 
 import copy
-import warnings
-import torch
 import os
-from torch import nn
+import warnings
+from typing import Optional, Tuple
+
+import torch
+from torch import Tensor, device, nn
 from torch.nn import CrossEntropyLoss
-from torch import Tensor, device
-from typing import Tuple, Optional
+
+from flagai.data.tokenizer.t5.t5_tokenizer import T5JiebaTokenizer
 from flagai.model.base_model import BaseModel
 from flagai.model.blocks.t5_block import T5Block
-from flagai.model.layers.layer_norm import T5LayerNorm
 from flagai.model.layers.attentions import T5Attention
-from flagai.model.layers.feedforward import T5DenseReluDense, T5DenseGatedGeluDense
-from flagai.data.tokenizer.t5.t5_tokenizer import T5JiebaTokenizer
+from flagai.model.layers.feedforward import (T5DenseGatedGeluDense,
+                                             T5DenseReluDense)
+from flagai.model.layers.layer_norm import T5LayerNorm
+
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import copy_to_model_parallel_region
     from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
 # Warning message for FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask

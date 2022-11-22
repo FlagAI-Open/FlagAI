@@ -2,11 +2,13 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import json
-import tqdm
 import os
-from flagai.data.dataset.block.lazy_loader import LazyLoader
 # from lazy_loader import LazyLoader
-from multiprocessing import Queue, Process
+from multiprocessing import Process, Queue
+
+import tqdm
+
+from flagai.data.dataset.block.lazy_loader import LazyLoader
 
 NUM_PROCESSES = 100
 

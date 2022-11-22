@@ -1,17 +1,22 @@
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
-import torch
 import os
 import time
+
+import torch
+
 os.environ["ENV_TYPE"] = "deepspeed+mpu"
 os.environ["MODEL_PARALLEL_SIZE"] = '8'
 os.environ["WORLD_SIZE"] = '8'
 import argparse
-from flagai import mpu
 import random
+
 import numpy as np
-from flagai.model.predictor.predictor import Predictor
-from flagai.model.opt_model import OPTModel
+
+from flagai import mpu
 from flagai.data.tokenizer import OPTTokenizer
+from flagai.model.opt_model import OPTModel
+from flagai.model.predictor.predictor import Predictor
+
 
 def get_current_rank():
     with open('current_rank','r',encoding='utf8') as infile:
@@ -105,4 +110,3 @@ predictor = Predictor(model, tokenizer)
 out = predictor.predict_generate_randomsample(text)
 if mpu.get_model_parallel_rank() == 0:
     print(f"pred is {out}")
-

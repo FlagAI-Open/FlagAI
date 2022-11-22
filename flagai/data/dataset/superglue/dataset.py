@@ -1,11 +1,14 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from torch.utils.data import Dataset
-from .control import SuperGlueProcessor
-from collections import Counter
-import numpy as np
 import os
+from collections import Counter
+
+import numpy as np
+from torch.utils.data import Dataset
+
+from .control import SuperGlueProcessor
+
 # from flagai.data.dataset.superglue.pvp import PVPS
 # from flagai.data.dataset.superglue.control import PVPS
 print_rank_0 = print

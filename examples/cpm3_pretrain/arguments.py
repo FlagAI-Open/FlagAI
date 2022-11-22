@@ -1,12 +1,13 @@
 import argparse
 
+
 def add_model_config_args(parser: argparse.ArgumentParser):
     """Model arguments"""
 
     group = parser.add_argument_group('model', 'model configuration')
-    group.add_argument('--model-config', type=str, 
+    group.add_argument('--model-config', type=str,
                        help='model configuration file')
-    group.add_argument('--vocab-file', type=str, 
+    group.add_argument('--vocab-file', type=str,
                        help='model vocab file')
     return parser
 
@@ -114,6 +115,6 @@ def get_args():
     parser = add_model_config_args(parser)
     parser = add_training_args(parser)
     parser = add_inference_args(parser)
-    
+
     args = parser.parse_args()
     return args

@@ -17,12 +17,14 @@
 # limitations under the License.
 """Transformer."""
 import os
+
 import torch
 from torch.nn import Linear
+
 from flagai.model.layers.activations import ACT2FN
 from flagai.model.layers.attentions import BertAttention
-from flagai.model.layers.feedforward import ColumnParallelLinear
-from flagai.model.layers.feedforward import RowParallelLinear
+from flagai.model.layers.feedforward import (ColumnParallelLinear,
+                                             RowParallelLinear)
 from flagai.model.layers.layer_norm import BertLayerNorm
 from flagai.model.utils import normal_init_method
 
@@ -31,7 +33,7 @@ class BertOutput(torch.nn.Module):
 
     def __init__(self, intermediate_size, hidden_size, layernorm_epsilon,
                  hidden_dropout_prob, initializer_range):
-        super(BertOutput, self).__init__()
+        super().__init__()
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             init_method = normal_init_method(mean=0.0, std=initializer_range)
             self.dense = RowParallelLinear(input_size=intermediate_size,
@@ -63,7 +65,7 @@ class BertIntermediate(torch.nn.Module):
 
     def __init__(self, hidden_size, intermediate_size, initializer_range,
                  hidden_act):
-        super(BertIntermediate, self).__init__()
+        super().__init__()
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             self.dense = ColumnParallelLinear(input_size=hidden_size,
                                               output_size=intermediate_size,
@@ -93,7 +95,7 @@ class BertBlock(torch.nn.Module):
                  attention_probs_dropout_prob, initializer_range,
                  layernorm_epsilon, hidden_dropout_prob, intermediate_size,
                  hidden_act):
-        super(BertBlock, self).__init__()
+        super().__init__()
         self.attention = BertAttention(hidden_size, num_attention_heads,
                                        attention_probs_dropout_prob,
                                        initializer_range, layernorm_epsilon,

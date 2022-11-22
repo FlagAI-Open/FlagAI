@@ -3,10 +3,11 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
 from torch.utils.data import Dataset
+
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.trainer import Trainer
 from flagai.data.collate_utils import bert_sequence_label_collate_fn
 from flagai.model.predictor.predictor import Predictor
+from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -75,7 +76,7 @@ print(f"target is {target}")
 class NERDataset(Dataset):
 
     def __init__(self, data):
-        super(NERDataset, self).__init__()
+        super().__init__()
         self.data = data
 
     def __getitem__(self, i):

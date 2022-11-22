@@ -1,6 +1,8 @@
-from flagai.model.predictor.predictor import Predictor
-from flagai.auto_model.auto_loader import AutoLoader
 import torch
+
+from flagai.auto_model.auto_loader import AutoLoader
+from flagai.model.predictor.predictor import Predictor
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="lm",
@@ -20,5 +22,3 @@ out = predictor.predict_generate_randomsample(text,
                                               repetition_penalty=5.0)
 
 print(f"input is {text} \n out is {out}")
-
-

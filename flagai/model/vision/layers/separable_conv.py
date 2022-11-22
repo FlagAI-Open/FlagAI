@@ -5,7 +5,7 @@ DW and PW convs such as the Depthwise modules in MobileNetV2 / EfficientNet and 
 
 Hacked together by / Copyright 2020 Ross Wightman
 """
-from torch import nn as nn
+from torch import nn
 
 from .create_conv2d import create_conv2d
 from .create_norm_act import get_norm_act_layer
@@ -17,7 +17,7 @@ class SeparableConvNormAct(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, dilation=1, padding='', bias=False,
                  channel_multiplier=1.0, pw_kernel_size=1, norm_layer=nn.BatchNorm2d, act_layer=nn.ReLU,
                  apply_act=True, drop_layer=None):
-        super(SeparableConvNormAct, self).__init__()
+        super().__init__()
 
         self.conv_dw = create_conv2d(
             in_channels, int(in_channels * channel_multiplier), kernel_size,
@@ -53,7 +53,7 @@ class SeparableConv2d(nn.Module):
     """
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, dilation=1, padding='', bias=False,
                  channel_multiplier=1.0, pw_kernel_size=1):
-        super(SeparableConv2d, self).__init__()
+        super().__init__()
 
         self.conv_dw = create_conv2d(
             in_channels, int(in_channels * channel_multiplier), kernel_size,

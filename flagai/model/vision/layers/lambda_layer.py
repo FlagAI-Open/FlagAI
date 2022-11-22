@@ -21,10 +21,10 @@ https://github.com/lucidrains/lambda-networks
 Hacked together by / Copyright 2021 Ross Wightman
 """
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
-from .helpers import to_2tuple, make_divisible
+from .helpers import make_divisible, to_2tuple
 from .weight_init import trunc_normal_
 
 

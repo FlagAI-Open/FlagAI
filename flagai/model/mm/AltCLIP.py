@@ -1,14 +1,19 @@
-from time import clock_settime
-from transformers.models.clip.modeling_clip import *
-import torch.nn as nn
-import torch
-from transformers.models.clip.modeling_clip import CLIPOutput
-from transformers import CLIPProcessor
 import os
+from time import clock_settime
+
+import torch
+from torch import nn
+from transformers import CLIPProcessor
+from transformers.models.bert.tokenization_bert import BertTokenizer
+from transformers.models.clip.modeling_clip import *
+from transformers.models.clip.modeling_clip import CLIPOutput
+
 from flagai.model.base_model import BaseModel
 
-from .modeling_berts import BertSeriesConfig, RobertaSeriesConfig, BertSeriesModelWithTransformation, RobertaSeriesModelWithTransformation
-from transformers.models.bert.tokenization_bert import BertTokenizer
+from .modeling_berts import (BertSeriesConfig,
+                             BertSeriesModelWithTransformation,
+                             RobertaSeriesConfig,
+                             RobertaSeriesModelWithTransformation)
 
 STUDENT_CONFIG_DICT = {
     'hfl/chinese-roberta-wwm-ext': BertSeriesConfig,

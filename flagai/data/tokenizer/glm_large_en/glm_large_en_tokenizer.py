@@ -17,7 +17,8 @@
 # limitations under the License.
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
 import torch
-from ..tokenizer import GLMTokenizer, TypeToken, CommandToken
+
+from ..tokenizer import CommandToken, GLMTokenizer, TypeToken
 from .wordpiece import GLMLargeEnTokenizer
 
 

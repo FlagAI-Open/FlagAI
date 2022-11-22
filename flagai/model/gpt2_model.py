@@ -1,23 +1,29 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import torch
-import torch.nn as nn
 import os
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+from flagai.model.base_model import BaseModel
 from flagai.model.blocks.gpt2_block import GPT2Block
 from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.utils import normal_init_method
-from flagai.model.base_model import BaseModel
-import torch.nn.functional as F
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu.utils import divide
-    from flagai.mpu.random import checkpoint
-    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region, get_model_parallel_world_size, get_cuda_rng_tracker
+    from flagai.mpu import (copy_to_model_parallel_region,
+                            gather_from_model_parallel_region,
+                            get_cuda_rng_tracker,
+                            get_model_parallel_world_size)
     from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
+    from flagai.mpu.random import checkpoint
+    from flagai.mpu.utils import divide
 
 elif os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
 

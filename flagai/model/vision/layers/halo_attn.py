@@ -19,12 +19,12 @@ Hacked together by / Copyright 2021 Ross Wightman
 from typing import List
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from .helpers import make_divisible
-from .weight_init import trunc_normal_
 from .trace_utils import _assert
+from .weight_init import trunc_normal_
 
 
 def rel_logits_1d(q, rel_k, permute_mask: List[int]):

@@ -2,12 +2,15 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.env_trainer import EnvTrainer
 from flagai.env_args import EnvArgs
+from flagai.env_trainer import EnvTrainer
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
@@ -51,7 +54,7 @@ class GLMSeq2seqDataset(Dataset):
                  tokenizer,
                  max_src_length=300,
                  max_tgt_length=200):
-        super(GLMSeq2seqDataset, self).__init__()
+        super().__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer

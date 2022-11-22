@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
 import math
-import torch.nn.functional as F
+
 import bmtrain as bmt
+import torch
+import torch.nn.functional as F
 
 
 class CPM3bmtLinear(bmt.DistributedModule):
@@ -56,7 +57,7 @@ class CPM3bmtLinear(bmt.DistributedModule):
         self.int8 = int8
 
     def forward(self, x : torch.Tensor):
-        """ 
+        """
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): The input of linear layer
 

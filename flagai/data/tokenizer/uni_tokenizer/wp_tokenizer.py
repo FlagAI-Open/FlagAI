@@ -22,14 +22,14 @@
 import logging
 
 logger = logging.getLogger(__name__)
-import os
 # from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, whitespace_tokenize
 import collections
-import unicodedata
 import json
+import os
+import unicodedata
 
 
-class WordpieceTokenizer(object):
+class WordpieceTokenizer():
 
     def __init__(self,
                  vocab_file=None,
@@ -208,7 +208,7 @@ def whitespace_tokenize(text):
     return tokens
 
 
-class BasicTokenizer(object):
+class BasicTokenizer():
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
 
     def __init__(self,

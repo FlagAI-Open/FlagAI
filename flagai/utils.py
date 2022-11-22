@@ -18,13 +18,15 @@
 """Utilities for logging and serialization"""
 import os
 import random
+import subprocess
 import time
+
 import numpy as np
 import torch
-import subprocess
+import torch.distributed as dist
+
 from flagai import mpu
 from flagai.logger import log_dist
-import torch.distributed as dist
 
 
 def get_hostname():
@@ -177,7 +179,7 @@ def save_checkpoint(iteration,
     sd = {'iteration': iteration}
 
     # model state_dict
-    while hasattr(model, 'module'): 
+    while hasattr(model, 'module'):
         model = model.module
     # if only_changed_parameters:
     #     requires_grad_dict = {}

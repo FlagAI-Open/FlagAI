@@ -6,7 +6,7 @@ Hacked together by / Copyright 2020 Ross Wightman
 """
 
 import torch
-from torch import nn as nn
+from torch import nn
 
 from .conv2d_same import create_conv2d_pad
 
@@ -25,7 +25,7 @@ class MixedConv2d(nn.ModuleDict):
     """
     def __init__(self, in_channels, out_channels, kernel_size=3,
                  stride=1, padding='', dilation=1, depthwise=False, **kwargs):
-        super(MixedConv2d, self).__init__()
+        super().__init__()
 
         kernel_size = kernel_size if isinstance(kernel_size, list) else [kernel_size]
         num_groups = len(kernel_size)

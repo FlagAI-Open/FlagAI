@@ -3,14 +3,15 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 """ enc_dec model configuration """
 
+import copy
 import json
 import os
-import copy
 from typing import Any, Dict, Tuple, Union
+
 import torch
 
 
-class Config(object):
+class Config():
 
     def __init__(self):
         super().__init__()

@@ -2,7 +2,7 @@
 
 Hacked together by / Copyright 2020 Ross Wightman
 """
-from torch import nn as nn
+from torch import nn
 
 from .helpers import to_2tuple
 

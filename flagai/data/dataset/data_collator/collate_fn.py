@@ -1,14 +1,16 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import copy
+import math
+import random
+
+import numpy as np
 import torch
 import torch.utils.data
-import random
-import copy
-import numpy as np
-import math
-from torch.utils.data.dataloader import default_collate
 from scipy.stats import poisson
+from torch.utils.data.dataloader import default_collate
+
 from flagai.data.dataset.data_utils import build_sample
 from flagai.data.dataset.superglue.control import PVPS, SuperGlueProcessor
 

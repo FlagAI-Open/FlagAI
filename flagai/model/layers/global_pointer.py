@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 def multilabel_crossentropy(y_pred, y_true):

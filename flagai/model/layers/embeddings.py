@@ -19,35 +19,36 @@
 # Parts of the code here are adapted from PyTorch
 # repo: https://github.com/pytorch/pytorch
 
-import torch
-import torch.nn.functional as F
-import torch.nn.init as init
-from torch.nn.parameter import Parameter
-import torch.nn as nn
-import os
-from .layer_norm import BertLayerNorm
-
 import math
+import os
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+from torch import init
+from torch.nn.parameter import Parameter
+
+from .layer_norm import BertLayerNorm
 
 try:
     from apex.normalization.fused_layer_norm import FusedLayerNorm as LayerNorm
-except:
+except Exception:
     from .layer_norm import LayerNorm
-from flagai.mpu.initialize import get_model_parallel_rank
-from flagai.mpu.initialize import get_model_parallel_world_size
-from flagai.mpu.mappings import copy_to_model_parallel_region
-from flagai.mpu.mappings import gather_from_model_parallel_region
-from flagai.mpu.mappings import reduce_from_model_parallel_region
-from flagai.mpu.mappings import scatter_to_model_parallel_region
-from flagai.mpu.utils import divide
-from flagai.mpu.utils import VocabUtility
+
 from flagai.model.utils import normal_init_method
+from flagai.mpu.initialize import (get_model_parallel_rank,
+                                   get_model_parallel_world_size)
+from flagai.mpu.mappings import (copy_to_model_parallel_region,
+                                 gather_from_model_parallel_region,
+                                 reduce_from_model_parallel_region,
+                                 scatter_to_model_parallel_region)
+from flagai.mpu.utils import VocabUtility, divide
 
 
 class PositionalEmbedding(torch.nn.Module):
 
     def __init__(self, hidden_size):
-        super(PositionalEmbedding, self).__init__()
+        super().__init__()
 
         self.hidden_size = hidden_size
 
@@ -70,7 +71,7 @@ class WordEmbedding(nn.Module):
     """
 
     def __init__(self, args, vocab_size):
-        super(WordEmbedding, self).__init__()
+        super().__init__()
         self.remove_embedding_layernorm = args.remove_embedding_layernorm
         self.dropout = nn.Dropout(args.dropout)
         self.word_embedding = nn.Embedding(vocab_size, args.emb_size)
@@ -145,7 +146,7 @@ class VocabParallelEmbedding(torch.nn.Module):
                  num_embeddings,
                  embedding_dim,
                  init_method=init.xavier_normal_):
-        super(VocabParallelEmbedding, self).__init__()
+        super().__init__()
         # Keep the input dimensions.
         self.num_embeddings = num_embeddings
         self.embedding_dim = embedding_dim
@@ -218,7 +219,7 @@ class ParallelEmbedding(torch.nn.Module):
                  embedding_dim,
                  init_method=init.xavier_normal_,
                  keep_master_weight_for_test=False):
-        super(ParallelEmbedding, self).__init__()
+        super().__init__()
         # Keep the input dimensions.
         self.num_embeddings = num_embeddings
         self.embedding_dim = embedding_dim
@@ -276,7 +277,7 @@ class BertEmbeddings(nn.Module):
     def __init__(self, vocab_size, hidden_size, initializer_range,
                  max_position_embeddings, type_vocab_size, layernorm_epsilon,
                  hidden_dropout_prob):
-        super(BertEmbeddings, self).__init__()
+        super().__init__()
         self.word_embeddings = VocabParallelEmbedding(
             vocab_size,
             hidden_size,
@@ -336,19 +337,19 @@ class CPM3Embedding(torch.nn.Module):
         self.int8 = int8
 
     def forward(self, ids : torch.Tensor):
-        """ 
+        """
         Args:
             ids (:obj:`torch.Tensor` of shape ``(batch_size, seq_len)``): Indices of input sequence tokens.
 
         Return:
             :obj:`torch.Tensor` of shape ``(batch_size, seq_len, embedding_size)``: The embedding output.
         """
-        
+
         embeds = F.embedding(ids, self.weight)
         if self.length_scale:
             embeds = embeds / math.sqrt(self.dim_model)
         return embeds
-    
+
     def projection(self, x : torch.Tensor):
         """
         Projection based on embedding's weight. For example, embedding map vocab_size to embed_size, than projection map embed_size back to vocab_size.
@@ -366,18 +367,18 @@ class CPM3Embedding(torch.nn.Module):
 
 class CPM3SegmentPositionEmbedding(torch.nn.Module):
 
-    def __init__(self, num_heads, 
+    def __init__(self, num_heads,
     	               num_segments = 1,
-                       num_buckets = 32, 
-                       max_distance = 128, 
+                       num_buckets = 32,
+                       max_distance = 128,
                        max_exact_rate = 0.25,
                        max_distance_rate = 1.0,
-                       bidirectional = False, 
+                       bidirectional = False,
                        dtype = torch.half,
                        absolute_inner_segment = True):
 
         super().__init__()
-        
+
         self.num_heads = num_heads
         self.num_buckets = num_buckets
         self.max_distance = max_distance
@@ -403,7 +404,7 @@ class CPM3SegmentPositionEmbedding(torch.nn.Module):
             out : (batch_size, num_heads, query_len, key_len)   fp16
         """
         with torch.no_grad():
-        
+
             batch = key_pos.size(0)
             keylen = key_pos.size(1)
             querylen = query_pos.size(1)
@@ -438,7 +439,7 @@ class CPM3SegmentPositionEmbedding(torch.nn.Module):
                 )
                 relative_position_bucket = torch.where((key_segment == query_segment), absolute_position_bucket[None, :, :], relative_position_bucket)
             # (batch, len_q, len_k)
- 
+
         # (batch, len_q, len_k, num_heads)
         embeds = F.embedding(relative_position_bucket, self.relative_attention_bias)
         # (batch, num_heads, len_q, len_k)

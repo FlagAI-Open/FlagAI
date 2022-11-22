@@ -1,5 +1,5 @@
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class SpaceToDepth(nn.Module):
@@ -17,7 +17,7 @@ class SpaceToDepth(nn.Module):
 
 
 @torch.jit.script
-class SpaceToDepthJit(object):
+class SpaceToDepthJit():
     def __call__(self, x: torch.Tensor):
         # assuming hard-coded that block_size==4 for acceleration
         N, C, H, W = x.size()

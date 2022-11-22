@@ -5,7 +5,7 @@ Paper: Selective Kernel Networks (https://arxiv.org/abs/1903.06586)
 Hacked together by / Copyright 2020 Ross Wightman
 """
 import torch
-from torch import nn as nn
+from torch import nn
 
 from .conv_bn_act import ConvNormActAa
 from .helpers import make_divisible
@@ -26,7 +26,7 @@ class SelectiveKernelAttn(nn.Module):
         Selective Kernel attention mechanism factored out into its own module.
 
         """
-        super(SelectiveKernelAttn, self).__init__()
+        super().__init__()
         self.num_paths = num_paths
         self.fc_reduce = nn.Conv2d(channels, attn_channels, kernel_size=1, bias=False)
         self.bn = norm_layer(attn_channels)
@@ -76,7 +76,7 @@ class SelectiveKernel(nn.Module):
             aa_layer (nn.Module): anti-aliasing module
             drop_layer (nn.Module): spatial drop module in convs (drop block, etc)
         """
-        super(SelectiveKernel, self).__init__()
+        super().__init__()
         out_channels = out_channels or in_channels
         kernel_size = kernel_size or [3, 5]  # default to one 3x3 and one 5x5 branch. 5x5 -> 3x3 + dilation
         _kernel_valid(kernel_size)

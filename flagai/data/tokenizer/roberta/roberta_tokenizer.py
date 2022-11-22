@@ -17,9 +17,12 @@
 # limitations under the License.
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
 
-from transformers import RobertaTokenizer
-from ..tokenizer import Tokenizer, CommandToken, TypeToken
 import os
+
+from transformers import RobertaTokenizer
+
+from ..tokenizer import CommandToken, Tokenizer, TypeToken
+
 """define some default command tokens for the tokenizer to use"""
 
 

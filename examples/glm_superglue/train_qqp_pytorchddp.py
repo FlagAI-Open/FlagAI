@@ -1,12 +1,12 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSingleTokenCloze
+from flagai.data.dataset import SuperGlueDataset
 from flagai.data.tokenizer import Tokenizer
 from flagai.metrics import accuracy_metric
-from flagai.data.dataset import SuperGlueDataset
+from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.test_utils import CollateArguments
+from flagai.trainer import Trainer
 
 task_name = 'qqp'
 trainer = Trainer(env_type='pytorchDDP',

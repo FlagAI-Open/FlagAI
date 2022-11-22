@@ -1,15 +1,13 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSequenceClassification
+from flagai.data.dataset import ConstructSuperglueStrategy, SuperGlueDataset
+from flagai.data.dataset.superglue.control import (CH_TASKS, DEFAULT_METRICS,
+                                                   MULTI_TOKEN_TASKS)
 from flagai.data.tokenizer import Tokenizer
-
-from flagai.data.dataset import SuperGlueDataset
+from flagai.model.glm_model import GLMForSequenceClassification
 from flagai.test_utils import CollateArguments
-from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
-from flagai.data.dataset import ConstructSuperglueStrategy
-
+from flagai.trainer import Trainer
 
 # task_name options: ['boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc', 'tnews']
 task_name = "cb"
@@ -59,4 +57,3 @@ trainer.train(model,
                 train_dataset=train_dataset,
                 valid_dataset=valid_dataset,
                 metric_methods=metric_methods)
-

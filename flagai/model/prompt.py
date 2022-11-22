@@ -2,13 +2,14 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import random
+
 import torch
 
 
 class PromptSpell(torch.nn.Module):
 
     def __init__(self, spell_length, hidden_size, spell_func):
-        super(PromptSpell, self).__init__()
+        super().__init__()
         self.spell_length = spell_length
         self.hidden_size = hidden_size
         self.spell_embeddings = torch.nn.Embedding(self.spell_length,

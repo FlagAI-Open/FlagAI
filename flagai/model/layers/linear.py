@@ -13,9 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
 import math
+
+import torch
 import torch.nn.functional as F
+
 
 class CPM3Linear(torch.nn.Module):
     r"""A fully connected layer, which performs :math:`\pmb{y} = \mathbf{W} \pmb{x} + \pmb{b}`
@@ -50,7 +52,7 @@ class CPM3Linear(torch.nn.Module):
         self.int8 = int8
 
     def forward(self, x : torch.Tensor):
-        """ 
+        """
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): The input of linear layer
 

@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 import sentencepiece as spm
 
 
-class SentencePieceTokenizer(object):
+class SentencePieceTokenizer():
 
     def __init__(self, model_path):
         self.sp_model = spm.SentencePieceProcessor()

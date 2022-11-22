@@ -16,22 +16,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utilities for wrapping BertModel."""
-from flagai.model.blocks.bert_block import BertBlock
-from flagai.model.layers.embeddings import BertEmbeddings
-from flagai.model.layers.layer_norm import BertLayerNorm
-from flagai.model.layers.feedforward import BertPooler
-from flagai.model.base_model import BaseModel
-from flagai.model.layers.activations import ACT2FN
-from flagai.model.layers.global_pointer import GlobalPointer
-import torch
-from flagai.model.layers.crf import CRFLayer
-from torch import nn
-from typing import List
 import os
+from typing import List
+
+import torch
+from torch import nn
+
+from flagai.model.base_model import BaseModel
+from flagai.model.blocks.bert_block import BertBlock
+from flagai.model.layers.activations import ACT2FN
+from flagai.model.layers.crf import CRFLayer
+from flagai.model.layers.embeddings import BertEmbeddings
+from flagai.model.layers.feedforward import BertPooler
+from flagai.model.layers.global_pointer import GlobalPointer
+from flagai.model.layers.layer_norm import BertLayerNorm
+
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
 
@@ -56,7 +60,7 @@ class BertStack(torch.nn.Module):
                  num_attention_heads, attention_probs_dropout_prob,
                  initializer_range, layernorm_epsilon, hidden_dropout_prob,
                  intermediate_size, hidden_act):
-        super(BertStack, self).__init__()
+        super().__init__()
         self.config = config
         self.layer = torch.nn.ModuleList([
             BertBlock(hidden_size, num_attention_heads,
@@ -98,7 +102,7 @@ class BertModel(BaseModel):
 
     def __init__(self, config, **kwargs):
 
-        super(BertModel, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         hidden_size = config["hidden_size"]
         intermediate_size = 4 * hidden_size
         self.hidden_size = hidden_size
@@ -331,7 +335,7 @@ def load_extend_layer_weight(self, checkpoints, extend_layer: List[str]):
 class BertForSeq2seq(BaseModel):
 
     def __init__(self, config, **kwargs):
-        super(BertForSeq2seq, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.model = BertModel(config)
         self.cls = CLS(self.model.vocab_size, self.model.hidden_size,
                        self.model.layernorm_epsilon, self.model.hidden_act)
@@ -401,7 +405,7 @@ class BertForSeq2seq(BaseModel):
 class BertForMaskLM(BaseModel):
 
     def __init__(self, config, **kwargs):
-        super(BertForMaskLM, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.model = BertModel(config)
         self.cls = CLS(self.model.vocab_size, self.model.hidden_size,
                        self.model.layer_norm_eps, self.model.hidden_act)
@@ -449,7 +453,7 @@ class BertForMaskLM(BaseModel):
 class BertForClsClassifier(BaseModel):
 
     def __init__(self, config, **kwargs):
-        super(BertForClsClassifier, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         assert config['class_num'] != -1 and config['class_num'] is not None
         self.target_size = config['class_num']
         self.model = BertModel(config)
@@ -494,7 +498,7 @@ class BertForClsClassifier(BaseModel):
 class BertForSequenceLabeling(BaseModel):
 
     def __init__(self, config, **kwargs):
-        super(BertForSequenceLabeling, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.model = BertModel(config)
         self.final_dense = nn.Linear(self.model.hidden_size,
                                      config['class_num'])
@@ -541,7 +545,7 @@ class BertForSequenceLabelingCRF(BaseModel):
     """
 
     def __init__(self, config, **kwargs):
-        super(BertForSequenceLabelingCRF, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.model = BertModel(config)
         self.final_dense = nn.Linear(self.model.hidden_size,
                                      config['class_num'])
@@ -589,7 +593,7 @@ class BertForSequenceLabelingGP(BaseModel):
     """
 
     def __init__(self, config, **kwargs):
-        super(BertForSequenceLabelingGP, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.model = BertModel(config)
         self.gp = GlobalPointer(self.model.hidden_size,
                                 config['class_num'],
@@ -623,7 +627,7 @@ class BertForSequenceLabelingGP(BaseModel):
 class BertForEmbedding(BaseModel):
 
     def __init__(self, config, **kwargs):
-        super(BertForEmbedding, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.model = BertModel(config)
 
     def forward(self, **data):

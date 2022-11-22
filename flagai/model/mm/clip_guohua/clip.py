@@ -1,10 +1,11 @@
 # Code modified from https://github.com/openai/CLIP
 
-from typing import Union, List
+from typing import List, Union
 
 import torch
 
 from .bert_tokenizer import FullTokenizer
+
 _tokenizer = FullTokenizer()
 from .model import restore_model
 

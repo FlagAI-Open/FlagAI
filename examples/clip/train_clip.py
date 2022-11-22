@@ -1,7 +1,9 @@
 import torch
-from flagai.data.dataset.mm.clip_dataset import CsvDataset, clip_transform, collate_fn
-from flagai.trainer import Trainer
+
 from flagai.auto_model.auto_loader import AutoLoader
+from flagai.data.dataset.mm.clip_dataset import (CsvDataset, clip_transform,
+                                                 collate_fn)
+from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # cd examples/clip
@@ -33,4 +35,3 @@ trainer.train(model,
               optimizer=optimizer,
               train_dataset=train_dataset,
               collate_fn=collate_fn)
-

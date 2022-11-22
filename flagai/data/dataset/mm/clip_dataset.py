@@ -1,9 +1,12 @@
+import os
+
+import pandas as pd
 import torch
 from PIL import Image
-import os
 from torch.utils.data import Dataset
-import pandas as pd
-from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
+from torchvision.transforms import (CenterCrop, Compose, Normalize, Resize,
+                                    ToTensor)
+
 
 def _convert_image_to_rgb(image):
     return image.convert("RGB")
@@ -16,17 +19,17 @@ def clip_transform(img_size):
     ToTensor(),
     Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
     ])
-  
+
     return transform
 
 class CsvDataset(Dataset):
-    def __init__(self, 
+    def __init__(self,
                 input_filename,
                 img_dir,
-                transforms, 
-                tokenizer, 
-                img_key="filepath", 
-                caption_key="title", 
+                transforms,
+                tokenizer,
+                img_key="filepath",
+                caption_key="title",
                 sep="\t"):
         print(f'Loading csv data from {input_filename}.')
         df = pd.read_csv(input_filename, sep=sep)

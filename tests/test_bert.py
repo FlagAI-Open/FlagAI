@@ -1,17 +1,19 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
-import torch
-from flagai.data.tokenizer import Tokenizer
-from flagai.model.bert_model import BertModel, BertForSeq2seq, \
-                                    BertForSequenceLabeling, \
-                                    BertForSequenceLabelingGP, \
-                                    BertForClsClassifier, \
-                                    BertForSequenceLabelingCRF
-from flagai.data.tokenizer.bert.bert_tokenizer import BertTokenizer
 import unittest
+
+import torch
+
+from flagai.auto_model.auto_loader import AutoLoader
+from flagai.data.tokenizer import Tokenizer
+from flagai.data.tokenizer.bert.bert_tokenizer import BertTokenizer
+from flagai.model.bert_model import (BertForClsClassifier, BertForSeq2seq,
+                                     BertForSequenceLabeling,
+                                     BertForSequenceLabelingCRF,
+                                     BertForSequenceLabelingGP, BertModel)
+from flagai.model.predictor.predictor import Predictor
+
 
 class BertTestCase(unittest.TestCase):
 

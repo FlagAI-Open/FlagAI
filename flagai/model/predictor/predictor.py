@@ -1,21 +1,27 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import os
+import time
+from contextlib import contextmanager, nullcontext
+from typing import Any, Dict, List, Tuple, Union
+
 import numpy as np
 import torch
 import torch.nn.functional as F
-from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_beamsearch,\
-    t5_random_sample, gpt_random_sample, \
-    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample, cpm_beamsearch
-from typing import List, Union, Dict, Tuple, Any
-from flagai.model.predictor.gpt import gpt_random_sample_use_cache
-from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
-import os
-from PIL import Image
-from tqdm import trange, tqdm
-import time
-from contextlib import contextmanager, nullcontext
 from einops import rearrange
+from PIL import Image
+from tqdm import tqdm, trange
+
+from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
+from flagai.model.predictor.gpt import gpt_random_sample_use_cache
+from flagai.model.predictor.utils import (bert_beamsearch, bert_random_sample,
+                                          cpm_beamsearch, decode_labels,
+                                          glm_beamsearch, glm_random_sample,
+                                          gpt_beamsearch, gpt_random_sample,
+                                          t5_beamsearch, t5_random_sample,
+                                          viterbi_decode)
+
 
 class Predictor:
 
@@ -336,9 +342,11 @@ class Predictor:
                                 scale: float = 7.5,
                                 from_file: str = None,
                                 seed: int = 34234):
-        from torchvision.utils import make_grid
         from pytorch_lightning import seed_everything
-        from flagai.model.predictor.utils import chunk, check_safety, get_safety_checker
+        from torchvision.utils import make_grid
+
+        from flagai.model.predictor.utils import (check_safety, chunk,
+                                                  get_safety_checker)
         safety_checker, safety_feature_extractor = get_safety_checker()
         """
         Args:

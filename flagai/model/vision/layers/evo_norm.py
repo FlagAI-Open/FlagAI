@@ -26,7 +26,7 @@ Hacked together by / Copyright 2020 Ross Wightman
 from typing import Sequence, Union
 
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 
 from .create_act import create_act_layer

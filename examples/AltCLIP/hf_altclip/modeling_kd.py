@@ -1,14 +1,16 @@
-from transformers import PreTrainedModel,CLIPTextModel,CLIPVisionModel
-from transformers.models.clip.modeling_clip import contrastive_loss
-import datasets
-import torch 
-from typing import Optional,List
-import torch.nn as nn
+from typing import List, Optional
 
+import datasets
+import torch
 import torch.distributed as dist
-from .modeling_xlmr import RobertaSeriesModelWithTransformation
+from torch import nn
+from transformers import CLIPTextModel, CLIPVisionModel, PreTrainedModel
+from transformers.models.clip.modeling_clip import contrastive_loss
+
 from .configuration_altclip import RobertaSeriesConfig
-    
+from .modeling_xlmr import RobertaSeriesModelWithTransformation
+
+
 def clip_loss(similarity: torch.Tensor) -> torch.Tensor:
     student_loss = contrastive_loss(similarity)
     return student_loss
@@ -47,27 +49,27 @@ class KDmodel(PreTrainedModel):
         # no Dropout
         if config.loss_fn != 'cl':
             student_config.hidden_dropout_prob = 0.
-            student_config.attention_probs_dropout_prob=0. 
+            student_config.attention_probs_dropout_prob=0.
 
         self.student = RobertaSeriesModelWithTransformation.from_pretrained(config.student_model,config=student_config)
         self.student_config = self.student.config
         self.teacher_config = self.teacher.config
         self.loss_fn =config.loss_fn
         self.kd_type =config.kd_type
-        
+
         self.logit_scale_init_value = 1.5
         # up to rob space
         if self.loss_fn == 'cl':
             self.logit_scale = nn.Parameter(torch.ones([]) * self.logit_scale_init_value)
-            
-            
+
+
         if 'prekd' in self.kd_type:
             self.up_sampler = nn.Linear(self.teacher.config.hidden_size,student_config.hidden_size)
             self._init_weights(self.up_sampler)
-        
+
         # freeze teacher and init weights
         self.freeze()
-        
+
     def _init_weights(self, module):
         """Initialize the weights"""
         if isinstance(module, nn.Linear):
@@ -76,7 +78,7 @@ class KDmodel(PreTrainedModel):
             module.weight.data.normal_(mean=0.0, std=self.student_config.initializer_range)
             if module.bias is not None:
                 module.bias.data.zero_()
-        
+
     def freeze(self):
         for _,m in self.teacher.named_parameters():
             m.requires_grad_(False)
@@ -107,7 +109,7 @@ class KDmodel(PreTrainedModel):
         mlm_position_ids: Optional[torch.Tensor] = None,
         mlm_labels: Optional[torch.Tensor] = None,
     ) :
-        # last_hidden_state 
+        # last_hidden_state
         # pooler_output ## EOS's embedding
         # hidden_states ## layer embedding
         # attentions
@@ -158,7 +160,7 @@ class KDmodel(PreTrainedModel):
         # learn pooler
         student_embeds,teacher_embeds = student_outputs['pooler_output'],teacher_outputs.pooler_output
 
-        # loss 
+        # loss
         if self.loss_fn=='cl':
             # normalized features
             teacher_embeds = teacher_embeds / teacher_embeds.norm(p=2, dim=-1, keepdim=True)
@@ -173,16 +175,17 @@ class KDmodel(PreTrainedModel):
             loss_fn = torch.nn.MSELoss()
             mse_loss = loss_fn(student_embeds,teacher_embeds)
             loss += mse_loss
-            if mlm_loss is not None: loss += mlm_loss
-        elif self.loss_fn=='cosine':     
+            if mlm_loss is not None:
+                loss += mlm_loss
+        elif self.loss_fn=='cosine':
             from functools import partial
             loss_fn = torch.nn.CosineEmbeddingLoss()
-            # partial for reduce redundant parameter 
+            # partial for reduce redundant parameter
             loss_fn = partial(loss_fn,target=torch.tensor([1.],device='cuda' if torch.cuda.is_available() else 'cpu'))
             teacher_embeds = teacher_embeds / teacher_embeds.norm(p=2, dim=-1, keepdim=True)
             student_embeds = student_embeds / student_embeds.norm(p=2, dim=-1, keepdim=True)
             loss = loss_fn(student_embeds,teacher_embeds)
-        
+
         return {
             'loss':loss,
             'student_pooler_output':student_embeds,

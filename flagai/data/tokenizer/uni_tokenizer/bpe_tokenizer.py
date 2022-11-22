@@ -19,20 +19,21 @@
 # from collections import namedtuple
 # import itertools
 
-import logging
-import regex as re
-import json
-from typing import Union, List
-import torch
 import html
+import json
+import logging
 import os
-import ftfy
 from functools import lru_cache
+from typing import List, Union
+
+import ftfy
 import regex as re
+import torch
 
 logger = logging.getLogger(__name__)
 # from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode, get_pairs
 import sys
+
 try:
     from functools import lru_cache
 except ImportError:
@@ -42,7 +43,7 @@ except ImportError:
         return lambda func: func
 
 
-class BPETokenizer(object):
+class BPETokenizer():
 
     def __init__(self,
                  vocab_file,
@@ -115,7 +116,7 @@ class BPETokenizer(object):
                     j = word.index(first, i)
                     new_word.extend(word[i:j])
                     i = j
-                except:
+                except Exception:
                     new_word.extend(word[i:])
                     break
 
@@ -296,7 +297,7 @@ class MMBPETokenizer(BPETokenizer):
                     j = word.index(first, i)
                     new_word.extend(word[i:j])
                     i = j
-                except:
+                except Exception:
                     new_word.extend(word[i:])
                     break
 

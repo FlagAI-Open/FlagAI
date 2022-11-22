@@ -2,10 +2,12 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
+
 import torch
 from torch.utils.data import Dataset
-from flagai.trainer import Trainer
+
 from flagai.auto_model.auto_loader import AutoLoader
+from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -58,7 +60,7 @@ class T5Seq2seqDataset(Dataset):
                  tokenizer,
                  max_src_length=300,
                  max_tgt_length=200):
-        super(T5Seq2seqDataset, self).__init__()
+        super().__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer

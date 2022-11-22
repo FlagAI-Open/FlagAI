@@ -9,16 +9,20 @@
 # Written by Ze Liu
 # --------------------------------------------------------
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.utils.checkpoint as checkpoint
-from timm.models.layers import DropPath, to_2tuple, trunc_normal_
-import numpy as np
-from flagai.model.base_model import BaseModel
 import os
+
+import numpy as np
+import torch
+from torch import nn
+import torch.nn.functional as F
+from torch.utils import checkpoint
+from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+
+from flagai.model.base_model import BaseModel
+
 if os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
 

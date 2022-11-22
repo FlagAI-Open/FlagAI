@@ -1,19 +1,17 @@
-import torch
-from flagai.model.blocks.cpm_block import CPM3bmtBlock
-from flagai.model.layers.layer_norm_bmt import CPM3bmtLayerNorm
-from flagai.model.layers.embeddings_bmt import CPM3bmtEmbedding
-from flagai.model.layers.embeddings_bmt import CPM3bmtSegmentPositionEmbedding
-from flagai.model.layers.linear_bmt import CPM3bmtLinear
-
-from flagai.model.base_model import BaseModel
-
-
+import copy
 import json
 import os
-import copy
 from typing import Any, Dict, Union
 
 import bmtrain as bmt
+import torch
+
+from flagai.model.base_model import BaseModel
+from flagai.model.blocks.cpm_block import CPM3bmtBlock
+from flagai.model.layers.embeddings_bmt import (
+    CPM3bmtEmbedding, CPM3bmtSegmentPositionEmbedding)
+from flagai.model.layers.layer_norm_bmt import CPM3bmtLayerNorm
+from flagai.model.layers.linear_bmt import CPM3bmtLinear
 
 
 class CPM3bmtStack(torch.nn.Module):
@@ -46,7 +44,7 @@ class CPM3bmtStack(torch.nn.Module):
         ):
 
         super().__init__()
-        
+
         self.num_layers = config.num_layers
 
         self.layers = bmt.TransformerBlockList([
@@ -57,8 +55,8 @@ class CPM3bmtStack(torch.nn.Module):
         ])
 
         self.output_layernorm = CPM3bmtLayerNorm(
-                    dim_norm = config.dim_model, 
-                    bias = config.norm_bias, 
+                    dim_norm = config.dim_model,
+                    bias = config.norm_bias,
                     dtype = config.dtype,
                     eps = config.norm_eps,
                     init_var = config.norm_init_var)
@@ -69,12 +67,12 @@ class CPM3bmtStack(torch.nn.Module):
                       ):
         """
         Args:
-            hidden-states (:obj:`torch.Tensor` of shape ``(batch, seq_enc, dim_model)``): Input of encoder, might be the embedding of a batch of sequences. 
-            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_enc, seq_enc)``): Avoid invalid areas to participate in the calculation 
-            position_bias(:obj:`torch.Tensor` of shape ``(num_heads, seq_enc, seq_enc)``) Provides position information to attention mechanism.  
+            hidden-states (:obj:`torch.Tensor` of shape ``(batch, seq_enc, dim_model)``): Input of encoder, might be the embedding of a batch of sequences.
+            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_enc, seq_enc)``): Avoid invalid areas to participate in the calculation
+            position_bias(:obj:`torch.Tensor` of shape ``(num_heads, seq_enc, seq_enc)``) Provides position information to attention mechanism.
 
         Return:
-            :obj:`torch.Tensor` of shape ``(batch, seq_enc, dim_model)``: The encoder output. 
+            :obj:`torch.Tensor` of shape ``(batch, seq_enc, dim_model)``: The encoder output.
 
         """
         # (batch, seq_enc, dim_model)
@@ -88,46 +86,46 @@ class CPM3(BaseModel):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
         if type(config) is dict:
-                config_cpm3 = CPM3Config(
-                num_layers = config['num_layers'],
-                dim_model = config['dim_model'], 
-                dim_ff = config['dim_ff'],
-                num_heads = config['num_heads'],
-                dim_head = config['dim_head'],
-                int8 = config['int8'],
-                norm_eps = config['norm_eps'], 
-                norm_init_var = config['norm_init_var'],
-                norm_bias = config['norm_bias'],
-                att_init_mean = config['att_init_mean'], 
-                att_init_std = config['att_init_std'],
-                att_bias = config['att_bias'],
-                att_mask_value = float(config['att_mask_value']),
-                pos_bias_type = config['pos_bias_type'],
-                ffn_init_mean = config['ffn_init_mean'], 
-                ffn_init_std = config['ffn_init_std'],
-                ffn_bias = config['ffn_bias'],
-                ffn_activate_fn = config['ffn_activate_fn'],
-                length_scale = config['length_scale'],
-                attn_scale = config['attn_scale'],
-                dropout_p = config['dropout_p'],
-                prompt_types = config['prompt_types'],
-                prompt_length = config['prompt_length'], 
-                emb_init_mean = config['emb_init_mean'],
-                proj_init_std = config['proj_init_std'],
-                emb_init_std = config['emb_init_std'],
-                segment_types = config['segment_types'],
-                position_bias_num_buckets = config['position_bias_num_buckets'],
-                position_bias_max_distance = config['position_bias_max_distance'], 
-                max_exact_rate = config['max_exact_rate'],
-                max_distance_rate = config['max_distance_rate'],
-                absolute_inner_segment = config['absolute_inner_segment'],
-                tied = config['tied'],
-            )
+            config_cpm3 = CPM3Config(
+            num_layers = config['num_layers'],
+            dim_model = config['dim_model'],
+            dim_ff = config['dim_ff'],
+            num_heads = config['num_heads'],
+            dim_head = config['dim_head'],
+            int8 = config['int8'],
+            norm_eps = config['norm_eps'],
+            norm_init_var = config['norm_init_var'],
+            norm_bias = config['norm_bias'],
+            att_init_mean = config['att_init_mean'],
+            att_init_std = config['att_init_std'],
+            att_bias = config['att_bias'],
+            att_mask_value = float(config['att_mask_value']),
+            pos_bias_type = config['pos_bias_type'],
+            ffn_init_mean = config['ffn_init_mean'],
+            ffn_init_std = config['ffn_init_std'],
+            ffn_bias = config['ffn_bias'],
+            ffn_activate_fn = config['ffn_activate_fn'],
+            length_scale = config['length_scale'],
+            attn_scale = config['attn_scale'],
+            dropout_p = config['dropout_p'],
+            prompt_types = config['prompt_types'],
+            prompt_length = config['prompt_length'],
+            emb_init_mean = config['emb_init_mean'],
+            proj_init_std = config['proj_init_std'],
+            emb_init_std = config['emb_init_std'],
+            segment_types = config['segment_types'],
+            position_bias_num_buckets = config['position_bias_num_buckets'],
+            position_bias_max_distance = config['position_bias_max_distance'],
+            max_exact_rate = config['max_exact_rate'],
+            max_distance_rate = config['max_distance_rate'],
+            absolute_inner_segment = config['absolute_inner_segment'],
+            tied = config['tied'],
+        )
         self.config = config_cpm3
-        
+
         self.encoder = CPM3bmtStack(self.config)
         self.prompt_embedding = CPM3bmtEmbedding(
-            vocab_size = self.config.prompt_types * self.config.prompt_length, 
+            vocab_size = self.config.prompt_types * self.config.prompt_length,
             embedding_size = self.config.dim_model,
             length_scale = self.config.length_scale,
             dtype = self.config.dtype,
@@ -136,7 +134,7 @@ class CPM3(BaseModel):
             init_std = self.config.emb_init_std,)
 
         self.input_embedding = CPM3bmtEmbedding(
-            vocab_size = self.config.vocab_size, 
+            vocab_size = self.config.vocab_size,
             embedding_size = self.config.dim_model,
             length_scale = self.config.length_scale,
             dtype = self.config.dtype,
@@ -146,15 +144,15 @@ class CPM3(BaseModel):
 
         self.position_bias = CPM3bmtSegmentPositionEmbedding(
             num_segments = self.config.segment_types,
-            num_heads = self.config.num_heads, 
-            num_buckets = self.config.position_bias_num_buckets, 
-            max_distance = self.config.position_bias_max_distance, 
+            num_heads = self.config.num_heads,
+            num_buckets = self.config.position_bias_num_buckets,
+            max_distance = self.config.position_bias_max_distance,
             max_exact_rate = self.config.max_exact_rate,
             max_distance_rate = self.config.max_distance_rate,
             absolute_inner_segment = self.config.absolute_inner_segment,
             bidirectional = True,
             dtype = self.config.dtype,)
-        
+
         self.prompt_length = self.config.prompt_length
         self.tied = self.config.tied
         self.cls_head = self.config.cls_head
@@ -199,7 +197,7 @@ class CPM3(BaseModel):
 
         prompt_states = self.prompt_embedding(input_prompt)
         hidden_states = self.input_embedding(input_ids)
-        
+
         hidden_states = torch.cat([prompt_states, hidden_states], 1)
 
         with torch.no_grad():
@@ -222,8 +220,7 @@ class CPM3(BaseModel):
 
         return logits, hidden_states
 
-        
-    
+
     def load_weights(self, checkpoint_path):
         self.load_state_dict(
             torch.load(checkpoint_path),
@@ -231,7 +228,7 @@ class CPM3(BaseModel):
         )
 
 
-class Config(object):
+class Config():
 
     def __init__(self):
         super().__init__()
@@ -285,11 +282,11 @@ class CPM3Config(Config):
                         norm_init_var = 1.0,
                         norm_bias = False,
                         norm_eps = 1e-6,
-                        att_init_mean = 0.0, 
+                        att_init_mean = 0.0,
                         att_init_std = 1.0,
                         att_bias = False,
                         att_mask_value = float("-inf"),
-                        ffn_init_mean = 0.0, 
+                        ffn_init_mean = 0.0,
                         ffn_init_std = 1.0,
                         ffn_bias = False,
                         ffn_activate_fn = "gated_gelu",
@@ -298,11 +295,11 @@ class CPM3Config(Config):
                         proj_bias = False,
                         length_scale = True,
                         attn_scale = True,
-                        half = True, 
+                        half = True,
                         int8 = False,
                         tied = True,
                         prompt_types = 32,
-                        prompt_length = 64, 
+                        prompt_length = 64,
                         segment_types = 34,
                         max_exact_rate = 0.25,
                         max_distance_rate = 1.0,
@@ -338,7 +335,7 @@ class CPM3Config(Config):
         self.max_exact_rate = max_exact_rate
         self.int8 = int8
         self.tied = tied
-        if half: 
+        if half:
             self.dtype = torch.half
         else:
             self.dtype = torch.float

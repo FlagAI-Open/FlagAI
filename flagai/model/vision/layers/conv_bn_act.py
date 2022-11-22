@@ -2,7 +2,7 @@
 
 Hacked together by / Copyright 2020 Ross Wightman
 """
-from torch import nn as nn
+from torch import nn
 
 from .create_conv2d import create_conv2d
 from .create_norm_act import get_norm_act_layer
@@ -12,7 +12,7 @@ class ConvNormAct(nn.Module):
     def __init__(
             self, in_channels, out_channels, kernel_size=1, stride=1, padding='', dilation=1, groups=1,
             bias=False, apply_act=True, norm_layer=nn.BatchNorm2d, act_layer=nn.ReLU, drop_layer=None):
-        super(ConvNormAct, self).__init__()
+        super().__init__()
         self.conv = create_conv2d(
             in_channels, out_channels, kernel_size, stride=stride,
             padding=padding, dilation=dilation, groups=groups, bias=bias)
@@ -44,7 +44,7 @@ class ConvNormActAa(nn.Module):
     def __init__(
             self, in_channels, out_channels, kernel_size=1, stride=1, padding='', dilation=1, groups=1,
             bias=False, apply_act=True, norm_layer=nn.BatchNorm2d, act_layer=nn.ReLU, aa_layer=None, drop_layer=None):
-        super(ConvNormActAa, self).__init__()
+        super().__init__()
         use_aa = aa_layer is not None
 
         self.conv = create_conv2d(

@@ -1,11 +1,14 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.model.gpt2_model import GPT2Model
-from flagai.data.tokenizer.bert.bert_tokenizer import BertTokenizer
-import torch
-import unittest
 import os
+import unittest
+
+import torch
+
+from flagai.data.tokenizer.bert.bert_tokenizer import BertTokenizer
+from flagai.model.gpt2_model import GPT2Model
+
 
 class GPT2TestCase(unittest.TestCase):
     def setUp(self) -> None:

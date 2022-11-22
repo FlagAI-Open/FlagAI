@@ -16,10 +16,11 @@
 # See the License for the specific language governing permissions and
 
 import itertools
-from .glm_10b_en_tokenizer import GLM10bENTokenizer
+
 import regex as re
 
-from ..tokenizer import GLMTokenizer, CommandToken, TypeToken
+from ..tokenizer import CommandToken, GLMTokenizer, TypeToken
+from .glm_10b_en_tokenizer import GLM10bENTokenizer
 
 
 class GLM10bENBPETokenizer(GLMTokenizer):

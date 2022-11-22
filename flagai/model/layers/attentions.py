@@ -16,34 +16,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """attentions."""
-import os
 import math
+import os
+
 import torch
+
 try:
     import deepspeed
-except:
+except  Exception:
     pass
-from torch import nn
-import torch.nn.init as init
 import torch.nn.functional as F
+from torch.nn import init
+from torch import nn
 from torch.nn import Linear
-from flagai.model.layers.layer_norm import BertLayerNorm
-from flagai.model.layers.layer_norm import T5LayerNorm
-from flagai.model.layers.feedforward import ColumnParallelLinear, RowParallelLinear
-from flagai.model.utils import normal_init_method
-from flagai.model.utils import divide
-from flagai.model.utils import ensure_divisibility
-from flagai.model.utils import split_tensor_along_last_dim
-from flagai.model.layers.layer_norm import CPM3LayerNorm
+
+from flagai.model.layers.feedforward import (ColumnParallelLinear,
+                                             RowParallelLinear)
+from flagai.model.layers.layer_norm import (BertLayerNorm, CPM3LayerNorm,
+                                            T5LayerNorm)
+from flagai.model.utils import (divide, ensure_divisibility,
+                                normal_init_method,
+                                split_tensor_along_last_dim)
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import get_model_parallel_world_size
-    from flagai.mpu import gather_from_model_parallel_region
-    from flagai.mpu import get_cuda_rng_tracker
+    from flagai.mpu import (gather_from_model_parallel_region,
+                            get_cuda_rng_tracker,
+                            get_model_parallel_world_size)
 elif os.getenv('ENV_TYPE') == 'bmtrain':
     pass
 
 from flagai.model.layers.linear import CPM3Linear
+
 
 class GPT2Attention(nn.Module):
 
@@ -515,7 +518,7 @@ class ParallelCrossAttention(torch.nn.Module):
                  output_dropout_prob,
                  init_method,
                  output_layer_init_method=None):
-        super(ParallelCrossAttention, self).__init__()
+        super().__init__()
         # Set output layer initialization if not provided.
         if output_layer_init_method is None:
             output_layer_init_method = init_method
@@ -657,7 +660,7 @@ class ParallelSelfAttention(torch.nn.Module):
                  relative_encoding=False,
                  performer=False,
                  attention_scale=1.0):
-        super(ParallelSelfAttention, self).__init__()
+        super().__init__()
         self.performer = performer
         # Set output layer initialization if not provided.
         if output_layer_init_method is None:
@@ -879,7 +882,7 @@ class BertParallelSelfAttention(torch.nn.Module):
                  dropout_prob,
                  output_parallel=False,
                  init_method=init.xavier_normal_):
-        super(BertParallelSelfAttention, self).__init__()
+        super().__init__()
         # Input configuration.
         self.hidden_size = hidden_size
         self.num_attention_heads = num_attention_heads
@@ -978,7 +981,7 @@ class BertSelfOutput(torch.nn.Module):
 
     def __init__(self, hidden_size, initializer_range, layernorm_epsilon,
                  hidden_dropout_prob):
-        super(BertSelfOutput, self).__init__()
+        super().__init__()
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             init_method = normal_init_method(mean=0.0, std=initializer_range)
             self.dense = RowParallelLinear(input_size=hidden_size,
@@ -1005,7 +1008,7 @@ class BertAttention(torch.nn.Module):
     def __init__(self, hidden_size, num_attention_heads,
                  attention_probs_dropout_prob, initializer_range,
                  layernorm_epsilon, hidden_dropout_prob):
-        super(BertAttention, self).__init__()
+        super().__init__()
         self.self = BertParallelSelfAttention(
             hidden_size=hidden_size,
             num_attention_heads=num_attention_heads,
@@ -1023,7 +1026,7 @@ class BertAttention(torch.nn.Module):
 
 
 class CPM3Attention(torch.nn.Module):
-    r"""attention module consisting procedure of Q, K, V combination and its output projection. 
+    r"""attention module consisting procedure of Q, K, V combination and its output projection.
     For more detail, see `Attention is All you Need <https://arxiv.org/abs/1706.03762>`_.
 
     Args:
@@ -1041,13 +1044,13 @@ class CPM3Attention(torch.nn.Module):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, dim_in : int, 
+    def __init__(self, dim_in : int,
                        dim_head : int,
-                       num_heads : int, 
+                       num_heads : int,
                        dim_out : int = None,
                        dtype = torch.half,
-                       int8 = False, 
-                       init_mean = 0.0, 
+                       int8 = False,
+                       init_mean = 0.0,
                        init_std = 0.02,
                        bias = False,
                        mask_value : float = float("-inf"),
@@ -1101,7 +1104,7 @@ class CPM3Attention(torch.nn.Module):
             int8 = int8,
             bias = bias,
         )
-    
+
         self.dim_in = dim_in
         self.num_heads = num_heads
         self.dim_head = dim_head
@@ -1119,20 +1122,20 @@ class CPM3Attention(torch.nn.Module):
         self.pos_bias_type = pos_bias_type
         self.softmax = torch.nn.Softmax(dim=-1)
 
-    def forward(self, 
+    def forward(self,
             query : torch.Tensor,
             key_value : torch.Tensor,
             mask : torch.Tensor,
             position_bias = None,
             past_key_value = None,
         ):
-        """ This model inherits from bmt.DistributedModule. 
+        """ This model inherits from bmt.DistributedModule.
 
         Args:
             query (:obj:`torch.Tensor` of shape ``(batch, len_q, dim_model)``): Indices of input sequence tokens. It will be embedded by model's internal embedding lookup matrix.
-            key_value (:obj:`torch.Tensor` of shape ``(batch, len_k, dim_model)``): Length of input sequence before padding.  
+            key_value (:obj:`torch.Tensor` of shape ``(batch, len_k, dim_model)``): Length of input sequence before padding.
             mask (:obj:`torch.Tensor` of shape ``(batch, len_q, len_k)``): Used to avoid performing attention on padding token indices.
-            position_bias(:obj:`torch.Tensor` of shape ``(num_heads, len_q, len_k)`` or ``(1, num_heads, len_k, len_q)``): Provide positional information about tensor `key_value` and `query`. 
+            position_bias(:obj:`torch.Tensor` of shape ``(num_heads, len_q, len_k)`` or ``(1, num_heads, len_k, len_q)``): Provide positional information about tensor `key_value` and `query`.
 
         Return:
             out (:obj:`torch.Tensor` of shape ``(batch, len_q, dim_model)``): The attention output.
@@ -1165,19 +1168,19 @@ class CPM3Attention(torch.nn.Module):
         if self.pos_bias_type == "rotary":
             h_q, h_k = position_bias(h_q, h_k)
 
-        # (batch * num_heads, len_q, dim_head) @ (batch * num_heads, len_k, dim_head)T 
+        # (batch * num_heads, len_q, dim_head) @ (batch * num_heads, len_k, dim_head)T
         # => (batch * num_heads, len_q, len_k)
-        
+
         score = torch.matmul( h_q, h_k.transpose(1, 2))
         if self.attn_scale:
             score = score / math.sqrt(self.dim_head)
 
-        # (batch, num_heads, len_q, len_k) 
+        # (batch, num_heads, len_q, len_k)
         score = score.view(batch_size, self.num_heads, len_q, len_k)
 
         if self.pos_bias_type == "relative":
             if position_bias is not None:
-                # (batch, num_heads, len_q, len_k) + (1, num_heads, len_q, len_k) 
+                # (batch, num_heads, len_q, len_k) + (1, num_heads, len_q, len_k)
                 score = score + position_bias
         score = torch.masked_fill(
             score,
@@ -1231,16 +1234,16 @@ class CPM3SelfAttention(torch.nn.Module):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, 
-                 dim_model : int, 
-                 num_heads : int, 
-                 dim_head : int, 
+    def __init__(self,
+                 dim_model : int,
+                 num_heads : int,
+                 dim_head : int,
                  dtype = torch.half,
-                 int8 = False, 
+                 int8 = False,
                  norm_init_var : float = 1.0,
                  norm_bias : bool = False,
-                 norm_eps : float = 1e-5, 
-                 att_init_mean : float = 0.0, 
+                 norm_eps : float = 1e-5,
+                 att_init_mean : float = 0.0,
                  att_init_std : float = 0.02,
                  att_bias : bool = False,
                  att_mask_value : float = float("-inf"),
@@ -1254,19 +1257,19 @@ class CPM3SelfAttention(torch.nn.Module):
         super().__init__()
 
         self.layernorm_before_attention = CPM3LayerNorm(
-            dim_norm = dim_model, 
-            bias = norm_bias, 
+            dim_norm = dim_model,
+            bias = norm_bias,
             dtype = dtype,
-            eps = norm_eps, 
+            eps = norm_eps,
             init_var = norm_init_var,
         )
         self.self_attention = CPM3Attention(
-            dim_in = dim_model, 
-            num_heads = num_heads, 
+            dim_in = dim_model,
+            num_heads = num_heads,
             dim_head = dim_head,
-            dim_out = dim_model, 
+            dim_out = dim_model,
             dtype = dtype,
-            int8 = int8, 
+            int8 = int8,
             init_mean = att_init_mean,
             init_std = att_init_std,
             bias = att_bias,
@@ -1293,13 +1296,13 @@ class CPM3SelfAttention(torch.nn.Module):
         """
         Args:
             hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Input of self-attention block. It can be the embedding of a batch of sequences.
-            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation.  
+            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_self)``): Avoid invalid areas to participate in the calculation.
             position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_self)``): Provide positional information to self-attention block.
 
         Return:
             :obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``: The output of attention block.
 
-        """    
+        """
         x = self.layernorm_before_attention(hidden_states)
         if self.post_layer_norm:
             hidden_states = x
@@ -1332,16 +1335,16 @@ class CPM3CrossAttention(torch.nn.Module):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, 
-                 dim_model : int, 
-                 num_heads : int, 
-                 dim_head : int, 
+    def __init__(self,
+                 dim_model : int,
+                 num_heads : int,
+                 dim_head : int,
                  dtype = torch.half,
-                 int8 = False, 
+                 int8 = False,
                  norm_init_var : float = 1.0,
                  norm_bias : bool = False,
-                 norm_eps : float = 1e-5, 
-                 att_init_mean : float = 0.0, 
+                 norm_eps : float = 1e-5,
+                 att_init_mean : float = 0.0,
                  att_init_std : float = 0.02,
                  att_bias : bool = False,
                  att_mask_value : float = float("-inf"),
@@ -1355,20 +1358,20 @@ class CPM3CrossAttention(torch.nn.Module):
         super().__init__()
 
         self.layernorm_before_attention = CPM3LayerNorm(
-            dim_norm = dim_model, 
-            bias = norm_bias, 
+            dim_norm = dim_model,
+            bias = norm_bias,
             dtype = dtype,
-            eps = norm_eps, 
+            eps = norm_eps,
             init_var = norm_init_var,
         )
 
         self.self_attention = CPM3Attention(
-            dim_in = dim_model, 
-            num_heads = num_heads, 
+            dim_in = dim_model,
+            num_heads = num_heads,
             dim_head = dim_head,
-            dim_out = dim_model, 
+            dim_out = dim_model,
             dtype = dtype,
-            int8 = int8, 
+            int8 = int8,
             init_mean = att_init_mean,
             init_std = att_init_std,
             bias = att_bias,
@@ -1395,14 +1398,14 @@ class CPM3CrossAttention(torch.nn.Module):
         """
         Args:
             hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Input of cross-attention block. It can be seen as query in the coming self-attention operation.
-            key_value_states(:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Used as key_value in coming self_attention operation. 
-            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation.  
+            key_value_states(:obj:`torch.Tensor` of shape ``(batch, seq_cross, dim_model)``): Used as key_value in coming self_attention operation.
+            attention_mask (:obj:`torch.Tensor` of shape ``(batch, seq_self, seq_cross)``): Avoid invalid areas to participate in the calculation.
             position_bias (:obj:`torch.Tensor` of shape ``(num_heads, seq_self, seq_cross)``): Provide positional information to self-attention block.
 
         Return:
             :obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``: The output of cross-attention block.
 
-        """ 
+        """
         x = self.layernorm_before_attention(hidden_states)
         if self.post_layer_norm:
             hidden_states = x

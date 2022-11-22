@@ -7,13 +7,13 @@ https://github.com/openai/CLIP/blob/3b473b0e682c091a9e53623eebc1ca1657385717/cli
 
 Hacked together by / Copyright 2021 Ross Wightman
 """
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .helpers import to_2tuple
-from .pos_embed import apply_rot_embed, RotaryEmbedding
+from .pos_embed import RotaryEmbedding, apply_rot_embed
 from .weight_init import trunc_normal_
 
 

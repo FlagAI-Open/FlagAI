@@ -1,10 +1,15 @@
 import os
-from flagai.model.file_utils import _get_model_files, _get_model_id, _get_vocab_path
-from flagai.data.tokenizer.uni_tokenizer.properties import VOCAB_FILE, MERGES_FILE, SP_MODEL_FILE, VOCAB_JSON_FILE
 import warnings
 
+from flagai.data.tokenizer.uni_tokenizer.properties import (MERGES_FILE,
+                                                            SP_MODEL_FILE,
+                                                            VOCAB_FILE,
+                                                            VOCAB_JSON_FILE)
+from flagai.model.file_utils import (_get_model_files, _get_model_id,
+                                     _get_vocab_path)
 
-class BaseTokenizer(object):
+
+class BaseTokenizer():
 
     @classmethod
     def from_pretrained(cls,

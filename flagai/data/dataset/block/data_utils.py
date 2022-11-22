@@ -19,20 +19,23 @@
 import copy
 import json
 import pickle
-import re
-from typing import Dict, List, Optional
-import numpy as np
 import random
-import torch
+import re
 import sys
+from typing import Dict, List, Optional
+
+import numpy as np
+import torch
 
 sys.path.append("../../../")
-from flagai import mpu
-from flagai.data.dataset.block.lazy_loader import LazyWriter, LazyLoader, exists_lazy
-from flagai.data.dataset.block.corpora import WuDaoCorpus, PromptDataset
-
 from operator import itemgetter
+
 from torch.utils.data import Dataset
+
+from flagai import mpu
+from flagai.data.dataset.block.corpora import PromptDataset, WuDaoCorpus
+from flagai.data.dataset.block.lazy_loader import (LazyLoader, LazyWriter,
+                                                   exists_lazy)
 
 
 class SplitDataset(Dataset):

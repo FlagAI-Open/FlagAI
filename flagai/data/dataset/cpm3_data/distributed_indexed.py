@@ -1,7 +1,6 @@
 import os
-import struct
 import shutil
-
+import struct
 from itertools import accumulate
 
 import numpy as np
@@ -35,7 +34,7 @@ def data_file_path(prefix_path):
 
 
 class DistributedMMapIndexedDataset(torch.utils.data.Dataset):
-    class Index(object):
+    class Index():
         _HDR_MAGIC = b'MMIDIDX\x00\x00'
         def __init__(self, path):
             with open(path, 'rb') as stream:
@@ -90,7 +89,7 @@ class DistributedMMapIndexedDataset(torch.utils.data.Dataset):
             return self._len
 
     def __init__(self, path, name, rank_number, rank_total, cache = None):
-        
+
         super().__init__()
 
         self._path = path
@@ -145,7 +144,7 @@ class DistributedMMapIndexedDataset(torch.utils.data.Dataset):
     def _next_file(self):
         self._state += 1
         self._do_init(self._path, self._name, self._cache, self._state)
-    
+
     def __relative_idx(self, idx):
         res = self.start + idx - self.history[self._state - 1]
         return res
@@ -167,7 +166,7 @@ class DistributedMMapIndexedDataset(torch.utils.data.Dataset):
             start, stop, step = idx.indices(2147483647)
             assert step == 1 or step is None, "Slices into indexed_dataset must be contiguous"
             if stop >= self.history[self._state]:
-                res_1 = self.__slice_item(start, self.history[self._state]) 
+                res_1 = self.__slice_item(start, self.history[self._state])
                 self._next_file()
                 res_2 = self.__slice_item(self.history[self._state - 1], stop)
                 return res_1 + res_2
@@ -180,7 +179,7 @@ class DistributedMMapIndexedDataset(torch.utils.data.Dataset):
     @property
     def sizes(self):
         return self._index.sizes
-        
+
     def exists(path):
         return (
             os.path.exists(index_file_path(path)) and os.path.exists(data_file_path(path))

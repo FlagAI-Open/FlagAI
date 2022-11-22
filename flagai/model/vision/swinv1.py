@@ -1,22 +1,28 @@
 """
 # Copyright © 2022 BAAI. All rights reserved.
 """
-import torch
-import torch.nn as nn
-import torch.utils.checkpoint as checkpoint
-from flagai.model.vision.layers import DropPath, to_2tuple, trunc_normal_
 import os
+
+import torch
+from torch import nn
+from torch.utils import checkpoint
+
+from flagai.model.vision.layers import DropPath, to_2tuple, trunc_normal_
+
 if os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
 try:
-    import os, sys
+    import os
+    import sys
     kernel_path = os.path.abspath(os.path.join('..'))
     sys.path.append(kernel_path)
-    from kernels.window_process.window_process import WindowProcess, WindowProcessReverse
+    from kernels.window_process.window_process import (WindowProcess,
+                                                       WindowProcessReverse)
 
-except:
+except Exception:
     WindowProcess = None
     WindowProcessReverse = None
     print("[Warning] Fused window process have not been installed. Please refer to get_started.md for installation. https://github.com/microsoft/Swin-Transformer")
@@ -506,6 +512,8 @@ class PatchEmbed(nn.Module):
         return flops
 
 from flagai.model.base_model import BaseModel
+
+
 class SwinTransformer(BaseModel):
     r""" Swin Transformer
         A PyTorch impl of : `Swin Transformer: Hierarchical Vision Transformer using Shifted Windows`  -

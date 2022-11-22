@@ -1,26 +1,22 @@
-import time
+import distutils.version
+import errno
+import os
 import random
-import torch
+import time
+
 import bmtrain as bmp
+import numpy as np
+import torch
+from arguments import get_args
 from bmtrain import nccl
 from bmtrain.global_var import config
-import numpy as np
-import os
-
-
-from flagai.model.cpm3_train_model import CPM3
-from flagai.data.tokenizer.cpm_3 import CPM3Tokenizer
-from flagai.model.cpm3_train_model import CPM3Config
-
-
-
-from flagai. data.dataset.cpm3_data import DistributedMMapIndexedDataset, MMapIndexedDataset, CPM3_Dataset_Merge
-from arguments import get_args
-import errno
-import distutils.version
 from torch.utils.tensorboard import SummaryWriter
 
-
+from flagai.data.dataset.cpm3_data import (CPM3_Dataset_Merge,
+                                           DistributedMMapIndexedDataset,
+                                           MMapIndexedDataset)
+from flagai.data.tokenizer.cpm_3 import CPM3Tokenizer
+from flagai.model.cpm3_train_model import CPM3, CPM3Config
 
 task_ids = {
         'lm':0,
@@ -47,17 +43,17 @@ def get_model(args):
     return model
 
 def get_optimizer(args, model):
-    optimizer = bmp.optim.AdamOffloadOptimizer(model.parameters(), 
-                                               weight_decay=args.weight_decay, 
+    optimizer = bmp.optim.AdamOffloadOptimizer(model.parameters(),
+                                               weight_decay=args.weight_decay,
                                                scale=args.loss_scale)
     return optimizer
 
 def get_learning_rate_scheduler(args, optimizer):
     if args.lr_decay_iters is None:
         args.lr_decay_iters = args.train_iters * args.epochs
-    lr_scheduler = bmp.lr_scheduler.Noam(optimizer, 
+    lr_scheduler = bmp.lr_scheduler.Noam(optimizer,
                                          start_lr = args.lr,
-                                         warmup_iter = args.warmup_iters, 
+                                         warmup_iter = args.warmup_iters,
                                          end_iter = args.lr_decay_iters,
                                          num_iter = args.start_step)
     return lr_scheduler
@@ -80,7 +76,7 @@ def setup_model_and_optimizer(args):
 def initialize():
     # get arguments
     args = get_args()
-    # init bmp 
+    # init bmp
     bmp.init_distributed(seed = args.seed, loss_scale_factor = 2, loss_scale_steps = 1024)
     # init save folder
     if args.save != None:
@@ -102,7 +98,7 @@ def batch_iter(args, dataset, start_step = 0, batch_size=2, concat=False, shuffl
     if shuffle:
         random.shuffle(idx) # 每个epoch都shuffle一遍数据
 
-    while st < len(dataset): 
+    while st < len(dataset):
         ctx_data, tgt_data, _len, context_data, position_data, segment_data, _ = dataset[idx[st]]
     # while True:
         # ctx_data, tgt_data, _len, context_data, position_data, segment_data = dataset[st]
@@ -237,7 +233,7 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, train_dataset, eva
     for epoch in range(int(args.epochs)):
         for data in batch_iter(args, train_dataset, start_step, args.batch_size, concat=False, shuffle=True):
             model.train()
-            
+
             iteration += 1
 
             st = time.time()
@@ -280,7 +276,7 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, train_dataset, eva
                     grad_norm
                 )
             )
-            
+
             if iteration % args.eval_step == 0:
                 model.eval()
                 with torch.no_grad():
@@ -299,7 +295,7 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, train_dataset, eva
                         targets = data["tgt"].long().cuda()
 
                         logits, _ = model(input_idx, input_length, input_context, input_position, input_segment, input_span)
-                        
+
                         # debug
                         # Note: this is teaching force manner!
                         if idx == 0:
@@ -315,7 +311,7 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, train_dataset, eva
                                 pred = tokenizer.decode(valid_pred_ids)
                                 bmp.print_rank("target: ", target)
                                 bmp.print_rank("pred: ", pred)
-                        
+
                         if not args.is_nlu:
                             metric = loss_func(logits.view(-1, logits.size(-1)), targets.view(-1))
                         else:
@@ -324,10 +320,10 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, train_dataset, eva
                             masked_logits_max = torch.masked_fill(logits_max, targets.eq(-100), 0)
                             masked_targets = torch.masked_fill(targets, targets.eq(-100), 0)
                             metric = (masked_logits_max == masked_targets).all(dim=-1).sum().float() / logits.size(0)
-                        
+
                         total_metric += bmp.sum_loss(metric).item()
                         cnt += 1
-                    
+
                     total_metric /= cnt
                     bmp.print_rank(
                     "| Eval Iter: {:6d} | Metric: {:.4f}".format(
@@ -343,16 +339,16 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, train_dataset, eva
                         best_eval_step = iteration
                     elif args.early_stop_patience !=-1 and (iteration - best_eval_step) // args.eval_step >= args.early_stop_patience:
                         bmp.print_rank("early stop at iteration {}!".format(iteration))
-                        exit(0)
+                        sys.exit(0)
                     if bmp.rank() == 0:
                         writer.add_scalar("Metric/eval", total_metric, iteration)
-            
+
             if iteration % args.inspect_iters == 0:
                 print_inspect(model, "*")
-            
+
             if bmp.rank() == 0:
                 writer.add_scalar("Loss/train", global_loss, iteration)
-            
+
             if args.save != None and iteration % args.save_iters == 0:
                 bmp.save(model, os.path.join(args.save, args.save_name+("-%d.pt" % iteration)))
 
@@ -366,7 +362,7 @@ def main():
     # dataset_main_path = "/sharefs/baai-mrnd/xw/final_cpm3".format(args.dataset)
     dataset_main_path = "/sharefs/baai-mrnd/xw/final_cpm3/"
     if not os.path.exists(dataset_main_path):
-        raise FileNotFoundError( 
+        raise FileNotFoundError(
             errno.ENOENT, os.strerror(errno.ENOENT), dataset_main_path)
 
     # 训练集

@@ -1,12 +1,14 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import json
+import os
+
 import torch
-from flagai.auto_model.auto_loader import AutoLoader
 import zeroshot_classification
-import json 
-import os 
 from torchvision.datasets import CIFAR10
+
+from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 maxlen = 256
@@ -26,8 +28,8 @@ model.eval()
 tokenizer = auto_loader.get_tokenizer()
 transform = auto_loader.get_transform()
 
-dataset = CIFAR10(root=os.path.join(dataset_root, dataset_name), 
-                transform=transform,   
+dataset = CIFAR10(root=os.path.join(dataset_root, dataset_name),
+                transform=transform,
                 download=True)
 batch_size = 128
 num_workers = 4
@@ -69,12 +71,12 @@ def evaluate():
             model,
             dataloader,
             tokenizer,
-            classnames, 
+            classnames,
             zeroshot_templates,
             device=device,
             amp=True,
         )
-       
+
         dump = {
             "dataset": dataset_name,
             "metrics": metrics

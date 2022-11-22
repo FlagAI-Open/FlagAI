@@ -4,8 +4,7 @@
 # layer norm
 
 import torch
-import torch.nn as nn
-
+from torch import nn
 import torch.nn.functional as F
 
 
@@ -20,7 +19,7 @@ def rms_layernorm(hidden : torch.Tensor, weight : torch.Tensor, eps :float):
 class LayerNorm(nn.Module):
 
     def __init__(self, hidden_size, eps=1e-6):
-        super(LayerNorm, self).__init__()
+        super().__init__()
         self.eps = eps
         self.gamma = nn.Parameter(torch.ones(hidden_size))
         self.beta = nn.Parameter(torch.zeros(hidden_size))
@@ -62,7 +61,7 @@ class BertLayerNorm(nn.Module):
     def __init__(self, hidden_size, eps=1e-12):
         """Construct a layernorm module in the TF style (epsilon inside the square root).
         """
-        super(BertLayerNorm, self).__init__()
+        super().__init__()
         self.weight = nn.Parameter(torch.ones(hidden_size))
         self.bias = nn.Parameter(torch.zeros(hidden_size))
         self.variance_epsilon = eps
@@ -87,9 +86,9 @@ class CPM3LayerNorm(torch.nn.Module):
         eps (float, optional): :math:`\text{eps}` term. Defaults to 1e-5.
         init_var (float, optional): weight will be all initialized to init_var. Defaults to 1.0.
     """
-    def __init__(self, dim_norm : int, 
-                       dtype=torch.half, 
-                       bias=True, 
+    def __init__(self, dim_norm : int,
+                       dtype=torch.half,
+                       bias=True,
                        eps : float = 1e-5,
                        init_var = 1.0
                        ):
@@ -102,18 +101,18 @@ class CPM3LayerNorm(torch.nn.Module):
             torch.ones(dim_norm, dtype=dtype) * init_var)
         self.bias = torch.nn.Parameter(
             torch.zeros(dim_norm, dtype=dtype)) if bias else None
-    
+
     def forward(self, x : torch.Tensor):
-        """ 
+        """
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch_size, seq_len, dim_norm)``): Input tensor that need to be normalized.
 
         Return:
-            :obj:`torch.Tensor` of shape ``(batch_size, seq_len, dim_norm)``: The layernorm output. 
+            :obj:`torch.Tensor` of shape ``(batch_size, seq_len, dim_norm)``: The layernorm output.
 
         """
         assert x.size(-1) == self.dim_norm
-        
+
         if self.bias is not None:
             return F.layer_norm(x, (self.dim_norm,), self.weight, self.bias, self.eps)
         else:

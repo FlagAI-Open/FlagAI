@@ -6,7 +6,7 @@ import gzip
 import html
 import os
 from functools import lru_cache
-from typing import Union, List
+from typing import List, Union
 
 import ftfy
 import regex as re
@@ -65,7 +65,7 @@ def whitespace_clean(text):
     return text
 
 
-class ClipTokenizer(object):
+class ClipTokenizer():
     def __init__(self, bpe_path: str = default_bpe(), special_tokens=None):
         self.byte_encoder = bytes_to_unicode()
         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
@@ -112,7 +112,7 @@ class ClipTokenizer(object):
                     j = word.index(first, i)
                     new_word.extend(word[i:j])
                     i = j
-                except:
+                except Exception:
                     new_word.extend(word[i:])
                     break
 

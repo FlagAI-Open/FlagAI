@@ -1,15 +1,17 @@
+import json
+import os
 from collections import OrderedDict
 from typing import Tuple, Union
 
-import os
-import json
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from .modeling_bert import BertModel
-from .configuration_bert import BertConfig
+
 from flagai.model.base_model import BaseModel
+
+from .configuration_bert import BertConfig
+from .modeling_bert import BertModel
 
 
 class Bottleneck(nn.Module):

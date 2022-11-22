@@ -1,14 +1,14 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSeq2Seq
-from flagai.data.tokenizer import Tokenizer
-from flagai.data.dataset import Seq2SeqDataset
-from flagai.data.dataset.superglue.control import DEFAULT_METRICS, CH_TASKS
-from flagai.data.dataset import ConstructSeq2seqStrategy
-from flagai.test_utils import Seq2SeqCollateArguments
 import unittest
+
+from flagai.data.dataset import ConstructSeq2seqStrategy, Seq2SeqDataset
+from flagai.data.dataset.superglue.control import CH_TASKS, DEFAULT_METRICS
+from flagai.data.tokenizer import Tokenizer
+from flagai.model.glm_model import GLMForSeq2Seq
+from flagai.test_utils import Seq2SeqCollateArguments
+from flagai.trainer import Trainer
 
 
 class TrainerTestCase(unittest.TestCase):

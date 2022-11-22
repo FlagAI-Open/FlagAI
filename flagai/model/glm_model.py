@@ -18,27 +18,29 @@
 import os
 
 import torch
-from torch import nn
 import torch.nn.functional as F
-from flagai.logger import log_dist
-from flagai.model.blocks.glm_block import GLMBlock
-from flagai.model.utils import scaled_init_method, divide, unscaled_init_method
-from flagai.model.layers.embeddings import VocabParallelEmbedding
-from flagai.model.base_model import BaseModel
-from flagai.model.layers.embeddings import PositionalEmbedding
-from flagai.model.prompt import PromptSpell
-from flagai.model.utils import normal_init_method
+from torch import nn
 from torch.nn import LayerNorm
+
+from flagai.logger import log_dist
+from flagai.model.base_model import BaseModel
+from flagai.model.blocks.glm_block import GLMBlock
+from flagai.model.layers.embeddings import (PositionalEmbedding,
+                                            VocabParallelEmbedding)
+from flagai.model.prompt import PromptSpell
+from flagai.model.utils import (divide, normal_init_method, scaled_init_method,
+                                unscaled_init_method)
 
 print_rank_0 = print
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region
+    from flagai.mpu import (copy_to_model_parallel_region,
+                            gather_from_model_parallel_region)
     from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
-
     from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
 
@@ -100,7 +102,7 @@ class GLMStack(torch.nn.Module):
         use_decoder_layer=False,
         attention_scale=1.0,
     ):
-        super(GLMStack, self).__init__()
+        super().__init__()
         self.config = config
         self.hidden_size = hidden_size
         # Store activation checkpoiting flag.
@@ -340,7 +342,7 @@ class GLMModel(BaseModel):
 
     def __init__(self, config, **kwargs):
 
-        super(GLMModel, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.config = config
         num_layers = config["num_layers"]
         vocab_size = config["vocab_size"]
@@ -522,7 +524,7 @@ class GLMForMultiTokenCloze(BaseModel):
                  take_softmax=True,
                  length_penalty=0.0,
                  **kwargs):
-        super(GLMForMultiTokenCloze, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.config = config
         self.model = GLMModel(config, **kwargs)
         self.model.output_predict = True
@@ -644,7 +646,7 @@ class GLMForMultiTokenClozeFast(BaseModel):
                  take_softmax=True,
                  length_penalty=0.0,
                  **kwargs):
-        super(GLMForMultiTokenClozeFast, self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         self.config = config
         self.model = GLMModel(config)
         self.model.output_predict = False

@@ -4,18 +4,18 @@ Hacked together by / Copyright 2020 Ross Wightman
 """
 
 import logging
-from torch import nn
+
 import torch.nn.functional as F
+from torch import nn
 
 from .adaptive_avgmax_pool import adaptive_avgmax_pool2d
-
 
 _logger = logging.getLogger(__name__)
 
 
 class TestTimePoolHead(nn.Module):
     def __init__(self, base, original_pool=7):
-        super(TestTimePoolHead, self).__init__()
+        super().__init__()
         self.base = base
         self.original_pool = original_pool
         base_fc = self.base.get_classifier()

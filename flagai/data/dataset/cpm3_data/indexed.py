@@ -33,7 +33,7 @@ def data_file_path(prefix_path):
 
 
 class MMapIndexedDataset(torch.utils.data.Dataset):
-    class Index(object):
+    class Index():
         _HDR_MAGIC = b'MMIDIDX\x00\x00'
         def __init__(self, path):
             with open(path, 'rb') as stream:
@@ -141,7 +141,7 @@ class MMapIndexedDataset(torch.utils.data.Dataset):
     @property
     def sizes(self):
         return self._index.sizes
-        
+
     def exists(path):
         return (
             os.path.exists(index_file_path(path)) and os.path.exists(data_file_path(path))

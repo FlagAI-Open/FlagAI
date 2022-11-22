@@ -1,10 +1,11 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys
-import os
-import torch
 import copy
+import os
+import sys
+
+import torch
 
 from_1_to_n_models = {
     "gpt": {
@@ -81,7 +82,7 @@ def change_pytorch_model_mp_from_1_to_n(checkpoint: str, target_mp: int):
 
     if target_mp == len(filenames):
         print("MP size keeps the same.")
-        exit(0)
+        sys.exit(0)
 
     if checkpoint[-1] == '/':
         new_checkpoint = checkpoint[:-1]
@@ -191,7 +192,7 @@ def change_pytorch_model_mp_from_1_to_n_new(model_name_brief, checkpoint: str, t
 
     if target_mp == len(filenames):
         print("MP size keeps the same.")
-        exit(0)
+        sys.exit(0)
 
     if checkpoint[-1] == '/':
         new_checkpoint = checkpoint[:-1]
@@ -322,7 +323,7 @@ def change_pytorch_model_mp_from_n_to_1(model_name_brief, checkpoint):
     filenames = sorted(filenames)
     if 'pytorch_model.bin' in filenames:
         print("no need to merge")
-        exit(0)
+        sys.exit(0)
 
     filenames = [os.path.join(checkpoint, x) for x in filenames]
 

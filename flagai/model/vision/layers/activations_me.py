@@ -10,7 +10,7 @@ Hacked together by / Copyright 2020 Ross Wightman
 """
 
 import torch
-from torch import nn as nn
+from torch import nn
 from torch.nn import functional as F
 
 
@@ -51,7 +51,7 @@ def swish_me(x, inplace=False):
 
 class SwishMe(nn.Module):
     def __init__(self, inplace: bool = False):
-        super(SwishMe, self).__init__()
+        super().__init__()
 
     def forward(self, x):
         return SwishJitAutoFn.apply(x)
@@ -90,7 +90,7 @@ def mish_me(x, inplace=False):
 
 class MishMe(nn.Module):
     def __init__(self, inplace: bool = False):
-        super(MishMe, self).__init__()
+        super().__init__()
 
     def forward(self, x):
         return MishJitAutoFn.apply(x)
@@ -125,7 +125,7 @@ def hard_sigmoid_me(x, inplace: bool = False):
 
 class HardSigmoidMe(nn.Module):
     def __init__(self, inplace: bool = False):
-        super(HardSigmoidMe, self).__init__()
+        super().__init__()
 
     def forward(self, x):
         return HardSigmoidJitAutoFn.apply(x)
@@ -169,7 +169,7 @@ def hard_swish_me(x, inplace=False):
 
 class HardSwishMe(nn.Module):
     def __init__(self, inplace: bool = False):
-        super(HardSwishMe, self).__init__()
+        super().__init__()
 
     def forward(self, x):
         return HardSwishJitAutoFn.apply(x)
@@ -209,10 +209,7 @@ def hard_mish_me(x, inplace: bool = False):
 
 class HardMishMe(nn.Module):
     def __init__(self, inplace: bool = False):
-        super(HardMishMe, self).__init__()
+        super().__init__()
 
     def forward(self, x):
         return HardMishJitAutoFn.apply(x)
-
-
-

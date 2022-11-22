@@ -18,12 +18,13 @@
 """Stable version of apex FP16 Optimizer"""
 import torch
 from torch import nn
+from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
 from torch.autograd import Variable
 from torch.nn.parameter import Parameter
-from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
 
+from .fp16util import (clip_grad_norm, master_params_to_model_params,
+                       model_grads_to_master_grads)
 from .loss_scaler import DynamicLossScaler, LossScaler
-from .fp16util import model_grads_to_master_grads, master_params_to_model_params, clip_grad_norm
 
 FLOAT_TYPES = (torch.FloatTensor, torch.cuda.FloatTensor)
 HALF_TYPES = (torch.HalfTensor, torch.cuda.HalfTensor)
@@ -70,7 +71,7 @@ def fp16_to_fp32(val):
 class FP16_Module(nn.Module):
 
     def __init__(self, module):
-        super(FP16_Module, self).__init__()
+        super().__init__()
         self.add_module('module', module.half())
 
     def forward(self, *inputs, **kwargs):
@@ -90,7 +91,7 @@ class FP16_Module(nn.Module):
 
 
 # TODO:  Update overflow check + downscale to use Carl's fused kernel.
-class FP16_Optimizer(object):
+class FP16_Optimizer():
     """
     :class:`FP16_Optimizer` is designed to wrap an existing PyTorch optimizer,
     and manage static or dynamic loss scaling and master weights in a manner transparent to the user.
@@ -163,7 +164,7 @@ class FP16_Optimizer(object):
     See docstring for :attr:`step`.
 
     **Gradient clipping**:  Use :attr:`clip_master_grads`.
-  
+
     **Multiple losses**:  If your model accumulates gradients from multiple losses,
     this can be made more efficient by supplying ``update_master_grads=False``
     to :attr:`backward`.  See docstring for :attr:`backward`.
@@ -512,7 +513,7 @@ class FP16_Optimizer(object):
             # for the optimizer to play with, so all wrapped_closure needs to do is call
             # closure() and return the loss.
             temp_loss = closure()
-            while (self.overflow):
+            while self.overflow:
                 scale = self.loss_scaler.loss_scale
                 self._update_scale(self.overflow)
                 self.maybe_print(

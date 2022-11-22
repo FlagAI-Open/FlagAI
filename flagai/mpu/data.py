@@ -18,9 +18,8 @@
 
 import torch
 
-from .initialize import get_model_parallel_group
-from .initialize import get_model_parallel_rank
-from .initialize import get_model_parallel_src_rank
+from .initialize import (get_model_parallel_group, get_model_parallel_rank,
+                         get_model_parallel_src_rank)
 
 _MAX_DATA_DIM = 5
 

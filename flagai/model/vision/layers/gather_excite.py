@@ -13,8 +13,8 @@ Hacked together by / Copyright 2021 Ross Wightman
 """
 import math
 
-from torch import nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 from .create_act import create_act_layer, get_act_layer
 from .create_conv2d import create_conv2d
@@ -29,7 +29,7 @@ class GatherExcite(nn.Module):
             self, channels, feat_size=None, extra_params=False, extent=0, use_mlp=True,
             rd_ratio=1./16, rd_channels=None,  rd_divisor=1, add_maxpool=False,
             act_layer=nn.ReLU, norm_layer=nn.BatchNorm2d, gate_layer='sigmoid'):
-        super(GatherExcite, self).__init__()
+        super().__init__()
         self.add_maxpool = add_maxpool
         act_layer = get_act_layer(act_layer)
         self.extent = extent
@@ -40,7 +40,7 @@ class GatherExcite(nn.Module):
                 self.gather.add_module(
                     'conv1', create_conv2d(channels, channels, kernel_size=feat_size, stride=1, depthwise=True))
                 if norm_layer:
-                    self.gather.add_module(f'norm1', nn.BatchNorm2d(channels))
+                    self.gather.add_module('norm1', nn.BatchNorm2d(channels))
             else:
                 assert extent % 2 == 0
                 num_conv = int(math.log2(extent))

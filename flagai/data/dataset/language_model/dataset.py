@@ -1,13 +1,15 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import torch
 import json
 import math
-import numpy as np
-from ..data_utils import build_input_from_ids, num_special_tokens_to_add
 from bisect import bisect_right
 from itertools import accumulate
+
+import numpy as np
+import torch
+
+from ..data_utils import build_input_from_ids, num_special_tokens_to_add
 
 print_rank_0 = print
 

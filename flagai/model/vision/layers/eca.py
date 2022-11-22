@@ -34,9 +34,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import math
-from torch import nn
-import torch.nn.functional as F
 
+import torch.nn.functional as F
+from torch import nn
 
 from .create_act import create_act_layer
 from .helpers import make_divisible
@@ -60,7 +60,7 @@ class EcaModule(nn.Module):
     def __init__(
             self, channels=None, kernel_size=3, gamma=2, beta=1, act_layer=None, gate_layer='sigmoid',
             rd_ratio=1/8, rd_channels=None, rd_divisor=8, use_mlp=False):
-        super(EcaModule, self).__init__()
+        super().__init__()
         if channels is not None:
             t = int(abs(math.log(channels, 2) + beta) / gamma)
             kernel_size = max(t if t % 2 else t + 1, 3)
@@ -119,7 +119,7 @@ class CecaModule(nn.Module):
     """
 
     def __init__(self, channels=None, kernel_size=3, gamma=2, beta=1, act_layer=None, gate_layer='sigmoid'):
-        super(CecaModule, self).__init__()
+        super().__init__()
         if channels is not None:
             t = int(abs(math.log(channels, 2) + beta) / gamma)
             kernel_size = max(t if t % 2 else t + 1, 3)

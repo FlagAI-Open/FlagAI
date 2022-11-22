@@ -2,12 +2,13 @@
 
 Hacked together by / Copyright 2020 Ross Wightman
 """
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
-from .padding import pad_same, get_padding_value
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+from .padding import get_padding_value, pad_same
 
 
 def conv2d_same(
@@ -23,7 +24,7 @@ class Conv2dSame(nn.Conv2d):
 
     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
                  padding=0, dilation=1, groups=1, bias=True):
-        super(Conv2dSame, self).__init__(
+        super().__init__(
             in_channels, out_channels, kernel_size, stride, 0, dilation, groups, bias)
 
     def forward(self, x):
@@ -38,5 +39,3 @@ def create_conv2d_pad(in_chs, out_chs, kernel_size, **kwargs):
         return Conv2dSame(in_chs, out_chs, kernel_size, **kwargs)
     else:
         return nn.Conv2d(in_chs, out_chs, kernel_size, padding=padding, **kwargs)
-
-

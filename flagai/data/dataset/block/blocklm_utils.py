@@ -1,13 +1,14 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import torch
-import torch.utils.data
+import copy
+import math
 # import mpu
 import random
-import copy
+
 import numpy as np
-import math
+import torch
+import torch.utils.data
 # from utils.utils import print_rank_0
 from scipy.stats import poisson
 

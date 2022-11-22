@@ -3,24 +3,24 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 # feedforward
 import os
+
 import torch
-import torch.nn as nn
-from torch.nn.parameter import Parameter
-from torch.nn import init
-from .layer_norm import T5LayerNorm
-from .activations import gelu_impl, relu, gelu_new, ACT2FN
+from torch import nn
 import torch.nn.functional as F
-from flagai.mpu.initialize import get_model_parallel_rank
-from flagai.mpu.initialize import get_model_parallel_world_size
-from flagai.mpu.mappings import copy_to_model_parallel_region
-from flagai.mpu.mappings import gather_from_model_parallel_region
-from flagai.mpu.mappings import reduce_from_model_parallel_region
-from flagai.mpu.mappings import scatter_to_model_parallel_region
-from flagai.mpu.utils import divide
+from torch.nn import init
+from torch.nn.parameter import Parameter
 
 from flagai.model.layers.linear import CPM3Linear
+from flagai.mpu.initialize import (get_model_parallel_rank,
+                                   get_model_parallel_world_size)
+from flagai.mpu.mappings import (copy_to_model_parallel_region,
+                                 gather_from_model_parallel_region,
+                                 reduce_from_model_parallel_region,
+                                 scatter_to_model_parallel_region)
+from flagai.mpu.utils import divide
 
-from .layer_norm import CPM3LayerNorm
+from .activations import ACT2FN, gelu_impl, gelu_new, relu
+from .layer_norm import CPM3LayerNorm, T5LayerNorm
 
 
 def _initialize_affine_weight(weight,
@@ -201,7 +201,7 @@ class MLPForward(torch.nn.Module):
         init_method,
         output_layer_init_method=None,
     ):
-        super(MLPForward, self).__init__()
+        super().__init__()
         # Set output layer initialization if not provided.
         if output_layer_init_method is None:
             output_layer_init_method = init_method
@@ -240,7 +240,7 @@ class MLPForward(torch.nn.Module):
 class BertPooler(nn.Module):
 
     def __init__(self, hidden_size):
-        super(BertPooler, self).__init__()
+        super().__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
         self.activation = nn.Tanh()
 
@@ -282,7 +282,7 @@ class ColumnParallelLinear(torch.nn.Module):
                  init_method=init.xavier_normal_,
                  stride=1,
                  keep_master_weight_for_test=False):
-        super(ColumnParallelLinear, self).__init__()
+        super().__init__()
 
         # Keep input parameters
         self.input_size = input_size
@@ -366,7 +366,7 @@ class RowParallelLinear(torch.nn.Module):
                  init_method=init.xavier_normal_,
                  stride=1,
                  keep_master_weight_for_test=False):
-        super(RowParallelLinear, self).__init__()
+        super().__init__()
 
         # Keep input parameters
         self.input_size = input_size
@@ -459,16 +459,16 @@ class DenseGatedACT(torch.nn.Module):
             self.act = torch.nn.GELU()
         else:
             raise ValueError("Unsupported activation function: %s" % (activate_fn))
-    
+
     def forward(self, x : torch.Tensor):
-        """ This model inherits from bmt.DistributedModule. 
+        """ This model inherits from bmt.DistributedModule.
             Transform an input tensor from one feature space to another via a nonlinear operation
-        
+
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): Tensor that will be subject to nonlinear operations.
 
         Return:
-            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``) 
+            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``)
 
         """
         gelu_score = self.act( self.w_0(x) )
@@ -502,7 +502,7 @@ class DenseACT(torch.nn.Module):
             int8 = int8,
             bias = bias,
         )
-        
+
         if activate_fn == "relu":
             self.act = torch.nn.ReLU()
         elif activate_fn == "gelu":
@@ -511,18 +511,18 @@ class DenseACT(torch.nn.Module):
             raise ValueError("Unsupported activation function: %s" % (activate_fn))
 
     def forward(self, x : torch.Tensor):
-        """ This model inherits from bmt.DistributedModule. 
+        """ This model inherits from bmt.DistributedModule.
             Transform an input tensor from one feature space to another via a nonlinear operation
-        
+
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): Tensor that will be subject to nonlinear operations.
 
         Return:
-            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``) 
+            out (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_ff)``)
         """
         x = self.w(x)
         x = self.act(x)
-        
+
         return x
 
 
@@ -542,12 +542,12 @@ class FeedForward(torch.nn.Module):
     """
 
     def __init__(self,
-                 dim_in : int, 
+                 dim_in : int,
                  dim_ff : int,
                  dim_out : int = None,
-                 dtype = torch.half, 
+                 dtype = torch.half,
                  int8 = False,
-                 init_mean = 0.0, 
+                 init_mean = 0.0,
                  init_std = 0.02,
                  bias = False,
                  activate_fn = "gated_gelu",
@@ -607,7 +607,7 @@ class FeedForward(torch.nn.Module):
         self.length_scale = length_scale
 
     def forward(self, x : torch.Tensor):
-        """ 
+        """
         Args:
             x (:obj:`torch.Tensor` of shape ``(batch, seq_len, dim_in)``): The input of feed-forward module.
 
@@ -642,15 +642,15 @@ class CPM3FFN(torch.nn.Module):
         dropout_p (float, optional): Defaults to 0.
     """
 
-    def __init__(self, 
-                 dim_model : int, 
+    def __init__(self,
+                 dim_model : int,
                  dim_ff : int,
-                 dtype = torch.half, 
+                 dtype = torch.half,
                  int8 = False,
                  norm_init_var : float = 1.0,
                  norm_bias : bool = False,
-                 norm_eps : float = 1e-5, 
-                 ffn_init_mean : float = 0.0, 
+                 norm_eps : float = 1e-5,
+                 ffn_init_mean : float = 0.0,
                  ffn_init_std : float = 0.02,
                  ffn_bias : bool = False,
                  ffn_activate_fn : str = "gated_gelu",
@@ -661,20 +661,20 @@ class CPM3FFN(torch.nn.Module):
         super().__init__()
 
         self.layernorm_before_ffn = CPM3LayerNorm(
-            dim_norm = dim_model, 
-            bias = norm_bias, 
+            dim_norm = dim_model,
+            bias = norm_bias,
             dtype = dtype,
-            eps = norm_eps, 
+            eps = norm_eps,
             init_var = norm_init_var,
         )
 
         self.ffn = FeedForward(
-            dim_in = dim_model, 
-            dim_ff = dim_ff, 
-            dim_out = dim_model, 
-            dtype = dtype, 
+            dim_in = dim_model,
+            dim_ff = dim_ff,
+            dim_out = dim_model,
+            dtype = dtype,
             int8 = int8,
-            init_mean = ffn_init_mean, 
+            init_mean = ffn_init_mean,
             init_std = ffn_init_std,
             bias = ffn_bias,
             activate_fn = ffn_activate_fn,
@@ -691,14 +691,14 @@ class CPM3FFN(torch.nn.Module):
     def forward(self,
                 hidden_states : torch.Tensor,
                ):
-        """ 
+        """
         Args:
             hidden_states (:obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``): Hidden states before feed forward layer.
 
         Return:
             :obj:`torch.Tensor` of shape ``(batch, seq_self, dim_model)``: The output of feed-forward block
 
-        """ 
+        """
         x = self.layernorm_before_ffn(hidden_states)
         if self.post_layer_norm:
             hidden_states = x

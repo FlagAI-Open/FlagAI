@@ -5,7 +5,7 @@ Based on `Filter Response Normalization Layer` - https://arxiv.org/abs/1911.0973
 Hacked together by / Copyright 2021 Ross Wightman
 """
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .create_act import create_act_layer
 from .trace_utils import _assert
@@ -18,7 +18,7 @@ def inv_instance_rms(x, eps: float = 1e-5):
 
 class FilterResponseNormTlu2d(nn.Module):
     def __init__(self, num_features, apply_act=True, eps=1e-5, rms=True, **_):
-        super(FilterResponseNormTlu2d, self).__init__()
+        super().__init__()
         self.apply_act = apply_act  # apply activation (non-linearity)
         self.rms = rms
         self.eps = eps
@@ -44,7 +44,7 @@ class FilterResponseNormTlu2d(nn.Module):
 
 class FilterResponseNormAct2d(nn.Module):
     def __init__(self, num_features, apply_act=True, act_layer=nn.ReLU, inplace=None, rms=True, eps=1e-5, **_):
-        super(FilterResponseNormAct2d, self).__init__()
+        super().__init__()
         if act_layer is not None and apply_act:
             self.act = create_act_layer(act_layer, inplace=inplace)
         else:

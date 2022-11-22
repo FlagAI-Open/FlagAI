@@ -1,9 +1,11 @@
-import torch
 import os
+
+import torch
+from torchvision import datasets
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from torch.utils.data import Dataset, DataLoader
-import torchvision.datasets as datasets
 from tqdm import tqdm
+
 from flagai.auto_model.auto_loader import AutoLoader
 
 data_path = "./imagenet2012/"

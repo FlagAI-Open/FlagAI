@@ -16,36 +16,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
-from collections import namedtuple
 import itertools
-
-
-
 import logging
+from collections import namedtuple
+
 logger = logging.getLogger(__name__)
-import os
-from flagai.model.file_utils import _get_model_id, _get_vocab_path
-from flagai.data.tokenizer.glm_large_ch.glm_large_ch import get_encoder
-from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode
-from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, WordpieceTokenizer
 import collections
 import json
+import logging
+import os
 import re
 
-
-import logging
-logger = logging.getLogger(__name__)
-import os
-from flagai.model.file_utils import _get_model_id, _get_vocab_path
+from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import \
+    bytes_to_unicode
 from flagai.data.tokenizer.glm_large_ch.glm_large_ch import get_encoder
-from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import bytes_to_unicode
-from flagai.data.tokenizer.glm_large_en.wordpiece import load_vocab, BasicTokenizer, WordpieceTokenizer
+from flagai.data.tokenizer.glm_large_en.wordpiece import (BasicTokenizer,
+                                                          WordpieceTokenizer,
+                                                          load_vocab)
+from flagai.model.file_utils import _get_model_id, _get_vocab_path
+
+logger = logging.getLogger(__name__)
 import collections
 import json
+import os
 import re
 
+from flagai.data.tokenizer.glm_10b_en.glm_10b_en_tokenizer import \
+    bytes_to_unicode
+from flagai.data.tokenizer.glm_large_ch.glm_large_ch import get_encoder
+from flagai.data.tokenizer.glm_large_en.wordpiece import (BasicTokenizer,
+                                                          WordpieceTokenizer,
+                                                          load_vocab)
+from flagai.model.file_utils import _get_model_id, _get_vocab_path
 
-class BaseTokenizer(object):
+
+class BaseTokenizer():
     @classmethod
     def from_pretrained(cls,
                         pretrained_model_name_or_path,
@@ -78,14 +83,14 @@ class BaseTokenizer(object):
                 try:
                     _get_vocab_path(cache_dir + '/', merges_file, model_id, rank=0)
                     tokenizer_class = "bpe"
-                except:
+                except Exception:
                     tokenizer_class = 'wp'
-            except:
+            except Exception:
                 try:
                     _get_vocab_path(cache_dir + '/', sp_file, model_id, rank=0)
                     tokenizer_class = "sp"
-                except:
-                    raise("Error")
+                except Exception:
+                    raise "Error"
         resolved_vocab_file = os.path.join(cache_dir, vocab_file)
         resolved_merges_file = os.path.join(cache_dir, merges_file)
         resolved_sp_file = os.path.join(cache_dir, sp_file)
@@ -384,6 +389,3 @@ class WordpieceTokenizer(BaseTokenizer):
 #         for i in ids:
 #             tokens.append(self.ids_to_tokens[i])
 #         return tokens
-
-
-

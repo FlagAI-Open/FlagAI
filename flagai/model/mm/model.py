@@ -1,9 +1,11 @@
 # pytorch_diffusion + derived encoder decoder
 import math
-import torch
-import torch.nn as nn
+
 import numpy as np
+import torch
+from torch import nn
 from einops import rearrange
+
 from flagai.model.mm.utils import instantiate_from_config
 
 
@@ -272,7 +274,8 @@ class Model(nn.Module):
                  use_linear_attn=False,
                  attn_type="vanilla"):
         super().__init__()
-        if use_linear_attn: attn_type = "linear"
+        if use_linear_attn:
+            attn_type = "linear"
         self.ch = ch
         self.temb_ch = self.ch * 4
         self.num_resolutions = len(ch_mult)
@@ -438,7 +441,8 @@ class Encoder(nn.Module):
                  attn_type="vanilla",
                  **ignore_kwargs):
         super().__init__()
-        if use_linear_attn: attn_type = "linear"
+        if use_linear_attn:
+            attn_type = "linear"
         self.ch = ch
         self.temb_ch = 0
         self.num_resolutions = len(ch_mult)
@@ -548,7 +552,8 @@ class Decoder(nn.Module):
                  attn_type="vanilla",
                  **ignorekwargs):
         super().__init__()
-        if use_linear_attn: attn_type = "linear"
+        if use_linear_attn:
+            attn_type = "linear"
         self.ch = ch
         self.temb_ch = 0
         self.num_resolutions = len(ch_mult)
@@ -1015,7 +1020,7 @@ class FirstStagePostProcessor(nn.Module):
         return z
 
 
-class DiagonalGaussianDistribution(object):
+class DiagonalGaussianDistribution():
 
     def __init__(self, parameters, deterministic=False):
         self.parameters = parameters

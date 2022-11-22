@@ -19,15 +19,18 @@
 import copy
 import json
 import pickle
+import random
 import re
 from typing import Dict, List, Optional
+
 import numpy as np
-import random
 import torch
+
 from flagai import mpu
+
 try:
     import deepspeed
-except:
+except Exception:
     pass
 import os
 
@@ -43,7 +46,7 @@ def clean_text(text):
     return text
 
 
-class InputExample(object):
+class InputExample():
     """A raw input example consisting of one or two segments of text and a label"""
 
     def __init__(self,

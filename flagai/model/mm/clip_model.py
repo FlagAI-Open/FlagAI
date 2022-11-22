@@ -2,25 +2,31 @@
 
 Adapted from https://github.com/openai/CLIP. Originally MIT License, Copyright (c) 2021 OpenAI.
 """
+import os
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Tuple, Union, Callable, Optional
+from typing import Callable, Optional, Tuple, Union
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-import os 
+
 if os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 elif os.getenv('ENV_TYPE') == 'pytorch' or os.getenv('ENV_TYPE') == 'pytorchDDP':
     from torch.utils.checkpoint import checkpoint
 else :
     print(f"not support the {os.getenv('ENV_TYPE')} for checkpoint activation")
 
-from .utils import to_2tuple
 from flagai.model.base_model import BaseModel
-from ..layers.activations import QuickGELUActivation # NOTE This is slower than nn.GELU or nn.SiLU and uses more GPU memory
+
+from ..layers.activations import \
+    QuickGELUActivation  # NOTE This is slower than nn.GELU or nn.SiLU and uses more GPU memory
+from .utils import to_2tuple
+
+
 # contrastive loss function, adapted from
 # https://sachinruk.github.io/blog/pytorch/pytorch%20lightning/loss%20function/gpu/2021/03/07/CLIP.html
 def contrastive_loss(logits: torch.Tensor) -> torch.Tensor:
@@ -167,7 +173,7 @@ class CLIP(BaseModel):
             text_cfg: CLIPTextCfg,
             quick_gelu: bool = False
         """
-        super(CLIP,self).__init__(config, **kwargs)
+        super().__init__(config, **kwargs)
         embed_dim = config['embed_dim']
         vision_cfg = config['vision_cfg']
         text_cfg = config['text_cfg']
@@ -183,7 +189,7 @@ class CLIP(BaseModel):
         # memory efficient in recent PyTorch releases (>= 1.10).
         # NOTE: timm models always use native GELU regardless of quick_gelu flag.
         act_layer = QuickGELUActivation if quick_gelu else nn.GELU
-        
+
         vision_heads = vision_cfg.width // vision_cfg.head_width
         self.visual = VisualTransformer(
             image_size=vision_cfg.image_size,

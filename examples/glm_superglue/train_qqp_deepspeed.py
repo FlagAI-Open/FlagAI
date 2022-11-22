@@ -1,13 +1,15 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
+from flagai.data.dataset import SuperGlueDataset
+from flagai.data.dataset.superglue.control import (CH_TASKS, DEFAULT_METRICS,
+                                                   MULTI_TOKEN_TASKS)
 from flagai.data.tokenizer import Tokenizer
 from flagai.metrics import accuracy_metric
-from flagai.data.dataset import SuperGlueDataset
+from flagai.model.glm_model import (GLMForMultiTokenCloze,
+                                    GLMForSingleTokenCloze)
 from flagai.test_utils import CollateArguments
-from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
+from flagai.trainer import Trainer
 
 task_name = 'boolq'
 trainer = Trainer(env_type='deepspeed',

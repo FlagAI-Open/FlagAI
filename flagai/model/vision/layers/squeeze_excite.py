@@ -10,7 +10,7 @@ Paper: `CenterMask : Real-Time Anchor-Free Instance Segmentation` - https://arxi
 
 Hacked together by / Copyright 2021 Ross Wightman
 """
-from torch import nn as nn
+from torch import nn
 
 from .create_act import create_act_layer
 from .helpers import make_divisible
@@ -28,7 +28,7 @@ class SEModule(nn.Module):
     def __init__(
             self, channels, rd_ratio=1. / 16, rd_channels=None, rd_divisor=8, add_maxpool=False,
             act_layer=nn.ReLU, norm_layer=None, gate_layer='sigmoid'):
-        super(SEModule, self).__init__()
+        super().__init__()
         self.add_maxpool = add_maxpool
         if not rd_channels:
             rd_channels = make_divisible(channels * rd_ratio, rd_divisor, round_limit=0.)
@@ -57,7 +57,7 @@ class EffectiveSEModule(nn.Module):
     From `CenterMask : Real-Time Anchor-Free Instance Segmentation` - https://arxiv.org/abs/1911.06667
     """
     def __init__(self, channels, add_maxpool=False, gate_layer='hard_sigmoid', **_):
-        super(EffectiveSEModule, self).__init__()
+        super().__init__()
         self.add_maxpool = add_maxpool
         self.fc = nn.Conv2d(channels, channels, kernel_size=1, padding=0)
         self.gate = create_act_layer(gate_layer)

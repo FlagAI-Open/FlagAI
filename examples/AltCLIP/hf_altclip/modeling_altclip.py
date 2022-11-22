@@ -1,9 +1,11 @@
-from transformers.models.clip.modeling_clip import *
-import torch.nn as nn
 import torch
+from torch import nn
+from transformers.models.clip.modeling_clip import *
 from transformers.models.clip.modeling_clip import CLIPOutput
-from .modeling_xlmr import RobertaSeriesModelWithTransformation
+
 from .configuration_altclip import AltCLIPConfig
+from .modeling_xlmr import RobertaSeriesModelWithTransformation
+
 
 @dataclass
 class AltCLIPOutput(CLIPOutput):
@@ -13,7 +15,7 @@ class AltCLIPOutput(CLIPOutput):
             for k in self.keys()
         )
 
-# we borrow some code from transformers's CLIP    
+# we borrow some code from transformers's CLIP
 class AltCLIP(CLIPPreTrainedModel):
     config_class = AltCLIPConfig
 
@@ -42,7 +44,7 @@ class AltCLIP(CLIPPreTrainedModel):
 
         # Initialize weights and apply final processing
         self.post_init()
-                
+
     def get_text_features(
         self,
         input_ids: Optional[torch.Tensor] = None,

@@ -1,10 +1,14 @@
 
-import torch
 import numpy as np
+import torch
 from tqdm import tqdm
-from flagai.model.mm.utils import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like,extract_into_tensor
 
-class DDIMSampler(object):
+from flagai.model.mm.utils import (extract_into_tensor,
+                                   make_ddim_sampling_parameters,
+                                   make_ddim_timesteps, noise_like)
+
+
+class DDIMSampler():
     def __init__(self, model, schedule="linear", **kwargs):
         super().__init__()
         self.model = model
@@ -145,8 +149,10 @@ class DDIMSampler(object):
                                       unconditional_guidance_scale=unconditional_guidance_scale,
                                       unconditional_conditioning=unconditional_conditioning)
             img, pred_x0 = outs
-            if callback: callback(i)
-            if img_callback: img_callback(pred_x0, i)
+            if callback:
+                callback(i)
+            if img_callback:
+                img_callback(pred_x0, i)
 
             if index % log_every_t == 0 or index == total_steps - 1:
                 intermediates['x_inter'].append(img)
@@ -169,7 +175,7 @@ class DDIMSampler(object):
             # c_in = torch.cat([unconditional_conditioning, c])
             # e_t_uncond, e_t = self.model.apply_model(x_in, t_in, c_in).chunk(2)
             x_in = torch.cat([x])
-            t_in = torch.cat([t]) 
+            t_in = torch.cat([t])
             e_t_uncond = self.model.apply_model(x_in, t_in, unconditional_conditioning)
             e_t = self.model.apply_model(x_in, t_in, c)
             e_t = e_t_uncond + unconditional_guidance_scale * (e_t - e_t_uncond)
@@ -239,7 +245,7 @@ class DDIMSampler(object):
         return x_dec
 
 
-class PLMSSampler(object):
+class PLMSSampler():
     def __init__(self, model, schedule="linear", **kwargs):
         super().__init__()
         self.model = model
@@ -389,8 +395,10 @@ class PLMSSampler(object):
             old_eps.append(e_t)
             if len(old_eps) >= 4:
                 old_eps.pop(0)
-            if callback: callback(i)
-            if img_callback: img_callback(pred_x0, i)
+            if callback:
+                callback(i)
+            if img_callback:
+                img_callback(pred_x0, i)
 
             if index % log_every_t == 0 or index == total_steps - 1:
                 intermediates['x_inter'].append(img)
@@ -412,7 +420,7 @@ class PLMSSampler(object):
                 t_in = torch.cat([t] * 2)
                 #c_in = torch.cat([unconditional_conditioning, c])
                 e_t_uncond = self.model.apply_model(x_in, t_in, unconditional_conditioning)
-                e_t = self.model.apply_model(x_in, t_in, c) 
+                e_t = self.model.apply_model(x_in, t_in, c)
                 #e_t_uncond, e_t = self.model.apply_model(x_in, t_in, c_in).chunk(2)
                 e_t = e_t_uncond + unconditional_guidance_scale * (e_t - e_t_uncond)
 

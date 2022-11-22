@@ -23,10 +23,13 @@
 # Parts of the code here are adapted from PyTorch
 # repo: https://github.com/pytorch/pytorch
 import contextlib
-import torch.distributed as dist
+
 import torch
+import torch.distributed as dist
 from torch import _C
-from torch.cuda import _lazy_call, device as device_ctx_manager
+from torch.cuda import _lazy_call
+from torch.cuda import device as device_ctx_manager
+
 #from torch.utils.checkpoint import detach_variable
 
 PARTITION_ACTIVATIONS = False
@@ -54,10 +57,9 @@ def see_memory_usage(message, force=False):
         #input("Press Any Key To Continue ..")
 
 
-from .initialize import get_data_parallel_rank
-from .initialize import get_model_parallel_rank
-from .initialize import get_model_parallel_world_size
-from .initialize import get_model_parallel_group
+from .initialize import (get_data_parallel_rank, get_model_parallel_group,
+                         get_model_parallel_rank,
+                         get_model_parallel_world_size)
 
 mp_rank = None  #get_model_parallel_rank()
 mp_size = None  #get_model_parallel_world_size()

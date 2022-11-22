@@ -1,9 +1,10 @@
-from flagai.data.tokenizer.cpm_3.cpm3_tokenizer import CPM3Tokenizer
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
-import torch
 import json
 
+import torch
+
+from flagai.auto_model.auto_loader import AutoLoader
+from flagai.data.tokenizer.cpm_3.cpm3_tokenizer import CPM3Tokenizer
+from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 loader = AutoLoader("lm", "cpm3", model_dir="/sharefs/baai-mrnd/xw/")

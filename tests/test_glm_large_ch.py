@@ -1,11 +1,14 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.model.predictor.predictor import Predictor
-import torch
-from flagai.model.glm_model import GLMForSeq2Seq
-from flagai.data.tokenizer import Tokenizer
 import unittest
+
+import torch
+
+from flagai.data.tokenizer import Tokenizer
+from flagai.model.glm_model import GLMForSeq2Seq
+from flagai.model.predictor.predictor import Predictor
+
 
 class GLMLargeChTestCase(unittest.TestCase):
 

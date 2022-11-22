@@ -1,12 +1,12 @@
-import torch
-import torch.nn as nn
-from functools import partial
-import clip
-from einops import rearrange, repeat
-import transformers
-from transformers import CLIPTokenizer, CLIPTextModel
 import json
+from functools import partial
 
+import clip
+import torch
+from torch import nn
+import transformers
+from einops import rearrange, repeat
+from transformers import CLIPTextModel, CLIPTokenizer
 
 
 class AbstractEncoder(nn.Module):
@@ -34,7 +34,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             param.requires_grad = False
 
     def forward(self, text):
-        
+
         batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=False,
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)

@@ -2,7 +2,7 @@
 
 Hacked together by / Copyright 2020 Ross Wightman
 """
-from torch import nn as nn
+from torch import nn
 from torch.nn import functional as F
 
 from .adaptive_avgmax_pool import SelectAdaptivePool2d
@@ -39,7 +39,7 @@ class ClassifierHead(nn.Module):
     """Classifier head w/ configurable global pooling and dropout."""
 
     def __init__(self, in_chs, num_classes, pool_type='avg', drop_rate=0., use_conv=False):
-        super(ClassifierHead, self).__init__()
+        super().__init__()
         self.drop_rate = drop_rate
         self.global_pool, num_pooled_features = _create_pool(in_chs, num_classes, pool_type, use_conv=use_conv)
         self.fc = _create_fc(num_pooled_features, num_classes, use_conv=use_conv)

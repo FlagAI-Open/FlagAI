@@ -1,20 +1,20 @@
 #coding:utf-8
 
+import json
+import os
+import random
+import time
 from email.policy import default
 from operator import length_hint
-import time
-import random
-import torch
-import numpy as np
-import os
-import json
-from flagai.model.cpm3_model import CPM3Config, CPM3
-from flagai.data.tokenizer.cpm_3 import CPM3Tokenizer
 
+import numpy as np
+import torch
 from arguments import get_args
 from generation import generate
 
-import random
+from flagai.data.tokenizer.cpm_3 import CPM3Tokenizer
+from flagai.model.cpm3_model import CPM3, CPM3Config
+
 
 def get_tokenizer(args):
     tokenizer = CPM3Tokenizer(args.vocab_file, space_token = '</_>', line_token = '</n>',)
@@ -94,13 +94,13 @@ def main():
         min_len = 2 # 确保生成内容不为空
         for it in generate(model, tokenizer, instance, target_span_len, beam=args.beam_size,
                             temperature = args.temperature, top_k = args.top_k, top_p = args.top_p,
-                            no_repeat_ngram_size = args.no_repeat_ngram_size, repetition_penalty = args.repetition_penalty, 
+                            no_repeat_ngram_size = args.no_repeat_ngram_size, repetition_penalty = args.repetition_penalty,
                             random_sample=args.random_sample, min_len=min_len, contrastive_search=args.use_contrastive_search):
-            
+
             fout.write(it)
             fout.flush()
         fout.write('\n')
-    
+
     fin.close()
     fout.close()
 

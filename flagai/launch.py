@@ -9,12 +9,13 @@ ssh into multiple worker nodes and launch all the necessary processes
 per rank for training.
 """
 
-import os
-import sys
-import json
-import subprocess
 import collections
+import json
+import os
 import socket
+import subprocess
+import sys
+
 from flagai.logger import log_dist
 
 
@@ -78,7 +79,7 @@ def launch_dist(launcher='distributed_deepspeed',
                 training_paras=None,):
     try:
         resource_pool = fetch_hostfile(hostfile)
-    except:
+    except Exception:
         raise RuntimeError("hostfile is not valid")
     # respect CUDA_VISIBLE_DEVICES for a single node and no explicit resource filters
     cuda_visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES", "0")

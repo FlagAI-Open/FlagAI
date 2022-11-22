@@ -17,7 +17,7 @@ Official Deepmind JAX code: https://github.com/deepmind/deepmind-research/tree/m
 Hacked together by / copyright Ross Wightman, 2021.
 """
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 
 from .padding import get_padding, get_padding_value, pad_same

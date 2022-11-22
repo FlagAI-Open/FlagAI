@@ -15,9 +15,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-from transformers import GPT2Tokenizer
-from ..tokenizer import CommandToken, Tokenizer
 import os
+
+from transformers import GPT2Tokenizer
+
+from ..tokenizer import CommandToken, Tokenizer
+
 """define some default command tokens for the tokenizer to use"""
 
 
@@ -125,4 +128,3 @@ class OPTTokenizer(Tokenizer):
     def DecodeTokens(self, Tokens):
         """converts wordpiece tokens to a text string"""
         return ' '.join(Tokens)
-

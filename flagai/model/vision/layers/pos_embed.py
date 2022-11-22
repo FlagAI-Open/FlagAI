@@ -1,8 +1,8 @@
 import math
-from typing import List, Tuple, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import torch
-from torch import nn as nn
+from torch import nn
 
 
 def pixel_freq_bands(
@@ -173,7 +173,7 @@ def build_rotary_pos_embed(
     NOTE: shape arg should include spatial dim only
     """
     feat_shape = torch.Size(feat_shape)
-    
+
     sin_emb, cos_emb = build_fourier_pos_embed(
         feat_shape, bands=bands, num_bands=dim // 4, max_res=max_freq, linear_bands=linear_bands,
         concat_out=False, device=device, dtype=dtype)

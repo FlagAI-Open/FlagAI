@@ -16,8 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import torch
+
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
+
 if __name__ == "__main__":
     loader = AutoLoader(task_name="lm",
                         model_name="GLM-large-ch",

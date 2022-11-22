@@ -19,13 +19,13 @@
 
 import torch
 
-from flagai.model.layers.attentions import ParallelSelfAttention
-from flagai.model.layers.attentions import ParallelCrossAttention
+from flagai.model.layers.attentions import (ParallelCrossAttention,
+                                            ParallelSelfAttention)
 from flagai.model.layers.feedforward import MLPForward
 
 try:
     from apex.normalization.fused_layer_norm import FusedLayerNorm as LayerNorm
-except:
+except Exception:
     from torch.nn import LayerNorm
 
 
@@ -69,7 +69,7 @@ class GLMBlock(torch.nn.Module):
                  relative_encoding=False,
                  performer=False,
                  attention_scale=1.0):
-        super(GLMBlock, self).__init__()
+        super().__init__()
         # Set output layer initialization if not provided.
         if output_layer_init_method is None:
             output_layer_init_method = init_method
@@ -166,7 +166,7 @@ class GLMDecoderBlock(torch.nn.Module):
                  layernorm_epsilon,
                  init_method,
                  output_layer_init_method=None):
-        super(GLMDecoderBlock, self).__init__()
+        super().__init__()
         # Set output layer initialization if not provided.
         if output_layer_init_method is None:
             output_layer_init_method = init_method

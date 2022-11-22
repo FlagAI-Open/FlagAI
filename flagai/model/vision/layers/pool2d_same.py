@@ -2,13 +2,14 @@
 
 Hacked together by / Copyright 2020 Ross Wightman
 """
+from typing import List, Optional, Tuple
+
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
-from typing import List, Tuple, Optional
 
 from .helpers import to_2tuple
-from .padding import pad_same, get_padding_value
+from .padding import get_padding_value, pad_same
 
 
 def avg_pool2d_same(x, kernel_size: List[int], stride: List[int], padding: List[int] = (0, 0),
@@ -24,7 +25,7 @@ class AvgPool2dSame(nn.AvgPool2d):
     def __init__(self, kernel_size: int, stride=None, padding=0, ceil_mode=False, count_include_pad=True):
         kernel_size = to_2tuple(kernel_size)
         stride = to_2tuple(stride)
-        super(AvgPool2dSame, self).__init__(kernel_size, stride, (0, 0), ceil_mode, count_include_pad)
+        super().__init__(kernel_size, stride, (0, 0), ceil_mode, count_include_pad)
 
     def forward(self, x):
         x = pad_same(x, self.kernel_size, self.stride)
@@ -46,7 +47,7 @@ class MaxPool2dSame(nn.MaxPool2d):
         kernel_size = to_2tuple(kernel_size)
         stride = to_2tuple(stride)
         dilation = to_2tuple(dilation)
-        super(MaxPool2dSame, self).__init__(kernel_size, stride, (0, 0), dilation, ceil_mode)
+        super().__init__(kernel_size, stride, (0, 0), dilation, ceil_mode)
 
     def forward(self, x):
         x = pad_same(x, self.kernel_size, self.stride, value=-float('inf'))

@@ -2,8 +2,10 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import unittest
-from flagai.data.tokenizer import Tokenizer
+
 from flagai.auto_model.auto_loader import AutoLoader
+from flagai.data.tokenizer import Tokenizer
+
 
 class TokenizerTestCase(unittest.TestCase):
 
@@ -30,7 +32,7 @@ class TokenizerTestCase(unittest.TestCase):
     #                      [25520, 9015, 1838, 502, 3772], '')
     #     self.assertEqual(tokenizer.DecodeIds([25520, 9015, 1838, 502, 3772]),
     #                      'fried chicken makes me happy', 'DecodeIds Error')
-    
+
     def test_tokenizer_t5(self):
         tokenizer = Tokenizer.from_pretrained('t5-base-en')
         self.assertEqual(tokenizer.TokenToId("day"), 1135, '')

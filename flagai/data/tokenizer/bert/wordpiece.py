@@ -1,13 +1,16 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from __future__ import absolute_import, division, print_function, unicode_literals
-from typing import List, Union, Optional
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import collections
 import logging
 import os
 import unicodedata
 from io import open
+from typing import List, Optional, Union
+
 import requests
 
 logger = logging.getLogger(__name__)
@@ -74,7 +77,7 @@ def whitespace_tokenize(text):
     return tokens
 
 
-class BertTokenizer(object):
+class BertTokenizer():
     """Runs end-to-end tokenization: punctuation splitting + wordpiece"""
 
     def __init__(self,
@@ -419,7 +422,7 @@ class BertTokenizer(object):
         return bool(ch) and (ch[0] == '[') and (ch[-1] == ']')
 
 
-class BasicTokenizer(object):
+class BasicTokenizer():
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
 
     def __init__(self,
@@ -553,7 +556,7 @@ class BasicTokenizer(object):
         return "".join(output)
 
 
-class WordpieceTokenizer(object):
+class WordpieceTokenizer():
     """Runs WordPiece tokenization."""
 
     def __init__(self, vocab, unk_token="[UNK]", max_input_chars_per_word=100):

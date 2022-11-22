@@ -18,7 +18,8 @@
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
 
 import torch
-from ..tokenizer import GLMTokenizer, TypeToken, CommandToken
+
+from ..tokenizer import CommandToken, GLMTokenizer, TypeToken
 from . import glm_large_ch
 
 print_rank_0 = print
@@ -203,7 +204,7 @@ class GLMLargeChTokenizer(GLMTokenizer):
         for s in self._command_tokens:
             if not exception or (exception and s.name not in exception):
                 result.append(s.Id)
-        return (result)
+        return result
 
     def EncodeAsTokens(self, text, process_fn=None):
         processed_text = text

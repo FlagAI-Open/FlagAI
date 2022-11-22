@@ -3,13 +3,15 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 # construct data
 # data from https://github.com/murufeng/ChineseNlpCorpus
+import collections
+
+import numpy as np
+import pandas as pd
 import torch
+from tqdm import tqdm
+
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
-import pandas as pd
-import numpy as np
-from tqdm import tqdm
-import collections
 
 faq_data_path = "./data/financezhidao_filter.csv"
 answer_save_path = "./data/finance_fqa.json"

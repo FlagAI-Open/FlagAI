@@ -1,8 +1,7 @@
 from typing import Optional
 
 import torch
-from torch import nn
-from torch import nn, Tensor
+from torch import Tensor, nn
 from torch.nn.modules.transformer import _get_activation_fn
 
 
@@ -26,7 +25,7 @@ def add_ml_decoder_head(model):
         model.head = MLDecoder(num_classes=num_classes, initial_num_features=num_features)
     else:
         print("Model code-writing is not aligned currently with ml-decoder")
-        exit(-1)
+        sys.exit(-1)
     if hasattr(model, 'drop_rate'):  # Ml-Decoder has inner dropout
         model.drop_rate = 0
     return model
@@ -35,7 +34,7 @@ def add_ml_decoder_head(model):
 class TransformerDecoderLayerOptimal(nn.Module):
     def __init__(self, d_model, nhead=8, dim_feedforward=2048, dropout=0.1, activation="relu",
                  layer_norm_eps=1e-5) -> None:
-        super(TransformerDecoderLayerOptimal, self).__init__()
+        super().__init__()
         self.norm1 = nn.LayerNorm(d_model, eps=layer_norm_eps)
         self.dropout = nn.Dropout(dropout)
         self.dropout1 = nn.Dropout(dropout)
@@ -56,7 +55,7 @@ class TransformerDecoderLayerOptimal(nn.Module):
     def __setstate__(self, state):
         if 'activation' not in state:
             state['activation'] = torch.nn.functional.relu
-        super(TransformerDecoderLayerOptimal, self).__setstate__(state)
+        super().__setstate__(state)
 
     def forward(self, tgt: Tensor, memory: Tensor, tgt_mask: Optional[Tensor] = None,
                 memory_mask: Optional[Tensor] = None,
@@ -89,7 +88,7 @@ class TransformerDecoderLayerOptimal(nn.Module):
 #         return out
 
 @torch.jit.script
-class GroupFC(object):
+class GroupFC():
     def __init__(self, embed_len_decoder: int):
         self.embed_len_decoder = embed_len_decoder
 
@@ -102,7 +101,7 @@ class GroupFC(object):
 
 class MLDecoder(nn.Module):
     def __init__(self, num_classes, num_of_groups=-1, decoder_embedding=768, initial_num_features=2048):
-        super(MLDecoder, self).__init__()
+        super().__init__()
         embed_len_decoder = 100 if num_of_groups < 0 else num_of_groups
         if embed_len_decoder > num_classes:
             embed_len_decoder = num_classes

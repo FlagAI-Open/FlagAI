@@ -1,20 +1,26 @@
 import sys
-import torch
-import torch.nn as nn
-import numpy as np
-from torch.optim.lr_scheduler import LambdaLR
-from einops import rearrange, repeat
 from contextlib import contextmanager
 from functools import partial
-from tqdm import tqdm
-from torchvision.utils import make_grid
+
+import numpy as np
+import torch
+from torch import nn
+from einops import rearrange, repeat
 from pytorch_lightning.utilities.distributed import rank_zero_only
-from flagai.model.mm.utils import exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config, log_txt_as_img
-from flagai.model.mm.autoencoders import VQModelInterface, IdentityFirstStage, AutoencoderKL
-from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise_like
-from flagai.model.mm.Sampler import DDIMSampler
-from flagai.model.base_model import BaseModel
+from torch.optim.lr_scheduler import LambdaLR
+from torchvision.utils import make_grid
+from tqdm import tqdm
+
 from flagai.auto_model.auto_loader import AutoLoader
+from flagai.model.base_model import BaseModel
+from flagai.model.mm.autoencoders import (AutoencoderKL, IdentityFirstStage,
+                                          VQModelInterface)
+from flagai.model.mm.Sampler import DDIMSampler
+from flagai.model.mm.utils import (count_params, default, exists,
+                                   extract_into_tensor,
+                                   instantiate_from_config, isimage, ismap,
+                                   log_txt_as_img, make_beta_schedule,
+                                   mean_flat, noise_like)
 
 __conditioning_keys__ = {
     'concat': 'c_concat',
@@ -66,7 +72,7 @@ class DDPM(BaseModel):
         logvar_init=0.,
         **kwargs,
     ):
-        super(DDPM, self).__init__(unet_config, **kwargs)
+        super().__init__(unet_config, **kwargs)
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
         assert parameterization in [
@@ -428,7 +434,7 @@ class DDPM(BaseModel):
                          logger=True,
                          on_step=True,
                          on_epoch=False)
-        except:
+        except Exception:
             return loss
 
         return loss
@@ -547,7 +553,7 @@ class LatentDiffusion(DDPM):
         try:
             self.num_downs = len(
                 first_stage_config.params.ddconfig.ch_mult) - 1
-        except:
+        except Exception:
             self.num_downs = 0
         if not scale_by_std:
             self.scale_factor = scale_factor
@@ -1525,8 +1531,10 @@ class LatentDiffusion(DDPM):
 
             if i % log_every_t == 0 or i == timesteps - 1:
                 intermediates.append(x0_partial)
-            if callback: callback(i)
-            if img_callback: img_callback(img, i)
+            if callback:
+                callback(i)
+            if img_callback:
+                img_callback(img, i)
         return img, intermediates
 
     @torch.no_grad()
@@ -1589,8 +1597,10 @@ class LatentDiffusion(DDPM):
 
             if i % log_every_t == 0 or i == timesteps - 1:
                 intermediates.append(img)
-            if callback: callback(i)
-            if img_callback: img_callback(img, i)
+            if callback:
+                callback(i)
+            if img_callback:
+                img_callback(img, i)
 
         if return_intermediates:
             return img, intermediates
@@ -1881,7 +1891,7 @@ class DiffusionWrapper(torch.nn.Module):
         return out
 
 
-class DiagonalGaussianDistribution(object):
+class DiagonalGaussianDistribution():
 
     def __init__(self, parameters, deterministic=False):
         self.parameters = parameters

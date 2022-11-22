@@ -21,7 +21,7 @@ class NonLocalAttn(nn.Module):
     """
 
     def __init__(self, in_channels, use_scale=True,  rd_ratio=1/8, rd_channels=None, rd_divisor=8, **kwargs):
-        super(NonLocalAttn, self).__init__()
+        super().__init__()
         if rd_channels is None:
             rd_channels = make_divisible(in_channels * rd_ratio, divisor=rd_divisor)
         self.scale = in_channels ** -0.5 if use_scale else 1.0
@@ -72,7 +72,7 @@ class NonLocalAttn(nn.Module):
 class BilinearAttnTransform(nn.Module):
 
     def __init__(self, in_channels, block_size, groups, act_layer=nn.ReLU, norm_layer=nn.BatchNorm2d):
-        super(BilinearAttnTransform, self).__init__()
+        super().__init__()
 
         self.conv1 = ConvNormAct(in_channels, groups, 1, act_layer=act_layer, norm_layer=norm_layer)
         self.conv_p = nn.Conv2d(groups, block_size * block_size * groups, kernel_size=(block_size, 1))

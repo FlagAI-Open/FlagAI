@@ -1,13 +1,13 @@
 """ Normalization + Activation Layers
 """
-from typing import Union, List
+from typing import List, Union
 
 import torch
-from torch import nn as nn
+from torch import nn
 from torch.nn import functional as F
 
-from .trace_utils import _assert
 from .create_act import get_act_layer
+from .trace_utils import _assert
 
 
 class BatchNormAct2d(nn.BatchNorm2d):
@@ -20,7 +20,7 @@ class BatchNormAct2d(nn.BatchNorm2d):
     def __init__(
             self, num_features, eps=1e-5, momentum=0.1, affine=True, track_running_stats=True,
             apply_act=True, act_layer=nn.ReLU, inplace=True, drop_layer=None):
-        super(BatchNormAct2d, self).__init__(
+        super().__init__(
             num_features, eps=eps, momentum=momentum, affine=affine, track_running_stats=track_running_stats)
         self.drop = drop_layer() if drop_layer is not None else nn.Identity()
         act_layer = get_act_layer(act_layer)  # string -> nn.Module
@@ -93,7 +93,7 @@ class GroupNormAct(nn.GroupNorm):
     def __init__(
             self, num_channels, num_groups=32, eps=1e-5, affine=True, group_size=None,
             apply_act=True, act_layer=nn.ReLU, inplace=True, drop_layer=None):
-        super(GroupNormAct, self).__init__(
+        super().__init__(
             _num_groups(num_channels, num_groups, group_size), num_channels, eps=eps, affine=affine)
         self.drop = drop_layer() if drop_layer is not None else nn.Identity()
         act_layer = get_act_layer(act_layer)  # string -> nn.Module
@@ -114,7 +114,7 @@ class LayerNormAct(nn.LayerNorm):
     def __init__(
             self, normalization_shape: Union[int, List[int], torch.Size], eps=1e-5, affine=True,
             apply_act=True, act_layer=nn.ReLU, inplace=True, drop_layer=None):
-        super(LayerNormAct, self).__init__(normalization_shape, eps=eps, elementwise_affine=affine)
+        super().__init__(normalization_shape, eps=eps, elementwise_affine=affine)
         self.drop = drop_layer() if drop_layer is not None else nn.Identity()
         act_layer = get_act_layer(act_layer)  # string -> nn.Module
         if act_layer is not None and apply_act:
@@ -134,7 +134,7 @@ class LayerNormAct2d(nn.LayerNorm):
     def __init__(
             self, num_channels, eps=1e-5, affine=True,
             apply_act=True, act_layer=nn.ReLU, inplace=True, drop_layer=None):
-        super(LayerNormAct2d, self).__init__(num_channels, eps=eps, elementwise_affine=affine)
+        super().__init__(num_channels, eps=eps, elementwise_affine=affine)
         self.drop = drop_layer() if drop_layer is not None else nn.Identity()
         act_layer = get_act_layer(act_layer)  # string -> nn.Module
         if act_layer is not None and apply_act:

@@ -6,13 +6,16 @@ from https://github.com/openai/gpt-2/, changed for chinese
 """
 import json
 import os
+
 import sentencepiece as spm
+
 from flagai.model.file_utils import _get_model_id, _get_vocab_path
+
 """
-SentencePiece is an unsupervised text tokenizer and detokenizer mainly for Neural Network-based text generation 
-systems where the vocabulary size is predetermined prior to the neural model training. SentencePiece implements 
-subword units (e.g., byte-pair-encoding (BPE) [Sennrich et al.]) and unigram language model [Kudo.]) with the 
-extension of direct training from raw sentences. SentencePiece allows us to make a purely end-to-end 
+SentencePiece is an unsupervised text tokenizer and detokenizer mainly for Neural Network-based text generation
+systems where the vocabulary size is predetermined prior to the neural model training. SentencePiece implements
+subword units (e.g., byte-pair-encoding (BPE) [Sennrich et al.]) and unigram language model [Kudo.]) with the
+extension of direct training from raw sentences. SentencePiece allows us to make a purely end-to-end
 system that does not depend on language-specific pre/postprocessing.
 https://github.com/google/sentencepiece
 
@@ -63,7 +66,7 @@ class Encoder:
                     j = word.index(first, i)
                     new_word.extend(word[i:j])
                     i = j
-                except:
+                except Exception:
                     new_word.extend(word[i:])
                     break
 

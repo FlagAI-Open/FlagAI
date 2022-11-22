@@ -16,8 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utilities for using and training tokenizers (char, wordpiece, sentencepiece)"""
-import torch
 from typing import List
+
+import torch
 
 PRETRAINED_VOCAB_ARCHIVE_MAP = {
     'bert-base-uncased':
@@ -36,9 +37,9 @@ PRETRAINED_VOCAB_ARCHIVE_MAP = {
     "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-chinese-vocab.txt",
 }
 
-from ..tokenizer import Tokenizer
+from ..tokenizer import CommandToken, Tokenizer
 from .wordpiece import BertTokenizer
-from ..tokenizer import CommandToken
+
 
 class BertWordPieceTokenizer(Tokenizer):
     """

@@ -2,9 +2,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from io import open
-import jieba
 import collections
+from io import open
+
+import jieba
 import six
 
 try:
@@ -16,52 +17,52 @@ except ImportError:
         return lambda func: func
 
 def convert_to_unicode(text):
-  """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
-  if six.PY3:
-    if isinstance(text, str):
-      return text
-    elif isinstance(text, bytes):
-      return text.decode("utf-8", "ignore")
+    """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
+    if six.PY3:
+        if isinstance(text, str):
+            return text
+        elif isinstance(text, bytes):
+            return text.decode("utf-8", "ignore")
+        else:
+            raise ValueError("Unsupported string type: %s" % (type(text)))
+    elif six.PY2:
+        if isinstance(text, str):
+            return text.decode("utf-8", "ignore")
+        elif isinstance(text):
+            return text
+        else:
+            raise ValueError("Unsupported string type: %s" % (type(text)))
     else:
-      raise ValueError("Unsupported string type: %s" % (type(text)))
-  elif six.PY2:
-    if isinstance(text, str):
-      return text.decode("utf-8", "ignore")
-    elif isinstance(text):
-      return text
-    else:
-      raise ValueError("Unsupported string type: %s" % (type(text)))
-  else:
-    raise ValueError("Not running on Python2 or Python 3?")
+        raise ValueError("Not running on Python2 or Python 3?")
 
 def load_vocab(vocab_file):
-  """Loads a vocabulary file into a dictionary."""
-  vocab = collections.OrderedDict()
-  index = 0
-  with open(vocab_file, "r", encoding="utf-8") as reader:
-    while True:
-      token = convert_to_unicode(reader.readline())
-      if not token:
-        break
-      token = token.strip()
-      vocab[token] = index
-      index += 1
-  return vocab
+    """Loads a vocabulary file into a dictionary."""
+    vocab = collections.OrderedDict()
+    index = 0
+    with open(vocab_file, "r", encoding="utf-8") as reader:
+        while True:
+            token = convert_to_unicode(reader.readline())
+            if not token:
+                break
+            token = token.strip()
+            vocab[token] = index
+            index += 1
+    return vocab
 
 def is_contain_chinese(check_str):
     for ch in check_str:
-        if u'\u4e00' <= ch <= u'\u9fff':
+        if '\u4e00' <= ch <= '\u9fff':
             return True
     return False
 
 def is_contain_point(check_str):
     for ch in check_str:
-        if u'0' <= ch <= u'9':
+        if '0' <= ch <= '9':
             return True
     return False
 
 
-class WordpieceTokenizer(object):
+class WordpieceTokenizer():
 
     def __init__(self, vocab, unk_token="<unk>", max_input_chars_per_word=200):
         self.vocab = vocab
@@ -104,11 +105,11 @@ class WordpieceTokenizer(object):
         return sub_tokens
 
 
-class CPM3Tokenizer(object):
+class CPM3Tokenizer():
 
-    def __init__(self, 
-                 vocab_file, 
-                 max_len = None, 
+    def __init__(self,
+                 vocab_file,
+                 max_len = None,
                  q2b = False,
                  eod_token = '</d>',
                  eos_token = '</s>',
@@ -133,7 +134,7 @@ class CPM3Tokenizer(object):
         self.encoder[self._line_token] = len(self.encoder)
         self.decoder = {v : k for k, v in self.encoder.items()}
 
-        self.wordpiece_tokenizer = WordpieceTokenizer(vocab = self.encoder, 
+        self.wordpiece_tokenizer = WordpieceTokenizer(vocab = self.encoder,
                                                       unk_token = self.unk_token)
 
         self.trans_common = str.maketrans(" \n", "\u2582\u2583")

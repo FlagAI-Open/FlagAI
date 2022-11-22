@@ -1,9 +1,10 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.data.tokenizer.bert.wordpiece import BertTokenizer as Tokenizer
-from transformers import BertTokenizer
 import jieba
+from transformers import BertTokenizer
+
+from flagai.data.tokenizer.bert.wordpiece import BertTokenizer as Tokenizer
 
 
 class T5PegasusTokenizer(Tokenizer):

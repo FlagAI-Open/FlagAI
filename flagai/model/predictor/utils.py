@@ -2,22 +2,24 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import json
-import os
-from typing import List
-import torch
-import numpy as np
-import torch.nn.functional as F
-import time
-from PIL import Image
-from itertools import islice
-from transformers import AutoFeatureExtractor
 import math
+import os
+import time
+from itertools import islice
+from typing import List
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from transformers import AutoFeatureExtractor
 
 join = os.path.join
 
 def get_safety_checker():
     # load safety model
-    from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+    from diffusers.pipelines.stable_diffusion.safety_checker import \
+        StableDiffusionSafetyChecker
     safety_model_id = "CompVis/stable-diffusion-safety-checker"
     safety_feature_extractor = AutoFeatureExtractor.from_pretrained(
         safety_model_id)
@@ -105,7 +107,7 @@ class RepetitionPenaltyLogitsProcessor(LogitsProcessor):
     """
 
     def __init__(self, penalty: float):
-        if not isinstance(penalty, float) or not (penalty > 0):
+        if not isinstance(penalty, float) or not penalty > 0:
             raise ValueError(
                 f"`penalty` has to be a strictly positive float, but is {penalty}"
             )
@@ -134,7 +136,7 @@ class TemperatureLogitsProcessor(LogitsProcessor):
     """
 
     def __init__(self, temperature: float):
-        if not isinstance(temperature, float) or not (temperature > 0):
+        if not isinstance(temperature, float) or not temperature > 0:
             raise ValueError(
                 f"`temperature` has to be a strictly positive float, but is {temperature}"
             )
@@ -249,7 +251,7 @@ class ListProcessor(LogitsProcessor):
         return scores
 
 
-class BeamHypotheses(object):
+class BeamHypotheses():
 
     def __init__(self,
                  n_hyp,
@@ -1006,7 +1008,7 @@ def glm_generate_sample(
     eod_token=50000,
     temperature=0.9,
 ):
-    device = next(model.parameters()).device 
+    device = next(model.parameters()).device
     model.eval()
 
     generation_mask = '[gMASK]'
@@ -1576,7 +1578,7 @@ def cpm_beam_search(model,
                     min_len=None,
                     **kwags):
     print('tokenizer is', tokenizer)
-    device = next(model.parameters()).device  
+    device = next(model.parameters()).device
     vocab_size = tokenizer.vocab_size
 
     ids, info = encode(tokenizer, instance, target_span_len)

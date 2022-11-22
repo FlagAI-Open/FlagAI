@@ -1,10 +1,11 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys
-import os
-import torch
 import copy
+import os
+import sys
+
+import torch
 
 checkpoint = sys.argv[1]
 target_mp = int(sys.argv[2])
@@ -27,7 +28,7 @@ filenames = [os.path.join(checkpoint, x) for x in filenames]
 
 if target_mp == len(filenames):
     print("MP size keeps the same.")
-    exit(0)
+    sys.exit(0)
 
 if sys.argv[1][-1] == '/':
     new_checkpoint = sys.argv[1][:-1] + '_MP' + sys.argv[2]

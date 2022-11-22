@@ -1,4 +1,5 @@
-from transformers import  CLIPProcessor
+from transformers import CLIPProcessor
+
 
 # basically, we just change the tokenizer from CLIP to XLM-R.
 class AltCLIPProcessor(CLIPProcessor):

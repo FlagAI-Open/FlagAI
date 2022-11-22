@@ -2,10 +2,12 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
+
 try:
     from apex.optimizers import FusedAdam as Adam
-except:
+except Exception:
     from torch.optim import Adam
+
 from .fp16 import FP16_Optimizer
 
 

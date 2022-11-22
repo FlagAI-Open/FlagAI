@@ -11,22 +11,22 @@ Copyright by the AllenNLP authors.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
 import json
 import logging
 import os
 import shutil
+import sys
 import tempfile
 from functools import wraps
 from hashlib import sha256
-import sys
 from io import open
+from urllib.parse import urlparse
 
 import boto3
 import requests
 from botocore.exceptions import ClientError
 from tqdm import tqdm
-
-from urllib.parse import urlparse
 
 try:
     from pathlib import Path

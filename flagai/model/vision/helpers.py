@@ -1,11 +1,16 @@
 
 import os
+
 if os.getenv('ENV_TYPE') == 'deepspeed':
-    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+    from deepspeed.runtime.activation_checkpointing.checkpointing import \
+        checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
-import torch
+
 from itertools import chain
+
+import torch
+
 
 def checkpoint_seq(
         functions,
@@ -67,4 +72,3 @@ def checkpoint_seq(
     if skip_last:
         return run_function(end + 1, len(functions) - 1, functions)(x)
     return x
-

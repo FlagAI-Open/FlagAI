@@ -8,13 +8,14 @@ Hacked together by / Copyright 2020 Ross Wightman
 
 import math
 from functools import partial
+
 import numpy as np
 import torch
-from torch import nn as nn
+from torch import nn
 from torch.nn import functional as F
 
-from .helpers import to_2tuple
 from .conv2d_same import conv2d_same
+from .helpers import to_2tuple
 from .padding import get_padding_value
 
 
@@ -42,7 +43,7 @@ class CondConv2d(nn.Module):
 
     def __init__(self, in_channels, out_channels, kernel_size=3,
                  stride=1, padding='', dilation=1, groups=1, bias=False, num_experts=4):
-        super(CondConv2d, self).__init__()
+        super().__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels

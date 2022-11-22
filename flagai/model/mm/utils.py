@@ -1,25 +1,20 @@
-from itertools import repeat
 import collections.abc
 import importlib
-
-import torch
-import numpy as np
-from collections import abc
-from einops import rearrange
-from functools import partial
-
-import multiprocessing as mp
-from threading import Thread
-from queue import Queue
-
-from inspect import isfunction
-from PIL import Image, ImageDraw, ImageFont
-
-import os
 import math
-import torch.nn as nn
+import multiprocessing as mp
+import os
+from collections import abc
+from functools import partial
+from inspect import isfunction
+from itertools import repeat
+from queue import Queue
+from threading import Thread
+
 import numpy as np
-from einops import repeat
+import torch
+from torch import nn
+from einops import rearrange, repeat
+from PIL import Image, ImageDraw, ImageFont
 
 
 # From PyTorch internals
@@ -53,7 +48,7 @@ def log_txt_as_img(wh, xc, size=10):
             lines = "\n".join(xc[bi][start:start + nc]
                               for start in range(0, len(xc[bi]), nc))
             draw.text((0, 0), lines, fill="black", font=font)
-        except:
+        except Exception:
             print("Cant encode string for logging. Skipping.")
 
         txt = np.array(txt).transpose(2, 0, 1) / 127.5 - 1.0
@@ -147,7 +142,7 @@ def parallel_data_prefetch(func: callable,
     elif isinstance(data, abc.Iterable):
         if isinstance(data, dict):
             print(
-                f'WARNING:"data" argument passed to parallel_data_prefetch is a dict: Using only its values and disregarding keys.'
+                'WARNING:"data" argument passed to parallel_data_prefetch is a dict: Using only its values and disregarding keys.'
             )
             data = list(data.values())
         if target_data_type == "ndarray":
@@ -182,7 +177,7 @@ def parallel_data_prefetch(func: callable,
         processes += [p]
 
     # start processes
-    print(f"Start prefetching...")
+    print("Start prefetching...")
     import time
 
     start = time.time()

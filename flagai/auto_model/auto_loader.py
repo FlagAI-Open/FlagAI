@@ -1,13 +1,14 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import copy
 import importlib
 import os
-import copy
-from  flagai.model.file_utils import _get_model_id
+
+from flagai.model.file_utils import _get_model_id
 
 
-class LazyImport(object):
+class LazyImport():
 
     def __init__(self, name):
         self.cache = {}
@@ -235,7 +236,7 @@ class AutoLoader:
 
     def get_model(self):
         return self.model
-    
+
     def get_transform(self):
         return self.transform
 

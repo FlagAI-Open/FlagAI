@@ -70,9 +70,11 @@ def normal_init_method(mean=0.0, std=0.02):
         return torch.nn.init.normal_(tensor, mean=mean, std=std)
 
     return init_
-    
-from itertools import repeat
+
 import collections.abc
+from itertools import repeat
+
+
 # From PyTorch internals
 def _ntuple(n):
     def parse(x):
@@ -82,4 +84,4 @@ def _ntuple(n):
     return parse
 
 
-to_2tuple = _ntuple(2) #for clip 
+to_2tuple = _ntuple(2) #for clip

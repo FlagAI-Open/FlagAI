@@ -1,7 +1,8 @@
+import math
+
+import numpy as np
 import torch
 import torch.nn.functional as F
-import numpy as np
-import math
 
 task_ids = {
         'lm':0,
@@ -13,7 +14,7 @@ task_ids = {
         'expand_para':6,
 }
 
-class BeamHypotheses(object):
+class BeamHypotheses():
 
     def __init__(self, n_hyp, max_len, length_penalty, early_stopping, tokenizer=None):
         """
@@ -47,7 +48,7 @@ class BeamHypotheses(object):
                 self.worst_score = sorted_scores[1][0]
             else:
                 self.worst_score = min(score, self.worst_score)
-        
+
     def is_done(self, best_sum_logprobs, cur_len):
         """
         If there are enough hypotheses and that none of the hypotheses being generated
@@ -87,9 +88,9 @@ def calc_banned_ngram_tokens(
             prev_input_ids = prev_input_ids[:, max(start_idx, end_idx + 1 - window_size): end_idx+1]
         else:
             prev_input_ids = prev_input_ids[:, start_idx: end_idx+1]
-        
+
     cur_len = prev_input_ids.size(1)
-    
+
     if cur_len + 1 < ngram_size:
         # return no banned tokens if we haven't generated no_repeat_ngram_size tokens yet
         return [[] for _ in range(num_hypos)]
@@ -142,7 +143,7 @@ def top_k_logits(logits, top_k=0, top_p=0.0, filter_value=-float("inf")):
 def calc_banned_bad_words_ids(prev_input_ids, bad_words_ids, start_idx=None,  end_idx=None):
     if start_idx is not None and end_idx is not None:
         prev_input_ids = prev_input_ids[:, start_idx: end_idx+1]
-        
+
     banned_tokens = []
 
     def _tokens_match(prev_tokens, tokens):
@@ -177,11 +178,11 @@ def calc_banned_bad_words_ids(prev_input_ids, bad_words_ids, start_idx=None,  en
     return banned_tokens
 
 
-def enforce_repetition_penalty_(tokenizer, 
-                                lprobs, 
-                                batch_size, 
-                                num_beams, 
-                                prev_output_tokens, 
+def enforce_repetition_penalty_(tokenizer,
+                                lprobs,
+                                batch_size,
+                                num_beams,
+                                prev_output_tokens,
                                 repetition_penalty,
                                 start_idx=None,
                                 end_idx=None,
@@ -266,7 +267,7 @@ def make_input_cpm3(ctx, info, prompt_length):
     # 保证end一定能看见
     for i in range(1, len(info)-1, 2):
         context_inp[info[i]:info[i+1]] = False
-    
+
     tgt = np.full((len_inp), -100, dtype = np.int64)
     tgt[:-1] = np.where(
         context_inp[1:],
@@ -281,7 +282,7 @@ def make_input_cpm3(ctx, info, prompt_length):
         arr = [(2, info[0]), (1, 0), (1, info[-1])]
     else:
         arr = [(2, info[0]), (2+task, info[1]), (1, info[-1])]
-    
+
     last = prompt_length
     for (typ, end) in arr:
         if end > last:
@@ -385,7 +386,7 @@ def get_control(control, tokenizer, task):
         res = keywords + relations + events
     else:
         raise ValueError("task id error")
-    
+
     return res
 
 
@@ -407,14 +408,14 @@ def encode(tokenizer, i, target_span_len=100, use_target=False):
 
     ids += control
     info.append(len(control))
-    
+
     assert len(i['source']) <= 2
     src = i['source'][0]
 
     src_ids = convert_to_ids(tokenizer, src)
     src_ids = [tokenizer.bos_id] + src_ids
     if task != 0:
-         src_ids += [tokenizer.eos_id]
+        src_ids += [tokenizer.eos_id]
     ids += src_ids
     info.append(len(src_ids))
     if not use_target:
@@ -451,7 +452,7 @@ def encode(tokenizer, i, target_span_len=100, use_target=False):
         ids += tgt_ids
         # 不控制长度，eos自己生成
         info.extend([len(tgt_ids), 0])
-        
+
     info = info[:1] + np.cumsum(info[1:]).tolist()
 
     assert len(ids) == info[-1]
@@ -487,7 +488,7 @@ def generate_no_beam_cpm3(model, tokenizer, instance, target_span_len,
                 logits, _, past_key_values, cached_attn_mask_pos_bias = model(input_tokens, input_length, context_input, position_input, segment_input, span_input, past_key_values, rig, i, cached_attn_mask_pos_bias)
             else:
                 logits, _, past_key_values, cached_attn_mask_pos_bias = model(input_tokens[:, i:i+1], input_length, context_input, position_input, segment_input, span_input, past_key_values, rig, i, cached_attn_mask_pos_bias)
-  
+
             logits = logits[:, -1, :]
             logits = postprocess_next_token_scores(
                 tokenizer=tokenizer,
@@ -516,7 +517,7 @@ def generate_no_beam_cpm3(model, tokenizer, instance, target_span_len,
             # early stop, Note: not supports multi-GPUs
             if next_token == tokenizer.eos_id:
                 break
-        
+
         if instance['mode'] == 'lm':
             decode_start_idx = lef
         else:
@@ -540,7 +541,7 @@ def enlarge_past_key_values(past_key_values, beam_width):
             item = item.unsqueeze(1).expand(-1, beam_width, -1, -1, -1).reshape(bsz*beam_width, num_head, seq_len, esz)    # [bsz*beam, num_head, seq_len, esz]
             items.append(item)
         new_key_values.append(items)
-    return new_key_values            
+    return new_key_values
 
 def generate_contrastive_search_cpm3(model, tokenizer, instance, target_span_len,
                      top_k = 5, alpha=0.7,
@@ -587,7 +588,7 @@ def generate_contrastive_search_cpm3(model, tokenizer, instance, target_span_len
                 window_size=None,
                 min_len=min_len
             )
-            
+
             if prev_hidden_states is None:
                 # only penalize model output
                 prev_hidden_states = hidden_states.new_zeros(hidden_states.size(0), 0, hidden_states.size(2)).float()
@@ -596,7 +597,7 @@ def generate_contrastive_search_cpm3(model, tokenizer, instance, target_span_len
 
             probs = F.softmax(logits, dim=-1)
             cand_probs, cand_ids = torch.topk(probs, top_k, dim=-1, largest=True, sorted=True)
-            
+
             if prev_hidden_states.size(1) == 0:
                 best_id = cand_ids[0, 0]
             else:
@@ -616,7 +617,7 @@ def generate_contrastive_search_cpm3(model, tokenizer, instance, target_span_len
                 batch_cached_pos_bias = cached_pos_bias.expand(top_k, -1, -1, -1)
                 batch_cached_attn_mask_pos_bias = (batch_cached_attn_mask, batch_cached_pos_bias)
                 batch_past_key_values = enlarge_past_key_values(past_key_values, top_k)
-                
+
                 # contrastive search
                 batch_input_tokens[torch.arange(top_k).long(), i+1] = cand_ids[0].int()
                 _, hidden_states, _, _ = model(batch_input_tokens[:, i+1:i+2], batch_input_length, batch_context_input, batch_position_input, batch_segment_input, batch_span_input, batch_past_key_values, rig, i+1, batch_cached_attn_mask_pos_bias)
@@ -627,19 +628,18 @@ def generate_contrastive_search_cpm3(model, tokenizer, instance, target_span_len
                 scores = (1 - alpha) * cand_probs.squeeze(0) - alpha * max_scores
                 _, selected_idx  = torch.topk(scores, k = 1)
                 best_id = torch.gather(cand_ids.squeeze(0), dim = 0, index=selected_idx)
-                
             input_tokens[0][i + 1] = best_id
 
             if best_id == tokenizer.eos_id:
                 break
-        
+
         if instance['mode'] == 'lm':
             decode_start_idx = lef
         else:
             decode_start_idx = lef+1
 
         for idx, id in enumerate(input_tokens[0][decode_start_idx:].cpu().numpy()):
-            token = tokenizer.decode([id])            
+            token = tokenizer.decode([id])
             if id == tokenizer.eos_id or id == tokenizer.pad_id:
                 break
 
@@ -649,7 +649,7 @@ def generate_contrastive_search_cpm3(model, tokenizer, instance, target_span_len
 def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
                      temperature = .9, top_k = 0, top_p = 0.9,
                      no_repeat_ngram_size = 0, repetition_penalty = 1, random_sample=False, min_len=None):
-    
+
     vocab_size = tokenizer.vocab_size
 
     ids, info = encode(tokenizer, instance, target_span_len)
@@ -657,18 +657,18 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
     prompt_length = 64
     input_tokens, input_length, context_input, position_input, segment_input, span_input, _ = make_input_cpm3(ids, info, prompt_length)
 
-    # (batch, max_length) 
+    # (batch, max_length)
     max_length = input_tokens.size(-1)
     batch_size = input_tokens.size(0)
 
-    # (batch, beam_size, max_length)    
+    # (batch, beam_size, max_length)
     input_tokens = input_tokens.unsqueeze(1).expand(batch_size, beam_size, max_length)
     input_length = input_length.unsqueeze(1).expand(batch_size, beam_size)
     span_input = span_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
     context_input = context_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
     position_input = position_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
     segment_input = segment_input.unsqueeze(1).expand(batch_size, beam_size, max_length)
-    # (batch * beam_size, max_length)    
+    # (batch * beam_size, max_length)
     input_tokens = input_tokens.contiguous().view(batch_size * beam_size, max_length)
     input_length = input_length.contiguous().view(batch_size * beam_size,)
     span_input = span_input.contiguous().view(batch_size * beam_size, max_length)
@@ -685,7 +685,7 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
 
     done = [False for _ in range(batch_size)]
     # (batch_size * beam_size, 0)
-    
+
     beam_scores = torch.zeros((batch_size, beam_size), dtype=torch.float, device=input_tokens.device)
     beam_scores[:, 1:] = -1e9 # 确保第一次只在一个vocab大小里选取
     beam_scores = beam_scores.view(-1)
@@ -741,7 +741,7 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
                 assert temperature != 0, "temperature should not be zero!"
                 scores = scores - math.log(temperature)
                 _scores = scores + beam_scores[:, None].expand_as(scores)
-                             
+
                 _scores = top_k_logits(_scores, top_k=top_k, top_p=top_p)
                 _scores = _scores.contiguous().view(batch_size, beam_size * vocab_size)
                 # Sample 2 next tokens for each beam (so we have some spare tokens and match output of greedy beam search)
@@ -751,7 +751,7 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
                 next_scores = torch.gather(_scores, -1, next_words)  # (batch_size, beam_size * 2)
                 # sort the sampled vector to make sure that the first beam_size samples are the best
                 next_scores, next_scores_indices = torch.sort(next_scores, descending=True, dim=1)
-                next_words = torch.gather(next_words, -1, next_scores_indices)  # (batch_size, beam_size * 2)            
+                next_words = torch.gather(next_words, -1, next_scores_indices)  # (batch_size, beam_size * 2)
             else:
                 next_scores = scores + beam_scores[:, None].expand_as(scores)  # (batch_size * beam_size, vocab_size)
 
@@ -805,7 +805,7 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
             # At the last step, we should not add the token to the next position
             if i == rig - 1:
                 break
-            
+
             # sanity check / prepare next batch
             assert len(next_batch_beam) == batch_size * beam_size
             beam_scores = beam_scores.new([x[0] for x in next_batch_beam])
@@ -815,7 +815,7 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
             # re-order batch and internal states
             input_tokens = input_tokens[beam_idx, :]
             input_tokens[:, lef + cur_len] = beam_words
-            
+
             for key_value_layer in past_key_values:
                 key_value_layer[0] = key_value_layer[0][beam_idx]
                 key_value_layer[1] = key_value_layer[1][beam_idx]
@@ -829,12 +829,12 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
         for i, hypotheses in enumerate(generated_hyps):
             best_hyp = max(hypotheses.hyp, key=lambda x: x[0])[1]
             best.append(best_hyp)
-        
+
         if instance['mode'] == 'lm':
             decode_start_idx = 0
         else:
-            decode_start_idx = 1  
-              
+            decode_start_idx = 1
+
         for id in best[0][decode_start_idx:].cpu().numpy():
             token = tokenizer.decode([id])
 
@@ -846,7 +846,7 @@ def generate(model, tokenizer, instance, target_span_len, beam,
                      random_sample=False, min_len=None, contrastive_search=False):
     if contrastive_search:
         generation_str = generate_contrastive_search_cpm3(model, tokenizer, instance, target_span_len,
-                                    5, 0.7, 
+                                    5, 0.7,
                                 no_repeat_ngram_size, repetition_penalty, random_sample, min_len)
     else:
         if beam == 1:
@@ -859,4 +859,3 @@ def generate(model, tokenizer, instance, target_span_len, beam,
                                         no_repeat_ngram_size, repetition_penalty, random_sample, min_len)
 
     return generation_str
-

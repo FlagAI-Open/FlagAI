@@ -70,7 +70,7 @@ def read_file():
 class BertSeq2seqDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(BertSeq2seqDataset, self).__init__()
+        super().__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer

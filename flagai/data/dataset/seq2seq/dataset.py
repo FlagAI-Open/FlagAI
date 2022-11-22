@@ -1,14 +1,16 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import os
 import json
+import os
 import random
-from re import T
-import torch.utils.data
-import numpy as np
-from ..data_utils import InputExample
 import zipfile
+from re import T
+
+import numpy as np
+import torch.utils.data
+
+from ..data_utils import InputExample
 
 print_rank_0 = print
 
@@ -388,7 +390,7 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
                  src_seq_length=608,
                  tgt_seq_length=160):
         self.task_name = task_name
-        self.data_dir = data_dir 
+        self.data_dir = data_dir
         self.max_src_length, self.max_tgt_length = src_seq_length, tgt_seq_length
         self.dataset_type = dataset_type
         self.tokenizer = tokenizer

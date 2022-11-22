@@ -2,7 +2,7 @@
 # Copyright © 2022 BAAI. All rights reserved.
 """
 
-""" 
+"""
 Vision Transformer (ViT) in PyTorch
 A PyTorch implement of Vision Transformers as described in:
 'An Image Is Worth 16 x 16 Words: Transformers for Image Recognition at Scale'
@@ -21,19 +21,20 @@ Hacked together by / Copyright 2020, Ross Wightman
 
 import math
 from functools import partial
-from typing import Optional
+from typing import Callable, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
-import torch.utils.checkpoint
-from typing import Callable
-from flagai.model.vision.layers.patch_embed import PatchEmbed
-from flagai.model.vision.layers.mlp import Mlp
-from flagai.model.vision.layers.drop import DropPath
-from flagai.model.vision.layers.weight_init import trunc_normal_, lecun_normal_
+from torch.utils import checkpoint
+
 from flagai.model.base_model import BaseModel
 from flagai.model.vision.helpers import checkpoint_seq
+from flagai.model.vision.layers.drop import DropPath
+from flagai.model.vision.layers.mlp import Mlp
+from flagai.model.vision.layers.patch_embed import PatchEmbed
+from flagai.model.vision.layers.weight_init import lecun_normal_, trunc_normal_
+
 
 class VitConfig:
     def __init__(self,
@@ -491,7 +492,3 @@ def checkpoint_filter_fn(state_dict, model):
             continue
         out_dict[k] = v
     return out_dict
-
-
-
-

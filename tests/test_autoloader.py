@@ -1,8 +1,10 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.auto_model.auto_loader import AutoLoader
 import unittest
+
+from flagai.auto_model.auto_loader import AutoLoader
+
 
 class AutoLoaderTestCase(unittest.TestCase):
 
@@ -22,7 +24,7 @@ class AutoLoaderTestCase(unittest.TestCase):
     def test_GLM_large_en(self):
         for t_name  in self.task_name:
             m_name = 'GLM-large-en'
-            
+
             loader = AutoLoader(task_name=t_name,
                                 model_name=m_name,
                                 class_num=3,
@@ -34,7 +36,7 @@ class AutoLoaderTestCase(unittest.TestCase):
     def test_GLM_large_ch(self):
         for t_name  in self.task_name:
             m_name = 'GLM-large-ch'
-            
+
             loader = AutoLoader(task_name=t_name,
                                 model_name=m_name,
                                 class_num=3,
@@ -46,7 +48,7 @@ class AutoLoaderTestCase(unittest.TestCase):
     def test_BERT_base_en(self):
         for t_name  in self.task_name:
             m_name = 'BERT-base-en'
-            
+
             loader = AutoLoader(task_name=t_name,
                                 model_name=m_name,
                                 class_num=3,
@@ -58,7 +60,7 @@ class AutoLoaderTestCase(unittest.TestCase):
     def test_RoBERTa_base_ch(self):
         for t_name  in self.task_name:
             m_name = 'RoBERTa-base-ch'
-            
+
             loader = AutoLoader(task_name=t_name,
                                 model_name=m_name,
                                 class_num=3,
@@ -71,7 +73,7 @@ class AutoLoaderTestCase(unittest.TestCase):
     def test_GPT2_base_ch(self):
         for t_name  in self.task_name:
             m_name = 'GPT2-base-ch'
-            
+
             loader = AutoLoader(task_name=t_name,
                                 model_name=m_name,
                                 class_num=3,
@@ -114,7 +116,7 @@ class AutoLoaderTestCase(unittest.TestCase):
                 f"task_name is lm, model_name is {m_name}"
             )
 
-   
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(AutoLoaderTestCase('test_GLM_large_ch'))

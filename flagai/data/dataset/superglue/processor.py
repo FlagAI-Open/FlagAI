@@ -1,21 +1,22 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import zipfile
-from abc import ABC, abstractmethod
-import os
-import pandas as pd
-import csv
-from ..data_utils import InputExample, List, num_special_tokens_to_add, build_input_from_ids, build_sample
-
-from ..data_utils import punctuation_standardization
-
-from collections import defaultdict, Counter
 import copy
+import csv
 import glob
+import json
+import os
 import random
 import re
-import json
+import zipfile
+from abc import ABC, abstractmethod
+from collections import Counter, defaultdict
+
+import pandas as pd
+
+from ..data_utils import (InputExample, List, build_input_from_ids,
+                          build_sample, num_special_tokens_to_add,
+                          punctuation_standardization)
 
 print_rank_0 = print
 
@@ -125,7 +126,7 @@ class DataProcessor(ABC):
 class SuperGLUEProcessor(DataProcessor):
 
     def __init__(self, few_superglue):
-        super(SuperGLUEProcessor, self).__init__(few_superglue)
+        super().__init__(few_superglue)
         self.few_superglue = few_superglue
 
     def get_train_examples(self, data_dir):

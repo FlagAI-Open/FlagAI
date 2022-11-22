@@ -1,9 +1,11 @@
 import os
+
 import torch
-import torchvision.datasets as datasets
-from flagai.auto_model.auto_loader import AutoLoader
+import torchvision.datasets
 from torch.utils.data import DataLoader
 from torchvision import transforms
+
+from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 data_path = "./imagenet2012/"
@@ -35,7 +37,7 @@ def data_loader(root, batch_size=64, workers=8):
                             shuffle=False,
                             num_workers=workers
                             )
-    
+
     return val_loader
 
 # 测试预训练权重

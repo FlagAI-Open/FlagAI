@@ -2,8 +2,10 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
+
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -17,7 +19,7 @@ tokenizer = auto_loader.get_tokenizer()
 
 model.load_state_dict(
     torch.load(model_save_path, map_location=device)["module"])
-    
+
 model.to(device)
 model.eval()
 predictor = Predictor(model, tokenizer)

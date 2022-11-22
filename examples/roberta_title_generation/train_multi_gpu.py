@@ -2,11 +2,13 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
+
 import torch
 from torch.utils.data import Dataset
+
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.trainer import Trainer
 from flagai.data.collate_utils import seq2seq_collate_fn
+from flagai.trainer import Trainer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -70,7 +72,7 @@ def read_file():
 class BertTitleGenerationDataset(Dataset):
 
     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(BertTitleGenerationDataset, self).__init__()
+        super().__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer

@@ -23,14 +23,18 @@ import itertools
 import logging
 
 logger = logging.getLogger(__name__)
-from flagai.data.tokenizer.tokenizer import CommandToken
-from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
-from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer, MMBPETokenizer
-from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
-from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
-from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer import FullTokenizer
-from typing import List, Union, Optional
 import unicodedata
+from typing import List, Optional, Union
+
+from flagai.data.tokenizer.tokenizer import CommandToken
+from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
+from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import (BPETokenizer,
+                                                               MMBPETokenizer)
+from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer import \
+    FullTokenizer
+from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import \
+    SentencePieceTokenizer
+from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
 
 
 def is_control(ch):
@@ -38,7 +42,7 @@ def is_control(ch):
     https://en.wikipedia.org/wiki/Control_character
     https://www.fileformat.info/info/unicode/category/Cc/index.htm
     https://www.fileformat.info/info/unicode/category/Cf/index.htm
-    
+
     """
     return unicodedata.category(ch) in ('Cc', 'Cf')
 
@@ -548,7 +552,7 @@ class Tokenizer(BaseTokenizer):
         for s in self._command_tokens:
             if not exception or (exception and s.name not in exception):
                 result.append(s.Id)
-        return (result)
+        return result
 
     def encode_plus_non_glm(
         self,

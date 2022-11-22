@@ -2,9 +2,11 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 
@@ -68,7 +70,7 @@ class GLMSeq2seqDataset(Dataset):
                  tokenizer,
                  max_src_length=300,
                  max_tgt_length=200):
-        super(GLMSeq2seqDataset, self).__init__()
+        super().__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer

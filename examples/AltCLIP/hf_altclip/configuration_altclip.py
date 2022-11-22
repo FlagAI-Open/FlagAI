@@ -1,5 +1,6 @@
-from transformers.models.xlm_roberta.configuration_xlm_roberta import XLMRobertaConfig
 from transformers.models.clip.configuration_clip import CLIPConfig
+from transformers.models.xlm_roberta.configuration_xlm_roberta import \
+    XLMRobertaConfig
 
 
 class RobertaSeriesConfig(XLMRobertaConfig):
