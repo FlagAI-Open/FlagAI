@@ -1,7 +1,7 @@
 import os
 
 import torch
-import torchvision.datasets
+import torchvision.datasets as datasets
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
