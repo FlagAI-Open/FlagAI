@@ -34,6 +34,7 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 - [Quick Started](#quick-start)
     - [Load model and tokenizer](#load-model-and-tokenizer)
     - [Predictor](#predictor)
+    - [text-to-image generation task](#text-to-image-generation-task)
     - [NER task](#ner-task)
     - [Title generation task](#title-generation-task)
     - [Semantic matching task](#semantic-matching-task)
@@ -123,6 +124,9 @@ for text in test_data:
 
 ## Pretrained Models and examples
 
+* [Text_image_matching with AltCLIP](/examples/AltCLIP/README.md)
+* [Text-to-image generation with AltDiffusion](/examples/AltDiffusion/README.md)
+* [Blank_Filling_QA with GLM ](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
 * [Blank_Filling_QA with GLM ](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
 * [Title Generation with GLM ](/docs/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
 * [Poetry generation with GLM-large-ch](docs/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)

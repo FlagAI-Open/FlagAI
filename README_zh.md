@@ -34,6 +34,7 @@
 - [快速上手](#快速上手)
     - [加载模型和分词器](#加载模型和分词器)
     - [使用预测器](#使用预测器)
+    - [文生图任务示例](#文生图任务示例)
     - [命名实体识别任务示例](#命名实体识别任务示例 )
     - [标题生成任务示例](#标题生成任务示例)
     - [语义相似度匹配任务示例](#语义相似度匹配任务示例)
@@ -190,6 +191,8 @@ for text_pair in test_data:
 ```
 
 # 预训练模型以及样例
+* [AltCLIP图文匹配](/examples/AltCLIP/README.md)
+* [AltDiffusion文生图](/examples/AltDiffusion/README.md)
 * [GLM-large-ch用户完形填空问答](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
 * [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
 * [GLM-large-ch用于标题生成](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
