@@ -76,11 +76,17 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.decode([21209, 5884, 817, 162, 1372]),
                          'fried chicken makes me happy', 'DecodeIds Error')
 
+    def test_tokenizer_clip(self):
+        loader = AutoLoader(task_name="txt_img_matching",
+                    model_name="clip-base-p32-224")
+        tokenizer = loader.get_tokenizer()
+        self.assertEqual(tokenizer.tokenize_as_tensor("cat")[0][:3].tolist(), [49406, 2368, 49407], '')
+
     def test_tokenizer_evaclip(self):
         loader = AutoLoader(task_name="txt_img_matching",
                     model_name="eva-clip")
         tokenizer = loader.get_tokenizer()
-        self.assertEqual(tokenizer.tokenize("cat")[0][:3].tolist(), [49406, 2368, 49407], '')
+        self.assertEqual(tokenizer.tokenize_as_tensor("cat")[0][:3].tolist(), [49406, 2368, 49407], '')
 
 
 def suite():
@@ -93,6 +99,7 @@ def suite():
     suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
     suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
     suite.addTest(TokenizerTestCase('test_tokenizer_opt'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_clip'))
     suite.addTest(TokenizerTestCase('test_tokenizer_evaclip'))
 
     return suite

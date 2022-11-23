@@ -145,7 +145,7 @@ class ClipTokenizer(object):
         text = bytearray([self.byte_decoder[c] for c in text]).decode('utf-8', errors="replace").replace('</w>', ' ')
         return text
 
-    def tokenize(self, texts: Union[str, List[str]], context_length: int = 77) -> torch.LongTensor:
+    def tokenize_as_tensor(self, texts: Union[str, List[str]], context_length: int = 77) -> torch.LongTensor:
         """
         Returns the tokenized representation of given input string(s)
 
