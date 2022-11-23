@@ -389,81 +389,81 @@ class Predictor:
             start_code = torch.randn([n_samples, C, H // f, W // f],
                                      device=device)
 
-        precision_scope = nullcontext
+        # precision_scope = nullcontext
         with torch.no_grad():
-            with precision_scope("cuda"):
-                with self.model.ema_scope():
-                    tic = time.time()
-                    all_samples = list()
-                    for n in trange(n_iter, desc="Sampling"):
-                        for prompts in tqdm(data, desc="data"):
-                            uc = None
-                            if scale != 1.0:
-                                uc = self.model.get_learned_conditioning(
-                                    batch_size * [""])
-                            if isinstance(prompts, tuple):
-                                prompts = list(prompts)
-                            c = self.model.get_learned_conditioning(prompts)
-                            shape = [C, H // f, W // f]
-                            samples_ddim, _ = sampler.sample(
-                                S=ddim_steps,
-                                conditioning=c,
-                                batch_size=n_samples,
-                                shape=shape,
-                                verbose=False,
-                                unconditional_guidance_scale=scale,
-                                unconditional_conditioning=uc,
-                                eta=ddim_eta,
-                                x_T=start_code)
+            # with precision_scope("cuda"):
+            with self.model.ema_scope():
+                tic = time.time()
+                all_samples = list()
+                for n in trange(n_iter, desc="Sampling"):
+                    for prompts in tqdm(data, desc="data"):
+                        uc = None
+                        if scale != 1.0:
+                            uc = self.model.get_learned_conditioning(
+                                batch_size * [""])
+                        if isinstance(prompts, tuple):
+                            prompts = list(prompts)
+                        c = self.model.get_learned_conditioning(prompts)
+                        shape = [C, H // f, W // f]
+                        samples_ddim, _ = sampler.sample(
+                            S=ddim_steps,
+                            conditioning=c,
+                            batch_size=n_samples,
+                            shape=shape,
+                            verbose=False,
+                            unconditional_guidance_scale=scale,
+                            unconditional_conditioning=uc,
+                            eta=ddim_eta,
+                            x_T=start_code)
 
-                            x_samples_ddim = self.model.decode_first_stage(
-                                samples_ddim)
-                            x_samples_ddim = torch.clamp(
-                                (x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
-                            x_samples_ddim = x_samples_ddim.cpu().permute(
-                                0, 2, 3, 1).numpy()
+                        x_samples_ddim = self.model.decode_first_stage(
+                            samples_ddim)
+                        x_samples_ddim = torch.clamp(
+                            (x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+                        x_samples_ddim = x_samples_ddim.cpu().permute(
+                            0, 2, 3, 1).numpy()
 
-                            x_checked_image, has_nsfw_concept = check_safety(safety_checker, safety_feature_extractor, x_samples_ddim)
+                        x_checked_image, has_nsfw_concept = check_safety(safety_checker, safety_feature_extractor, x_samples_ddim)
 
-                            x_checked_image_torch = torch.from_numpy(
-                                x_checked_image).permute(0, 3, 1, 2)
+                        x_checked_image_torch = torch.from_numpy(
+                            x_checked_image).permute(0, 3, 1, 2)
 
-                            prompt_count = 0
-                            if not skip_save:
-                                for x_sample in x_checked_image_torch:
-                                    x_sample = 255. * rearrange(
-                                        x_sample.cpu().numpy(),
-                                        'c h w -> h w c')
-                                    img = Image.fromarray(
-                                        x_sample.astype(np.uint8))
-                                    img.save(
-                                        os.path.join(sample_path,
-                                                     f"{base_count:05}.png"))
-                                    #img.save(os.path.join(sample_path, f"{prompts[prompt_count]}.png"))
+                        prompt_count = 0
+                        if not skip_save:
+                            for x_sample in x_checked_image_torch:
+                                x_sample = 255. * rearrange(
+                                    x_sample.cpu().numpy(),
+                                    'c h w -> h w c')
+                                img = Image.fromarray(
+                                    x_sample.astype(np.uint8))
+                                img.save(
+                                    os.path.join(sample_path,
+                                                    f"{base_count:05}.png"))
+                                #img.save(os.path.join(sample_path, f"{prompts[prompt_count]}.png"))
 
-                                    base_count += 1
-                                    prompt_count = prompt_count % batch_size
-                                    prompt_count += 1
+                                base_count += 1
+                                prompt_count = prompt_count % batch_size
+                                prompt_count += 1
 
-                            if not skip_grid:
-                                all_samples.append(x_checked_image_torch)
+                        if not skip_grid:
+                            all_samples.append(x_checked_image_torch)
 
-                    if not skip_grid:
-                        # additionally, save as grid
-                        grid = torch.stack(all_samples, 0)
-                        grid = rearrange(grid, 'n b c h w -> (n b) c h w')
-                        grid = make_grid(grid, nrow=n_rows)
+                if not skip_grid:
+                    # additionally, save as grid
+                    grid = torch.stack(all_samples, 0)
+                    grid = rearrange(grid, 'n b c h w -> (n b) c h w')
+                    grid = make_grid(grid, nrow=n_rows)
 
-                        # to image
-                        grid = 255. * rearrange(
-                            grid, 'c h w -> h w c').cpu().numpy()
-                        img = Image.fromarray(grid.astype(np.uint8))
-                        # img = put_watermark(img, wm_encoder)
-                        img.save(
-                            os.path.join(outpath, f'grid-{grid_count:04}.png'))
-                        grid_count += 1
+                    # to image
+                    grid = 255. * rearrange(
+                        grid, 'c h w -> h w c').cpu().numpy()
+                    img = Image.fromarray(grid.astype(np.uint8))
+                    # img = put_watermark(img, wm_encoder)
+                    img.save(
+                        os.path.join(outpath, f'grid-{grid_count:04}.png'))
+                    grid_count += 1
 
-                    toc = time.time()
+                toc = time.time()
 
         print(
             f"Your samples are ready and waiting for you here: \n{outpath} \n"
