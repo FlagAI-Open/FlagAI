@@ -18,7 +18,7 @@ elif os.getenv('ENV_TYPE') == 'pytorch' or os.getenv('ENV_TYPE') == 'pytorchDDP'
 else :
     print(f"not support the {os.getenv('ENV_TYPE')} for checkpoint activation")
 
-from .utils import to_2tuple
+from ..vision.layers import to_2tuple
 from flagai.model.base_model import BaseModel
 from ..layers.activations import QuickGELUActivation # NOTE This is slower than nn.GELU or nn.SiLU and uses more GPU memory
 # contrastive loss function, adapted from

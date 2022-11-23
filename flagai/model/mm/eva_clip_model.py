@@ -14,10 +14,10 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from timm.models.layers import drop_path, to_2tuple, trunc_normal_
 
 from flagai.model.base_model import BaseModel
 from ..layers.activations import QuickGELUActivation # NOTE This is slower than nn.GELU or nn.SiLU and uses more GPU memory
+from ..vision.layers import drop_path, to_2tuple, trunc_normal_
 
 def _cfg(url='', **kwargs):
     return {

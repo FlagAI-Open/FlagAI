@@ -21,7 +21,7 @@ cifar100 = CIFAR100(root=os.path.expanduser("~/.cache"), download=True, train=Fa
 # Prepare the inputs
 image, class_id = cifar100[3637]
 image_input = transform(image).unsqueeze(0).to(device)
-text_inputs = torch.cat([tokenizer.tokenize(f"a photo of a {c}") for c in cifar100.classes]).to(device)
+text_inputs = torch.cat([tokenizer.tokenize_as_tensor(f"a photo of a {c}") for c in cifar100.classes]).to(device)
 
 # Calculate features
 with torch.no_grad():
