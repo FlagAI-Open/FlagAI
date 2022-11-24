@@ -63,7 +63,7 @@ ALL_TASK = {
     "cpm3_trian": ("flagai.model.cpm3_trian_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.AltDiffusion", "LatentDiffusion"),
     "altclip_txt_img_matching": ("flagai.model.mm.AltCLIP", "AltCLIP"),
-
+    "evaclip_txt_img_matching": ("flagai.model.mm.eva_clip_model", "EVA_CLIP"),
 }
 
 # 4 columns : 1-package name,  2-class name, 3-model brief name, 4-model type
@@ -124,6 +124,7 @@ MODEL_DICT = {
     "altclip-xlmr-l": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altclip-xlmr-l-m9": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altclip-bert-b": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP", "AltCLIPProcessBert"],
+    "eva-clip": ["flagai.model.mm.eva_clip_model", "EVA_CLIP", "evaclip", "mm"],
 }
 
 class AutoLoader:
@@ -212,6 +213,10 @@ class AutoLoader:
         elif model_type == "mm":
             if model_name.startswith("altdiffusion"):
                 self.tokenizer = None
+            elif "altclip" not in model_name:
+                from flagai.data.tokenizer.clip.tokenizer import ClipTokenizer
+                self.tokenizer = ClipTokenizer(bpe_path=os.path.join(download_path, 'bpe_simple_vocab_16e6.txt.gz'))
+                self.transform = None
             else:
                 self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
                                 MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
