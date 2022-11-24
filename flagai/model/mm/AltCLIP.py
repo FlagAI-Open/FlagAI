@@ -1,4 +1,3 @@
-from time import clock_settime
 from transformers.models.clip.modeling_clip import *
 import torch.nn as nn
 import torch
