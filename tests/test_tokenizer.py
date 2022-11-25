@@ -7,7 +7,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 
 class TokenizerTestCase(unittest.TestCase):
 
-    def test_tokenizer_glm_large_ch(self):
+    def test_tokenizer_GLM_large_ch(self):
         tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
         self.assertEqual(tokenizer.TokenToId("人"), 43371, 'Token id "人" error')
         self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
@@ -76,6 +76,18 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.decode([21209, 5884, 817, 162, 1372]),
                          'fried chicken makes me happy', 'DecodeIds Error')
 
+    def test_tokenizer_clip(self):
+        loader = AutoLoader(task_name="txt_img_matching",
+                    model_name="clip-base-p32-224")
+        tokenizer = loader.get_tokenizer()
+        self.assertEqual(tokenizer.tokenize_as_tensor("cat")[0][:3].tolist(), [49406, 2368, 49407], '')
+
+    def test_tokenizer_evaclip(self):
+        loader = AutoLoader(task_name="txt_img_matching",
+                    model_name="eva-clip")
+        tokenizer = loader.get_tokenizer()
+        self.assertEqual(tokenizer.tokenize_as_tensor("cat")[0][:3].tolist(), [49406, 2368, 49407], '')
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -87,6 +99,8 @@ def suite():
     suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
     suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
     suite.addTest(TokenizerTestCase('test_tokenizer_opt'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_clip'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_evaclip'))
 
     return suite
 

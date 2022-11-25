@@ -246,7 +246,7 @@ class CLIPHF(CLIPPreTrainedModel):
                padding="max_length",
                truncation=True,
                max_length=77):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = next(self.text_model.parameters()).device
         text = tokenizer(text,
                          truncation=True,
                          max_length=77,
