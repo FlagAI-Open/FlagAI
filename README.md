@@ -34,7 +34,7 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 - [Quick Started](#quick-start)
     - [Load model and tokenizer](#load-model-and-tokenizer)
     - [Predictor](#predictor)
-    - [text-to-image generation task](/examples/AltDiffusion/README.md)
+    - [Text-to-image generation task](/examples/AltDiffusion/README.md)
 - [Pretrained Models and examples](#pretrained-models-and-examples)
 - [Tutorials](#tutorials)
 - [Contributing](#contributing)
