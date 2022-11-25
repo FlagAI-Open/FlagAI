@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
-from flagai.model.glm_model import GLMForSeq2Seq
+from flagai.model.glm_model import ALMForSeq2Seq
 from flagai.data.tokenizer import Tokenizer
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.test_utils import Seq2SeqCollateArguments
