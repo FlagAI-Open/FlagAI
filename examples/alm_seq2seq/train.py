@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.trainer import Trainer
-from flagai.model.glm_model import ALMForSeq2Seq
+from flagai.model.alm_model import ALMForSeq2Seq
 from flagai.data.tokenizer import Tokenizer
 from flagai.data.dataset import Seq2SeqDataset
 from flagai.test_utils import Seq2SeqCollateArguments
@@ -31,7 +31,10 @@ if task_name in CH_TASKS:
 else:
     model_name = 'GLM-large-en'
 
+print('model_name', model_name)
 tokenizer = Tokenizer.from_pretrained(model_name)
+model = ALMForSeq2Seq.from_pretrain(model_name=model_name)
+
 
 train_dataset = Seq2SeqDataset(task_name=task_name,
                                data_dir='./datasets/',
@@ -47,7 +50,7 @@ collate_fn = ConstructSeq2seqStrategy(cl_args,
 train_dataset.example_list = train_dataset.example_list[:20]
 valid_dataset.example_list = valid_dataset.example_list[:20]
 
-model = GLMForSeq2Seq.from_pretrain(model_name=model_name,download_path="/mnt/xw/ALM")
+
 
 trainer.train(model,
               collate_fn=collate_fn,
