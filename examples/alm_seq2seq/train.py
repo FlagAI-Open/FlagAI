@@ -31,8 +31,8 @@ if task_name in CH_TASKS:
 else:
     model_name = 'GLM-large-en'
 
-print('model_name', model_name)
 tokenizer = Tokenizer.from_pretrained(model_name)
+
 model = ALMForSeq2Seq.from_pretrain(model_name=model_name)
 
 
