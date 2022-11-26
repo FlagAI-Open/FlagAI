@@ -1,63 +1,58 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import sys 
+sys.path.append("/sharefs/baai-mrnd/yzd/FlagAI")
+import pandas as pd
 import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
+from tqdm import tqdm 
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+# device = "cpu"
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="GLM_seq2seq",
+    experiment_name="ALM_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-5,
     epochs=10,
     log_interval=10,
-    eval_interval=10000,
+    eval_interval=10,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints_glm_title_generation",
-    save_interval=1,
+    save_interval=10,
     num_checkpoints=1,
 )
 
-# cur_dir = os.path.dirname(os.path.abspath(__file__))
-# src_dir = cur_dir + '/data/train.src'
-# tgt_dir = cur_dir + '/data/train.tgt'
+data_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
 
-src_dir = "./data/train.src"
-tgt_dir = "./data/train.tgt"
 
 
 maxlen = 256
 auto_loader = AutoLoader("lm",
-                         model_name="GLM-large-ch",
-                         model_dir="./state_dict/")
+                         model_name="ALM-1.0",
+                         model_dir="/sharefs/baai-mrnd/xw/fork/FlagAI/examples/alm_seq2seq/checkpoints")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
 
-def read_file():
+def read_file(path):
     src = []
     tgt = []
-
-    with open(src_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            src.append(line.strip('\n').lower())
-
-    with open(tgt_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            tgt.append(line.strip('\n').lower())
-
+    df = pd.read_csv(path, sep="\t")
+    for idx, row in tqdm(df.iterrows()):
+        src.append(row["source"])
+        tgt.append(row["target"])
     return src, tgt
+
 
 
 class GLMSeq2seqDataset(Dataset):
@@ -66,8 +61,8 @@ class GLMSeq2seqDataset(Dataset):
                  sents_src,
                  sents_tgt,
                  tokenizer,
-                 max_src_length=300,
-                 max_tgt_length=200):
+                 max_src_length=512,
+                 max_tgt_length=512):
         super(GLMSeq2seqDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
@@ -79,7 +74,7 @@ class GLMSeq2seqDataset(Dataset):
     def __getitem__(self, i):
         source_text = self.sents_src[i]
         target_text = self.sents_tgt[i]
-        data = self.tokenizer.encode_plus(source_text=source_text, target_text=target_text)
+        data = self.tokenizer.encode_plus(source_text=source_text, target_text=target_text, max_length=512)
 
         return data
 
@@ -132,29 +127,24 @@ class GLMPoetryDynamicCollateFN():  #padding process in each batch
         }
 
 
-sents_src, sents_tgt = read_file()
+sents_src, sents_tgt = read_file(data_dir)
 my_collate_fn = GLMPoetryDynamicCollateFN(
     pad_id=tokenizer.get_command_id('pad'))
 
 data_len = len(sents_tgt)
 train_size = int(data_len * 0.8)
-train_src = sents_src[:train_size][:2000]
-train_tgt = sents_tgt[:train_size][:2000]
+train_src = sents_src[:train_size][:20]
+train_tgt = sents_tgt[:train_size][:20]
 
 val_src = sents_src[train_size:]
 val_tgt = sents_tgt[train_size:]
 
 train_dataset = GLMSeq2seqDataset(train_src,
                                   train_tgt,
-                                  tokenizer=tokenizer,
-                                  max_src_length=300,
-                                  max_tgt_length=200)
+                                  tokenizer=tokenizer)
 val_dataset = GLMSeq2seqDataset(val_src,
                                 val_tgt,
-                                tokenizer=tokenizer,
-                                max_src_length=300,
-                                max_tgt_length=200)
-
+                                tokenizer=tokenizer)
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
