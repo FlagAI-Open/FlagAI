@@ -11,6 +11,7 @@ from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 from tqdm import tqdm 
+from rouge_score import rouge_scorer
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -19,6 +20,7 @@ trainer = Trainer(
     env_type="pytorch",
     experiment_name="ALM_seq2seq",
     batch_size=1,
+    # num_gpus=2,
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-5,
@@ -30,6 +32,7 @@ trainer = Trainer(
     save_dir="checkpoints_alm_title_generation",
     save_interval=200,
     num_checkpoints=1,
+    # hostfile="./deepspeed/hostfile",
 )
 
 data_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
@@ -52,6 +55,46 @@ def read_file(path):
         src.append(row["source"])
         tgt.append(row["target"])
     return src, tgt
+
+
+def rouge_metric(predictions, labels, meta, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
+    metric_dict = {"rouge-1": "rouge1", "rouge-2": "rouge2", "rouge-l": "rougeLsum"}
+    print('meta-------->', meta)
+    print('labels------>', labels.shape)
+    print('predictions-------->',predictions.shape)
+    refs = [i["ref"] for i in meta]
+    # refs = [example.meta["ref"] for example in examples]
+    ref_list = []
+    for ref in refs:
+        ref = ref.strip().split('[SEP]')
+        ref = [fix_tokenization(sentence, dataset=dataset) for sentence in ref]
+        ref = "\n".join(ref)
+        ref_list.append(ref)
+    pred_list = []
+    for prediction in predictions:
+        buf = []
+        for sentence in prediction.strip().split("[SEP]"):
+            sentence = fix_tokenization(sentence, dataset=dataset)
+            if any(get_f1(sentence, s) > 1.0 for s in buf):
+                continue
+            s_len = len(sentence.split())
+            if s_len <= 4:
+                continue
+            buf.append(sentence)
+        if duplicate_rate and duplicate_rate < 1:
+            buf = remove_duplicate(buf, duplicate_rate)
+        line = "\n".join(buf)
+        pred_list.append(line)
+    if torch.distributed.get_rank() == 0:
+        import json
+        with open("./results.json", "w") as output:
+            for ref, pred in zip(ref_list, pred_list):
+                output.write(json.dumps({"ref": ref, "pred": pred}) + "\n")
+    scorer = rouge_scorer.RougeScorer([metric_dict[metric]], use_stemmer=True)
+    scores = [scorer.score(pred, ref) for pred, ref in zip(pred_list, ref_list)]
+    scores = [score[metric_dict[metric]].fmeasure for score in scores]
+    scores = sum(scores) / len(scores)
+    return scores
 
 
 
@@ -136,8 +179,8 @@ train_size = int(data_len * 0.8)
 train_src = sents_src[:train_size][:20]
 train_tgt = sents_tgt[:train_size][:20]
 
-val_src = sents_src[train_size:]
-val_tgt = sents_tgt[train_size:]
+val_src = sents_src[-1:]
+val_tgt = sents_tgt[-1:]
 
 train_dataset = ALMSeq2seqDataset(train_src,
                                   train_tgt,
@@ -148,4 +191,5 @@ val_dataset = ALMSeq2seqDataset(val_src,
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
+              metric_methods=[['rouge_scorer', rouge_metric]],
               collate_fn=my_collate_fn)
