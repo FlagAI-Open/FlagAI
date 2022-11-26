@@ -452,6 +452,7 @@ class Tokenizer(BaseTokenizer):
     def DecodeIds(self, ids):
         """converts ids to wordpiece tokens and joins them as a text string"""
         tokens = []
+        ids.tolist()
         for id in ids:
             if id in self.command_id_map:
                 tokens.append(self.command_id_map[id].token)

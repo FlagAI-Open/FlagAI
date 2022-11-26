@@ -10,6 +10,8 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 from tqdm import tqdm 
 from rouge_score import rouge_scorer
+from torch import argmax
+import pdb
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -55,22 +57,115 @@ def read_file(path):
     return src, tgt
 
 
+def fix_tokenization(text, dataset):
+    if dataset == 'cnn_dm_org':
+        return text
+    if dataset == 'gigaword':
+        text = text.replace('[UNK]', 'UNK')
+        return text
+    input_tokens = text.split()
+    output_tokens = []
+    has_left_quote = False
+    has_left_single_quote = False
+
+    i = 0
+    prev_dash = False
+    while i < len(input_tokens):
+        tok = input_tokens[i]
+        flag_prev_dash = False
+        if tok == "\"":
+            if has_left_quote:
+                output_tokens.append("''")
+            else:
+                output_tokens.append("``")
+            has_left_quote = not has_left_quote
+            i += 1
+        elif tok == "'" and len(output_tokens) > 0 and output_tokens[-1].endswith("n") and i < len(input_tokens) - 1 and \
+                input_tokens[i + 1] == "t":
+            output_tokens[-1] = output_tokens[-1][:-1]
+            output_tokens.append("n't")
+            i += 2
+        elif tok == "'" and i < len(input_tokens) - 1 and input_tokens[i + 1] in ("s", "d", "ll"):
+            output_tokens.append("'" + input_tokens[i + 1])
+            i += 2
+        elif tok == "'":
+            if has_left_single_quote:
+                output_tokens.append("'")
+            else:
+                output_tokens.append("`")
+            has_left_single_quote = not has_left_single_quote
+            i += 1
+        elif tok == "." and i < len(input_tokens) - 2 and input_tokens[i + 1] == "." and input_tokens[i + 2] == ".":
+            output_tokens.append("...")
+            i += 3
+        elif tok == "," and len(output_tokens) > 0 and _is_digit(output_tokens[-1]) and i < len(
+                input_tokens) - 1 and _is_digit(input_tokens[i + 1]):
+            # $ 3 , 000 -> $ 3,000
+            output_tokens[-1] += ',' + input_tokens[i + 1]
+            i += 2
+        elif tok == "." and len(output_tokens) > 0 and output_tokens[-1].isdigit() and i < len(input_tokens) - 1 and \
+                input_tokens[i + 1].isdigit():
+            # 3 . 03 -> $ 3.03
+            output_tokens[-1] += '.' + input_tokens[i + 1]
+            i += 2
+        elif tok == "." and len(output_tokens) > 0 and len(output_tokens[-1]) == 1 and output_tokens[
+            -1].isalpha() and i < len(input_tokens) - 2 and len(input_tokens[i + 1]) == 1 and input_tokens[
+            i + 1].isalpha() and input_tokens[i + 2] == '.':
+            # U . N . -> U.N.
+            k = i + 3
+            while k + 2 < len(input_tokens):
+                if len(input_tokens[k + 1]) == 1 and input_tokens[k + 1].isalpha() and input_tokens[k + 2] == '.':
+                    k += 2
+                else:
+                    break
+            output_tokens[-1] += ''.join(input_tokens[i:k])
+            i = k
+        elif tok == "-":
+            if i < len(input_tokens) - 1 and input_tokens[i + 1] == "-":
+                output_tokens.append("--")
+                i += 2
+            elif i == len(input_tokens) - 1 or i == 0:
+                output_tokens.append("-")
+                i += 1
+            elif output_tokens[-1] not in string.punctuation and input_tokens[i + 1][0] not in string.punctuation:
+                output_tokens[-1] += "-"
+                i += 1
+                flag_prev_dash = True
+            else:
+                output_tokens.append("-")
+                i += 1
+        elif prev_dash and len(output_tokens) > 0 and tok[0] not in string.punctuation:
+            output_tokens[-1] += tok
+            i += 1
+        else:
+            output_tokens.append(tok)
+            i += 1
+        prev_dash = flag_prev_dash
+    return " ".join(output_tokens)
+
+
+def remove_duplicate(l_list, duplicate_rate):
+    tk_list = [l.lower().split() for l in l_list]
+    r_list = []
+    history_set = set()
+    for i, w_list in enumerate(tk_list):
+        w_set = set(w_list)
+        if len(w_set & history_set) / len(w_set) <= duplicate_rate:
+            r_list.append(l_list[i])
+        history_set |= w_set
+    return r_list
+
 def rouge_metric(predictions, labels, meta, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
     metric_dict = {"rouge-1": "rouge1", "rouge-2": "rouge2", "rouge-l": "rougeLsum"}
-    print('meta-------->', meta)
-    print('labels------>', labels.shape)
-    print('predictions-------->',predictions.shape)
-    refs = [i["ref"] for i in meta]
-    # refs = [example.meta["ref"] for example in examples]
     ref_list = []
-    for ref in refs:
-        ref = ref.strip().split('[SEP]')
-        ref = [fix_tokenization(sentence, dataset=dataset) for sentence in ref]
-        ref = "\n".join(ref)
+    for i in labels:
+        ref = tokenizer.DecodeIds(i)
         ref_list.append(ref)
+    predictions = argmax(predictions, dim=2)
     pred_list = []
     for prediction in predictions:
         buf = []
+        prediction = tokenizer.DecodeIds(prediction)
         for sentence in prediction.strip().split("[SEP]"):
             sentence = fix_tokenization(sentence, dataset=dataset)
             if any(get_f1(sentence, s) > 1.0 for s in buf):
@@ -83,11 +178,6 @@ def rouge_metric(predictions, labels, meta, metric="rouge-1", duplicate_rate=0.7
             buf = remove_duplicate(buf, duplicate_rate)
         line = "\n".join(buf)
         pred_list.append(line)
-    if torch.distributed.get_rank() == 0:
-        import json
-        with open("./results.json", "w") as output:
-            for ref, pred in zip(ref_list, pred_list):
-                output.write(json.dumps({"ref": ref, "pred": pred}) + "\n")
     scorer = rouge_scorer.RougeScorer([metric_dict[metric]], use_stemmer=True)
     scores = [scorer.score(pred, ref) for pred, ref in zip(pred_list, ref_list)]
     scores = [score[metric_dict[metric]].fmeasure for score in scores]
