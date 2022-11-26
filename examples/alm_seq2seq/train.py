@@ -1,74 +1,110 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import pandas as pd
 import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
+from tqdm import tqdm 
+from rouge_score import rouge_scorer
+from torch import argmax
+import sacrebleu
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+# device = "cpu"
 trainer = Trainer(
     env_type="pytorch",
-    experiment_name="GLM_seq2seq",
+    experiment_name="ALM_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-5,
-    epochs=10,
+    epochs=1,
     log_interval=10,
-    eval_interval=10000,
+    eval_interval=10,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_glm_title_generation",
-    save_interval=1,
+    save_dir="checkpoints_alm_title_generation",
+    save_interval=1000,
     num_checkpoints=1,
 )
 
-# cur_dir = os.path.dirname(os.path.abspath(__file__))
-# src_dir = cur_dir + '/data/train.src'
-# tgt_dir = cur_dir + '/data/train.tgt'
+data_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
 
-src_dir = "./data/train.src"
-tgt_dir = "./data/train.tgt"
 
 
 maxlen = 256
 auto_loader = AutoLoader("lm",
-                         model_name="GLM-large-ch",
-                         model_dir="./state_dict/")
+                         model_name="ALM-1.0",
+                         model_dir="/sharefs/baai-mrnd/xw/fork/FlagAI/examples/alm_seq2seq/checkpoints")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
 
-def read_file():
+def read_file(path):
     src = []
     tgt = []
-
-    with open(src_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            src.append(line.strip('\n').lower())
-
-    with open(tgt_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            tgt.append(line.strip('\n').lower())
-
+    df = pd.read_csv(path, sep="\t")
+    for idx, row in tqdm(df.iterrows()):
+        src.append(row["source"])
+        tgt.append(row["target"])
     return src, tgt
 
 
-class GLMSeq2seqDataset(Dataset):
+def bleu_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
+    ref_list = []
+    for i in labels:
+        i = i.tolist()
+        ref = tokenizer.DecodeIds(i)
+        ref_list.append(ref)
+    predictions = argmax(predictions, dim=2)
+    pred_list = []
+
+    for prediction in predictions:
+        buf = []
+        prediction = prediction.tolist()
+        prediction = tokenizer.DecodeIds(prediction)
+        pred_list.append(prediction)
+
+    bleu_results = sacrebleu.corpus_bleu(pred_list, [ref_list])
+    bleu_score = bleu_results.score
+    return bleu_score
+
+def rouge_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
+    metric_dict = {"rouge-1": "rouge1", "rouge-2": "rouge2", "rouge-l": "rougeLsum"}
+    ref_list = []
+    for i in labels:
+        i = i.tolist()
+        ref = tokenizer.DecodeIds(i)
+        ref_list.append(ref)
+    predictions = argmax(predictions, dim=2)
+    pred_list = []
+    for prediction in predictions:
+        buf = []
+        prediction = prediction.tolist()
+        prediction = tokenizer.DecodeIds(prediction)
+        pred_list.append(prediction)
+    scorer = rouge_scorer.RougeScorer([metric_dict[metric]], use_stemmer=True)
+    scores = [scorer.score(pred, ref) for pred, ref in zip(pred_list, ref_list)]
+    scores = [score[metric_dict[metric]].fmeasure for score in scores]
+    scores = sum(scores) / len(scores)
+    return scores
+
+
+
+class ALMSeq2seqDataset(Dataset):
 
     def __init__(self,
                  sents_src,
                  sents_tgt,
                  tokenizer,
-                 max_src_length=300,
-                 max_tgt_length=200):
-        super(GLMSeq2seqDataset, self).__init__()
+                 max_src_length=512,
+                 max_tgt_length=512):
+        super(ALMSeq2seqDataset, self).__init__()
         self.sents_src = sents_src
         self.sents_tgt = sents_tgt
         self.tokenizer = tokenizer
@@ -79,7 +115,7 @@ class GLMSeq2seqDataset(Dataset):
     def __getitem__(self, i):
         source_text = self.sents_src[i]
         target_text = self.sents_tgt[i]
-        data = self.tokenizer.encode_plus(source_text=source_text, target_text=target_text)
+        data = self.tokenizer.encode_plus(source_text=source_text, target_text=target_text, max_length=512)
 
         return data
 
@@ -88,7 +124,7 @@ class GLMSeq2seqDataset(Dataset):
         return len(self.sents_src)
 
 
-class GLMPoetryDynamicCollateFN():  #padding process in each batch
+class ALMCollateFN():  #padding process in each batch
 
     def __init__(self, pad_id):
         self.pad_id = pad_id
@@ -132,30 +168,27 @@ class GLMPoetryDynamicCollateFN():  #padding process in each batch
         }
 
 
-sents_src, sents_tgt = read_file()
-my_collate_fn = GLMPoetryDynamicCollateFN(
+sents_src, sents_tgt = read_file(data_dir)
+my_collate_fn = ALMCollateFN(
     pad_id=tokenizer.get_command_id('pad'))
 
 data_len = len(sents_tgt)
+print(data_len)
 train_size = int(data_len * 0.8)
-train_src = sents_src[:train_size][:2000]
-train_tgt = sents_tgt[:train_size][:2000]
+train_src = sents_src[:train_size]
+train_tgt = sents_tgt[:train_size]
 
-val_src = sents_src[train_size:]
-val_tgt = sents_tgt[train_size:]
+val_src = sents_src[-1:]
+val_tgt = sents_tgt[-1:]
 
-train_dataset = GLMSeq2seqDataset(train_src,
+train_dataset = ALMSeq2seqDataset(train_src,
                                   train_tgt,
-                                  tokenizer=tokenizer,
-                                  max_src_length=300,
-                                  max_tgt_length=200)
-val_dataset = GLMSeq2seqDataset(val_src,
+                                  tokenizer=tokenizer)
+val_dataset = ALMSeq2seqDataset(val_src,
                                 val_tgt,
-                                tokenizer=tokenizer,
-                                max_src_length=300,
-                                max_tgt_length=200)
-
+                                tokenizer=tokenizer)
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
+              metric_methods=[['rouge_scorer', rouge_metric], ['bleu', bleu_metric]],
               collate_fn=my_collate_fn)
