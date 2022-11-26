@@ -11,7 +11,6 @@ from flagai.trainer import Trainer
 from tqdm import tqdm 
 from rouge_score import rouge_scorer
 from torch import argmax
-import pdb
 import sacrebleu
 
 
@@ -21,7 +20,6 @@ trainer = Trainer(
     env_type="pytorch",
     experiment_name="ALM_seq2seq",
     batch_size=1,
-    # num_gpus=2,
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-5,
@@ -33,7 +31,6 @@ trainer = Trainer(
     save_dir="checkpoints_alm_title_generation",
     save_interval=200,
     num_checkpoints=1,
-    # hostfile="./deepspeed/hostfile",
 )
 
 data_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
