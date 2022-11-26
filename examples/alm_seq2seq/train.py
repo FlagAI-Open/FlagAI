@@ -23,13 +23,13 @@ trainer = Trainer(
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-5,
-    epochs=10,
+    epochs=1,
     log_interval=10,
     eval_interval=10,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints_alm_title_generation",
-    save_interval=200,
+    save_interval=1000,
     num_checkpoints=1,
 )
 
@@ -58,6 +58,7 @@ def read_file(path):
 def bleu_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
     ref_list = []
     for i in labels:
+        i = i.tolist()
         ref = tokenizer.DecodeIds(i)
         ref_list.append(ref)
     predictions = argmax(predictions, dim=2)
@@ -65,6 +66,7 @@ def bleu_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate
 
     for prediction in predictions:
         buf = []
+        prediction = prediction.tolist()
         prediction = tokenizer.DecodeIds(prediction)
         pred_list.append(prediction)
 
@@ -76,12 +78,14 @@ def rouge_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rat
     metric_dict = {"rouge-1": "rouge1", "rouge-2": "rouge2", "rouge-l": "rougeLsum"}
     ref_list = []
     for i in labels:
+        i = i.tolist()
         ref = tokenizer.DecodeIds(i)
         ref_list.append(ref)
     predictions = argmax(predictions, dim=2)
     pred_list = []
     for prediction in predictions:
         buf = []
+        prediction = prediction.tolist()
         prediction = tokenizer.DecodeIds(prediction)
         pred_list.append(prediction)
     scorer = rouge_scorer.RougeScorer([metric_dict[metric]], use_stemmer=True)
@@ -169,6 +173,7 @@ my_collate_fn = ALMCollateFN(
     pad_id=tokenizer.get_command_id('pad'))
 
 data_len = len(sents_tgt)
+print(data_len)
 train_size = int(data_len * 0.8)
 train_src = sents_src[:train_size]
 train_tgt = sents_tgt[:train_size]

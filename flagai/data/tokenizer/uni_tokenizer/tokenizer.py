@@ -452,7 +452,6 @@ class Tokenizer(BaseTokenizer):
     def DecodeIds(self, ids):
         """converts ids to wordpiece tokens and joins them as a text string"""
         tokens = []
-        ids.tolist()
         for id in ids:
             if id in self.command_id_map:
                 tokens.append(self.command_id_map[id].token)
@@ -637,7 +636,7 @@ class Tokenizer(BaseTokenizer):
         sep_id = self.get_command_id('sep')  # seperation
 
         source_tokens = self.EncodeAsIds(source_text)
-        if truncation:
+        if truncation and max_length:
             self.truncate_sequence(max_length - 2, source_tokens)
         source_tokens = [sop_id] + source_tokens + [sep_id]
 
@@ -650,8 +649,11 @@ class Tokenizer(BaseTokenizer):
 
         if target_text:
             target_tokens = self.EncodeAsIds(target_text)
-            target_tokens_length = min(max_length - len(source_tokens), len(target_tokens))
-            target_tokens = target_tokens[:target_tokens_length] + [eop_id]
+            if max_length:
+                target_tokens_length = min(max_length - len(source_tokens), len(target_tokens))
+                target_tokens = target_tokens[:target_tokens_length] + [eop_id]
+            else:
+                target_tokens += [eop_id]
             loss_mask += [1] * len(target_tokens)
             block_position_ids += [0] * len(target_tokens)
             position_ids += [x + len_source for x in range(len(target_tokens))]
