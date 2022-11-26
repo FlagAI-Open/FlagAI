@@ -1,8 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys 
-sys.path.append("/sharefs/baai-mrnd/yzd/FlagAI")
 import pandas as pd
 import os
 import numpy as np
@@ -176,8 +174,8 @@ my_collate_fn = ALMCollateFN(
 
 data_len = len(sents_tgt)
 train_size = int(data_len * 0.8)
-train_src = sents_src[:train_size][:20]
-train_tgt = sents_tgt[:train_size][:20]
+train_src = sents_src[:train_size]
+train_tgt = sents_tgt[:train_size]
 
 val_src = sents_src[-1:]
 val_tgt = sents_tgt[-1:]
