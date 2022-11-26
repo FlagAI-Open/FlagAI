@@ -12,6 +12,7 @@ from tqdm import tqdm
 from rouge_score import rouge_scorer
 from torch import argmax
 import pdb
+import sacrebleu
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -155,7 +156,25 @@ def remove_duplicate(l_list, duplicate_rate):
         history_set |= w_set
     return r_list
 
-def rouge_metric(predictions, labels, meta, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
+
+def bleu_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
+    ref_list = []
+    for i in labels:
+        ref = tokenizer.DecodeIds(i)
+        ref_list.append(ref)
+    predictions = argmax(predictions, dim=2)
+    pred_list = []
+
+    for prediction in predictions:
+        buf = []
+        prediction = tokenizer.DecodeIds(prediction)
+        pred_list.append(prediction)
+
+    bleu_results = sacrebleu.corpus_bleu(pred_list, [ref_list])
+    bleu_score = bleu_results.score
+    return bleu_score
+
+def rouge_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate=0.7, dataset='cnn_dm'):
     metric_dict = {"rouge-1": "rouge1", "rouge-2": "rouge2", "rouge-l": "rougeLsum"}
     ref_list = []
     for i in labels:
@@ -166,18 +185,7 @@ def rouge_metric(predictions, labels, meta, metric="rouge-1", duplicate_rate=0.7
     for prediction in predictions:
         buf = []
         prediction = tokenizer.DecodeIds(prediction)
-        for sentence in prediction.strip().split("[SEP]"):
-            sentence = fix_tokenization(sentence, dataset=dataset)
-            if any(get_f1(sentence, s) > 1.0 for s in buf):
-                continue
-            s_len = len(sentence.split())
-            if s_len <= 4:
-                continue
-            buf.append(sentence)
-        if duplicate_rate and duplicate_rate < 1:
-            buf = remove_duplicate(buf, duplicate_rate)
-        line = "\n".join(buf)
-        pred_list.append(line)
+        pred_list.append(prediction)
     scorer = rouge_scorer.RougeScorer([metric_dict[metric]], use_stemmer=True)
     scores = [scorer.score(pred, ref) for pred, ref in zip(pred_list, ref_list)]
     scores = [score[metric_dict[metric]].fmeasure for score in scores]
@@ -279,5 +287,5 @@ val_dataset = ALMSeq2seqDataset(val_src,
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
-              metric_methods=[['rouge_scorer', rouge_metric]],
+              metric_methods=[['rouge_scorer', rouge_metric], ['bleu', bleu_metric]],
               collate_fn=my_collate_fn)
