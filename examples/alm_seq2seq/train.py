@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = "cpu"
 trainer = Trainer(
     env_type="pytorch",
     experiment_name="ALM_seq2seq",
@@ -30,11 +29,9 @@ trainer = Trainer(
     num_checkpoints=1,
 )
 
-data_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
+traindata_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
+valdata_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/valid.tsv'
 
-
-
-maxlen = 256
 auto_loader = AutoLoader("lm",
                          model_name="ALM-1.0",
                          model_dir="/sharefs/baai-mrnd/xw/fork/FlagAI/examples/alm_seq2seq/checkpoints")
@@ -125,17 +122,10 @@ class ALMCollateFN():  #padding process in each batch
         }
 
 
-sents_src, sents_tgt = read_file(data_dir)
+train_src, train_tgt = read_file(traindata_dir)
+val_src, val_tgt = read_file(valdata_dir)
 my_collate_fn = ALMCollateFN(
     pad_id=tokenizer.get_command_id('pad'))
-
-data_len = len(sents_tgt)
-train_size = int(data_len * 0.8)
-train_src = sents_src[:train_size]
-train_tgt = sents_tgt[:train_size]
-
-val_src = sents_src[train_size:]
-val_tgt = sents_tgt[train_size:]
 
 train_dataset = ALMSeq2seqDataset(train_src,
                                   train_tgt,
