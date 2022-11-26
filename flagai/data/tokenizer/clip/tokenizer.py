@@ -69,7 +69,7 @@ class ClipTokenizer(object):
     def __init__(self, bpe_path: str = default_bpe(), special_tokens=None):
         self.byte_encoder = bytes_to_unicode()
         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
-        merges = open(bpe_path).read().split('\n')
+        merges = gzip.open(bpe_path).read().decode("utf-8").split('\n')
         merges = merges[1:49152-256-2+1]
         merges = [tuple(merge.split()) for merge in merges]
         vocab = list(bytes_to_unicode().values())
@@ -145,7 +145,7 @@ class ClipTokenizer(object):
         text = bytearray([self.byte_decoder[c] for c in text]).decode('utf-8', errors="replace").replace('</w>', ' ')
         return text
 
-    def tokenize(self, texts: Union[str, List[str]], context_length: int = 77) -> torch.LongTensor:
+    def tokenize_as_tensor(self, texts: Union[str, List[str]], context_length: int = 77) -> torch.LongTensor:
         """
         Returns the tokenized representation of given input string(s)
 

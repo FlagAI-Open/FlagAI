@@ -66,8 +66,8 @@ class DDPM(BaseModel):
         **kwargs,
     ):
         super(DDPM, self).__init__(unet_config, **kwargs)
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")
+        # self.device = torch.device(
+        #     "cuda" if torch.cuda.is_available() else "cpu")
         assert parameterization in [
             "eps", "x0"
         ], 'currently only supporting "eps" and "x0"'
@@ -512,6 +512,11 @@ class DDPM(BaseModel):
 class LatentDiffusion(DDPM):
     """main class"""
 
+    def to(self, device):
+        self.device = device
+        self.cond_stage_model.to(device)
+        super().to(device)
+
     def __init__(self,
                  first_stage_config,
                  cond_stage_config,
@@ -526,6 +531,7 @@ class LatentDiffusion(DDPM):
                  tokenizer=None,
                  *args,
                  **kwargs):
+        self.device = "cpu"
         self.tokenizer = tokenizer
         self.num_timesteps_cond = default(num_timesteps_cond, 1)
         self.scale_by_std = scale_by_std
