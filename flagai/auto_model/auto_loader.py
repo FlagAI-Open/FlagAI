@@ -110,15 +110,9 @@ MODEL_DICT = {
     "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "altdiffusion":
-<<<<<<< HEAD
-        ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
-    "altdiffusion-m9":
-        ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
-=======
     ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altdiffusion-m9":
     ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
->>>>>>> master
     "swinv1-base-patch4-window7-224":
         ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
     "swinv2-base-patch4-window8-256":
