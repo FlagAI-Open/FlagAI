@@ -33,6 +33,7 @@ trainer = Trainer(
 )
 
 data_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
+val_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/valid.tsv'
 
 
 
@@ -60,7 +61,6 @@ def bleu_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate
         i = i.tolist()
         ref = tokenizer.DecodeIds(i)
         ref_list.append(ref)
-    predictions = argmax(predictions, dim=2)
     pred_list = []
 
     for prediction in predictions:
@@ -80,7 +80,6 @@ def rouge_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rat
         i = i.tolist()
         ref = tokenizer.DecodeIds(i)
         ref_list.append(ref)
-    predictions = argmax(predictions, dim=2)
     pred_list = []
     for prediction in predictions:
         buf = []
@@ -89,7 +88,7 @@ def rouge_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rat
         pred_list.append(prediction)
     scorer = rouge_scorer.RougeScorer([metric_dict[metric]], use_stemmer=True)
     scores = [scorer.score(pred, ref) for pred, ref in zip(pred_list, ref_list)]
-    scores = [score[metric_dict[metric]].fmeasure for score in scores]
+    scores = [score[metric_dict[metric]].fmeasure * 100 for score in scores]
     scores = sum(scores) / len(scores)
     return scores
 
@@ -168,16 +167,18 @@ class ALMCollateFN():  #padding process in each batch
 
 
 sents_src, sents_tgt = read_file(data_dir)
+vail_src, vail_tgt = read_file(val_dir)
+
 my_collate_fn = ALMCollateFN(
     pad_id=tokenizer.get_command_id('pad'))
 
 data_len = len(sents_tgt)
 train_size = int(data_len * 0.8)
-train_src = sents_src[:train_size]
-train_tgt = sents_tgt[:train_size]
+train_src = sents_src
+train_tgt = sents_tgt
 
-val_src = sents_src[-10:]
-val_tgt = sents_tgt[-10:]
+val_src = vail_src
+val_tgt = vail_tgt
 
 train_dataset = ALMSeq2seqDataset(train_src,
                                   train_tgt,
