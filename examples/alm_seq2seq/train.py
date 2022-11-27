@@ -15,7 +15,6 @@ import sacrebleu
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = "cpu"
 trainer = Trainer(
     env_type="pytorch",
     experiment_name="ALM_seq2seq",
@@ -178,8 +177,8 @@ train_size = int(data_len * 0.8)
 train_src = sents_src[:train_size]
 train_tgt = sents_tgt[:train_size]
 
-val_src = sents_src[-1:]
-val_tgt = sents_tgt[-1:]
+val_src = sents_src[-2:]
+val_tgt = sents_tgt[-2:]
 
 train_dataset = ALMSeq2seqDataset(train_src,
                                   train_tgt,
