@@ -21,7 +21,7 @@
 
 import itertools
 import logging
-
+import torch 
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
 from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
@@ -418,9 +418,23 @@ class Tokenizer(BaseTokenizer):
         return ids
 
     def convert_tokens_to_ids(self, tokens):
-        return self.text_tokenizer.convert_tokens_to_ids(tokens)
+        res = []
+        for token in tokens:
+            if token in self.command_token_map:
+                res.append(self.command_token_map[token].Id)
+            else:
+                res.append(self.text_tokenizer.convert_token_to_id(token))
+        return res
 
     def convert_ids_to_tokens(self, ids):
+        if torch.is_tensor(ids):
+            ids = ids.tolist()
+        res = []
+        for id in ids:
+            if id in self.command_id_map:
+                res.append(self.command_id_map[id].token)
+            else:
+                res.append(self.text_tokenizer.convert_id_to_token(id))
         return self.text_tokenizer.convert_ids_to_tokens(ids)
 
     def EncodeAsTokens(self, text, process_fn=None):
@@ -626,6 +640,7 @@ class Tokenizer(BaseTokenizer):
             target_text=None,
             truncation=True,
             max_length=None,
+            padding=True,
     ):
         if not self.tokenizer_model_name.lower().startswith("glm") and not self.tokenizer_model_name.lower().startswith(
                 "alm"):
@@ -651,15 +666,15 @@ class Tokenizer(BaseTokenizer):
             target_tokens = self.EncodeAsIds(target_text)
             if max_length:
                 target_tokens_length = min(max_length - len(source_tokens), len(target_tokens))
-                target_tokens = target_tokens[:target_tokens_length] + [eop_id]
+                pad_token = self.get_command_id('pad')
+                padding_length = max(0,max_length-len(source_tokens)-target_tokens_length)
+                target_tokens = target_tokens[:target_tokens_length] + [pad_token for i in range(padding_length)] + [eop_id]
             else:
                 target_tokens += [eop_id]
             loss_mask += [1] * len(target_tokens)
             block_position_ids += [0] * len(target_tokens)
             position_ids += [x + len_source for x in range(len(target_tokens))]
-
             tokens = source_tokens + target_tokens
-
             position_ids = [position_ids[:-1], block_position_ids[:-1]]
 
             sample = {

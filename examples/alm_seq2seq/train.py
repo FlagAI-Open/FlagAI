@@ -15,7 +15,6 @@ import sacrebleu
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = "cpu"
 trainer = Trainer(
     env_type="pytorch",
     experiment_name="ALM_seq2seq",
@@ -173,13 +172,12 @@ my_collate_fn = ALMCollateFN(
     pad_id=tokenizer.get_command_id('pad'))
 
 data_len = len(sents_tgt)
-print(data_len)
 train_size = int(data_len * 0.8)
 train_src = sents_src[:train_size]
 train_tgt = sents_tgt[:train_size]
 
-val_src = sents_src[-1:]
-val_tgt = sents_tgt[-1:]
+val_src = sents_src[-10:]
+val_tgt = sents_tgt[-10:]
 
 train_dataset = ALMSeq2seqDataset(train_src,
                                   train_tgt,
