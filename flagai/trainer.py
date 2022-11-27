@@ -28,7 +28,6 @@ from flagai.utils import Timers
 from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from flagai.fp16 import DynamicLossScaler
-import pdb
 
 """
 The Trainer class, to easily train a pytorh model on a new task.
