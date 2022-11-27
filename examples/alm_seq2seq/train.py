@@ -61,7 +61,6 @@ def bleu_metric(predictions, labels, meta=None, metric="rouge-1", duplicate_rate
         i = i.tolist()
         ref = tokenizer.DecodeIds(i)
         ref_list.append(ref)
-    predictions = argmax(predictions, dim=2)
     pred_list = []
 
     for prediction in predictions:
@@ -168,7 +167,7 @@ class ALMCollateFN():  #padding process in each batch
 
 
 sents_src, sents_tgt = read_file(data_dir)
-vail_src, vail_tgt = read_file(vail_dir)
+vail_src, vail_tgt = read_file(val_dir)
 
 my_collate_fn = ALMCollateFN(
     pad_id=tokenizer.get_command_id('pad'))
