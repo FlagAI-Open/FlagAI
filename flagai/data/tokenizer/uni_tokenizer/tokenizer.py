@@ -300,8 +300,8 @@ class Tokenizer(BaseTokenizer):
                 eos_token_id = self.text_tokenizer.convert_token_to_id('</s>')
                 unk_token_id = self.text_tokenizer.convert_token_to_id('<unk>')
             self._command_tokens = [
-                CommandToken('pad', '<|endoftext|>', pad_token_id),
-                CommandToken('eos', '<|endoftext|>', eos_token_id),
+                CommandToken('pad', '<|endoftext|>', self.num_text_tokens),
+                CommandToken('eos', '<|endoftext|>', self.num_text_tokens),
                 CommandToken('sep', '[SEP]', self.num_text_tokens + 1),
                 CommandToken('cls', '[CLS]', self.num_text_tokens + 2),
                 CommandToken('MASK',
