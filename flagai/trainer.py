@@ -937,17 +937,18 @@ class Trainer():
                 else:
                     labels = data_iterator['target_ids']
                 if len(self.metric_methods) != 0:
-                    if self.env_type == "pytorch":
-                        all_logits.append(logits.cpu())
-                        all_labels.append(labels.cpu())
+                    if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
+                        batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()
+                        batch_labels = labels.detach().cpu()
+                        all_logits.extend(batch_preds)
+                        all_labels.extend(batch_labels)
                     else:
                         all_logits.append(logits)
                         all_labels.append(labels)
                 all_losses.append(lm_loss.view(1))
-
-            if len(self.metric_methods) != 0:
-                    all_logits = torch.cat(all_logits, dim=0)
-                    all_labels = torch.cat(all_labels, dim=0)
+            if self.env_type != 'pytorch' and len(self.metric_methods) != 0:
+                all_logits = torch.cat(all_logits, dim=0)
+                all_labels = torch.cat(all_labels, dim=0)
 
             all_losses = torch.cat(all_losses, dim=0)
 
