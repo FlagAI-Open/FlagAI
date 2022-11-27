@@ -942,7 +942,6 @@ class Trainer():
                 all_losses.append(lm_loss.view(1))
 
             if len(self.metric_methods) != 0:
-                import pdb;pdb.set_trace()
                 all_logits = torch.cat(all_logits, dim=0)
                 all_labels = torch.cat(all_labels, dim=0)
 
