@@ -28,6 +28,8 @@ from flagai.utils import Timers
 from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from flagai.fp16 import DynamicLossScaler
+import pdb
+
 """
 The Trainer class, to easily train a pytorh model on a new task.
 """
@@ -904,7 +906,6 @@ class Trainer():
             all_losses = []
             for data_iterator in data_loader:
                 # Forward evaluation.
-
                 meta = data_iterator.get('meta', None)
 
                 if 'deepspeed' in self.env_type or 'DDP' in self.env_type:
@@ -937,13 +938,17 @@ class Trainer():
                 else:
                     labels = data_iterator['target_ids']
                 if len(self.metric_methods) != 0:
-                    all_logits.append(logits)
-                    all_labels.append(labels)
+                    if self.env_type == "pytorch":
+                        all_logits.append(logits.cpu())
+                        all_labels.append(labels.cpu())
+                    else:
+                        all_logits.append(logits)
+                        all_labels.append(labels)
                 all_losses.append(lm_loss.view(1))
 
             if len(self.metric_methods) != 0:
-                all_logits = torch.cat(all_logits, dim=0)
-                all_labels = torch.cat(all_labels, dim=0)
+                    all_logits = torch.cat(all_logits, dim=0)
+                    all_labels = torch.cat(all_labels, dim=0)
 
             all_losses = torch.cat(all_losses, dim=0)
 
