@@ -308,7 +308,7 @@ class Tokenizer(BaseTokenizer):
                              '[MASK]',
                              self.num_text_tokens + 3,
                              lstrip=True),
-                CommandToken('unk', '[UNK]', unk_token_id)
+                CommandToken('unk', '[UNK]', self.num_text_tokens + 4)
             ]
 
             self.num_tokens += 5

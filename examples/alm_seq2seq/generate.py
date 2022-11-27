@@ -16,9 +16,6 @@ auto_loader = AutoLoader("seq2seq",
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
-# model.load_state_dict(
-#     torch.load(model_save_path, map_location=device)["module"])
-
 model.to(device)
 model.eval()
 predictor = Predictor(model, tokenizer)
