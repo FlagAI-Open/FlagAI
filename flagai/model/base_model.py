@@ -1,12 +1,11 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from sklearn.linear_model import HuberRegressor
 from torch.nn import Module
 import torch
 import json
 from typing import Union
-from flagai.model.file_utils import _get_model_id, _get_config_path, _get_checkpoint_path, _get_vocab_path, _get_model_files
+from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
 import os
 
 
@@ -46,10 +45,13 @@ class BaseModel(Module):
                                     pretrained_model_name_or_path,
                                     verbose=False):
         pl_sd = torch.load(pretrained_model_name_or_path, map_location="cpu")
-        sd = pl_sd["state_dict"]
+        if "state_dict" in pl_sd:
+            sd = pl_sd["state_dict"]
+        else:
+            sd = pl_sd
         if "global_step" in pl_sd:
             print(f"Global Step: {pl_sd['global_step']}")
-        m, u = model.load_state_dict(sd, strict=False)
+        m, u = model.load_state_dict(sd, strict=True)
         if len(m) > 0 and verbose:
             print("missing keys:")
             print(m)
@@ -113,7 +115,7 @@ class BaseModel(Module):
                     model.load_weights(checkpoint_path)
             return model
 
-        def load_diffusion_local(yaml_path):
+        def load_diffusion_local(yaml_path, only_download_config=False):
             """
             Now only diffusion models requires yaml
             """
@@ -126,11 +128,11 @@ class BaseModel(Module):
             model_config.params.cond_stage_config.params.download_path = raw_download_path
 
             model = cls(**model_config.get("params", dict()))
-
-            model = cls._load_state_dict_into_model(
-                model,
-                checkpoint_path,
-            )
+            if not only_download_config:
+                model = cls._load_state_dict_into_model(
+                    model,
+                    checkpoint_path,
+                )
             return model
 
         yaml_path = os.path.join(download_path, "config.yaml")
@@ -138,7 +140,7 @@ class BaseModel(Module):
             """
             Now only diffusion models requires yaml
             """
-            return load_diffusion_local(yaml_path)
+            return load_diffusion_local(yaml_path, only_download_config=only_download_config)
         elif os.path.exists(config_path):
             """
             It is fine when checkpoint_path does not exist, for the case that only_download_config=True
@@ -202,7 +204,7 @@ class BaseModel(Module):
                         checkpoint_merge,
                         os.path.join(download_path, "pytorch_model.bin"))
         if os.path.exists(yaml_path):
-            return load_diffusion_local(yaml_path)
+            return load_diffusion_local(yaml_path,only_download_config=only_download_config)
         return load_local(checkpoint_path)
 
     @classmethod

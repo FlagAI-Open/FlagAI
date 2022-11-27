@@ -109,9 +109,9 @@ MODEL_DICT = {
     "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "clip-large-p14-336": ["flagai.model.mm.clip_model", "CLIP", "clip", "mm"],
     "altdiffusion":
-    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
+    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altdiffusion-m9":
-    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm"],
+    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "swinv1-base-patch4-window7-224":
     ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
     "swinv2-base-patch4-window8-256":
@@ -212,7 +212,10 @@ class AutoLoader:
 
         elif model_type == "mm":
             if model_name.startswith("altdiffusion"):
-                self.tokenizer = None
+                self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
+                self.tokenizer = self.process.tokenizer
+                self.model.tokenizer = self.tokenizer
             elif "altclip" not in model_name:
                 from flagai.data.tokenizer.clip.tokenizer import ClipTokenizer
                 self.tokenizer = ClipTokenizer(bpe_path=os.path.join(download_path, 'bpe_simple_vocab_16e6.txt.gz'))

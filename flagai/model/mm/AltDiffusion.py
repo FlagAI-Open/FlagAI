@@ -14,7 +14,6 @@ from flagai.model.mm.autoencoders import VQModelInterface, IdentityFirstStage, A
 from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise_like
 from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
-from flagai.auto_model.auto_loader import AutoLoader
 
 __conditioning_keys__ = {
     'concat': 'c_concat',
@@ -562,6 +561,8 @@ class LatentDiffusion(DDPM):
         self.instantiate_first_stage(first_stage_config)
         self.instantiate_cond_stage(cond_stage_config)
         self.cond_stage_forward = cond_stage_forward
+        if self.cond_stage_forward is None:
+            self.set_cond_stage_forward()
         self.clip_denoised = False
         self.bbox_tokenizer = None
 
@@ -619,47 +620,13 @@ class LatentDiffusion(DDPM):
         self.first_stage_model.train = disabled_train
         for param in self.first_stage_model.parameters():
             param.requires_grad = False
-
     def instantiate_cond_stage(self, config):
-        dct = config.get("params", dict())
-        model_dir = dct.get("model_dir", None)
-        if not model_dir:
-            model_dir = dct.get("download_path", None)
-        if not self.cond_stage_trainable:
-            if config == "__is_first_stage__":
-                print("Using first stage also as cond stage.")
-                self.cond_stage_model = self.first_stage_model
-            elif config == "__is_unconditional__":
-                print(
-                    f"Training {self.__class__.__name__} as an unconditional model."
-                )
-                self.cond_stage_model = None
-            else:
-                loader = AutoLoader(
-                    task_name="txt_img_matching",  #contrastive learning
-                    model_name=dct["model_name"],
-                    model_dir=model_dir)
-                model = loader.get_model()
-                tokenizer = loader.get_tokenizer()
-                self.tokenizer = tokenizer
-                model.to(self.device)
-                self.cond_stage_model = model.eval()
-                self.cond_stage_model.train = disabled_train
-                for param in self.cond_stage_model.parameters():
-                    param.requires_grad = False
-        else:
-            assert config != '__is_first_stage__'
-            assert config != '__is_unconditional__'
-            loader = AutoLoader(
-                task_name="txt_img_matching",  #contrastive learning
-                model_name=dct["model_name"],
-                model_dir=model_dir)
-            tokenizer = loader.get_tokenizer()
-            self.tokenizer = tokenizer
-            model = loader.get_model()
-            model.to(self.device)
-            self.cond_stage_model = model
-
+        model = instantiate_from_config(config)
+        self.cond_stage_model = model.eval()
+        self.cond_stage_model.train = disabled_train
+        for param in self.cond_stage_model.parameters():
+            param.requires_grad = False
+    
     def _get_denoise_row_from_list(self,
                                    samples,
                                    desc='',
@@ -687,7 +654,23 @@ class LatentDiffusion(DDPM):
 
             z = encoder_posterior.sample()
         return self.scale_factor * z
-
+    def set_cond_stage_forward(self):
+        def func(c):
+            device = next(self.cond_stage_model.parameters()).device
+            text = self.tokenizer(c,
+                            truncation=True,
+                            max_length=77,
+                            return_length=False,
+                            return_overflowing_tokens=False,
+                            padding="max_length",
+                            return_tensors="pt")
+            text["input_ids"] = torch.tensor(text["input_ids"]).to(device)
+            text["attention_mask"] = torch.tensor(
+                text['attention_mask']).to(device)
+            # text = torch.tensor(text).to(device
+            features = self.cond_stage_model(**text)
+            return features['projection_state']
+        self.cond_stage_forward = func
     def get_learned_conditioning(self, c):
         # C will be directly returned if it is None
         if c is None:
@@ -701,8 +684,7 @@ class LatentDiffusion(DDPM):
             else:
                 c = self.cond_stage_model(c)
         else:
-            assert hasattr(self.cond_stage_model, self.cond_stage_forward)
-            c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
+            c = self.cond_stage_forward(c)
         return c
 
     def meshgrid(self, h, w):

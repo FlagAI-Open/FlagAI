@@ -7,7 +7,6 @@ import os
 from flagai.model.base_model import BaseModel
 
 from .modeling_berts import BertSeriesConfig, RobertaSeriesConfig, BertSeriesModelWithTransformation, RobertaSeriesModelWithTransformation
-from transformers.models.bert.tokenization_bert import BertTokenizer
 
 STUDENT_CONFIG_DICT = {
     'hfl/chinese-roberta-wwm-ext': BertSeriesConfig,

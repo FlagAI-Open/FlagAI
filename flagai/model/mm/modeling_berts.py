@@ -27,7 +27,32 @@ class BertSeriesModelWithTransformation(BertPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids", r"predictions.decoder.bias"]
     config_class = BertSeriesConfig
 
-    def __init__(self, config):
+    def __init__(self, config=None, **kargs):
+        # modify initialization for autoloading 
+        if config is None:
+            config = XLMRobertaConfig()
+            config.attention_probs_dropout_prob= 0.1
+            config.bos_token_id=0
+            config.eos_token_id=2
+            config.hidden_act='gelu'
+            config.hidden_dropout_prob=0.1
+            config.hidden_size=1024
+            config.initializer_range=0.02
+            config.intermediate_size=4096
+            config.layer_norm_eps=1e-05
+            config.max_position_embeddings=514
+            
+            config.num_attention_heads=16
+            config.num_hidden_layers=24
+            config.output_past=True
+            config.pad_token_id=1
+            config.position_embedding_type= "absolute"
+
+            config.type_vocab_size= 1
+            config.use_cache=True
+            config.vocab_size= 250002
+            config.project_dim = 768
+            config.learn_encoder = False
         super().__init__(config)
         if config.model_type == 'bert':
             self.bert = BertModel(config)
