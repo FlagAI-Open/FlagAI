@@ -479,7 +479,7 @@ class Tokenizer(BaseTokenizer):
             tokens, self.command_token_map)
 
     def encode(self, text):
-        return self.text_tokenizer.convert_tokens_to_ids(
+        return self.convert_tokens_to_ids(
             self.text_tokenizer.tokenize(text))
 
     def decode(self, ids):
