@@ -9,7 +9,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 auto_loader = AutoLoader("seq2seq",
                          model_name="ALM-1.0",
-                         model_dir="/sharefs/baai-mrnd/xw/fork/FlagAI/examples/alm_seq2seq/checkpoints/")
+                         model_dir="./checkpoints")
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
