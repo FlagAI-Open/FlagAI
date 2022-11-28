@@ -21,7 +21,7 @@
 
 import itertools
 import logging
-
+import torch 
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
 from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
@@ -38,7 +38,7 @@ def is_control(ch):
     https://en.wikipedia.org/wiki/Control_character
     https://www.fileformat.info/info/unicode/category/Cc/index.htm
     https://www.fileformat.info/info/unicode/category/Cf/index.htm
-    
+
     """
     return unicodedata.category(ch) in ('Cc', 'Cf')
 
@@ -300,15 +300,15 @@ class Tokenizer(BaseTokenizer):
                 eos_token_id = self.text_tokenizer.convert_token_to_id('</s>')
                 unk_token_id = self.text_tokenizer.convert_token_to_id('<unk>')
             self._command_tokens = [
-                CommandToken('pad', '<|endoftext|>', pad_token_id),
-                CommandToken('eos', '<|endoftext|>', eos_token_id),
+                CommandToken('pad', '<|endoftext|>', self.num_text_tokens),
+                CommandToken('eos', '<|endoftext|>', self.num_text_tokens),
                 CommandToken('sep', '[SEP]', self.num_text_tokens + 1),
                 CommandToken('cls', '[CLS]', self.num_text_tokens + 2),
                 CommandToken('MASK',
                              '[MASK]',
                              self.num_text_tokens + 3,
                              lstrip=True),
-                CommandToken('unk', '[UNK]', unk_token_id)
+                CommandToken('unk', '[UNK]', self.num_text_tokens + 4)
             ]
 
             self.num_tokens += 5
@@ -418,9 +418,23 @@ class Tokenizer(BaseTokenizer):
         return ids
 
     def convert_tokens_to_ids(self, tokens):
-        return self.text_tokenizer.convert_tokens_to_ids(tokens)
+        res = []
+        for token in tokens:
+            if token in self.command_token_map:
+                res.append(self.command_token_map[token].Id)
+            else:
+                res.append(self.text_tokenizer.convert_token_to_id(token))
+        return res
 
     def convert_ids_to_tokens(self, ids):
+        if torch.is_tensor(ids):
+            ids = ids.tolist()
+        res = []
+        for id in ids:
+            if id in self.command_id_map:
+                res.append(self.command_id_map[id].token)
+            else:
+                res.append(self.text_tokenizer.convert_id_to_token(id))
         return self.text_tokenizer.convert_ids_to_tokens(ids)
 
     def EncodeAsTokens(self, text, process_fn=None):
@@ -465,7 +479,7 @@ class Tokenizer(BaseTokenizer):
             tokens, self.command_token_map)
 
     def encode(self, text):
-        return self.text_tokenizer.convert_tokens_to_ids(
+        return self.convert_tokens_to_ids(
             self.text_tokenizer.tokenize(text))
 
     def decode(self, ids):
@@ -551,11 +565,11 @@ class Tokenizer(BaseTokenizer):
         return (result)
 
     def encode_plus_non_glm(
-        self,
-        text,
-        second_text=None,
-        truncation=True,
-        max_length=None,
+            self,
+            text,
+            second_text=None,
+            truncation=True,
+            max_length=None,
     ):
 
         def get_input_ids(text):
@@ -574,12 +588,12 @@ class Tokenizer(BaseTokenizer):
         )
 
     def prepare_for_model(
-        self,
-        ids: List[int],
-        pair_ids: Optional[List[int]] = None,
-        add_special_tokens: bool = True,
-        truncation: Union[bool, str] = True,
-        max_length: Optional[int] = None,
+            self,
+            ids: List[int],
+            pair_ids: Optional[List[int]] = None,
+            add_special_tokens: bool = True,
+            truncation: Union[bool, str] = True,
+            max_length: Optional[int] = None,
     ):
 
         pair = bool(pair_ids is not None)
@@ -619,22 +633,26 @@ class Tokenizer(BaseTokenizer):
         encoded_inputs["token_type_ids"] = token_type_ids
         return encoded_inputs
 
-    def encode_plus(  #for Seq2seq
-        self,
-        source_text: str,
-        second_text=None,
-        target_text=None,
-        truncation=True,
-        max_length=None,
+    def encode_plus(  # for Seq2seq
+            self,
+            source_text: str,
+            second_text=None,
+            target_text=None,
+            truncation=True,
+            max_length=None,
+            padding=True,
     ):
-        if not self.tokenizer_model_name.lower().startswith("glm"):
+        if not self.tokenizer_model_name.lower().startswith("glm") and not self.tokenizer_model_name.lower().startswith(
+                "alm"):
             return self.encode_plus_non_glm(source_text, second_text,
                                             truncation, max_length)
-        sop_id = self.get_command_id('sop')  #start of piece
-        eop_id = self.get_command_id('eop')  #end of piece
-        sep_id = self.get_command_id('sep')  #seperation
+        sop_id = self.get_command_id('sop')  # start of piece
+        eop_id = self.get_command_id('eop')  # end of piece
+        sep_id = self.get_command_id('sep')  # seperation
 
         source_tokens = self.EncodeAsIds(source_text)
+        if truncation and max_length:
+            self.truncate_sequence(max_length - 2, source_tokens)
         source_tokens = [sop_id] + source_tokens + [sep_id]
 
         # no pading for consistency
@@ -646,12 +664,19 @@ class Tokenizer(BaseTokenizer):
 
         if target_text:
             target_tokens = self.EncodeAsIds(target_text)
-            target_tokens = target_tokens + [eop_id]
+            if max_length:
+                target_tokens_length = min(max_length - len(source_tokens), len(target_tokens))
+                pad_token = self.get_command_id('pad')
+                padding_length = max(0,max_length-len(source_tokens)-target_tokens_length)
+                target_tokens = target_tokens[:target_tokens_length] + [pad_token for i in range(padding_length)] + [eop_id]
+            else:
+                target_tokens += [eop_id]
             loss_mask += [1] * len(target_tokens)
             block_position_ids += [0] * len(target_tokens)
             position_ids += [x + len_source for x in range(len(target_tokens))]
             tokens = source_tokens + target_tokens
             position_ids = [position_ids[:-1], block_position_ids[:-1]]
+
             sample = {
                 'input_ids': tokens[:-1],
                 'target_ids': tokens[1:],
