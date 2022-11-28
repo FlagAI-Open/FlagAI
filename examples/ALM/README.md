@@ -30,12 +30,12 @@ With [FlagAI](https://gitee.com/link?target=https%3A%2F%2Fgithub.com%2FBAAI-Ope
 
 ### 快速使用/Quick start
 
-examples/alm_seq2seq/train.py提供了使用ALM做摘要、内容生成等Seq2seq任务的微调样例。
+examples/ALM/train.py提供了使用ALM做摘要、内容生成等Seq2seq任务的微调样例。
 
-examples/alm_seq2seq/train.py provides examples to use ALM for Seq2seq finetuning task, such as text summarization and short/long text generation. 
+examples/ALM/train.py provides examples to use ALM for Seq2seq finetuning task, such as text summarization and short/long text generation. 
 
-examples/alm_seq2seq/generate.py提供了使用GLM模型做句子预测的样例。
+examples/ALM/generate.py提供了使用GLM模型做句子预测的样例。
 
-examples/alm_seq2seq/train.py provides examples to use ALM for masked text prediction in an autoregressive way.
+examples/ALM/train.py provides examples to use ALM for masked text prediction in an autoregressive way.
 
 
