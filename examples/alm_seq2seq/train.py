@@ -32,15 +32,14 @@ trainer = Trainer(
     num_checkpoints=1,
 )
 
-data_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/train.tsv'
-val_dir = '/sharefs/baai-mrnd/xw/fork/data/datasets/wikilingual_dataset/valid.tsv'
+data_dir = './data/train.tsv'
+val_dir = './data/valid.tsv'
 
 
 
 maxlen = 256
 auto_loader = AutoLoader("lm",
-                         model_name="ALM-1.0",
-                         model_dir="/sharefs/baai-mrnd/xw/fork/FlagAI/examples/alm_seq2seq/checkpoints")
+                         model_name="ALM-1.0",)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 

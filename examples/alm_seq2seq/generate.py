@@ -7,9 +7,6 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Note "./checkpoints_poetry/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_poetry.
-model_save_path = "/sharefs/baai-mrnd/xw/fork/FlagAI/examples/alm_seq2seq/checkpoints/ALM-1.0/pytorch_model.bin"
-
 auto_loader = AutoLoader("seq2seq",
                          model_name="ALM-1.0",
                          model_dir="/sharefs/baai-mrnd/xw/fork/FlagAI/examples/alm_seq2seq/checkpoints/")
