@@ -356,6 +356,7 @@ class Predictor:
         W: width of image
         C: channels of images, 4 for colored images
         """
+        seed_everything(seed)
         assert "diffusion" in self.class_name.lower()
         device = next(self.model.parameters()).device
         if plms:

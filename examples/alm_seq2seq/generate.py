@@ -17,7 +17,7 @@ def set_random_seed(seed):
         np.random.seed(seed)
         torch.manual_seed(seed)
 
-set_random_seed(1111)
+set_random_seed(1)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 auto_loader = AutoLoader("lm",
@@ -40,7 +40,7 @@ for text in test_data:
         print('-----------random sample: --------------')
         print(
             predictor.predict_generate_randomsample(text,
-                                                    out_max_length=66,
+                                                    out_max_length=512,
                                                     top_k=10,
                                                     top_p=.1,
                                                     repetition_penalty=4.0,
@@ -48,6 +48,6 @@ for text in test_data:
         print('-----------beam search: --------------')
         print(
             predictor.predict_generate_beamsearch(text,
-                                                  out_max_length=66,
+                                                  out_max_length=512,
                                                   beam_size=10))
         print()
