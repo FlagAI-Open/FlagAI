@@ -699,6 +699,11 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
     return tokenizer.decode(output_ids)
 
 
+# def alm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
+#                       repetition_penalty, temperature, device):
+    
+
+
 def glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
                       repetition_penalty, temperature, device):
     if 'MASK]' in text:
@@ -948,7 +953,6 @@ def t5_beam_search(model,
 
         return output_ids[output_scores.argmax()]
 
-
 def glm_sample_sequence(model,
                         tokenizer,
                         context_tokens,
@@ -969,15 +973,23 @@ def glm_sample_sequence(model,
         position_ids = context_tokens.new_ones(last_beam_num, 2, 1)
         position_ids[:, 0] = context_length
         position_ids[:, 1] = counter + 1
-        attention_mask = context_tokens.new_zeros([1],
-                                                  device=context_tokens.device,
-                                                  dtype=torch.long)
+        attention_mask = context_tokens.new_zeros([1], device=context_tokens.device, dtype=torch.long)
+
+
         last_token = tokens[:, -1:]
-        output_ = model(last_token,
-                        position_ids,
-                        attention_mask,
-                        mems=mems,
-                        return_memory=True)
+        
+        output_ = model(last_token,position_ids,attention_mask,mems=mems,return_memory=True)
+
+        # import pdb;pdb.set_trace()
+
+        # next_token_logits, *mems = model(last_token, position_ids, attention_mask, *mems)
+        # next_token_logits = next_token_logits[:, -1]
+        # next_token_logits /= args.temperature
+        # next_token_logits = top_k_logits(next_token_logits, top_k=args.top_k, top_p=args.top_p)
+        # log_probs = F.softmax(next_token_logits, dim=-1)
+        # prev = torch.multinomial(log_probs, num_samples=1)[0]
+        # is_end = prev.item() in end_tokens
+
         mems = output_['hidden_states']
         next_token_logits = output_['logits']
         next_token_logits = next_token_logits[:, -1]
@@ -992,8 +1004,53 @@ def glm_sample_sequence(model,
             break
         prev = prev.view(1, 1)
         tokens = prev if tokens is None else torch.cat((tokens, prev), dim=1)
-        counter += 1
+        counter += 1 
     return torch.cat((context_tokens, tokens), dim=1), mems
+
+# def glm_sample_sequence(model,
+#                         tokenizer,
+#                         context_tokens,
+#                         context_length,
+#                         mems=None,
+#                         end_tokens=None,
+#                         out_seq_length=512,
+#                         temperature=0.9,
+#                         top_k=40):
+#     tokens = context_tokens.new_full((1, 1), tokenizer.get_command_id('sop'))
+#     counter = 0
+#     if mems is None:
+#         mems = []
+
+#     last_beam_num = 1
+
+#     while counter < out_seq_length:
+#         position_ids = context_tokens.new_ones(last_beam_num, 2, 1)
+#         position_ids[:, 0] = context_length
+#         position_ids[:, 1] = counter + 1
+#         attention_mask = context_tokens.new_zeros([1],
+#                                                   device=context_tokens.device,
+#                                                   dtype=torch.long)
+#         last_token = tokens[:, -1:]
+#         output_ = model(last_token,position_ids,attention_mask,mems=mems,return_memory=True)
+#                         
+#                         
+#                         
+#         mems = output_['hidden_states']
+#         next_token_logits = output_['logits']
+#         next_token_logits = next_token_logits[:, -1]
+#         next_token_logits /= temperature
+#         indices_to_remove = next_token_logits < torch.topk(
+#             next_token_logits, top_k)[0][..., -1, None]
+#         next_token_logits[indices_to_remove] = -float('Inf')
+#         log_probs = F.softmax(next_token_logits, dim=-1)
+#         prev = torch.multinomial(log_probs, num_samples=1)[0]
+#         is_end = prev.item() in end_tokens
+#         if is_end:
+#             break
+#         prev = prev.view(1, 1)
+#         tokens = prev if tokens is None else torch.cat((tokens, prev), dim=1)
+#         counter += 1
+#     return torch.cat((context_tokens, tokens), dim=1), mems
 
 
 def glm_generate_sample(
@@ -1006,6 +1063,7 @@ def glm_generate_sample(
     eod_token=50000,
     temperature=0.9,
 ):
+    # import pdb;pdb.set_trace()
     device = next(model.parameters()).device 
     model.eval()
 
@@ -1020,6 +1078,7 @@ def glm_generate_sample(
     context_length_tensor = torch.LongTensor([context_length])
     context_length = context_length_tensor[0].item()
     context_tokens_tensor = torch.LongTensor(context_tokens)
+    # import pdb;pdb.set_trace()
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
 
     start_time = time.time()
@@ -1046,10 +1105,12 @@ def glm_generate_sample(
         mask_positions += (context_tokens_tensor == token).nonzero(
             as_tuple=True)[0].tolist()
     mask_positions.sort()
+    # import pdb;pdb.set_trace()
     output_ = model(tokens, position_ids, attention_mask, return_memory=True)
     mems = output_['hidden_states']
     for mask_position in mask_positions:
         position = mask_position
+        # import pdb;pdb.set_trace()
         tokens, mems = glm_sample_sequence(model,
                                            tokenizer,
                                            tokens,
@@ -1060,7 +1121,6 @@ def glm_generate_sample(
                                            temperature=temperature,
                                            top_k=top_k)
     output_tokens_list = tokens.view(-1).contiguous()
-
     decode_tokens = tokenizer.DecodeIds(output_tokens_list.tolist())
 
     return decode_tokens

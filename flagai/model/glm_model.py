@@ -371,7 +371,6 @@ class GLMModel(BaseModel):
         self.word_embeddings = VocabParallelEmbedding(vocab_size,
                                                       hidden_size,
                                                       init_method=init_method)
-
         # Transformer
         self.transformer = GLMStack(
             config,
@@ -426,6 +425,7 @@ class GLMModel(BaseModel):
         attention_mask: 2 x 3
         '''
         # Embeddings.
+        
         batch_size = input_ids.size(0)
         words_embeddings = self.word_embeddings(input_ids)
         embeddings = words_embeddings

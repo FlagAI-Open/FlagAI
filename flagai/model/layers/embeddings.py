@@ -170,16 +170,14 @@ class VocabParallelEmbedding(torch.nn.Module):
                                             self.vocab_start_index
 
         # Allocate weights.
-        self.weight = Parameter(
-            torch.Tensor(self.num_embeddings_per_partition,
-                         self.embedding_dim))
+        self.weight = Parameter(torch.Tensor(self.num_embeddings_per_partition,self.embedding_dim))
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
             self.weight.model_parallel = True
         # And initialize.
-        _initialize_affine_weight(self.weight, self.num_embeddings,
-                                  self.embedding_dim,
-                                  self.num_embeddings_per_partition, 0,
-                                  init_method)
+        # import pdb;pdb.set_trace()
+        
+        _initialize_affine_weight(self.weight, self.num_embeddings,self.embedding_dim,self.num_embeddings_per_partition, 0,init_method)
+        # import pdb;pdb.set_trace()
 
     def forward(self, input_):
         # Build the mask.
@@ -189,10 +187,13 @@ class VocabParallelEmbedding(torch.nn.Module):
         masked_input = input_.clone() - self.vocab_start_index
         masked_input[input_mask] = 0
         # Get the embeddings.
+        # import pdb;pdb.set_trace()
         output_parallel = F.embedding(masked_input, self.weight,
                                       self.padding_idx, self.max_norm,
                                       self.norm_type, self.scale_grad_by_freq,
                                       self.sparse)
+        # import pdb;pdb.set_trace()
+        
         # Mask the output embedding.
         output_parallel[input_mask, :] = 0.0
         # Reduce across all the model parallel GPUs.

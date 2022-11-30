@@ -299,7 +299,7 @@ class Predictor:
                                                out_max_length, top_k, top_p,
                                                repetition_penalty, temperature,
                                                device)
-        elif "glm" in self.class_name.lower():
+        elif "glm" in self.class_name.lower() or "alm" in self.class_name.lower():
             return glm_random_sample(self.model, self.tokenizer, text,
                                      out_max_length, top_k, top_p,
                                      repetition_penalty, temperature, device)
@@ -356,8 +356,6 @@ class Predictor:
         W: width of image
         C: channels of images, 4 for colored images
         """
-        seed_everything(seed)
-
         assert "diffusion" in self.class_name.lower()
         device = next(self.model.parameters()).device
         if plms:
