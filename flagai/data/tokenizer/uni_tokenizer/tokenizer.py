@@ -427,8 +427,8 @@ class Tokenizer(BaseTokenizer):
         return res
 
     def convert_ids_to_tokens(self, ids):
-        if torch.is_tensor(ids):
-            ids = ids.tolist()
+        # if torch.is_tensor(ids):
+        #     ids = ids.tolist()
         res = []
         for id in ids:
             if id in self.command_id_map:
