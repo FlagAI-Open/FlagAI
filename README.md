@@ -9,7 +9,11 @@
 
 FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. 
 
+<<<<<<< HEAD
+* Now it supports text-image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and text-to-image generation [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion). And it support **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from Huggingface Transformers.
+=======
 * Now it supports text-image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and text-to-image generation [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion). And it support **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from Huggingface Transformers.
+>>>>>>> master
 
 * It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few shot tasks.   
 
@@ -20,7 +24,11 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 ## News
+<<<<<<< HEAD
+- [28 Nov 2022] release v1.5.0, support [ALM: A large Arabic Language Model based on GLM], examples in [**alm_seq2seq**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/alm_seq2seq)
+=======
 - [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
+>>>>>>> master
 - [10 Nov 2022] release v1.4.0, support [AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities](https://arxiv.org/abs/2211.06679v1), examples in [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
 - [29 Aug 2022] release v1.3.0, Added CLIP module and redesigned tokenizer apis in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
 - [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
