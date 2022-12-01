@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_beamsearch,\
     t5_random_sample, gpt_random_sample, \
-    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample, cpm_beamsearch
+    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample, cpm_beamsearch, alm_beamsearch, alm_random_sample
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
 from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
@@ -18,7 +18,6 @@ from contextlib import contextmanager, nullcontext
 from einops import rearrange
 
 class Predictor:
-
     def __init__(self, model, tokenizer=None):
         """
         Args:
@@ -303,8 +302,12 @@ class Predictor:
                                                out_max_length, top_k, top_p,
                                                repetition_penalty, temperature,
                                                device)
-        elif "glm" in self.class_name.lower() or "alm" in self.class_name.lower():
+        elif "glm" in self.class_name.lower():
             return glm_random_sample(self.model, self.tokenizer, text,
+                                     out_max_length, top_k, top_p,
+                                     repetition_penalty, temperature, device)
+        elif "alm" in self.class_name.lower():
+            return alm_random_sample(self.model, self.tokenizer, text,
                                      out_max_length, top_k, top_p,
                                      repetition_penalty, temperature, device)
 

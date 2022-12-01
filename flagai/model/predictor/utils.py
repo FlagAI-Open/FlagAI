@@ -1014,6 +1014,12 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
     return tokenizer.decode(output_ids)
 
 
+def alm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
+                      repetition_penalty, temperature, device):
+    return glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
+                      repetition_penalty, temperature, device)
+
+
 def glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
                       repetition_penalty, temperature, device):
     if 'MASK]' in text:
@@ -1441,25 +1447,6 @@ def glm_generate_sample(
 
     return decode_tokens
 
-def alm_generate_sample(
-    model,
-    tokenizer,
-    text,
-    top_k=40,
-    seq_length=512,
-    out_seq_length=512,
-    eod_token=50000,
-    temperature=0.9,
-):
-    return glm_geenrate_sample(
-                        model,
-                        tokenizer,
-                        text,
-                        top_k=40,
-                        seq_length=512,
-                        out_seq_length=512,
-                        eod_token=50000,
-                        temperature=0.9)
 
 def gpt_beam_search(model,
                     token_ids,
