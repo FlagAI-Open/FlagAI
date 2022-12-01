@@ -674,7 +674,7 @@ class BeamSearchScorer(BeamScorer):
         return decoded, mems, scores
 
 
-def glm_beam_search(model,
+def alm_beam_search(model,
                     tokenizer,
                     context_tokens,
                     context_length,
@@ -756,6 +756,107 @@ def glm_beam_search(model,
     tokens, mems, _ = beam_scorer.finalize(tokens, beam_scores, next_tokens, next_indices, eos_token_id=50000,
                                                 mems=mems)
     return torch.cat((context_tokens, tokens), dim=1), mems
+
+
+def glm_beam_search(model,
+                    tokenizer,
+                    input_ids,
+                    position_ids,
+                    attention_mask,
+                    beam_size=1,
+                    out_max_length=50):
+
+    device = next(model.parameters()).device
+    end_id = tokenizer.command_name_map['eop'].Id
+    output_ids = None
+    lp = [RepetitionPenaltyLogitsProcessor(penalty=10.0)
+          ]  #example of adding logits processor in beam search
+    list_processor = ListProcessor(lp)
+    with torch.no_grad():
+        output_scores = np.zeros([1])
+        new_input_ids = input_ids
+        for step in range(out_max_length):
+            if step == 0:
+                scores = model(
+                    input_ids=input_ids,  #GLMModel
+                    position_ids=position_ids,
+                    attention_mask=attention_mask)[
+                        "logits"]  #scores size:(1,max_src_length,vocab_size)
+                input_ids = torch.tile(input_ids.reshape([1, -1]),
+                                       (beam_size, 1))
+                position_ids = torch.tile(position_ids, (beam_size, 1, 1))
+                attention_mask = torch.tile(attention_mask, (beam_size, ))
+
+                logit_score = F.log_softmax(scores[:, -1],
+                                            dim=-1)  #(1,vocab_size)
+                logit_score[:,
+                            tokenizer.CommandTokenIds(
+                                exception=["eop", "gMASK"])] = -float(
+                                    'Inf')  #Don't generate special tokens
+            else:
+                scores = model(
+                    input_ids=new_input_ids,
+                    position_ids=position_ids,
+                    attention_mask=attention_mask
+                )["logits"]  #scores size:(beam_size,max_src_length,vocab_size)
+                logit_score = F.log_softmax(scores[:, -1],
+                                            dim=-1)  #(1,vocab_size)
+                logit_score[:,
+                            tokenizer.CommandTokenIds(
+                                exception=["eop", "gMASK"])] = -float(
+                                    'Inf')  #Don't generate special tokens
+                #logits process:
+                # logit_score = list_processor(
+                #     torch.tensor(output_ids, device=device, dtype=torch.long),
+                #     logit_score)
+
+            logit_score = output_scores.reshape(
+                [-1, 1]) + logit_score.cpu().numpy()  #(beam_size,vocab_size)
+            logit_score = logit_score.reshape([-1])
+            hype_pos = np.argpartition(
+                logit_score, -beam_size,
+                axis=-1)[-beam_size:]  #Output the top beam_size largest id
+            hype_score = logit_score[hype_pos]
+            indice1 = (hype_pos // scores.shape[-1]).reshape([-1])
+            indice2 = (hype_pos % scores.shape[-1]).astype(np.int64).reshape(
+                [-1, 1])
+
+            output_scores = hype_score
+            if output_ids is None:
+                output_ids = indice2.reshape([beam_size, 1])
+            else:
+                output_ids = np.concatenate(
+                    [output_ids[indice1], indice2],
+                    axis=1).astype(np.int64)  #(beam_size,n) n grows up
+            new_input_ids = torch.cat(
+                (input_ids,
+                 torch.tensor(output_ids, device=device, dtype=torch.long)),
+                dim=1)
+            add_pos_ids = torch.tile(
+                torch.tensor([[[position_ids.size()[-1]], [1]]],
+                             device=device), (beam_size, 1, 1))
+            position_ids = torch.cat([position_ids, add_pos_ids], dim=2)  #
+
+            end_counts = (output_ids == end_id).sum(
+                1)  # Binary vector dim:beamsize
+            best_one = output_scores.argmax()
+            if end_counts[best_one] == 1:
+                #there is end_id in the highest score output sequence
+                return output_ids[best_one][:-1]
+            else:
+                flag = (end_counts < 1)  #flag=False if there is no end_id
+                if not flag.all():  #remove the finished ones(have end_id)
+                    input_ids = input_ids[flag]
+                    position_ids = position_ids[flag]
+                    attention_mask = attention_mask[flag]
+                    new_input_ids = new_input_ids[flag]
+                    output_ids = output_ids[flag]
+                    output_scores = output_scores[flag]
+                    beam_size = flag.sum()  #beam_size reduce
+        if not output_scores.any():
+            return None
+        return output_ids[output_scores.argmax()].tolist()
+
 
 def top_k_top_p_filtering(logits,
                           top_k=0,
@@ -978,7 +1079,8 @@ def glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
         return tokenizer.DecodeIds(output_ids)
 
 
-def glm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=50000):  
+
+def alm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=50000):  
     device = next(model.parameters()).device 
     model.eval()
 
@@ -1023,16 +1125,39 @@ def glm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=
     mems = output_['hidden_states']
     for mask_position in mask_positions:
         position = mask_position
-        tokens, mems = glm_beam_search(model,
+        tokens, mems = alm_beam_search(model,
                                            tokenizer,
                                            tokens,
                                            position,
                                            mems=mems,
-                                           beam_size=beam_size)
+                                           beam_size=beam_size,
+                                           out_max_length=out_max_length)
     output_tokens_list = tokens.view(-1).contiguous()
     decode_tokens = tokenizer.DecodeIds(output_tokens_list.tolist())
 
     return decode_tokens
+
+def glm_beamsearch(model, tokenizer, text, out_max_length, beam_size):  #
+    #tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
+    device = next(model.parameters()).device
+    data = tokenizer.encode_plus(text)
+    input_ids = torch.tensor([data['input_ids']],
+                             device=device,
+                             dtype=torch.long)
+    position_ids = torch.tensor([data['position_ids']],
+                                device=device,
+                                dtype=torch.long)
+    attention_mask = torch.tensor([0], device=device, dtype=torch.long)
+
+    out_puts_ids = glm_beam_search(model,
+                                   tokenizer,
+                                   input_ids,
+                                   position_ids,
+                                   attention_mask,
+                                   beam_size=beam_size,
+                                   out_max_length=out_max_length)
+    output = tokenizer.DecodeIds(out_puts_ids)
+    return output
 
 
 def bert_beamsearch(model, tokenizer, text, input_max_length, out_max_length,
@@ -1311,10 +1436,30 @@ def glm_generate_sample(
                                            temperature=temperature,
                                            top_k=top_k)
     output_tokens_list = tokens.view(-1).contiguous()
+
     decode_tokens = tokenizer.DecodeIds(output_tokens_list.tolist())
 
     return decode_tokens
 
+def alm_generate_sample(
+    model,
+    tokenizer,
+    text,
+    top_k=40,
+    seq_length=512,
+    out_seq_length=512,
+    eod_token=50000,
+    temperature=0.9,
+):
+    return glm_geenrate_sample(
+                        model,
+                        tokenizer,
+                        text,
+                        top_k=40,
+                        seq_length=512,
+                        out_seq_length=512,
+                        eod_token=50000,
+                        temperature=0.9)
 
 def gpt_beam_search(model,
                     token_ids,

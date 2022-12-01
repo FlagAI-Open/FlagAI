@@ -230,6 +230,10 @@ class Predictor:
             #assert "seq2seq" in self.class_name.lower(), "this function only support seq2seq task"
             return glm_beamsearch(self.model, self.tokenizer, text,
                                   out_max_length, beam_size)
+        if "alm" in self.class_name.lower():
+            #assert "seq2seq" in self.class_name.lower(), "this function only support seq2seq task"
+            return alm_beamsearch(self.model, self.tokenizer, text,
+                                  out_max_length, beam_size)
         if "bert" in self.class_name.lower():
             assert "seq2seq" in self.class_name.lower(
             ), "this function only support seq2seq task"
