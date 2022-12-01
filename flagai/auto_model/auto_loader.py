@@ -200,7 +200,6 @@ class AutoLoader:
             model_name_ = f"{raw_model_name}-{task_name}"
         else:
             model_name_ = raw_model_name
-
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
             download_path=model_dir,
