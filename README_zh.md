@@ -9,7 +9,11 @@
 飞智是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。 目前，我们专注于 NLP 模型和任务。 在不久的将来，我们将支持其他模态。
 <br><br>
 
+<<<<<<< HEAD
 * 现在支持多模态模型[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)和文生图模型[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion).现在它支持最高百亿参数的**悟道GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**模型和 Huggingface Transformers 的模型。
+=======
+* 现在支持多模态模型[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)和文生图模型[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion).现在它支持最高百亿参数的**悟道GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**模型和 Huggingface Transformers 的模型。
+>>>>>>> master
 
 * 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在您自己的数据集上对其进行微调(fine-tuning)或者应用[提示学习(prompt-tuning)](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)，然后在我们的模型中心与社区共享它们。 
 
@@ -21,7 +25,11 @@
 本项目的部分代码基于 [GLM](https://github.com/THUDM/GLM),[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 ## 动态
+<<<<<<< HEAD
 - [28 Nov 2022] release v1.5.0, support [ALM: A large Arabic Language Model based on GLM], examples in [**alm_seq2seq**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/alm_seq2seq)
+=======
+- [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
+>>>>>>> master
 - [10 Nov 2022] release v1.4.0, support [AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities](https://arxiv.org/abs/2211.06679v1), examples in [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
 - [29 Aug 2022] release v1.3.0, added CLIP module and redesigned tokenizer apis in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
 - [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
@@ -36,7 +44,6 @@
     - [加载模型和分词器](#加载模型和分词器)
     - [使用预测器](#使用预测器)
     - [文生图任务示例](/examples/AltDiffusion/README.md)
-
 - [预训练模型以及样例](#预训练模型以及样例)
 - [教程](#教程)
 - [贡献代码](#贡献代码)
