@@ -252,7 +252,62 @@ class ListProcessor(LogitsProcessor):
         return scores
 
 
-class BeamHypotheses:
+class BeamHypotheses(object):
+
+    def __init__(self,
+                 n_hyp,
+                 max_len,
+                 length_penalty,
+                 early_stopping,
+                 tokenizer=None):
+        """
+        Initialize n-best list of hypotheses.
+        """
+        self.max_len = max_len
+        self.length_penalty = length_penalty
+        self.early_stopping = early_stopping
+        self.n_hyp = n_hyp
+        self.hyp = []
+        self.worst_score = 1e9
+        self.tokenizer = tokenizer
+
+    def __len__(self):
+        """
+        Number of hypotheses in the list.
+        """
+        return len(self.hyp)
+
+    def add(self, hyp, sum_logprobs):
+        """
+        Add a new hypothesis to the list.
+        """
+        score = sum_logprobs / len(hyp)**self.length_penalty
+
+        if len(self) < self.n_hyp or score > self.worst_score:
+            self.hyp.append((score, hyp))
+            if len(self) > self.n_hyp:
+                sorted_scores = sorted([
+                    (s, idx) for idx, (s, _) in enumerate(self.hyp)
+                ])
+                del self.hyp[sorted_scores[0][1]]
+                self.worst_score = sorted_scores[1][0]
+            else:
+                self.worst_score = min(score, self.worst_score)
+
+    def is_done(self, best_sum_logprobs, cur_len):
+        """
+        If there are enough hypotheses and that none of the hypotheses being generated
+        can become better than the worst one in the heap, then we are done with this sentence.
+        """
+        if len(self) < self.n_hyp:
+            return False
+        elif self.early_stopping:
+            return True
+        else:
+            return self.worst_score >= best_sum_logprobs / cur_len**self.length_penalty
+
+            
+class BeamHypothesesALM:
     def __init__(self, num_beams: int, max_length: int, length_penalty: float, early_stopping: bool):
         """
         Initialize n-best list of hypotheses.
@@ -518,7 +573,7 @@ class BeamSearchScorer(BeamScorer):
 
         self._is_init = False
         self._beam_hyps = [
-            BeamHypotheses(
+            BeamHypothesesALM(
                 num_beams=self.num_beams,
                 max_length=self.max_length,
                 length_penalty=self.length_penalty,
@@ -527,11 +582,6 @@ class BeamSearchScorer(BeamScorer):
             for _ in range(batch_size)
         ]
         self._done = torch.tensor([False for _ in range(batch_size)], dtype=torch.bool, device=self.device)
-
-        # if not isinstance(num_beams, int) or num_beams <= 1:
-        #     raise ValueError(
-        #         f"`num_beams` has to be an integer strictly greater than 1, but is {num_beams}. For `num_beams` == 1, one should make use of `greedy_search` instead."
-        #     )
 
     @property
     def is_done(self) -> bool:
