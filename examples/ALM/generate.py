@@ -4,8 +4,6 @@
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
-import random
-import numpy as np 
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
