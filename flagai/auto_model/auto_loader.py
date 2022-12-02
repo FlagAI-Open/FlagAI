@@ -46,6 +46,7 @@ ALL_TASK = {
     "cpm_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "t5_lm": ["flagai.model.t5_model", "T5Model"],
+    "alm_lm": ["flagai.model.alm_model", "ALMModel"],
     "glm_lm": ["flagai.model.glm_model", "GLMModel"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "glm_poetry": ["flagai.model.glm_model", "GLMForSeq2Seq"],
@@ -73,7 +74,7 @@ MODEL_DICT = {
     "t5-base-en": ["flagai.model.t5_model", "T5Model", "t5", "nlp"],
     "t5-base-ch": ["flagai.model.t5_model", "T5Model", "t5", "nlp"],
     "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
-    "alm-1.0": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "alm-1.0": ["flagai.model.alm_model", "ALMModel", "alm", "nlp"],
     "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
     "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm", "nlp"],
@@ -200,7 +201,6 @@ class AutoLoader:
             model_name_ = f"{raw_model_name}-{task_name}"
         else:
             model_name_ = raw_model_name
-
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
             download_path=model_dir,
