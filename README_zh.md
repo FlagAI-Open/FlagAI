@@ -11,7 +11,7 @@
 
 * 现在支持多模态模型[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)和文生图模型[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion).现在它支持最高百亿参数的**悟道GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**模型和 Huggingface Transformers 的模型。
 
-* 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在您自己的数据集上对其进行微调(fine-tuning)或者应用[提示学习(prompt-tuning)](/doc_zh/TUTORIAL_7_PROMPT_LERANING.md)，然后在我们的模型中心与社区共享它们。 它还提供了提示学习的工具包，用于少样本学习(Few-shot)任务。
+* 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在从SuperGLUE和CLUE benchmarks收集的广泛使用的数据集上对它们进行微调，然后在我们的模型中心与社区共享它们。 它还提供了提示学习的工具包，用于少样本学习(Few-shot)任务。
 
 * 这些模型可以应用于文本，用于文本分类、信息提取、问答、摘要、文本生成等任务，尤其是中文。
 
