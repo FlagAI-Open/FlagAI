@@ -9,7 +9,7 @@
 
 FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. 
 
-* Now it supports text-image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and text-to-image generation [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion). And it support **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from Huggingface Transformers.
+* Now it supports text-image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and text-to-image generation [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion). And it supports **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from Huggingface Transformers.
 
 * It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few shot tasks.   
 
@@ -22,7 +22,7 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 ## News
 - [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
 - [10 Nov 2022] release v1.4.0, support [AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities](https://arxiv.org/abs/2211.06679v1), examples in [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
-- [29 Aug 2022] release v1.3.0, Added CLIP module and redesigned tokenizer apis in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
+- [29 Aug 2022] release v1.3.0, Added CLIP module and redesigned tokenizer APIs in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
 - [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
 - [29 Jun 2022] release v1.1.0, support OPTs downloading and inference/finetuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
 - [17 May 2022] made our first contribution in [#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
@@ -36,7 +36,7 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
     - [Load model and tokenizer](#load-model-and-tokenizer)
     - [Predictor](#predictor)
     - [Text-to-image generation task](/examples/AltDiffusion/README.md)
-- [Pretrained Models and examples](#pretrained-models-and-examples)
+- [Pre-trained Models and examples](#pretrained-models-and-examples)
 - [Tutorials](#tutorials)
 - [Contributing](#contributing)
 - [Contact us](#contact-us)
@@ -46,7 +46,7 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 ## Requirements and Installation
 * PyTorch version >= 1.8.0
 * Python version >= 3.8
-* For training/testing models on GPUs, you'll also need install CUDA and NCCL
+* For training/testing models on GPUs, you'll also need to install CUDA and NCCL
 
 To install FlagAI with pip:
 ```shell
@@ -60,20 +60,20 @@ git clone https://github.com/FlagAI-Open/FlagAI.git
 python setup.py install
 ```
 
-- [Optional] For faster training install NVIDIA's [apex](https://github.com/NVIDIA/apex)
+- [Optional] For faster training, install NVIDIA's [apex](https://github.com/NVIDIA/apex)
 ```
 git clone https://github.com/NVIDIA/apex
 cd apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
-- [Optional] For ZeRO optimizers install [DEEPSPEED](https://github.com/microsoft/DeepSpeed)
+- [Optional] For ZeRO optimizers, install [DEEPSPEED](https://github.com/microsoft/DeepSpeed)
 ```
 git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # check the deespeed status
 ```
-- [Tips] For single-node docker enviroments, we need to setup ports for your ssh. e.g., root@127.0.0.1 with port 7110
+- [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 7110
 ```
 >>> vim ~/.ssh/config
 Host 127.0.0.1
@@ -81,7 +81,7 @@ Host 127.0.0.1
     Port 7110
     User root
 ```
-- [Tips] For multi-node docker enviroments, generate ssh keys and copy the public key to all nodes (in `~/.ssh/`)
+- [Tips] For multi-node docker environments, generate ssh keys and copy the public key to all nodes (in `~/.ssh/`)
 ```
 >>> ssh-keygen -t rsa -C "xxx@xxx.com"
 ```
@@ -101,7 +101,7 @@ model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
 This example is for the `title_generation` task, and you can also model other tasks by modifying the `task_name`.
-Then you can use the model and tokenizer to finetune or test.
+Then you can use the model and tokenizer to fine-tune or test.
 
 ## Predictor
 We provide the `Predictor` class to predict for different tasks, for example:
@@ -120,7 +120,7 @@ for text in test_data:
                                               beam_size=3))
 ```
 
-## Pretrained Models and examples
+## Pre-trained Models and examples
 
 * [Text_image_matching with AltCLIP](/examples/AltCLIP/README.md)
 * [Text-to-image generation with AltDiffusion](/examples/AltDiffusion/README.md)
