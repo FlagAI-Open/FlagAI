@@ -21,12 +21,12 @@
 本项目的部分代码基于 [GLM](https://github.com/THUDM/GLM),[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 ## 动态
-- [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
-- [10 Nov 2022] release v1.4.0, support [AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities](https://arxiv.org/abs/2211.06679v1), examples in [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
-- [29 Aug 2022] release v1.3.0, added CLIP module and redesigned tokenizer apis in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
-- [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
-- [29 Jun 2022] release v1.1.0, support OPTs downloading and inference/finetuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
-- [17 May 2022] made our first contribution in [#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
+- [28 Nov 2022] 发布v1.5.0版本, 支持1.1B参数的 [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) 以及[ALM: 基于GLM的阿拉伯语大模型], 示例见[**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
+- [10 Nov 2022] 发布v1.4.0版本, 支持[AltCLIP: 更改CLIP中的语言编码器以扩展语言功能](https://arxiv.org/abs/2211.06679v1), 示例见[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)以及[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
+- [29 Aug 2022] 支持v1.3.0版本, added CLIP module and redesigned tokenizer apis in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
+- [21 Jul 2022] 支持v1.2.0版本, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
+- [29 Jun 2022] 支持v1.1.0版本, support OPTs downloading and inference/finetuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
+- [17 May 2022] 做出了我们的第一份贡献[#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
 
 --------------------------------------------------------------------------------
 <!-- toc -->
