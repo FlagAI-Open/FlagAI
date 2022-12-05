@@ -27,7 +27,7 @@ setup(
         'transformers==4.20.1',
         'datasets==2.0.0',
         'setuptools==59.5.0',
-        'protobuf==3.20.1',
+        'protobuf==3.20.2',
         'ftfy == 6.1.1',
         'Pillow == 9.3.0',
         'einops == 0.3.0',
