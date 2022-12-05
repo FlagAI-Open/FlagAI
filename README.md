@@ -119,7 +119,7 @@ for text in test_data:
                                               out_max_length=50,
                                               beam_size=3))
 ```
-This example is for the seq2seq task, where we can get beam-search results by calling the predict_generate_beamsearch function. In addition, we also support prediction for tasks such as NER and title generate.
+This example is for the `seq2seq` task, where we can get `beam-search` results by calling the `predict_generate_beamsearch` function. In addition, we also support prediction for tasks such as `NER` and `title generate`.
 
 ## Pretrained Models and examples
 
