@@ -23,9 +23,9 @@
 ## 动态
 - [28 Nov 2022] 发布v1.5.0版本, 支持1.1B参数的 [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) 以及[ALM: 基于GLM的阿拉伯语大模型], 示例见[**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
 - [10 Nov 2022] 发布v1.4.0版本, 支持[AltCLIP: 更改CLIP中的语言编码器以扩展语言功能](https://arxiv.org/abs/2211.06679v1), 示例见[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)以及[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
-- [29 Aug 2022] 支持v1.3.0版本, added CLIP module and redesigned tokenizer apis in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
-- [21 Jul 2022] 支持v1.2.0版本, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
-- [29 Jun 2022] 支持v1.1.0版本, support OPTs downloading and inference/finetuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
+- [29 Aug 2022] 支持v1.3.0版本, 增加CLIP模块以及重新设计了tokenizer的API: [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
+- [21 Jul 2022] 支持v1.2.0版本, 支持ViT系列模型: [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
+- [29 Jun 2022] 支持v1.1.0版本, 支持OPT的加载，微调和推理[#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
 - [17 May 2022] 做出了我们的第一份贡献[#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
 
 --------------------------------------------------------------------------------
@@ -44,8 +44,8 @@
 
 <!-- tocstop -->
 # 安装
-* PyTorch version >= 1.8.0
-* Python version >= 3.8
+* PyTorch 版本 >= 1.8.0
+* Python 版本 >= 3.8
 * 使用GPUs进行训练和测试, 你需要安装CUDA 和 NCCL
 
 通过`pip`安装:
@@ -60,7 +60,7 @@ git clone https://github.com/FlagAI-Open/FlagAI.git
 python setup.py install
 ```
 
-- [可选] 开启训练加速需要安装 NVIDIA's [apex](https://github.com/NVIDIA/apex)
+- [可选] 开启训练加速需要安装 NVIDIA的 [apex](https://github.com/NVIDIA/apex)
 ```
 git clone https://github.com/NVIDIA/apex
 cd apex
@@ -73,7 +73,7 @@ cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # 检查deepspeed的状态
 ```
-- [提示] 单节点docker环境下, 运行多卡数据并行需要设置host. 例如，docker节点 root@127.0.0.1，其端口 7110。
+- [提示] 单节点docker环境下，运行多卡数据并行需要设置host。 例如，docker节点 root@127.0.0.1，其端口 7110。
 ```
 >>> vim ~/.ssh/config
 Host 127.0.0.1
@@ -81,27 +81,27 @@ Host 127.0.0.1
     Port 7110
     User root
 ```
-- [提示] 多节点环境, 需要生成 ssh keys 并拷贝公钥到所有节点 (in `~/.ssh/`)
+- [提示] 多节点环境， 需要生成 ssh keys 并拷贝公钥到所有节点 (in `~/.ssh/`)
 ```
 >>> ssh-keygen -t rsa -C "xxx@xxx.com"
 ```
 
 
 # 快速上手
-我们提供了精选的中英文预训练模型，以及经过训练可以执行不同任务的模型权重。 您可以通过 AutoLoader 加载这些模型以进行训练和预测。更多样例见 `FlagAI/quickstart`。
+我们提供了精选的中英文预训练模型，以及经过训练可以执行不同任务的模型权重。 您可以通过 `AutoLoader` 类加载这些模型以进行训练和预测。更多样例见 `FlagAI/quickstart`。
 
 ## 加载模型和分词器
 我们提供 `AutoLoad` 类来快速加载模型和分词器，例如：
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
-auto_loader = AutoLoader(task_name="title-generation",
-                         model_name="RoBERTa-base-ch",
-                         load_pretrain_params=True,
-                         class_num=2)
+auto_loader = AutoLoader(
+      task_name="title-generation",
+      model_name="RoBERTa-base-ch"  
+)
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
-这个例子是针对`classification`任务的(分类），你也可以通过修改`task_name`来为其他任务建模。
+这个例子是针对`title-generation`(文本摘要）任务的，你也可以通过修改`task_name`来为其他任务建模。
 `class_num` 是分类任务的类别数。 然后您可以使用模型和标记器进行微调或测试。
 
 ## 使用预测器
@@ -194,7 +194,7 @@ for text_pair in test_data:
 * [GLM-large-ch用户完形填空问答](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
 * [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
 * [GLM-large-ch用于标题生成](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
-* [对 huggingface t5-11b 模型的支持 以及加速的tricks](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
+* [对 huggingface t5-11b 模型的支持以及加速的小技巧](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
 * [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
 * [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
 * [RoBERTa-base-ch用于命名实体识别](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)
@@ -205,7 +205,7 @@ for text_pair in test_data:
 [//]: # (* [用GLM10b模型在TNEWS短文本分类数据集上微调]&#40;doc_zh/TUTORIAL_20_GLM_TNEWS.md&#41;)
 
 
-本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。更多样例见 `FlagAI/examples`。
+本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。更多样例见 `./examples`目录。
 
 
 # 教程
@@ -223,7 +223,7 @@ for text_pair in test_data:
 
 
 # 贡献代码
-感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/FlagAI-Open/FlagAI/issues)以执行特定任务。
+感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md) 开始，然后检查这些[未解决的问题](https://github.com/FlagAI-Open/FlagAI/issues) 以执行特定任务。
 
 # 联系我们
 欢迎扫码加入飞智用户群
