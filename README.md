@@ -122,7 +122,7 @@ for text in test_data:
 This example is for the `seq2seq` task, where we can get `beam-search` results by calling the `predict_generate_beamsearch` function. In addition, we also support prediction for tasks such as `NER` and `title generate`.
 
 
-## 命名实体识别任务示例
+## NER
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
