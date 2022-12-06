@@ -161,7 +161,7 @@ for t in test_data:
     print(f"result is {result}")
 ```
 
-## 语义相似度匹配任务示例
+## Semantic Matching
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
