@@ -14,7 +14,7 @@ import pdb
 
 if __name__ == '__main__':
 
-    trainer = Trainer(env_type='bmtrain',
+    trainer = Trainer(env_type='deepspeed',
                       epochs=1,
                       batch_size=1,
                       eval_interval=1000,
@@ -25,7 +25,8 @@ if __name__ == '__main__':
                       lr=1e-4,
                       num_gpus = 2,
                       save_interval=10000,
-                      hostfile='./hostfile')
+                      hostfile='./hostfile',
+                      deepspeed_config='./deepspeed.json')
     model_name = 'GLM-large-ch'
     tokenizer = Tokenizer.from_pretrained(model_name)
     ds_args = PretrainDatasetArguments()
