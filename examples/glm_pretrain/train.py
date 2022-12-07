@@ -23,6 +23,7 @@ if __name__ == '__main__':
                       pytorch_device='cuda',
                       load_dir=None,
                       lr=1e-4,
+                      num_gpus = 2,
                       save_interval=10000,
                       hostfile='./hostfile')
     model_name = 'GLM-large-ch'

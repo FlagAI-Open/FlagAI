@@ -212,7 +212,7 @@ class Trainer():
         self.hostfile = hostfile
         self.training_script = training_script
 
-        if 'deepspeed' in self.env_type or self.env_type == 'pytorchDDP' or self.env_type == 'bmtrain':
+        if self.env_type != 'pytorch':
             training_paras = self.get_dist_args()
             # Implement for AutoLaunch
             # >>> python train.py # will call get_dist_args()
@@ -424,7 +424,7 @@ class Trainer():
                                  load_type=self.load_type)
         """Train the model."""
         # Turn on training mode which enables dropout.
-        model.train()
+        # model.train()
         if self.fp16 and self.env_type == 'pytorchDDP':
             log_dist(
                 "Warning: The pytorchDDP plus FP16 may not working togather!!!"
@@ -489,6 +489,8 @@ class Trainer():
 
         if  self.env_type == 'bmtrain':
             bmt.synchronize()
+
+        model.train()
 
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
@@ -562,7 +564,10 @@ class Trainer():
                                                            single_step=True)
                     dist.barrier()
                 if lm_loss is not None:
-                    total_lm_loss += lm_loss.data.detach().float()
+                    if not isinstance(lm_loss, float):
+                        total_lm_loss += lm_loss.data.detach().float()
+                    else:
+                        total_lm_loss += lm_loss
 
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
@@ -835,41 +840,26 @@ class Trainer():
                              optimizer,
                              lr_scheduler,
                              mems=None,
-                             single_step=False):
+                             single_step=False): #bmt 自带loss scale 需要查看是否有重复
         """Single training step."""
-        # Forward model for one step.
-        self.timers('forward').start()
         optimizer.zero_grad()
-        step_output = self.forward_step(data, model, mems)
+        self.timers('forward').start()
+        model_output = model(**data)
         self.timers('forward').stop()
-        lm_loss = step_output['loss']
-        reduced_loss = lm_loss.detach().clone().view(1)
-        if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
-            # Calculate gradients, reduce across processes, and clip.
-            self.timers('backward').start()
-            # optimizer.loss_scale(lm_loss)
-            lm_loss = optimizer.loss_scale(lm_loss)
-            lm_loss.backward()
-            self.timers('backward').stop()
-            # Update parameters.
-            self.timers('optimizer').start()
-            # model.step()
-            if lr_scheduler:
-                bmt.optim_step(optimizer, lr_scheduler)
-            self.timers('optimizer').stop()
-            if (self.accumulate_count +
-                    1) % self.gradient_accumulation_steps == 0:
-                self.accumulate_count = 0
-            else:
-                self.accumulate_count += 1
-            # dist.barrier()
-        else:
-            log_dist("Found NaN loss, skip backward", [0])
-            del lm_loss, reduced_loss
-            mems = []
-            reduced_loss = None
-        reduced_loss = bmt.sum_loss(lm_loss).item()
-        return reduced_loss, mems
+        logits = model_output['logits']
+        loss = model_output['loss']
+        lm_loss = bmt.sum_loss(loss).item()
+        try:
+            loss = optimizer.loss_scale(loss)
+        except:
+            pass
+        self.timers('backward').start()
+        loss.backward()
+        self.timers('backward').stop()
+        self.timers('optimizer').start()
+        bmt.optim_step(optimizer, lr_scheduler)
+        self.timers('optimizer').stop()
+        return lm_loss, mems
 
     def forward_step(self, data, model, mems=None):
         """Simple forward step. """

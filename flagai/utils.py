@@ -204,9 +204,22 @@ def save_checkpoint(iteration,
         sd['torch_rng_state'] = torch.get_rng_state()
         sd['cuda_rng_state'] = torch.cuda.get_rng_state()
         sd['rng_tracker_states'] = mpu.get_cuda_rng_tracker().get_states()
-    if env_type == 'pytorch' or (env_type != 'deepspeed+mpu'
+    if env_type == 'pytorch' or (env_type != 'deepspeed+mpu' and env_type != 'bmtrain'
                                  and dist.get_rank() == 0) or (
                                     env_type == 'deepspeed+mpu'and mpu.get_model_parallel_src_rank() == 0):
+        ensure_directory_exists(checkpoint_name)
+        config_path = os.path.join(save_dir, str(iteration), 'config.json')
+
+        if hasattr(model, 'save_config'):
+            model.save_config(config_path)
+            log_dist('  successfully saved {}'.format(config_path))
+        torch.save(sd, checkpoint_name)
+        log_dist('  successfully saved {}'.format(checkpoint_name))
+
+        tracker_filename = get_checkpoint_tracker_filename(save_dir)
+        with open(tracker_filename, 'w') as f:
+            f.write(str(iteration) + '\t' + str(best_iteration))
+    elif  env_type == 'bmtrain' and os.environ.get('RANK') == 0:
         ensure_directory_exists(checkpoint_name)
         config_path = os.path.join(save_dir, str(iteration), 'config.json')
 
