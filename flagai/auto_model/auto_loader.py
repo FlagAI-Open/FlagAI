@@ -180,7 +180,6 @@ class AutoLoader:
 
         brief_model_name = MODEL_DICT[model_name][2]
         model_type = MODEL_DICT[model_name][3]
-
         # The dir to save config, vocab and model.
 
         self.model_name = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
@@ -196,8 +195,7 @@ class AutoLoader:
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
 
-        model_name_ = self.is_exist_finetuned_model(model_name, task_name)
-
+        model_name_ = self.is_exist_finetuned_model(raw_model_name, task_name)
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
             download_path=model_dir,
@@ -223,6 +221,7 @@ class AutoLoader:
                 self.tokenizer = ClipTokenizer(bpe_path=os.path.join(download_path, 'bpe_simple_vocab_16e6.txt.gz'))
                 self.transform = None
             else:
+                
                 self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
                                        MODEL_DICT[model_name][5]).from_pretrained(
                     os.path.join(model_dir, raw_model_name))
