@@ -10,7 +10,6 @@ from flagai.data.dataset import BlockDataset
 from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS
 from flagai.test_utils import PretrainDatasetArguments
-import pdb
 
 if __name__ == '__main__':
 
@@ -24,15 +23,14 @@ if __name__ == '__main__':
                       load_dir=None,
                       lr=1e-4,
                       num_gpus = 2,
-                      save_interval=10000,
+                      weight_decay=1e-2,
+                      save_interval=8000,
                       hostfile='./hostfile',
                       deepspeed_config='./deepspeed.json')
     model_name = 'GLM-large-ch'
     tokenizer = Tokenizer.from_pretrained(model_name)
     ds_args = PretrainDatasetArguments()
     ds_args = add_args(ds_args, tokenizer)
-    # model = GLMForSeq2Seq.from_pretrain(model_name=model_name)
-    # pdb.set_trace()
     model = GLMForSeq2Seq.from_pretrain(download_path='/sharefs/baai-mrnd/xw/model_save/',model_name=model_name)
     def create_dataset(tokenizer, should_split):
         dataset = get_dataset_lazy("./data",
