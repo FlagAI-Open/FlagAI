@@ -196,7 +196,6 @@ class AutoLoader:
         print("*" * 20, task_name, model_name)
 
         model_name_ = self.is_exist_finetuned_model(raw_model_name, task_name)
-        print(f"model_name_ is {model_name_}")
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
             download_path=model_dir,
