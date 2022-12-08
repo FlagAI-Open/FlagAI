@@ -196,11 +196,8 @@ class AutoLoader:
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
 
-        model_id = _get_model_id(f"{raw_model_name}-{task_name}")
-        if model_id != 'null':
-            model_name_ = f"{raw_model_name}-{task_name}"
-        else:
-            model_name_ = raw_model_name
+        model_name_ = self.is_exist_finetuned_model(model_name, task_name)
+
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
             download_path=model_dir,
@@ -235,6 +232,19 @@ class AutoLoader:
         else:
             self.tokenizer = None
             self.transform = None
+
+    def is_exist_finetuned_model(self, raw_model_name, task_name):
+        try:
+            model_id = _get_model_id(f"{raw_model_name}-{task_name}")
+            if model_id != 'null':
+                model_name_ = f"{raw_model_name}-{task_name}"
+                return model_name_
+            else :
+                return raw_model_name
+
+        except:
+            print("Model hub is not reachable.")
+            return raw_model_name
 
     def get_task_name(self, brief_model_name):
         all_model_task = list(ALL_TASK.keys())
