@@ -15,14 +15,17 @@ import math
 
 join = os.path.join
 
+
 def get_safety_checker():
     # load safety model
     from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
     safety_model_id = "CompVis/stable-diffusion-safety-checker"
     safety_feature_extractor = AutoFeatureExtractor.from_pretrained(
         safety_model_id)
-    safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id)
+    safety_checker = StableDiffusionSafetyChecker.from_pretrained(
+        safety_model_id)
     return safety_checker, safety_feature_extractor
+
 
 def chunk(it, size):
     it = iter(it)
@@ -249,59 +252,52 @@ class ListProcessor(LogitsProcessor):
         return scores
 
 
-class BeamHypotheses(object):
-
-    def __init__(self,
-                 n_hyp,
-                 max_len,
-                 length_penalty,
-                 early_stopping,
-                 tokenizer=None):
+class BeamHypotheses:
+    def __init__(self, num_beams: int, max_length: int, length_penalty: float, early_stopping: bool):
         """
         Initialize n-best list of hypotheses.
         """
-        self.max_len = max_len
+        self.max_length = max_length - 1  # ignoring bos_token
         self.length_penalty = length_penalty
         self.early_stopping = early_stopping
-        self.n_hyp = n_hyp
-        self.hyp = []
+        self.num_beams = num_beams
+        self.beams = []
         self.worst_score = 1e9
-        self.tokenizer = tokenizer
 
     def __len__(self):
         """
         Number of hypotheses in the list.
         """
-        return len(self.hyp)
+        return len(self.beams)
 
-    def add(self, hyp, sum_logprobs):
+    def add(self, hyp: torch.LongTensor, sum_logprobs: float, mems=None):
         """
         Add a new hypothesis to the list.
         """
-        score = sum_logprobs / len(hyp)**self.length_penalty
-
-        if len(self) < self.n_hyp or score > self.worst_score:
-            self.hyp.append((score, hyp))
-            if len(self) > self.n_hyp:
-                sorted_scores = sorted([
-                    (s, idx) for idx, (s, _) in enumerate(self.hyp)
-                ])
-                del self.hyp[sorted_scores[0][1]]
-                self.worst_score = sorted_scores[1][0]
+        score = sum_logprobs / (max(hyp.shape[-1], 1) ** self.length_penalty)
+        if len(self) < self.num_beams or score > self.worst_score:
+            self.beams.append((score, hyp, mems))
+            if len(self) > self.num_beams:
+                sorted_next_scores = sorted([(s, idx) for idx, (s, _, _) in enumerate(self.beams)])
+                del self.beams[sorted_next_scores[0][1]]
+                self.worst_score = sorted_next_scores[1][0]
             else:
                 self.worst_score = min(score, self.worst_score)
 
-    def is_done(self, best_sum_logprobs, cur_len):
+    def is_done(self, best_sum_logprobs: float, cur_len: int) -> bool:
         """
-        If there are enough hypotheses and that none of the hypotheses being generated
-        can become better than the worst one in the heap, then we are done with this sentence.
+        If there are enough hypotheses and that none of the hypotheses being generated can become better than the worst
+        one in the heap, then we are done with this sentence.
         """
-        if len(self) < self.n_hyp:
+
+        if len(self) < self.num_beams:
             return False
         elif self.early_stopping:
             return True
         else:
-            return self.worst_score >= best_sum_logprobs / cur_len**self.length_penalty
+            cur_score = best_sum_logprobs / cur_len ** self.length_penalty
+            ret = self.worst_score >= cur_score
+            return ret
 
 
 def viterbi_decode(nodes, trans):
@@ -441,6 +437,325 @@ def bert_beam_search(model,
                     beam_size = flag.sum()
 
         return output_ids[output_scores.argmax()]
+
+from abc import ABC, abstractmethod
+from collections import UserDict
+from typing import Optional, Tuple, List, Iterable
+
+class BeamScorer(ABC):
+    """
+    Abstract base class for all beam scorers that are used for :meth:`~transformers.PretrainedModel.beam_search` and
+    :meth:`~transformers.PretrainedModel.beam_sample`.
+    """
+
+    @abstractmethod
+    def process(
+            self,
+            input_ids: torch.LongTensor,
+            next_scores: torch.FloatTensor,
+            next_tokens: torch.LongTensor,
+            next_indices: torch.LongTensor,
+            **kwargs
+    ) -> Tuple[torch.Tensor]:
+        raise NotImplementedError("This is an abstract method.")
+
+    @abstractmethod
+    def finalize(
+            self,
+            input_ids: torch.LongTensor,
+            next_scores: torch.FloatTensor,
+            next_tokens: torch.LongTensor,
+            next_indices: torch.LongTensor,
+            **kwargs
+    ) -> torch.LongTensor:
+        raise NotImplementedError("This is an abstract method.")
+
+
+class BeamSearchScorer(BeamScorer):
+    r"""
+    :class:`transformers.BeamScorer` implementing standard beam search decoding.
+
+    Adapted in part from `Facebook's XLM beam search code
+    <https://github.com/facebookresearch/XLM/blob/9e6f6814d17be4fe5b15f2e6c43eb2b2d76daeb4/src/model/transformer.py#L529>`__.
+
+    Args:
+        batch_size (:obj:`int`):
+            Batch Size of :obj:`input_ids` for which beam search decoding is run in parallel.
+        max_length (:obj:`int`):
+            The maximum length of the sequence to be generated.
+        num_beams (:obj:`int`):
+            Number of beams for beam search.
+        device (:obj:`torch.device`):
+            Defines the device type (*e.g.*, :obj:`"cpu"` or :obj:`"cuda"`) on which this instance of
+            :obj:`BeamSearchScorer` will be allocated.
+        length_penalty (:obj:`float`, `optional`, defaults to 1.0):
+            Exponential penalty to the length. 1.0 means no penalty. Set to values < 1.0 in order to encourage the
+            model to generate shorter sequences, to a value > 1.0 in order to encourage the model to produce longer
+            sequences.
+        do_early_stopping (:obj:`bool`, `optional`, defaults to :obj:`False`):
+            Whether to stop the beam search when at least ``num_beams`` sentences are finished per batch or not.
+        num_beam_hyps_to_keep (:obj:`int`, `optional`, defaults to 1):
+            The number of beam hypotheses that shall be returned upon calling
+            :meth:`~transformer.BeamSearchScorer.finalize`.
+    """
+
+    def __init__(
+            self,
+            batch_size: int,
+            max_length: int,
+            num_beams: int,
+            device: torch.device,
+            length_penalty: Optional[float] = 1.0,
+            do_early_stopping: Optional[bool] = False,
+            num_beam_hyps_to_keep: Optional[int] = 1,
+    ):
+        self.max_length = max_length
+        self.num_beams = num_beams
+        self.device = device
+        self.length_penalty = length_penalty
+        self.do_early_stopping = do_early_stopping
+        self.num_beam_hyps_to_keep = num_beam_hyps_to_keep
+
+        self._is_init = False
+        self._beam_hyps = [
+            BeamHypotheses(
+                num_beams=self.num_beams,
+                max_length=self.max_length,
+                length_penalty=self.length_penalty,
+                early_stopping=self.do_early_stopping,
+            )
+            for _ in range(batch_size)
+        ]
+        self._done = torch.tensor([False for _ in range(batch_size)], dtype=torch.bool, device=self.device)
+
+        # if not isinstance(num_beams, int) or num_beams <= 1:
+        #     raise ValueError(
+        #         f"`num_beams` has to be an integer strictly greater than 1, but is {num_beams}. For `num_beams` == 1, one should make use of `greedy_search` instead."
+        #     )
+
+    @property
+    def is_done(self) -> bool:
+        return self._done.all()
+
+    def process(
+            self,
+            input_ids: torch.LongTensor,
+            next_scores: torch.FloatTensor,
+            next_tokens: torch.LongTensor,
+            next_indices: torch.LongTensor,
+            pad_token_id: Optional[int] = None,
+            eos_token_id: Optional[int] = None,
+            mems=None
+    ) -> Tuple[torch.Tensor]:
+        cur_len = input_ids.shape[-1]
+        batch_size = len(self._beam_hyps)
+        assert batch_size == (input_ids.shape[0] // self.num_beams)
+        if isinstance(eos_token_id, int):
+            eos_token_id = [eos_token_id]
+        device = next_scores.device
+        next_beam_scores = torch.zeros((batch_size, self.num_beams), dtype=next_scores.dtype, device=device)
+        next_beam_tokens = torch.zeros((batch_size, self.num_beams), dtype=next_tokens.dtype, device=device)
+        next_beam_indices = torch.zeros((batch_size, self.num_beams), dtype=next_indices.dtype, device=device)
+
+        for batch_idx, beam_hyp in enumerate(self._beam_hyps):
+            if self._done[batch_idx]:
+                assert (
+                        len(beam_hyp) >= self.num_beams
+                ), "Batch can only be done if at least {} beams have been generated".format(self.num_beams)
+                assert (
+                        eos_token_id is not None and pad_token_id is not None
+                ), "generated beams >= num_beams -> eos_token_id and pad_token have to be defined"
+                # pad the batch
+                next_beam_scores[batch_idx, :] = 0
+                next_beam_tokens[batch_idx, :] = pad_token_id
+                next_beam_indices[batch_idx, :] = 0
+                continue
+
+            # next tokens for this sentence
+            beam_idx = 0
+            for beam_token_rank, (next_token, next_score, next_index) in enumerate(
+                    zip(next_tokens[batch_idx], next_scores[batch_idx], next_indices[batch_idx])
+            ):
+                batch_beam_idx = batch_idx * self.num_beams + next_index
+                # add to generated hypotheses if end of sentence
+                if (eos_token_id is not None) and (next_token.item() in eos_token_id):
+                    # if beam_token does not belong to top num_beams tokens, it should not be added
+                    is_beam_token_worse_than_top_num_beams = beam_token_rank >= self.num_beams
+                    if is_beam_token_worse_than_top_num_beams:
+                        continue
+                    beam_hyp.add(
+                        input_ids[batch_beam_idx].clone(),
+                        next_score.item(),
+                        mems=[mem[[next_index.item()]] for mem in mems] if mems else None
+                    )
+                else:
+                    # add next predicted token since it is not eos_token
+                    next_beam_scores[batch_idx, beam_idx] = next_score
+                    next_beam_tokens[batch_idx, beam_idx] = next_token
+                    next_beam_indices[batch_idx, beam_idx] = batch_beam_idx
+                    beam_idx += 1
+
+                # once the beam for next step is full, don't add more tokens to it.
+                if beam_idx == self.num_beams:
+                    break
+
+            if beam_idx < self.num_beams:
+                raise ValueError(
+                    f"At most {self.num_beams} tokens in {next_tokens[batch_idx]} can be equal to `eos_token_id: {eos_token_id}`. Make sure {next_tokens[batch_idx]} are corrected."
+                )
+
+            # Check if we are done so that we can save a pad step if all(done)
+            self._done[batch_idx] = self._done[batch_idx] or beam_hyp.is_done(
+                next_scores[batch_idx].max().item(), cur_len
+            )
+
+        return UserDict(
+            {
+                "next_beam_scores": next_beam_scores.view(-1),
+                "next_beam_tokens": next_beam_tokens.view(-1),
+                "next_beam_indices": next_beam_indices.view(-1),
+            }
+        )
+
+    def finalize(
+            self,
+            input_ids: torch.LongTensor,
+            final_beam_scores: torch.FloatTensor,
+            final_beam_tokens: torch.LongTensor,
+            final_beam_indices: torch.LongTensor,
+            pad_token_id: Optional[int] = None,
+            eos_token_id: Optional[int] = None,
+            mems=None
+    ) -> Tuple[torch.LongTensor, List[torch.Tensor]]:
+        batch_size = len(self._beam_hyps)
+
+        # finalize all open beam hypotheses and add to generated hypotheses
+        for batch_idx, beam_hyp in enumerate(self._beam_hyps):
+            if self._done[batch_idx]:
+                continue
+
+            # need to add best num_beams hypotheses to generated hyps
+            for beam_id in range(self.num_beams):
+                batch_beam_idx = batch_idx * self.num_beams + beam_id
+                final_score = final_beam_scores[batch_beam_idx].item()
+                final_tokens = input_ids[batch_beam_idx]
+                beam_hyp.add(final_tokens, final_score, mems=[mem[[batch_beam_idx]] for mem in mems] if mems else None)
+
+        # select the best hypotheses
+        sent_lengths = input_ids.new(batch_size * self.num_beam_hyps_to_keep)
+        best = []
+
+        # retrieve best hypotheses
+        for i, beam_hyp in enumerate(self._beam_hyps):
+            sorted_hyps = sorted(beam_hyp.beams, key=lambda x: x[0])
+            for j in range(self.num_beam_hyps_to_keep):
+                score, best_hyp, mems = sorted_hyps.pop()
+                sent_lengths[self.num_beam_hyps_to_keep * i + j] = len(best_hyp)
+                best.append((best_hyp, mems, score))
+
+        # prepare for adding eos
+        sent_max_len = min(sent_lengths.max().item(), self.max_length)
+        decoded: torch.LongTensor = input_ids.new(batch_size * self.num_beam_hyps_to_keep, sent_max_len)
+        scores = final_beam_scores.new(batch_size * self.num_beam_hyps_to_keep)
+        # shorter batches are padded if needed
+        if sent_lengths.min().item() != sent_lengths.max().item():
+            assert pad_token_id is not None, "`pad_token_id` has to be defined"
+            decoded.fill_(pad_token_id)
+
+        # fill with hypotheses and eos_token_id if the latter fits in
+        mems = []
+        for i, (hypo, mem, score) in enumerate(best):
+            scores[i] = score
+            decoded[i, : sent_lengths[i]] = hypo
+            if sent_lengths[i] < sent_max_len:
+                decoded[i, sent_lengths[i]] = eos_token_id
+            mems.append(mem)
+        mems = [torch.cat([mem[i] for mem in mems], dim=0) for i in range(len(mems[0]))] if mems and mems[0] else None
+        return decoded, mems, scores
+
+
+def alm_beam_search(model,
+                    tokenizer,
+                    context_tokens,
+                    context_length,
+                    mems=None,
+                    end_tokens=[50007, 50000],
+                    out_max_length=512,
+                    beam_size=40,
+                    top_k=40):
+    tokens = context_tokens.new_full((1, 1), tokenizer.get_command_id('sop'))
+    counter = 0
+    if mems is None:
+        mems = []
+
+    last_beam_num = 1
+    beam_scorer = BeamSearchScorer(
+        batch_size=1,
+        max_length=out_max_length,
+        num_beams=beam_size,
+        device=context_tokens.device,
+        length_penalty=0.0,
+        do_early_stopping=False,
+    )
+    beam_scores = torch.zeros(1, dtype=torch.float, device=context_tokens.device)
+    while counter < out_max_length:
+        position_ids = context_tokens.new_ones(last_beam_num, 2, 1)
+        position_ids[:, 0] = context_length
+        position_ids[:, 1] = counter + 1
+        attention_mask = context_tokens.new_zeros([1],
+                                                  device=context_tokens.device,
+                                                  dtype=torch.long)
+
+        last_token = tokens[:, -1:]
+        
+        output_ = model(last_token,
+                        position_ids,
+                        attention_mask,
+                        mems=mems,
+                        return_memory=True)
+
+        mems = output_['hidden_states']
+        next_token_logits = output_['logits']
+        next_token_logits = next_token_logits[:, -1]
+
+
+        next_token_scores = F.log_softmax(next_token_logits, dim=-1)
+        next_token_scores = next_token_scores + beam_scores[:, None].expand_as(next_token_scores)
+        vocab_size = next_token_scores.shape[-1]
+        next_token_scores = next_token_scores.view(1, last_beam_num * vocab_size)
+
+        probs = F.softmax(next_token_scores, dim=-1)
+        next_tokens = torch.multinomial(probs, num_samples=2 * beam_size)
+        next_token_scores = torch.gather(next_token_scores, -1, next_tokens)
+        next_token_scores, _indices = torch.sort(next_token_scores, descending=True, dim=1)
+        next_tokens = torch.gather(next_tokens, -1, _indices)
+
+        next_indices = next_tokens // vocab_size
+        next_tokens = next_tokens % vocab_size
+        # stateless
+        tokens = tokens.expand((beam_size, -1))
+        beam_outputs = beam_scorer.process(
+            tokens,
+            next_token_scores,
+            next_tokens,
+            next_indices,
+            eos_token_id=end_tokens,
+            mems=mems
+        )
+        beam_scores = beam_outputs["next_beam_scores"]
+        beam_next_tokens = beam_outputs["next_beam_tokens"]
+        beam_idx = beam_outputs["next_beam_indices"]
+        beam_next_tokens = beam_next_tokens.unsqueeze(-1)
+        tokens = torch.cat([tokens[beam_idx, :], beam_next_tokens], dim=-1)
+        mems = [mem[beam_idx] for mem in mems] if mems else None
+        if beam_scorer.is_done:
+            break
+        last_beam_num = beam_size
+        counter += 1 
+
+    tokens, mems, _ = beam_scorer.finalize(tokens, beam_scores, next_tokens, next_indices, eos_token_id=50000,
+                                                mems=mems)
+    return torch.cat((context_tokens, tokens), dim=1), mems
 
 
 def glm_beam_search(model,
@@ -699,6 +1014,12 @@ def gpt_random_sample(model, tokenizer, text, input_max_length, out_max_length,
     return tokenizer.decode(output_ids)
 
 
+def alm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
+                      repetition_penalty, temperature, device):
+    return glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
+                      repetition_penalty, temperature, device)
+
+
 def glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
                       repetition_penalty, temperature, device):
     if 'MASK]' in text:
@@ -763,6 +1084,64 @@ def glm_random_sample(model, tokenizer, text, out_max_length, top_k, top_p,
             print("None")
         return tokenizer.DecodeIds(output_ids)
 
+
+
+def alm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=50000):  
+    device = next(model.parameters()).device 
+    model.eval()
+
+    generation_mask = '[gMASK]'
+    if 'MASK]' not in text:
+        text += ' ' + generation_mask
+    context_tokens = tokenizer.EncodeAsIds(text)
+    context_tokens = [tokenizer.get_command_id('cls')] + context_tokens
+    if not text.endswith('[gMASK]'):
+        context_tokens = context_tokens + [tokenizer.get_command_id('eos')]
+    context_length = len(context_tokens)
+    context_length_tensor = torch.LongTensor([context_length])
+    context_length = context_length_tensor[0].item()
+    context_tokens_tensor = torch.LongTensor(context_tokens)
+    text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
+
+    start_time = time.time()
+    mems = []
+    tokens = context_tokens_tensor
+    tokens = tokens.view(1, -1).contiguous()
+    tokens = tokens.to(device)
+    attention_mask = torch.tensor([tokens.size(1)],
+                                  device=device,
+                                  dtype=torch.long)
+    position_ids = torch.arange(tokens.size(1),
+                                device=device,
+                                dtype=torch.long)
+    block_position_ids = torch.zeros(tokens.size(1),
+                                     device=device,
+                                     dtype=torch.long)
+    position_ids = torch.stack((position_ids, block_position_ids), dim=0)
+    position_ids = position_ids.unsqueeze(0)
+    mask_tokens = ['MASK', 'sMASK', 'gMASK']
+    mask_tokens = [tokenizer.get_command_id(token) for token in mask_tokens]
+    end_tokens = [tokenizer.get_command_id('eop'), eod_token]
+    mask_positions = []
+    for token in mask_tokens:
+        mask_positions += (context_tokens_tensor == token).nonzero(
+            as_tuple=True)[0].tolist()
+    mask_positions.sort()
+    output_ = model(tokens, position_ids, attention_mask, return_memory=True)
+    mems = output_['hidden_states']
+    for mask_position in mask_positions:
+        position = mask_position
+        tokens, mems = alm_beam_search(model,
+                                           tokenizer,
+                                           tokens,
+                                           position,
+                                           mems=mems,
+                                           beam_size=beam_size,
+                                           out_max_length=out_max_length)
+    output_tokens_list = tokens.view(-1).contiguous()
+    decode_tokens = tokenizer.DecodeIds(output_tokens_list.tolist())
+
+    return decode_tokens
 
 def glm_beamsearch(model, tokenizer, text, out_max_length, beam_size):  #
     #tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
@@ -972,12 +1351,15 @@ def glm_sample_sequence(model,
         attention_mask = context_tokens.new_zeros([1],
                                                   device=context_tokens.device,
                                                   dtype=torch.long)
+
         last_token = tokens[:, -1:]
+        
         output_ = model(last_token,
                         position_ids,
                         attention_mask,
                         mems=mems,
                         return_memory=True)
+
         mems = output_['hidden_states']
         next_token_logits = output_['logits']
         next_token_logits = next_token_logits[:, -1]
@@ -992,7 +1374,7 @@ def glm_sample_sequence(model,
             break
         prev = prev.view(1, 1)
         tokens = prev if tokens is None else torch.cat((tokens, prev), dim=1)
-        counter += 1
+        counter += 1 
     return torch.cat((context_tokens, tokens), dim=1), mems
 
 

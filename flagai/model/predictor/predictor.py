@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_beamsearch,\
     t5_random_sample, gpt_random_sample, \
-    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample, cpm_beamsearch
+    t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample, cpm_beamsearch, alm_beamsearch, alm_random_sample
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
 from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
@@ -18,7 +18,6 @@ from contextlib import contextmanager, nullcontext
 from einops import rearrange
 
 class Predictor:
-
     def __init__(self, model, tokenizer=None):
         """
         Args:
@@ -230,6 +229,10 @@ class Predictor:
             #assert "seq2seq" in self.class_name.lower(), "this function only support seq2seq task"
             return glm_beamsearch(self.model, self.tokenizer, text,
                                   out_max_length, beam_size)
+        if "alm" in self.class_name.lower():
+            #assert "seq2seq" in self.class_name.lower(), "this function only support seq2seq task"
+            return alm_beamsearch(self.model, self.tokenizer, text,
+                                  out_max_length, beam_size)
         if "bert" in self.class_name.lower():
             assert "seq2seq" in self.class_name.lower(
             ), "this function only support seq2seq task"
@@ -303,6 +306,10 @@ class Predictor:
             return glm_random_sample(self.model, self.tokenizer, text,
                                      out_max_length, top_k, top_p,
                                      repetition_penalty, temperature, device)
+        elif "alm" in self.class_name.lower():
+            return alm_random_sample(self.model, self.tokenizer, text,
+                                     out_max_length, top_k, top_p,
+                                     repetition_penalty, temperature, device)
 
         elif "bert" in self.class_name.lower():
             assert "seq2seq" in self.class_name.lower(
@@ -357,6 +364,7 @@ class Predictor:
         C: channels of images, 4 for colored images
         """
         seed_everything(seed)
+        
         assert "diffusion" in self.class_name.lower()
         device = next(self.model.parameters()).device
         if plms:
