@@ -371,7 +371,6 @@ class GLMModel(BaseModel):
         self.word_embeddings = VocabParallelEmbedding(vocab_size,
                                                       hidden_size,
                                                       init_method=init_method)
-
         # Transformer
         self.transformer = GLMStack(
             config,
@@ -426,6 +425,7 @@ class GLMModel(BaseModel):
         attention_mask: 2 x 3
         '''
         # Embeddings.
+
         batch_size = input_ids.size(0)
         words_embeddings = self.word_embeddings(input_ids)
         embeddings = words_embeddings
@@ -462,7 +462,10 @@ class GLMModel(BaseModel):
                 else:
 
                     loss = F.cross_entropy(
-                        logits_parallel.reshape(-1, logits_parallel.shape[-1]).contiguous().float(), labels.reshape(-1).long())
+                        logits_parallel.reshape(
+                            -1,
+                            logits_parallel.shape[-1]).contiguous().float(),
+                        labels.reshape(-1).long())
 
                 if self.parallel_output:  # Put in different GPUs
                     return {
