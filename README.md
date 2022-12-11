@@ -11,7 +11,7 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 * Now it supports text-image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and text-to-image generation [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion). And it support **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from Huggingface Transformers.
 
-* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few shot tasks.   
+* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few-shot tasks.   
 
 * These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
@@ -118,6 +118,72 @@ for text in test_data:
         predictor.predict_generate_beamsearch(text,
                                               out_max_length=50,
                                               beam_size=3))
+```
+This example is for the `seq2seq` task, where we can get `beam-search` results by calling the `predict_generate_beamsearch` function. In addition, we also support prediction for tasks such as `NER` and `title generate`.
+
+
+## NER
+
+```python
+from flagai.auto_model.auto_loader import AutoLoader
+from flagai.model.predictor.predictor import Predictor
+
+task_name = "ner"
+model_name = "RoBERTa-base-ch"
+target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
+maxlen = 256
+
+auto_loader = AutoLoader(task_name,
+                         model_name=model_name,
+                         load_pretrain_params=True,
+                         class_num=len(target))
+
+model = auto_loader.get_model()
+tokenizer = auto_loader.get_tokenizer()
+
+predictor = Predictor(model, tokenizer)
+
+test_data = [
+    "6月15日，河南省文物考古研究所曹操高陵文物队公开发表声明承认：“从来没有说过出土的珠子是墓主人的",
+    "4月8日，北京冬奥会、冬残奥会总结表彰大会在人民大会堂隆重举行。习近平总书记出席大会并发表重要讲话。在讲话中，总书记充分肯定了北京冬奥会、冬残奥会取得的优异成绩，全面回顾了7年筹办备赛的不凡历程，深入总结了筹备举办北京冬奥会、冬残奥会的宝贵经验，深刻阐释了北京冬奥精神，对运用好冬奥遗产推动高质量发展提出明确要求。",
+    "当地时间8日，欧盟委员会表示，欧盟各成员国政府现已冻结共计约300亿欧元与俄罗斯寡头及其他被制裁的俄方人员有关的资产。",
+    "这一盘口状态下英国必发公司亚洲盘交易数据显示博洛尼亚热。而从欧赔投注看，也是主队热。巴勒莫两连败，",
+]
+
+for t in test_data:
+    entities = predictor.predict_ner(t, target, maxlen=maxlen)
+    result = {}
+    for e in entities:
+        if e[2] not in result:
+            result[e[2]] = [t[e[0]:e[1] + 1]]
+        else:
+            result[e[2]].append(t[e[0]:e[1] + 1])
+    print(f"result is {result}")
+```
+
+## Semantic Matching
+
+```python
+from flagai.auto_model.auto_loader import AutoLoader
+from flagai.model.predictor.predictor import Predictor
+
+maxlen = 256
+
+auto_loader = AutoLoader("semantic-matching",
+                         model_name="RoBERTa-base-ch",
+                         load_pretrain_params=True,
+                         class_num=2)
+model = auto_loader.get_model()
+tokenizer = auto_loader.get_tokenizer()
+
+predictor = Predictor(model, tokenizer)
+
+test_data = [["后悔了吗", "你有没有后悔"], ["打开自动横屏", "开启移动数据"],
+             ["我觉得你很聪明", "你聪明我是这么觉得"]]
+
+for text_pair in test_data:
+    print(predictor.predict_cls_classifier(text_pair))
+
 ```
 
 ## Pretrained Models and examples
