@@ -1,7 +1,7 @@
 # GLM 例子：标题生成
 
 ## 背景
-标题生成任务需要输入一段文本，模型根据输入文本输出对应的标题。这里使用`GLM-large-ch`作为样例,如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
+标题生成任务需要输入一段文本，模型根据输入文本输出对应的标题。这里使用`GLM-large-ch`作为样例,如果想要使用更大的百亿参数模型`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
 
 ![](./img/bert_title_generation_model.png)
 
@@ -29,9 +29,9 @@ python ./train.py
 ```
 
 ### 1.数据加载
-样例数据在 /examples/glm_title_generation/data/
+小批量的样例数据放在 `/examples/glm_title_generation/data/`路径下， 其中训练数据的输入文本放在`train.src`里，训练数据的目标摘要文本放在`train.tgt`里
 
-需要针对数据格式定义数据加载方法，例如：定义文件读取函数，从文件中读取数据，得到src和tgt列表：
+我们需要针对数据格式来定义数据加载方法，例如：对于`train.src`和`train.tgt`，我们定义下列文件读取函数，从文件中读取数据，得到输入文本和摘要文本：
 1）定义加载过程
 ```python
 def read_file():
@@ -172,7 +172,7 @@ trainer.train(model,
 ```
 
 ## 生成（generate.py）
-运行前修改模型配置路径model_dir，训练好的模型路径model_save_path。在命令行运行此命令：
+运行前修改模型配置路径model_dir，训练好的模型路径model_save_path。然后在命令行运行此命令：
 ```commandline
 cd ./examples/glm_title_generation
 python ./generate.py
