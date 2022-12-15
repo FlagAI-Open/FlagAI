@@ -172,3 +172,4 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 
 * Megatron-LM is licensed under the [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM is licensed under the [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
+* AltDiffusion is licensed under the [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
