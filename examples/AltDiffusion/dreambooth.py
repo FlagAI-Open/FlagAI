@@ -1,6 +1,9 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+# 
+# https://huggingface.co/spaces/BAAI/dreambooth-altdiffusion/blob/main/train_dreambooth.py
+
 import os
 import sys
 from pathlib import Path
