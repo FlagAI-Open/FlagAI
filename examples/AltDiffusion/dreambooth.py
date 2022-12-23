@@ -23,7 +23,7 @@ instance_prompt = "<鸣人>男孩"
 
 with_prior_preservation = False
 class_data_dir = "Mix"
-class_prompt = "man"
+class_prompt = "男孩"
 prior_loss_weight = 1.0
 num_class_images = 10
 resolution = 512
@@ -191,15 +191,15 @@ for epoch in range(num_train_epochs):
         #x = model.encode_first_stage(batch["pixel_values"]).to(device)
         #c = batch["caption"]
         x, c = model.get_input(batch, "pixel_values")
-        #print('*'*20, "batch=", batch)
-        #print('*'*20, "x=", x)
 
-        loss, _ = model(x, c)
-                
-        if False and with_prior_preservation:
-            bsz = x.shape[0]
-            target, target_prior = torch.chunk(target, 2, dim=0)
+        if with_prior_preservation:
+            x, x_prior = torch.chunk(x, 2, dim=0)
+            c, c_prior = torch.chunk(c, 2, dim=0)
+            loss, _ = model(x, c)
+            prior_loss, _ = model(x_prior, c_prior)
             loss = loss + prior_loss_weight * prior_loss
+        else:
+            loss, _ = model(x, c)
 
         print('*'*20, "loss=", str(loss.detach().item()))
 
