@@ -146,34 +146,17 @@ class Tokenizer(BaseTokenizer):
                 self.text_tokenizer._token_cls = "<s>"
                 self.text_tokenizer._token_sep = "</s>"
             if add_block_symbols:
-                self._command_tokens.extend([
-                    CommandToken('sop', '<|startofpiece|>', self.num_tokens),
-                    CommandToken('eop', '<|endofpiece|>', self.num_tokens + 1)
-                ])
-                self.num_tokens += 2
-                self.num_command_tokens += 2
+                self.add_command_token('sop', '<|startofpiece|>')
+                self.add_command_token('eop', '<|endofpiece|>',)
                 if add_task_mask:
-                    self._command_tokens.extend([
-                        CommandToken('gMASK', '[gMASK]', self.num_tokens),
-                        CommandToken('sMASK', '[sMASK]', self.num_tokens + 1)
-                    ])
-                    self.num_tokens += 2
-                    self.num_command_tokens += 2
+                    self.add_command_token('gMASK', '[gMASK]')
+                    self.add_command_token('sMASK', '[sMASK]')
                 if add_decoder_mask:
-                    self._command_tokens.extend(
-                        [CommandToken('dBLOCK', '[dBLOCK]', self.num_tokens)])
-                    self.num_tokens += 1
-                    self.num_command_tokens += 1
+                    self.add_command_token('dBLOCK', '[dBLOCK]')
             if add_sentinel_token > 0:
                 for i in range(1, add_sentinel_token):
-                    self._command_tokens.extend([
-                        CommandToken(f'MASK{i}', f'[MASK{i}]',
-                                     self.num_tokens),
-                        CommandToken(f'sop{i}', f'<|startofpiece{i}|>',
-                                     self.num_tokens + 1)
-                    ])
-                    self.num_tokens += 2
-                    self.num_command_tokens += 2
+                    self.add_command_token(f'MASK{i}', f'[MASK{i}]')
+                    self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>')
         elif self.tokenizer_class == "bpe":
             if self.tokenizer_model_name.lower().startswith('roberta'):
                 self.num_command_tokens = 6
@@ -315,7 +298,13 @@ class Tokenizer(BaseTokenizer):
             self.num_command_tokens += 6
             self.token_end_id = self.text_tokenizer.convert_token_to_id(
                 '</s>')
+
+
             if add_block_symbols:
+                sop_id = self.text_tokenizer.convert_token_to_id('<|startofpiece|>')
+                eop_id = self.text_tokenizer.convert_token_to_id('<|endofpiece|>')
+
+                
                 self._command_tokens.extend([
                     CommandToken('sop', '<|startofpiece|>',
                                  self.num_tokens + 1),
@@ -363,6 +352,7 @@ class Tokenizer(BaseTokenizer):
         }
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
+        
 
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()
@@ -371,6 +361,14 @@ class Tokenizer(BaseTokenizer):
         """get command token corresponding to `name`"""
         return self.command_name_map[name].Id
 
+    def add_command_token(self, name, token):
+        try:
+            id = self.text_tokenizer.convert_token_to_id(token)
+        except KeyError:
+            id = self.num_tokens
+            self.num_tokens += 1
+        self._command_tokens.append(CommandToken(name, token, id))
+        return
     def rematch(self, text, tokens):
         """output the mapping relation between raw text and tokenizezd text
         """
