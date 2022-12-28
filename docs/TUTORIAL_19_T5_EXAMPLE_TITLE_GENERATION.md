@@ -1,7 +1,7 @@
 # T5 title generation
 
-## 背景
-T5标题生成任务，输入一段文本，T5模型提取对应的标题。
+## Background
+Title-generation task aims to generate title for the given input text.
 
 
 ![](./img/t5_seq2seq.png)
@@ -23,7 +23,7 @@ T5标题生成任务，输入一段文本，T5模型提取对应的标题。
 ## Usage
 
 ### 1.Load data
-The sample data is in /examples/bert_title_generation/data/
+The sample data is in `/examples/bert_title_generation/data/`
 
 You need to define the data loading process in train.py. For example:
 ```python
