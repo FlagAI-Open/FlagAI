@@ -18,7 +18,7 @@ def add_inference_args(parser: argparse.ArgumentParser):
                        help='output file')
     group.add_argument('--input-file', type=str, default=None,
                        help='input file')
-    group.add_argument('--span-length', type=int, default=None,
+    group.add_argument('--span-length', type=int, default=150,
                        help='span length')
     group.add_argument('--beam-size', type=int, default=1,
                        help='beam size')
@@ -30,7 +30,7 @@ def add_inference_args(parser: argparse.ArgumentParser):
                        help='temperature')
     group.add_argument('--no-repeat-ngram-size', type=int, default=0,
                        help='no repeat ngram size')
-    group.add_argument('--repetition-penalty', type=float, default=1.0,
+    group.add_argument('--repetition-penalty', type=float, default=1.2,
                        help='repetition penalty')
     group.add_argument('--random-sample', default=False, action='store_true',
                        help='use random sample strategy')
@@ -59,7 +59,7 @@ def add_training_args(parser: argparse.ArgumentParser):
                        help='gradient clipping')
     group.add_argument('--train-iters', type=int, default=1000000,
                        help='total number of iterations to train over all training runs')
-    group.add_argument('--max-length', type=int, default=512,
+    group.add_argument('--max-length', type=int, default=840,
                        help='max length of input')
     group.add_argument('--max-encoder-length', type=int, default=512,
                        help='max length of encoder input')

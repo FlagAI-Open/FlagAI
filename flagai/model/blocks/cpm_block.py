@@ -52,7 +52,7 @@ class CPM3Block(torch.nn.Module):
             att_init_mean = config.att_init_mean, 
             att_init_std = config.att_init_std,
             att_bias = config.att_bias,
-            att_mask_value = config.att_mask_value,
+            att_mask_value = float(config.att_mask_value),
             pos_bias_type = config.pos_bias_type,
             post_layer_norm = config.post_layer_norm,
             length_scale = config.length_scale,

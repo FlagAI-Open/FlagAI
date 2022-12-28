@@ -132,7 +132,7 @@ class CPM3(BaseModel):
                         cls_head = self.config.get('cls_head', None),
                         post_layer_norm= self.config.get('post_layer_norm', None)
             )
-        self.config = config_cpm3
+            self.config = config_cpm3
         
         self.encoder = CPM3Stack(self.config)
         self.prompt_embedding = CPM3Embedding(
