@@ -45,11 +45,20 @@ def cifar10_collate_fn(batch):
     # image shape is (batch, 3, 224, 224)
     images = torch.tensor([b[0]["pixel_values"][0] for b in batch])
     # text_id shape is (batch, n)
-    input_ids = torch.tensor([tokenizer(f"a photo of a {b[1]}",padding=True,truncation=True,max_length=77)["input_ids"] for b in batch])    
+    input_ids = torch.tensor([tokenizer(f"a photo of a {b[1]}",
+                                padding=True,
+                                truncation=True,
+                                max_length=77)["input_ids"] for b in batch])    
+
+    attention_mask = torch.tensor([tokenizer(f"a photo of a {b[1]}",
+                                padding=True,
+                                truncation=True,
+                                max_length=77)["attention_mask"] for b in batch])
 
     return {
         "pixel_values": images,
-        "input_ids": input_ids
+        "input_ids": input_ids,
+        "attention_mask": attention_mask,
     }
     
 if __name__ == "__main__":
