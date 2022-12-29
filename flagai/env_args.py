@@ -95,7 +95,7 @@ class EnvArgs:
 
     def add_arg(self, arg_name, default=None, type=str, help="", store_true=False):
         if store_true:
-            self.parser.add_argument(f"--{arg_name}", default=default, type=type, action="store_true", help=help)
+            self.parser.add_argument(f"--{arg_name}", action="store_true", help=help)
         else :
             self.parser.add_argument(f"--{arg_name}", default=default, type=type, help=help)
 
