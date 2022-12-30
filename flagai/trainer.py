@@ -1023,11 +1023,11 @@ class Trainer():
                         all_logits.append(logits)
                         all_labels.append(labels)
                 all_losses.append(lm_loss.view(1))
-            if self.env_type != 'pytorch' and len(self.metric_methods) != 0:
-                all_logits = torch.cat(all_logits, dim=0)
-                all_labels = torch.cat(all_labels, dim=0)
 
             all_losses = torch.cat(all_losses, dim=0)
+            if len(self.metric_methods) != 0:
+                all_logits = torch.cat(all_logits, dim=0)
+                all_labels = torch.cat(all_labels, dim=0)
 
             if self.env_type == 'pytorchDDP' or self.env_type == 'deepspeed':
                 if len(self.metric_methods) != 0:

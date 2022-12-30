@@ -13,8 +13,8 @@ class DDIMSampler(object):
 
     def register_buffer(self, name, attr):
         if type(attr) == torch.Tensor:
-            if attr.device != torch.device("cuda"):
-                attr = attr.to(torch.device("cuda"))
+            # if attr.device != torch.device("cuda"):
+                attr = attr.to(self.model.device)
         setattr(self, name, attr)
 
     def make_schedule(self, ddim_num_steps, ddim_discretize="uniform", ddim_eta=0., verbose=True):
@@ -22,7 +22,7 @@ class DDIMSampler(object):
                                                   num_ddpm_timesteps=self.ddpm_num_timesteps,verbose=verbose)
         alphas_cumprod = self.model.alphas_cumprod
         assert alphas_cumprod.shape[0] == self.ddpm_num_timesteps, 'alphas have to be defined for each timestep'
-        to_torch = lambda x: x.clone().detach().to(torch.float32).to('cuda')
+        to_torch = lambda x: x.clone().detach().to(torch.float32).to(self.model.device)
 
         self.register_buffer('betas', to_torch(self.model.betas))
         self.register_buffer('alphas_cumprod', to_torch(alphas_cumprod))
@@ -248,8 +248,8 @@ class PLMSSampler(object):
 
     def register_buffer(self, name, attr):
         if type(attr) == torch.Tensor:
-            if attr.device != torch.device("cuda"):
-                attr = attr.to(torch.device("cuda"))
+            # if attr.device != torch.device("cuda"):
+                attr = attr.to(self.model.device)
         setattr(self, name, attr)
 
     def make_schedule(self, ddim_num_steps, ddim_discretize="uniform", ddim_eta=0., verbose=True):
@@ -410,10 +410,10 @@ class PLMSSampler(object):
             else:
                 x_in = torch.cat([x] * 2)
                 t_in = torch.cat([t] * 2)
-                #c_in = torch.cat([unconditional_conditioning, c])
-                e_t_uncond = self.model.apply_model(x_in, t_in, unconditional_conditioning)
-                e_t = self.model.apply_model(x_in, t_in, c) 
-                #e_t_uncond, e_t = self.model.apply_model(x_in, t_in, c_in).chunk(2)
+                c_in = torch.cat([unconditional_conditioning, c])
+                # e_t_uncond = self.model.apply_model(x_in, t_in, unconditional_conditioning)
+                # e_t = self.model.apply_model(x_in, t_in, c) 
+                e_t_uncond, e_t = self.model.apply_model(x_in, t_in, c_in).chunk(2)
                 e_t = e_t_uncond + unconditional_guidance_scale * (e_t - e_t_uncond)
 
             if score_corrector is not None:
