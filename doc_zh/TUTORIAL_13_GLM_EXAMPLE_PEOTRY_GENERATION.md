@@ -33,13 +33,13 @@
 cd ./examples/glm_poetry_generation
 python ./train.py
 ```
-这里使用`GLM-large-ch`作为样例,如果想要使用`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
+这里使用`GLM-large-ch`模型作为样例, 如果想要使用更大规模的百亿参数模型`GLM-10b-ch`请点[这里](https://model.baai.ac.cn/model-detail/100001)。
 ### 1.准备训练数据
 1）从文件中读取数据
 
-样例数据在 FlagAI/examples/glm_poetry_generation/data/
+样例数据在 `./examples/glm_poetry_generation/data/`路径下，其中训练数据的输入文本放在`train.src`里，训练数据的目标摘要文本放在`train.tgt`里
 
-需要在 train.py 中定义数据加载过程，得到src和tgt列表：
+我们需要针对数据格式来定义数据加载方法，例如：对于`train.src`和`train.tgt`，我们定义下列文件读取函数，从文件中读取数据，得到输入文本和摘要文本：
 ```python
 def read_file():
     src = []
@@ -82,7 +82,7 @@ class GLMPoetryDataset(Dataset):
     def __len__(self):
         return len(self.sents_src)
 ```
-其中tokenizer.encode_plus()方法将源、目标字符串转换为GLM模型的输入token索引、位置编码等数据
+其中tokenizer.encode_plus()方法将目标字符串转换为GLM模型的输入token序号和位置编码等数据
 
 3）定义数据迭代器（DataLoader）中的collate_fn，用于将一批（batch）数据填充（padding）成统一大小
 ```python

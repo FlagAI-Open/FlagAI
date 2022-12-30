@@ -528,11 +528,6 @@ class BeamSearchScorer(BeamScorer):
         ]
         self._done = torch.tensor([False for _ in range(batch_size)], dtype=torch.bool, device=self.device)
 
-        # if not isinstance(num_beams, int) or num_beams <= 1:
-        #     raise ValueError(
-        #         f"`num_beams` has to be an integer strictly greater than 1, but is {num_beams}. For `num_beams` == 1, one should make use of `greedy_search` instead."
-        #     )
-
     @property
     def is_done(self) -> bool:
         return self._done.all()

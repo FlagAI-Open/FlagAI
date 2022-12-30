@@ -9,6 +9,7 @@ from flagai.model.predictor.utils import viterbi_decode, decode_labels, bert_bea
     t5_beamsearch, gpt_beamsearch, bert_random_sample, glm_beamsearch, glm_random_sample, cpm_beamsearch, alm_beamsearch, alm_random_sample
 from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
+from flagai.model.predictor.simctg import contrastive_search
 from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
 import os
 from PIL import Image
@@ -258,13 +259,37 @@ class Predictor:
                                   out_max_length=out_max_length,
                                   beam_size=beam_size)
         elif "cpm" in self.class_name.lower():
-            print('self.tokenizer', self.tokenizer)
             return cpm_beamsearch(self.model,
                                   self.tokenizer,
                                   text,
                                   input_max_length=input_max_length,
                                   out_max_length=out_max_length,
                                   beam_size=beam_size)
+        else:
+            print("Unsupported decoding mode")
+            import os
+            os._exit(0)
+
+    def predict_generate_contrastive_search(self,
+                                            text: str,
+                                            input_max_length: int = 256,
+                                            out_max_length: int = 100,
+                                            beam_size: int = 1) -> str:
+        """
+        Args:
+          text: The input text.
+          input_max_length: The max length of input text.
+          out_max_length: The max length of output text.
+          beam_size: The beam size.
+        """
+        self.model.eval()
+        if "gpt" in self.class_name.lower() or "opt" in self.class_name.lower():
+            return contrastive_search(self.model,
+                                      self.tokenizer,
+                                      text,
+                                      input_max_length=input_max_length,
+                                      out_max_length=out_max_length,
+                                      beam_size=beam_size)
         else:
             print("Unsupported decoding mode")
             import os
