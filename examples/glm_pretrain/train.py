@@ -13,7 +13,7 @@ from flagai.test_utils import PretrainDatasetArguments
 
 if __name__ == '__main__':
 
-    trainer = Trainer(env_type='deepspeed',
+    trainer = Trainer(env_type='bmtrain',
                       epochs=1,
                       batch_size=1,
                       eval_interval=1000,
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     tokenizer = Tokenizer.from_pretrained(model_name)
     ds_args = PretrainDatasetArguments()
     ds_args = add_args(ds_args, tokenizer)
-    model = GLMForSeq2Seq.from_pretrain(download_path='/sharefs/baai-mrnd/xw/model_save/',model_name=model_name)
+    model = GLMForSeq2Seq.from_pretrain(download_path='./checkpoints',model_name=model_name)
     def create_dataset(tokenizer, should_split):
         dataset = get_dataset_lazy("./data",
                                    tokenizer=tokenizer,

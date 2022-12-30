@@ -10,6 +10,11 @@ import os
 import torch
 from tqdm.auto import tqdm
 
+try:
+    import bmtrain as bmt
+except:
+    pass
+
 
 def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
     """
@@ -30,8 +35,9 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
     else:
         file_path = os.path.join(to_path, file_pname)
 
-    if not torch.distributed.is_initialized() or torch.distributed.get_rank(
-    ) == 0:
+
+    if (os.environ["ENV_TYPE"] != 'bmtrain' and (not torch.distributed.is_initialized() or torch.distributed.get_rank(
+    ) == 0)) or (os.environ["ENV_TYPE"] == 'bmtrain' and bmt.rank() == 0):
         if not os.path.exists(to_path):
             os.makedirs(to_path)
         if os.path.exists(file_path):
@@ -65,9 +71,9 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
             else:
                 headers = {'Range': 'bytes=%d-' % resume_size}
                 res = requests.get(url,
-                                   stream=True,
-                                   verify=True,
-                                   headers=headers)
+                                    stream=True,
+                                    verify=True,
+                                    headers=headers)
     else:
         while not os.path.exists(
                 file_path) or total_size != os.path.getsize(file_path):
