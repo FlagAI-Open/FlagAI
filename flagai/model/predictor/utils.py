@@ -1396,6 +1396,14 @@ def glm_generate_sample(
     context_length = len(context_tokens)
     context_length_tensor = torch.LongTensor([context_length])
     context_length = context_length_tensor[0].item()
+
+
+
+    # context_tokens[0] = context_tokens[0].Id
+    # import pdb;pdb.set_trace()
+
+
+
     context_tokens_tensor = torch.LongTensor(context_tokens)
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
 
