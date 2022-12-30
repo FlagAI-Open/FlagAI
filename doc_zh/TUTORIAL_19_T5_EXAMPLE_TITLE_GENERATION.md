@@ -22,10 +22,10 @@ T5标题生成任务，输入一段文本，T5模型提取对应的标题。
 ```
 ## Usage
 
-### 1.Load data
-The sample data is in /examples/bert_title_generation/data/
+### 1.加载数据
+样本数据在放在`/examples/bert_title_generation/data/`
 
-You need to define the data loading process in train.py. For example:
+您需要在 train.py 中定义数据加载过程。例如
 ```python
 def read_file():
     src = []
@@ -47,7 +47,7 @@ def read_file():
     return src,tgt
 ```
 
-### 2.Load model and tokenizer
+### 2.加载模型和tokenizer
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -59,8 +59,9 @@ model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 ```
 
-### 3. Train
-Then input this code in commandline to train:
+### 3. 训练
+
+然后在命令行中输入这段代码进行训练：
 ```commandline
 python ./train.py
 ```
@@ -91,7 +92,8 @@ trainer = Trainer(
     training_script=__file__,
 )
 ```
-Divide the training set validation set and create the dataset:
+
+划分训练集验证集并创建数据集：
 ```python
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
@@ -116,15 +118,15 @@ val_dataset = T5Seq2seqDataset(val_src,
 trainer.train(model, train_dataset=train_dataset, valid_dataset=val_dataset)
 ```
 
-### Generation
-If you have already trained a model, in order to see the results more intuitively, rather than the loss of the validation set.
-You can run the generation file.
-First to modify the path of saved model.
+### 生成
+如果你已经训练过一个模型，为了更直观地看到结果，
+您可以运行生成文件。
+首先修改保存模型的路径:
 ```python
 model_save_path = "./checkpoints/1001/mp_rank_00_model_states.pt" ## 1001 is example, you need modify the number.
 ```
 ```commandline
 python ./generate.py
 ```
-Then you can see the generation result.
+然后就可以看到生成结果了。
 

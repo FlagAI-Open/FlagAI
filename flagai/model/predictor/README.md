@@ -35,5 +35,6 @@ if __name__ == '__main__':
 4. predict_ner: Input a text to get the ner result, support the bert, roberta and other transformer encoder models.
 5. predict_generate_beamsearch: Input a text to get the output text, seq2seq task. support the bert, roberta, gpt2, t5 and glm models.
 6. predict_generate_randomsample: Input a text to get the output text, seq2seq task. support the bert, roberta, gpt2, t5 and glm models.
+7. predict_generate_contrastive_search: Input a text to get the output text, seq2seq task. support the gpt2, opt models. [**SimCTG Contrastive Search**](https://github.com/yxuansu/SimCTG)
 
 ![predictor-table](../../../docs/img/predictor_table.png)

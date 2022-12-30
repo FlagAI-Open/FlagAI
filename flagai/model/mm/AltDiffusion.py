@@ -66,8 +66,7 @@ class DDPM(BaseModel):
         **kwargs,
     ):
         super(DDPM, self).__init__(unet_config, **kwargs)
-        # self.device = torch.device(
-        #     "cuda" if torch.cuda.is_available() else "cpu")
+       
         assert parameterization in [
             "eps", "x0"
         ], 'currently only supporting "eps" and "x0"'
