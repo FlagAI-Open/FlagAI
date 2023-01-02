@@ -145,9 +145,9 @@ class Tokenizer(BaseTokenizer):
                     '<pad>')
                 self.text_tokenizer._token_cls = "<s>"
                 self.text_tokenizer._token_sep = "</s>"
-            # if add_block_symbols:
-            #     self.add_command_token('sop', '<|startofpiece|>')
-            #     self.add_command_token('eop', '<|endofpiece|>',)
+            if add_block_symbols:
+                self.add_command_token('sop', '<|startofpiece|>')
+                self.add_command_token('eop', '<|endofpiece|>',)
             #     if add_task_mask:
             #         self.add_command_token('gMASK', '[gMASK]')
             #         self.add_command_token('sMASK', '[sMASK]')
