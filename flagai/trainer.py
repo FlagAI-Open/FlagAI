@@ -342,6 +342,9 @@ class Trainer():
                     rank=rank,
                     shuffle=shuffle)
             elif self.env_type == 'bmtrain':
+                print("*"*80)
+                print("local rank", self.rank, "world_size", self.world_size, "bmt rank", bmt.rank())
+                print("*"*80)
                 num_replicas = self.world_size
                 rank = self.rank
                 sampler = torch.utils.data.distributed.DistributedSampler(
