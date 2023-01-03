@@ -224,9 +224,7 @@ def save_checkpoint(iteration,
         if bmt.rank() == 0:
             ensure_directory_exists(checkpoint_name)
             config_path = os.path.join(save_dir, str(iteration), 'config.json')
-            print('==========================in bmt model saving=======================')
             if hasattr(model, 'save_config'):
-                print('==========================save bmt model=======================')
                 model.save_config(config_path)
                 log_dist('  successfully saved {}'.format(config_path))
             torch.save(sd, checkpoint_name)
