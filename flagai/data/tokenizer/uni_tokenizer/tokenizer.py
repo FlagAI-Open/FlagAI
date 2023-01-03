@@ -298,8 +298,6 @@ class Tokenizer(BaseTokenizer):
             self.num_command_tokens += 6
             self.token_end_id = self.text_tokenizer.convert_token_to_id(
                 '</s>')
-
-
             if add_block_symbols:
                 sop_id = self.text_tokenizer.convert_token_to_id('<|startofpiece|>')
                 eop_id = self.text_tokenizer.convert_token_to_id('<|endofpiece|>')
