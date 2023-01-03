@@ -92,7 +92,7 @@ class BertBlock(torch.nn.Module):
     def __init__(self, hidden_size, num_attention_heads,
                  attention_probs_dropout_prob, initializer_range,
                  layernorm_epsilon, hidden_dropout_prob, intermediate_size,
-                 hidden_act):
+                 hidden_act, enable_flash_atten=False):
         super(BertBlock, self).__init__()
         self.attention = BertAttention(hidden_size, num_attention_heads,
                                        attention_probs_dropout_prob,

@@ -55,14 +55,14 @@ class BertStack(torch.nn.Module):
     def __init__(self, config, num_hidden_layers, hidden_size,
                  num_attention_heads, attention_probs_dropout_prob,
                  initializer_range, layernorm_epsilon, hidden_dropout_prob,
-                 intermediate_size, hidden_act):
+                 intermediate_size, hidden_act, enable_flash_atte=False):
         super(BertStack, self).__init__()
         self.config = config
         self.layer = torch.nn.ModuleList([
             BertBlock(hidden_size, num_attention_heads,
                       attention_probs_dropout_prob, initializer_range,
                       layernorm_epsilon, hidden_dropout_prob,
-                      intermediate_size, hidden_act)
+                      intermediate_size, hidden_act, enable_flash_atten)
             for _ in range(num_hidden_layers)
         ])
 
@@ -116,6 +116,7 @@ class BertModel(BaseModel):
         self.num_attention_heads = config["num_attention_heads"]
         self.attention_probs_dropout_prob = config[
             "attention_probs_dropout_prob"]
+        self.enable_flash_atten = config.get("enable_flash_atten", False)
         self.embeddings = BertEmbeddings(self.vocab_size, self.hidden_size,
                                          self.initializer_range,
                                          self.max_position_embeddings,
@@ -126,7 +127,8 @@ class BertModel(BaseModel):
             config, self.num_hidden_layers, hidden_size,
             self.num_attention_heads, self.attention_probs_dropout_prob,
             self.initializer_range, self.layernorm_epsilon,
-            self.hidden_dropout_prob, intermediate_size, self.hidden_act)
+            self.hidden_dropout_prob, intermediate_size, self.hidden_act,
+            self.enable_flash_atten)
         self.pooler = BertPooler(hidden_size)
 
         self.apply(init_bert_weights)
