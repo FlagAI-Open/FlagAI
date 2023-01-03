@@ -3,8 +3,6 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 
 import torch
-import sys 
-sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 from flagai.model.glm_model import GLMModel
 from flagai.data.tokenizer import Tokenizer
 from flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer import GLMLargeEnWordPieceTokenizer
