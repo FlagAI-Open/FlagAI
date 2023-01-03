@@ -10,8 +10,10 @@ import os
 import torch
 from tqdm.auto import tqdm
 
+is_bmt = 0
 try:
     import bmtrain as bmt
+    is_bmt = 1
 except:
     pass
 
@@ -36,8 +38,8 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
         file_path = os.path.join(to_path, file_pname)
 
 
-    if (os.environ["ENV_TYPE"] != 'bmtrain' and (not torch.distributed.is_initialized() or torch.distributed.get_rank(
-    ) == 0)) or (os.environ["ENV_TYPE"] == 'bmtrain' and bmt.rank() == 0):
+    if (is_bmt == 1 and bmt.init.is_initialized() and bmt.rank == 0) or (torch.distributed.is_initialized() or 
+        torch.distributed.get_rank == 0) or ((is_bmt == 1 and not bmt.init.is_initialized())and not torch.distributed.is_initialized()):
         if not os.path.exists(to_path):
             os.makedirs(to_path)
         if os.path.exists(file_path):
