@@ -11,20 +11,23 @@ from flagai.trainer import Trainer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 trainer = Trainer(
-    env_type="pytorch",
+    env_type="deepspeed",
     experiment_name="GLM_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
-    lr=1e-5,
+    lr=2e-4,
     weight_decay=1e-5,
     epochs=10,
+    num_gpus = 2,
     log_interval=10,
-    eval_interval=10000,
+    eval_interval=40,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_glm_title_generation",
-    save_interval=1,
+    # save_dir="checkpoints_glm_title_generation",
+    save_interval=40,
     num_checkpoints=1,
+    hostfile='./hostfile',
+    deepspeed_config='./deepspeed.json'
 )
 
 # cur_dir = os.path.dirname(os.path.abspath(__file__))

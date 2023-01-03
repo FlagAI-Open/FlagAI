@@ -24,7 +24,7 @@ if __name__ == '__main__':
                       lr=1e-4,
                       num_gpus = 2,
                       weight_decay=1e-2,
-                      save_interval=8000,
+                      save_interval=1000,
                       hostfile='./hostfile',
                       deepspeed_config='./deepspeed.json')
     model_name = 'GLM-large-ch'
