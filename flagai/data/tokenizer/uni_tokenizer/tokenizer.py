@@ -367,7 +367,6 @@ class Tokenizer(BaseTokenizer):
             self.num_tokens += 1
         self._command_tokens.append(CommandToken(name, token, id))
         return
-        
     def rematch(self, text, tokens):
         """output the mapping relation between raw text and tokenizezd text
         """
