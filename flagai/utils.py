@@ -219,19 +219,20 @@ def save_checkpoint(iteration,
         tracker_filename = get_checkpoint_tracker_filename(save_dir)
         with open(tracker_filename, 'w') as f:
             f.write(str(iteration) + '\t' + str(best_iteration))
-    elif  env_type == 'bmtrain' and os.environ.get('RANK') == 0:
-        ensure_directory_exists(checkpoint_name)
-        config_path = os.path.join(save_dir, str(iteration), 'config.json')
+    elif  env_type == 'bmtrain':
+        import bmtrain as bmt
+        if bmt.rank() == 0:
+            ensure_directory_exists(checkpoint_name)
+            config_path = os.path.join(save_dir, str(iteration), 'config.json')
+            if hasattr(model, 'save_config'):
+                model.save_config(config_path)
+                log_dist('  successfully saved {}'.format(config_path))
+            torch.save(sd, checkpoint_name)
+            log_dist('  successfully saved {}'.format(checkpoint_name))
 
-        if hasattr(model, 'save_config'):
-            model.save_config(config_path)
-            log_dist('  successfully saved {}'.format(config_path))
-        torch.save(sd, checkpoint_name)
-        log_dist('  successfully saved {}'.format(checkpoint_name))
-
-        tracker_filename = get_checkpoint_tracker_filename(save_dir)
-        with open(tracker_filename, 'w') as f:
-            f.write(str(iteration) + '\t' + str(best_iteration))
+            tracker_filename = get_checkpoint_tracker_filename(save_dir)
+            with open(tracker_filename, 'w') as f:
+                f.write(str(iteration) + '\t' + str(best_iteration))
 
     # Wait so everyone is done (necessary)
     if barrier and dist.is_initialized():

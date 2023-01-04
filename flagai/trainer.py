@@ -342,6 +342,9 @@ class Trainer():
                     rank=rank,
                     shuffle=shuffle)
             elif self.env_type == 'bmtrain':
+                print("*"*80)
+                print("local rank", self.rank, "world_size", self.world_size, "bmt rank", bmt.rank())
+                print("*"*80)
                 num_replicas = self.world_size
                 rank = self.rank
                 sampler = torch.utils.data.distributed.DistributedSampler(
@@ -424,7 +427,6 @@ class Trainer():
                                  load_type=self.load_type)
         """Train the model."""
         # Turn on training mode which enables dropout.
-        # model.train()
         if self.fp16 and self.env_type == 'pytorchDDP':
             log_dist(
                 "Warning: The pytorchDDP plus FP16 may not working togather!!!"
@@ -459,8 +461,7 @@ class Trainer():
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
                 optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
-                                               weight_decay=self.weight_decay,
-                                               scale=2**20,)
+                                               weight_decay=self.weight_decay,)
             else:
                 optimizer = get_optimizer(
                     param_groups=param_groups,
@@ -842,22 +843,23 @@ class Trainer():
                              mems=None,
                              single_step=False): #bmt 自带loss scale 需要查看是否有重复
         """Single training step."""
-        optimizer.zero_grad()
+        optim_manager = bmt.optim.OptimManager(loss_scale=1024)
+        optim_manager.add_optimizer(optimizer, lr_scheduler)
+        optim_manager.zero_grad()
         self.timers('forward').start()
         model_output = model(**data)
         self.timers('forward').stop()
         logits = model_output['logits']
         loss = model_output['loss']
         lm_loss = bmt.sum_loss(loss).item()
-        try:
-            loss = optimizer.loss_scale(loss)
-        except:
-            pass
         self.timers('backward').start()
-        loss.backward()
+        try:
+            optim_manager.backward()
+        except:
+            loss.backward()
         self.timers('backward').stop()
         self.timers('optimizer').start()
-        bmt.optim_step(optimizer, lr_scheduler)
+        optim_manager.step()
         self.timers('optimizer').stop()
         return lm_loss, mems
 
