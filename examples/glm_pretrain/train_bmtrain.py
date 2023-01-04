@@ -26,7 +26,7 @@ if __name__ == '__main__':
                       weight_decay=1e-2,
                       save_interval=1000,
                       hostfile='./hostfile',
-                      training_script="train.py",
+                      training_script=__file__,
                       deepspeed_config='./deepspeed.json')
     model_name = 'GLM-large-ch'
     tokenizer = Tokenizer.from_pretrained(model_name)

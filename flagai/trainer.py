@@ -251,8 +251,6 @@ class Trainer():
         self.not_call_launch = ds_args.not_call_launch
         self.rank = int(os.environ.get('RANK', 0))
         self.world_size = int(os.environ.get('WORLD_SIZE', 1))
-        self.master_addr = os.environ.get('MASTER_ADDR', '127.0.0.1')
-        self.master_port = os.environ.get('MASTER_PORT', '17500')
         log_dist("not_call_launch: {}".format(ds_args.not_call_launch))
         return []
 
