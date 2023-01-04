@@ -9,13 +9,14 @@ import os
 
 import torch
 from tqdm.auto import tqdm
+from flagai.logger import log_dist
 
 is_bmt = 0
 try:
     import bmtrain as bmt
     is_bmt = 1
 except:
-    pass
+    log_dist("Unsupported bmtrain", ranks=[0])
 
 
 def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):

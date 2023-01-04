@@ -11,27 +11,30 @@ from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS
 from flagai.test_utils import PretrainDatasetArguments
 
-
 if __name__ == '__main__':
 
-    trainer = Trainer(env_type='pytorch',
+    trainer = Trainer(env_type='bmtrain',
                       epochs=1,
                       batch_size=1,
                       eval_interval=100,
-                      log_interval=50,
+                      log_interval=10,
                       experiment_name='glm_large',
                       pytorch_device='cuda',
                       load_dir=None,
                       lr=1e-4,
-                      save_interval=10)
+                      num_gpus = 2,
+                      weight_decay=1e-2,
+                      save_interval=1000,
+                      hostfile='./hostfile',
+                      training_script="train.py",
+                      deepspeed_config='./deepspeed.json')
     model_name = 'GLM-large-ch'
     tokenizer = Tokenizer.from_pretrained(model_name)
     ds_args = PretrainDatasetArguments()
     ds_args = add_args(ds_args, tokenizer)
-    model = GLMForSeq2Seq.from_pretrain(model_name=model_name)
-
+    model = GLMForSeq2Seq.from_pretrain(download_path='./checkpoints',model_name=model_name)
     def create_dataset(tokenizer, should_split):
-        dataset = get_dataset_lazy("./examples/glm_pretrain/data",
+        dataset = get_dataset_lazy("./data",
                                    tokenizer=tokenizer,
                                    pre_tokenize=True,
                                    num_processes=10,
