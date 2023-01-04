@@ -37,11 +37,11 @@ env_type: `pytorch`, `pytorchDDP`, `deepspeed`, `deepspeed+mpu`, `bmtrain`
 When using a custom model, when the input and output of the model are inconsistent with the behavior of the model in the FlagAI framework (refer to the introduction of the [model forward function](TUTORIAL_3_MODEL.md#forward-function)), a custom Trainer is required for training. To customize Trainer to quickly support custom models, you can inherent Trainer and override the forward_step method. Note: the return of the forward_step method is a dict
 ```python
 >>> from flagai.trainer import Trainer
-
+>>> 
 >>> class MyTrainer(Trainer):
-
+>>> 
 >>>     def forward_step(self, data, model, mems):
-
+>>> 
 >>>         model_outputs = model(**data)
 >>>         output = {}
 >>>         output['loss'] = model_outputs.loss
@@ -115,20 +115,20 @@ FlagAI example：`examples/t5_huggingface`
 >>> from transformers import T5ForConditionalGeneration, T5Tokenizer
 >>> from torch.utils.data import Dataset
 >>> import torch
-
-
+>>> 
+>>> 
 >>> class MyTrainer(Trainer):
-
+>>> 
 >>>     def forward_step(self, data, model, mems):
-
+>>> 
 >>>         model_outputs = model(**data)
 >>>         output = {}
 >>>         output['loss'] = model_outputs.loss
 >>>         output['logits'] = model_outputs.logits
 >>>         output['hidden_states'] = model_outputs.decoder_hidden_states
 >>>         return output
-
-
+>>> 
+>>> 
 >>> trainer = MyTrainer(
 >>>     env_type='deepspeed',
 >>>     epochs=1,
@@ -147,27 +147,27 @@ FlagAI example：`examples/t5_huggingface`
 >>>     # deepspeed
 >>>     deepspeed_config='deepspeed.json'
 >>> )
-
+>>> 
 >>> model_name = 't5-11b'
 >>> tokenizer = T5Tokenizer.from_pretrained(model_name)
 >>> model = T5ForConditionalGeneration.from_pretrained(model_name)
 >>> model.gradient_checkpointing = True
-
+>>> 
 >>> print("loading model & tokenizer is done!")
 >>> src_dir = './data/train.src'
 >>> tgt_dir = './data/train.tgt'
 >>> maxlen = 1024
-
-
+>>> 
+>>> 
 >>> def read_file():
 >>>     src = []
 >>>     tgt = []
-
+>>> 
 >>>     with open(src_dir, 'r', encoding='utf-8') as f:
 >>>         lines = f.readlines()
 >>>         for line in lines:
 >>>             src.append(line.strip('\n').lower())
-
+>>> 
 >>>     with open(tgt_dir, 'r', encoding='utf-8') as f:
 >>>         lines = f.readlines()
 >>>         for line in lines:
@@ -176,14 +176,14 @@ FlagAI example：`examples/t5_huggingface`
 
 
 >>> class T5Seq2seqDataset(Dataset):
-
+>>> 
 >>>     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
 >>>         super(T5Seq2seqDataset, self).__init__()
 >>>         self.sents_src = sents_src
 >>>         self.sents_tgt = sents_tgt
 >>>         self.tokenizer = tokenizer
 >>>         self.maxlen = maxlen
-
+>>> 
 >>>     def __getitem__(self, i):
 >>>         src = self.sents_src[i]
 >>>         tgt = self.sents_tgt[i]
@@ -194,15 +194,15 @@ FlagAI example：`examples/t5_huggingface`
 >>>         output['input_ids'] = inputs.input_ids
 >>>         output['labels'] = labels.input_ids
 >>>         return output
-
+>>> 
 >>>     def __len__(self):
 >>>         return len(self.sents_src)
-
-
+>>> 
+>>> 
 >>> def seq2seq_collate_fn(batch):
-
+>>> 
 >>>     def padding(indice, max_length, pad_idx=0):
-
+>>> 
 >>>         pad_indice = [
 >>>             item + [pad_idx] * max(0, max_length - len(item))
 >>>             for item in indice
@@ -300,50 +300,50 @@ Deepspeed provides the cpu-offload optimizer , which can greatly reduce the occu
 DistributedDataParallel (DDP) can be used when the size of model parameters <1 billion, e.g., `t5-base`. We can activate the framework by setting `env_type` = `pytorchDDP`.
 
 ```python
-trainer = MyTrainer(
-    env_type='pytorchDDP',
-    epochs=1,
-    batch_size=1,
-    eval_interval=10,
-    log_interval=10,
-    experiment_name='t5-base',
-    load_dir=None,
-    lr=1e-4
-    # parameters for pytorchDDP
-    master_ip='127.0.0.1',
-    master_port=17750,
-    num_nodes=1,
-    num_gpus=1,
-    hostfile='./hostfile',
-    training_script=__file__,
-)
+>>> trainer = MyTrainer(
+>>>     env_type='pytorchDDP',
+>>>     epochs=1,
+>>>     batch_size=1,
+>>>     eval_interval=10,
+>>>     log_interval=10,
+>>>     experiment_name='t5-base',
+>>>     load_dir=None,
+>>>     lr=1e-4
+>>>     # parameters for pytorchDDP
+>>>     master_ip='127.0.0.1',
+>>>     master_port=17750,
+>>>     num_nodes=1,
+>>>     num_gpus=1,
+>>>     hostfile='./hostfile',
+>>>     training_script=__file__,
+>>> )
 ```
 ### deepspeed + megatron-lm
 Now the 10-billion model GLM-10-ch adopts the model-parallel technology of `Megatron-LM` and the data-parallel technology of `deepspeed`. When the size of model parameters is above 10-billion, it is difficult to load a model and all the intermediate variables during training in a single gpu. To this end, `Megatron-LM` provides a model-parallel method. The main idea is to segment the matrix according to rows/columns. FlagAI converts the model to the `Megatron-LM` version.
 As follows, FlagAI support Megatron-LM version of models (GLM, T5, BERT [including RoBERTa], GPT2), as long as the environment variable is modified to `deepspeed+mpu` in the configuration file, the model-parallel version can be activated.
 For the huggingface models, there is no `Megatron-LM` support in FlagAI.
 ```python
-trainer = MyTrainer(
-    env_type="deepspeed+mpu", # env_type
-    epochs=1,
-    batch_size=8,
-    eval_interval=10,
-    log_interval=10,
-    experiment_name='GLM-10b-ch',
-    load_dir=None,
-    lr=1e-4,
-    # parallel settings
-    master_ip='127.0.0.1',
-    master_port=17750,
-    num_nodes=1,
-    num_gpus=4,
-    hostfile='hostfile',
-    training_script=__file__,
-    # deepspeed
-    deepspeed_config='deepspeed.json',
-    # megatron-lm
-    model_paralle_size = 2
-)
+>>> trainer = MyTrainer(
+>>>     env_type="deepspeed+mpu", # env_type
+>>>     epochs=1,
+>>>     batch_size=8,
+>>>     eval_interval=10,
+>>>     log_interval=10,
+>>>     experiment_name='GLM-10b-ch',
+>>>     load_dir=None,
+>>>     lr=1e-4,
+>>>     # parallel settings
+>>>     master_ip='127.0.0.1',
+>>>     master_port=17750,
+>>>     num_nodes=1,
+>>>     num_gpus=4,
+>>>     hostfile='hostfile',
+>>>     training_script=__file__,
+>>>     # deepspeed
+>>>     deepspeed_config='deepspeed.json',
+>>>     # megatron-lm
+>>>     model_paralle_size = 2
+>>> )
 ```
 
 # EnvTrainer
@@ -352,35 +352,35 @@ To input the parameters easier, we provided the EnvTrainer to replace the origin
 
 Taking the code for example:
 ```python
-# train.py
-import torch
-from flagai.env_args import EnvArgs
-from flagai.env_trainer import EnvTrainer
-
-lr = 2e-5
-n_epochs = 50
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-env_args = EnvArgs(
-    env_type="pytorch",
-    experiment_name="vit-cifar100-single_gpu",
-    batch_size=150,
-    num_gpus=1,
-    gradient_accumulation_steps=1,
-    lr=lr,
-    weight_decay=1e-5,
-    epochs=n_epochs,
-    log_interval=100,
-    eval_interval=1000,
-    load_dir=None,
-    pytorch_device=device,
-    save_dir="checkpoints_vit_cifar100_single_gpu",
-    save_interval=1000,
-    num_checkpoints=1,
-)
-
-env_args.add_arg(arg_name="test1", default=0, type=int, )
-env_args_parse = env_args.parse_args()
-trainer = EnvTrainer(env_args)
+>>> # train.py
+>>> import torch
+>>> from flagai.env_args import EnvArgs
+>>> from flagai.env_trainer import EnvTrainer
+>>> 
+>>> lr = 2e-5
+>>> n_epochs = 50
+>>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+>>> env_args = EnvArgs(
+>>>     env_type="pytorch",
+>>>     experiment_name="vit-cifar100-single_gpu",
+>>>     batch_size=150,
+>>>     num_gpus=1,
+>>>     gradient_accumulation_steps=1,
+>>>     lr=lr,
+>>>     weight_decay=1e-5,
+>>>     epochs=n_epochs,
+>>>     log_interval=100,
+>>>     eval_interval=1000,
+>>>     load_dir=None,
+>>>     pytorch_device=device,
+>>>     save_dir="checkpoints_vit_cifar100_single_gpu",
+>>>     save_interval=1000,
+>>>     num_checkpoints=1,
+>>> )
+>>> 
+>>> env_args.add_arg(arg_name="test1", default=0, type=int, )
+>>> env_args_parse = env_args.parse_args()
+>>> trainer = EnvTrainer(env_args)
 ```
 
 When you run the train.py file, you can modify the input parameters through command line.
