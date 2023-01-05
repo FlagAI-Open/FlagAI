@@ -39,7 +39,7 @@ from flagai.model.layers.layer_norm import CPM3LayerNorm
 try:
     from flagai.logger import log_dist
     import einops
-    from flash_attn.bert_padding import unpad_input, pad_input
+    from flash_attn.bert_padding import unpad_input, pad_input, index_first_axis
     from flash_attn.flash_attn_interface import flash_attn_unpadded_qkvpacked_func
 except:
     pass
@@ -931,7 +931,7 @@ class BertParallelSelfAttention(torch.nn.Module):
         tensor = tensor.view(*new_tensor_shape)
         return tensor.permute(0, 2, 1, 3)
 
-    def forward(self, hidden_states, attention_mask, input_ids):
+    def forward(self, hidden_states, attention_mask, **kwargs):
         # Attention heads. [b, s, hp]
         mixed_x_layer = self.query_key_value(hidden_states)
         (mixed_query_layer, mixed_key_layer,
@@ -1021,19 +1021,22 @@ class BertParallelSelfFlashAttention(torch.nn.Module):
             # Strided linear layer.
             self.query_key_value = Linear(hidden_size, 3 * hidden_size)
 
-    def forward(self, hidden_states, attention_mask, input_ids):
-        # Attention heads. [b, s, hp]
+    def forward(self, hidden_states, attention_mask, **kwargs):
         nheads = self.num_attention_heads
         batch_size = hidden_states.size(0)
         seqlen = hidden_states.size(1)
-        mixed_x_layer = self.query_key_value(hidden_states)
-        qkv = einops.rearrange(mixed_x_layer, 'b s (t h d) -> b s t h d', t=3, h=nheads)
-        x = einops.rearrange(qkv, 'b s three h d -> b s (three h d)')
+
+        input_ids = kwargs['input_ids']
         key_padding_mask = input_ids > 0
-        x_unpad, indices, cu_seqlens, max_s = unpad_input(x, key_padding_mask)
-        x_unpad = einops.rearrange(x_unpad, 'nnz (three h d) -> nnz three h d', three=3, h=nheads)
+        indices = torch.nonzero(key_padding_mask.flatten(), as_tuple=False).flatten()
+        # Attention heads. [b, s, hd]
+        x_unpad = index_first_axis(einops.rearrange(hidden_states, 'b s ... -> (b s) ...'), indices)
+
+        cu_seqlens = kwargs['cu_seqlens']
+        x_unpad = einops.rearrange(self.query_key_value(x_unpad), 'nnz (t h d) -> nnz t h d', t=3,
+                                   h=nheads)
         output_unpad = flash_attn_unpadded_qkvpacked_func(
-            x_unpad, cu_seqlens, max_s, self.dropout_prob if self.training else 0.0,
+            x_unpad, cu_seqlens, seqlen, self.dropout_prob if self.training else 0.0,
             causal=False
         )
         output = einops.rearrange(pad_input(einops.rearrange(output_unpad, 'nnz h d -> nnz (h d)'),
@@ -1105,8 +1108,8 @@ class BertAttention(torch.nn.Module):
         self.output = BertSelfOutput(hidden_size, initializer_range,
                                      layernorm_epsilon, hidden_dropout_prob)
 
-    def forward(self, input_tensor, attention_mask, input_ids):
-        self_output = self.self(input_tensor, attention_mask, input_ids)
+    def forward(self, input_tensor, attention_mask, **kwargs):
+        self_output = self.self(input_tensor, attention_mask, **kwargs)
         attention_output = self.output(self_output, input_tensor)
         return attention_output
 

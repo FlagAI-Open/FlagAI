@@ -104,8 +104,8 @@ class BertBlock(torch.nn.Module):
                                  layernorm_epsilon, hidden_dropout_prob,
                                  initializer_range)
 
-    def forward(self, hidden_states, attention_mask, input_ids):
-        attention_output = self.attention(hidden_states, attention_mask, input_ids)
+    def forward(self, hidden_states, attention_mask, **kwargs):
+        attention_output = self.attention(hidden_states, attention_mask, **kwargs)
         intermediate_output = self.intermediate(attention_output)
         layer_output = self.output(intermediate_output, attention_output)
         return layer_output

@@ -70,7 +70,7 @@ class BertStack(torch.nn.Module):
                 hidden_states,
                 attention_mask,
                 output_all_encoded_layers=True,
-                input_ids=None):
+                **kwargs):
         all_encoder_layers = []
 
         for i, layer_module in enumerate(self.layer):
@@ -85,9 +85,9 @@ class BertStack(torch.nn.Module):
                     return custom_forward
 
                 hidden_states = checkpoint(create_custom_forward(layer_module),
-                                           hidden_states, attention_mask, input_ids)
+                                           hidden_states, attention_mask, **kwargs)
             else:
-                hidden_states = layer_module(hidden_states, attention_mask, input_ids)
+                hidden_states = layer_module(hidden_states, attention_mask, **kwargs)
 
             if output_all_encoded_layers:
                 all_encoder_layers.append(hidden_states)
@@ -183,11 +183,12 @@ class BertModel(BaseModel):
         extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
 
         embedding_output = self.embeddings(input_ids, token_type_ids)
+        kwargs['input_ids'] = input_ids
         encoded_layers = self.encoder(
             embedding_output,
             extended_attention_mask,
             output_all_encoded_layers=output_all_encoded_layers,
-            input_ids=input_ids if self.enable_flash_atten else None)
+            **kwargs)
         sequence_representation = encoded_layers[-1]
         for p in self.pooler.parameters():
             if p is None:
@@ -368,7 +369,6 @@ class BertForSeq2seq(BaseModel):
         return a_mask
 
     def forward(self, **data):
-
         input_ids = data["input_ids"]
         token_type_ids = data["segment_ids"]
         labels = data.get("labels", None)
@@ -378,11 +378,20 @@ class BertForSeq2seq(BaseModel):
         seq_len = input_shape[1]
         a_mask = self.make_unilm_mask(token_type_ids, seq_len)
         encoder_out, pooler_out = self.model(
+            token_type_ids=token_type_ids,
+            attention_mask=a_mask,
+            output_all_encoded_layers=True,
+            **data,
+        )
+        '''
+        encoder_out, pooler_out = self.model(
             input_ids,
             token_type_ids,
             a_mask,
             True,
+            **data
         )
+        '''
         sequence_out, decoder_out = self.cls(encoder_out[-1])
 
         return_data["logits"] = decoder_out
