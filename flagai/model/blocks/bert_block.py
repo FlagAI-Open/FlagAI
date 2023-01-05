@@ -97,15 +97,15 @@ class BertBlock(torch.nn.Module):
         self.attention = BertAttention(hidden_size, num_attention_heads,
                                        attention_probs_dropout_prob,
                                        initializer_range, layernorm_epsilon,
-                                       hidden_dropout_prob)
+                                       hidden_dropout_prob, enable_flash_atten)
         self.intermediate = BertIntermediate(hidden_size, intermediate_size,
                                              initializer_range, hidden_act)
         self.output = BertOutput(intermediate_size, hidden_size,
                                  layernorm_epsilon, hidden_dropout_prob,
                                  initializer_range)
 
-    def forward(self, hidden_states, attention_mask):
-        attention_output = self.attention(hidden_states, attention_mask)
+    def forward(self, hidden_states, attention_mask, input_ids):
+        attention_output = self.attention(hidden_states, attention_mask, input_ids)
         intermediate_output = self.intermediate(attention_output)
         layer_output = self.output(intermediate_output, attention_output)
         return layer_output

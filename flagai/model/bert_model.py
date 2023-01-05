@@ -55,7 +55,7 @@ class BertStack(torch.nn.Module):
     def __init__(self, config, num_hidden_layers, hidden_size,
                  num_attention_heads, attention_probs_dropout_prob,
                  initializer_range, layernorm_epsilon, hidden_dropout_prob,
-                 intermediate_size, hidden_act, enable_flash_atte=False):
+                 intermediate_size, hidden_act, enable_flash_atten=False):
         super(BertStack, self).__init__()
         self.config = config
         self.layer = torch.nn.ModuleList([
@@ -69,7 +69,8 @@ class BertStack(torch.nn.Module):
     def forward(self,
                 hidden_states,
                 attention_mask,
-                output_all_encoded_layers=True):
+                output_all_encoded_layers=True,
+                input_ids=None):
         all_encoder_layers = []
 
         for i, layer_module in enumerate(self.layer):
@@ -84,9 +85,9 @@ class BertStack(torch.nn.Module):
                     return custom_forward
 
                 hidden_states = checkpoint(create_custom_forward(layer_module),
-                                           hidden_states, attention_mask)
+                                           hidden_states, attention_mask, input_ids)
             else:
-                hidden_states = layer_module(hidden_states, attention_mask)
+                hidden_states = layer_module(hidden_states, attention_mask, input_ids)
 
             if output_all_encoded_layers:
                 all_encoder_layers.append(hidden_states)
@@ -185,7 +186,8 @@ class BertModel(BaseModel):
         encoded_layers = self.encoder(
             embedding_output,
             extended_attention_mask,
-            output_all_encoded_layers=output_all_encoded_layers)
+            output_all_encoded_layers=output_all_encoded_layers,
+            input_ids=input_ids if self.enable_flash_atten else None)
         sequence_representation = encoded_layers[-1]
         for p in self.pooler.parameters():
             if p is None:
