@@ -37,7 +37,6 @@ def get_safety_checker():
     # load safety model
     from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
     path = os.getcwd() + "/checkpoints/"
-    import pdb;pdb.set_trace()
     if not os.path.exists(path+"SafetyChecker"):
         download("SafetyChecker", path)
     # safety_model_id = "CompVis/stable-diffusion-safety-checker"
