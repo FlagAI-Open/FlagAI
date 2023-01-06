@@ -238,7 +238,7 @@ check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for spec
 &#8627; Star History
 <div align="center">
 
-[![Star History Chart](https://api.star-history.com/svg?repos=baaivision/EVA&type=Date)](https://star-history.com/#baaivision/EVA&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=FlagAI-Open/FlagAI&type=Date)](https://star-history.com/#baaivision/EVA&Date)
 
 </div>
 
