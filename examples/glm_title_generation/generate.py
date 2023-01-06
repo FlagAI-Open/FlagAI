@@ -7,7 +7,7 @@ from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-model_save_path = "./checkpoints_glm_title_generation/8/mp_rank_00_model_states.pt"
+model_save_path = "./checkpoints/40/pytorch_model.bin"
 
 auto_loader = AutoLoader("seq2seq",
                          model_name="GLM-large-ch",
