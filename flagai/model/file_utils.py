@@ -9,6 +9,14 @@ import os
 
 import torch
 from tqdm.auto import tqdm
+from flagai.logger import log_dist
+
+is_bmt = 0
+try:
+    import bmtrain as bmt
+    is_bmt = 1
+except:
+    log_dist("Unsupported bmtrain", ranks=[0])
 
 
 def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
@@ -30,8 +38,9 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
     else:
         file_path = os.path.join(to_path, file_pname)
 
-    if not torch.distributed.is_initialized() or torch.distributed.get_rank(
-    ) == 0:
+
+    if (is_bmt == 1 and bmt.init.is_initialized() and bmt.rank == 0) or (torch.distributed.is_initialized() or 
+        torch.distributed.get_rank == 0) or ((is_bmt == 1 and not bmt.init.is_initialized())and not torch.distributed.is_initialized()):
         if not os.path.exists(to_path):
             os.makedirs(to_path)
         if os.path.exists(file_path):
@@ -65,9 +74,9 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
             else:
                 headers = {'Range': 'bytes=%d-' % resume_size}
                 res = requests.get(url,
-                                   stream=True,
-                                   verify=True,
-                                   headers=headers)
+                                    stream=True,
+                                    verify=True,
+                                    headers=headers)
     else:
         while not os.path.exists(
                 file_path) or total_size != os.path.getsize(file_path):

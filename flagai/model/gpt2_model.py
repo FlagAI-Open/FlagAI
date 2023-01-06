@@ -84,11 +84,21 @@ class GPT2Config:
 
         self.bos_token_id = bos_token_id
         self.eos_token_id = eos_token_id
+    
+    def __getitem__(self, index):
+        if hasattr(self, index):
+            return getattr(self, index)
+        else :
+            return None 
+
+    def __setitem__(self, key, value):
+        if hasattr(self, key):
+            setattr(self, key, value)
 
 class GPT2Stack(nn.Module):
 
     def __init__(self, config):
-        self.config = config
+        self.gpt_config = config
         super().__init__()
         if os.getenv("ENV_TYPE") == "deepspeed+mpu":
             self.wte = VocabParallelEmbedding(
@@ -189,7 +199,7 @@ class GPT2Stack(nn.Module):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states, )
 
-            if self.config.checkpoint_activations:
+            if self.gpt_config.checkpoint_activations:
 
                 def create_custom_forward(module):
 
@@ -259,12 +269,12 @@ class GPT2Model(BaseModel):
                 hidden_size=self.config.get("hidden_size", None),
                 do_layer_norm_before=self.config.get("do_layer_norm_before", True),
             )
-            self.config = config_gpt
+
         self.parallel_output = True
 
-        self.transformer = GPT2Stack(self.config)
-        self.lm_head = nn.Linear(self.config.n_embd,
-                                 self.config.vocab_size,
+        self.transformer = GPT2Stack(config_gpt)
+        self.lm_head = nn.Linear(config_gpt.n_embd,
+                                 config_gpt.vocab_size,
                                  bias=False)
 
     def _make_causal_mask(self, input_ids):
@@ -374,7 +384,7 @@ class GPT2Model(BaseModel):
         ]
         weight_layers_extend = []
         for layer in weight_layers_same:
-            for i in range(self.config.n_layer):
+            for i in range(self.config["n_layer"]):
                 weight_layers_extend.append(f"transformer.h.{i}.{layer}")
 
         checkponts_ = {}

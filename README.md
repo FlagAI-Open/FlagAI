@@ -229,6 +229,7 @@ Thanks for your interest in contributing! There are many ways to get involved;
 start with our [contributor guidelines](CONTRIBUTING.md) and then
 check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
 
+
 ## Contact us
 
 <img src="./flagai_wechat.png" width = "200" height = "200"  align=center />
@@ -239,3 +240,18 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 * Megatron-LM is licensed under the [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM is licensed under the [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
 * AltDiffusion is licensed under the [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
+
+## Misc
+
+### &#8627; Stargazers, thank you for your support!
+[![Stargazers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/stars/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/stargazers)
+
+### &#8627; Forkers, thank you for your support!
+[![Forkers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/forks/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/network/members)
+
+### &#8627; Star History
+<div align="center">
+
+[![Star History Chart](https://api.star-history.com/svg?repos=FlagAI-Open/FlagAI&type=Date)](https://star-history.com/#baaivision/EVA&Date)
+
+</div>
