@@ -12,18 +12,38 @@ from PIL import Image
 from itertools import islice
 from transformers import AutoFeatureExtractor
 import math
-
+from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
 join = os.path.join
+
+def download(model_name, download_path):
+    try:
+        model_id = _get_model_id(model_name)
+    except:
+        print("Model hub is not reachable!")
+    # prepare the download path
+    # downloading the files
+    if model_id and model_id != "null":
+        model_files = eval(_get_model_files(model_name))
+        print("model files:" + str(model_files))
+        for file_name in model_files:
+            if not file_name.endswith("bin"):
+                _get_vocab_path(os.path.join(download_path, model_name), file_name, model_id)
+            else :
+                _get_checkpoint_path(os.path.join(download_path, model_name), file_name, model_id)
+    return 
 
 
 def get_safety_checker():
     # load safety model
     from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
-    safety_model_id = "CompVis/stable-diffusion-safety-checker"
+    path = os.getcwd() + "/checkpoints/"
+    if not os.path.exists(path+"SafetyChecker"):
+        download("SafetyChecker", path)
+    # safety_model_id = "CompVis/stable-diffusion-safety-checker"
     safety_feature_extractor = AutoFeatureExtractor.from_pretrained(
-        safety_model_id)
+        path+"SafetyChecker")
     safety_checker = StableDiffusionSafetyChecker.from_pretrained(
-        safety_model_id)
+        path+"SafetyChecker")
     return safety_checker, safety_feature_extractor
 
 
