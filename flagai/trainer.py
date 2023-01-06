@@ -852,7 +852,7 @@ class Trainer():
         lm_loss = bmt.sum_loss(loss).item()
         self.timers('backward').start()
         try:
-            optim_manager.backward()
+            optim_manager.backward(loss)
         except:
             loss.backward()
         self.timers('backward').stop()
