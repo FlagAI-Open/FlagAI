@@ -327,7 +327,7 @@ class Predictor:
                                                out_max_length, top_k, top_p,
                                                repetition_penalty, temperature,
                                                device)
-        elif "glm" in self.class_name.lower():
+        elif "glm" in self.class_name.lower() or "alm" in self.class_name.lower():
             return glm_random_sample(self.model, self.tokenizer, text,
                                      out_max_length, top_k, top_p,
                                      repetition_penalty, temperature, device)

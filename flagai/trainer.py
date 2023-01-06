@@ -12,6 +12,12 @@ try:
 except Exception:
     pass
 
+try:
+    import bmtrain as bmt
+except:
+    pass
+
+
 import torch
 import argparse
 import os
@@ -160,7 +166,7 @@ class Trainer():
             self.timers = Timers()
         self.env_type = env_type
         if env_type not in set(
-            ["deepspeed", 'pytorch', 'pytorchDDP', 'deepspeed+mpu']):
+            ["deepspeed", 'pytorch', 'pytorchDDP', 'deepspeed+mpu', 'bmtrain']):
             raise Exception("Not supported env_type!!!!")
         os.environ["ENV_TYPE"] = env_type
         self.experiment_name = experiment_name
@@ -206,7 +212,7 @@ class Trainer():
         self.hostfile = hostfile
         self.training_script = training_script
 
-        if 'deepspeed' in self.env_type or self.env_type == 'pytorchDDP':
+        if self.env_type != 'pytorch':
             training_paras = self.get_dist_args()
             # Implement for AutoLaunch
             # >>> python train.py # will call get_dist_args()
@@ -245,8 +251,6 @@ class Trainer():
         self.not_call_launch = ds_args.not_call_launch
         self.rank = int(os.environ.get('RANK', 0))
         self.world_size = int(os.environ.get('WORLD_SIZE', 1))
-        self.master_addr = os.environ.get('MASTER_ADDR', '127.0.0.1')
-        self.master_port = os.environ.get('MASTER_PORT', '17500')
         log_dist("not_call_launch: {}".format(ds_args.not_call_launch))
         return []
 
@@ -264,7 +268,7 @@ class Trainer():
         if self.env_type == 'pytorch':
             log_dist('No need to initialize')
             return
-        if self.env_type in ['deepspeed', 'deepspeed+mpu', 'pytorchDDP']:
+        if self.env_type in ['deepspeed', 'deepspeed+mpu', 'pytorchDDP', 'bmtrain']:
             torch.backends.cudnn.enabled = False
             # Manually set the device ids.
             device = self.rank % torch.cuda.device_count()
@@ -280,11 +284,17 @@ class Trainer():
             log_dist(
                 "init method {}, rank {}, device {}, local_rank {}.".format(
                     init_method, self.rank, device, self.local_rank))
-            torch.distributed.init_process_group(
-                backend='nccl',  # gloo
-                world_size=self.world_size,
-                rank=self.rank,
-                init_method=init_method)
+            if self.env_type == 'bmtrain':
+                # self.get_env_args()
+                bmt.init_distributed(
+                    seed=self.seed,
+                    init_method=init_method)
+            else:
+                torch.distributed.init_process_group(
+                    backend='nccl',  # gloo
+                    world_size=self.world_size,
+                    rank=self.rank,
+                    init_method=init_method)
         # Set the model-parallel / data-parallel communicators.
         if self.env_type == 'deepspeed+mpu':
             os.environ["MODEL_PARALLEL_SIZE"] = str(self.model_parallel_size)
@@ -302,7 +312,8 @@ class Trainer():
                 log_dist(e)
                 log_dist("No mpu is installed! No model parallel is used")
             log_dist("initialize eviroments succesed")
-        self.set_seed(self.seed)
+        if self.env_type != 'bmtrain':
+            self.set_seed(self.seed)
 
     def get_dataloader(self, dataset, collate_fn, shuffle=False):
         """ initilize the dataloader"""
@@ -326,6 +337,17 @@ class Trainer():
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
                     # num_replicas=num_replicas,
+                    rank=rank,
+                    shuffle=shuffle)
+            elif self.env_type == 'bmtrain':
+                print("*"*80)
+                print("local rank", self.rank, "world_size", self.world_size, "bmt rank", bmt.rank())
+                print("*"*80)
+                num_replicas = self.world_size
+                rank = self.rank
+                sampler = torch.utils.data.distributed.DistributedSampler(
+                    dataset,
+                    num_replicas=num_replicas,
                     rank=rank,
                     shuffle=shuffle)
             else:
@@ -403,7 +425,6 @@ class Trainer():
                                  load_type=self.load_type)
         """Train the model."""
         # Turn on training mode which enables dropout.
-        model.train()
         if self.fp16 and self.env_type == 'pytorchDDP':
             log_dist(
                 "Warning: The pytorchDDP plus FP16 may not working togather!!!"
@@ -422,6 +443,8 @@ class Trainer():
 
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)
+        elif self.env_type == 'bmtrain':
+            model = bmt.BMTrainModelWrapper(model)
         else:
             model.cuda(torch.device('cuda', self.local_rank))
         if self.fp16:
@@ -434,24 +457,39 @@ class Trainer():
             param_groups = param_groups[0]['params']
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
-            optimizer = get_optimizer(
-                param_groups=param_groups,
-                lr=self.lr,
-                weight_decay=self.weight_decay,
-                cpu_optimizer=False,
-                cpu_torch_adam=False,
-                fp16=self.fp16,
-                optimizer='adam')  # if not self.fp16 else 'adafactor')
+            if self.env_type == 'bmtrain':
+                optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
+                                               weight_decay=self.weight_decay,)
+            else:
+                optimizer = get_optimizer(
+                    param_groups=param_groups,
+                    lr=self.lr,
+                    weight_decay=self.weight_decay,
+                    cpu_optimizer=False,
+                    cpu_torch_adam=False,
+                    fp16=self.fp16,
+                    optimizer='adam')  # if not self.fp16 else 'adafactor')
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
+            if self.env_type == 'bmtrain':
+                lr_scheduler = bmt.lr_scheduler.Noam(optimizer,
+                                                    start_lr =self.lr, 
+                                                    warmup_iter =int(self.warm_up * self.epochs * len(train_dataloader)),
+                                                    end_iter = self.epochs * len(train_dataloader)
+                                                )
+            else:
+                lr_scheduler = AnnealingLR(
+                    optimizer,
+                    start_lr=self.lr,
+                    warmup_iter=int(self.warm_up * self.epochs *
+                                    len(train_dataloader)),
+                    decay_style='linear',
+                    num_iters=self.epochs * len(train_dataloader))
 
-            lr_scheduler = AnnealingLR(
-                optimizer,
-                start_lr=self.lr,
-                warmup_iter=int(self.warm_up * self.epochs *
-                                len(train_dataloader)),
-                decay_style='linear',
-                num_iters=self.epochs * len(train_dataloader))
+        if  self.env_type == 'bmtrain':
+            bmt.synchronize()
+
+        model.train()
 
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
@@ -494,7 +532,7 @@ class Trainer():
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
                 # Train for one step.
-                if 'deepspeed' in self.env_type or self.env_type == 'pytorchDDP':
+                if 'pytorch' != self.env_type:
                     batch = {
                         x: batch[x].to(torch.device('cuda', self.local_rank))
                         for x in batch if x not in ['uid', 'meta', 'mode']
@@ -512,6 +550,11 @@ class Trainer():
                 elif self.env_type == 'pytorch':
                     lm_loss, _ = self.train_step_pytorch(
                         batch, model, optimizer, lr_scheduler)
+                
+                elif self.env_type == 'bmtrain':
+                    lm_loss, _ = self.train_step_bmtrain(
+                        batch, model, optimizer, lr_scheduler)
+
                 else:
                     lm_loss, _ = self.train_step_deepspeed(batch,
                                                            model,
@@ -520,7 +563,10 @@ class Trainer():
                                                            single_step=True)
                     dist.barrier()
                 if lm_loss is not None:
-                    total_lm_loss += lm_loss.data.detach().float()
+                    if not isinstance(lm_loss, float):
+                        total_lm_loss += lm_loss.data.detach().float()
+                    else:
+                        total_lm_loss += lm_loss
 
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
@@ -528,7 +574,10 @@ class Trainer():
                         learning_rate = optimizer.param_groups[0]['lr']
                     else:
                         learning_rate = model.optimizer.param_groups[0]['lr']
-                    avg_lm_loss = total_lm_loss.item() / self.log_interval
+                    if self.env_type == 'bmtrain':
+                        avg_lm_loss = total_lm_loss / self.log_interval
+                    else:
+                        avg_lm_loss = total_lm_loss.item() / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
                     self.report_iteration_metrics(
                         optimizer, learning_rate, avg_lm_loss,
@@ -783,6 +832,34 @@ class Trainer():
             mems = []
             reduced_loss = None
         return reduced_loss, mems
+    
+    def train_step_bmtrain(self,
+                             data,
+                             model,
+                             optimizer,
+                             lr_scheduler,
+                             mems=None,
+                             single_step=False): #bmt 自带loss scale 需要查看是否有重复
+        """Single training step."""
+        optim_manager = bmt.optim.OptimManager(loss_scale=1024)
+        optim_manager.add_optimizer(optimizer, lr_scheduler)
+        optim_manager.zero_grad()
+        self.timers('forward').start()
+        model_output = model(**data)
+        self.timers('forward').stop()
+        logits = model_output['logits']
+        loss = model_output['loss']
+        lm_loss = bmt.sum_loss(loss).item()
+        self.timers('backward').start()
+        try:
+            optim_manager.backward()
+        except:
+            loss.backward()
+        self.timers('backward').stop()
+        self.timers('optimizer').start()
+        optim_manager.step()
+        self.timers('optimizer').stop()
+        return lm_loss, mems
 
     def forward_step(self, data, model, mems=None):
         """Simple forward step. """
