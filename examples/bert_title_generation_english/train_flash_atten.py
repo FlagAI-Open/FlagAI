@@ -9,9 +9,6 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
 from flagai.data.collate_utils import seq2seq_collate_fn as title_generation_collate_fn
 
-# use Flash Attention, please change settting as follows
-# 1. add "enable_flash_atten": false to model config.json file.
-# 2. Dataset add "flash_atten" flags.
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,7 +17,7 @@ train_path = cur_dir + "/data/news.tsv"
 trainer = Trainer(
     env_type="pytorch",
     experiment_name="bert-title-generation",
-    batch_size=128,
+    batch_size=32,
     gradient_accumulation_steps=1,
     lr=1e-5,
     weight_decay=1e-3,
