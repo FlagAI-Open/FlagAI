@@ -2,8 +2,6 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
-import sys 
-sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 
