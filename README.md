@@ -229,13 +229,13 @@ Thanks for your interest in contributing! There are many ways to get involved;
 start with our [contributor guidelines](CONTRIBUTING.md) and then
 check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
 
-### &#8627; Stargazers, thank you for your support!
+&#8627; Stargazers, thank you for your support!
 [![Stargazers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/stars/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/stargazers)
 
-### &#8627; Forkers, thank you for your support!
+&#8627; Forkers, thank you for your support!
 [![Forkers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/forks/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/network/members)
 
-### &#8627; Star History
+&#8627; Star History
 <div align="center">
 
 [![Star History Chart](https://api.star-history.com/svg?repos=baaivision/EVA&type=Date)](https://star-history.com/#baaivision/EVA&Date)
