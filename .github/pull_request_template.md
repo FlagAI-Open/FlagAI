@@ -1,6 +1,9 @@
+---
+name: Pull Request
 title: '[PR]'
-labels: ''
 assignees: 'BAAI-OpenPlatform,ftgreat'
+
+---
 
 ### Description
 Please describe here what the PR does.
