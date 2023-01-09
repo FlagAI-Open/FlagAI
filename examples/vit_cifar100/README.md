@@ -161,3 +161,22 @@ if __name__ == '__main__':
 
    print(f"accuracy is {accuracy / index}")
 ```
+
+# Flash Attention(https://github.com/HazyResearch/flash-attention)
+We already integrated flash attention for Vit models. This task was speeduped 30%+ using flash attention in our testing(A100, one gpu).
+## How to use
+We can easily use the flash attention as follows.
+### add "enable_flash_atten" and set value to false into model config.json file.
+### Training
+```
+{
+  "img_size": 224,
+  "patch_size": 16,
+  "in_chans": 3,
+  "embed_dim":768,
+  "depth":12,
+  "num_heads":12,
+  "enable_flash_atten": false
+}
+```
+
