@@ -35,6 +35,13 @@ from flagai.model.vision.layers.weight_init import trunc_normal_, lecun_normal_
 from flagai.model.base_model import BaseModel
 from flagai.model.vision.helpers import checkpoint_seq
 
+try:
+    from flagai.logger import log_dist
+    import einops
+    from flash_attn.flash_attn_interface import flash_attn_unpadded_qkvpacked_func
+except:
+    pass
+
 class VitConfig:
     def __init__(self,
                  img_size=224,
@@ -54,7 +61,8 @@ class VitConfig:
                  attn_drop_rate=0.,
                  drop_path_rate=0.,
                  weight_init='',
-                 checkpoint_activations=False):
+                 checkpoint_activations=False,
+                 enable_flash_atten=False):
         pass
         self.img_size=img_size
         self.patch_size=patch_size
@@ -74,6 +82,7 @@ class VitConfig:
         self.drop_path_rate=drop_path_rate
         self.weight_init=weight_init
         self.checkpoint_activations = checkpoint_activations
+        self.enable_flash_atten = enable_flash_atten
 
 def named_apply(fn: Callable, module: nn.Module, name='', depth_first=True, include_root=False) -> nn.Module:
     if not depth_first and include_root:
@@ -110,7 +119,7 @@ def adapt_input_conv(in_chans, conv_weight):
     return conv_weight
 
 class Attention(nn.Module):
-    def __init__(self, dim, num_heads=8, qkv_bias=False, attn_drop=0., proj_drop=0.):
+    def __init__(self, dim, num_heads=8, qkv_bias=False, attn_drop=0., proj_drop=0., flash_atten=False):
         super().__init__()
         assert dim % num_heads == 0, 'dim should be divisible by num_heads'
         self.num_heads = num_heads
@@ -119,21 +128,36 @@ class Attention(nn.Module):
 
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop)
+        self.attn_drop_prob = attn_drop
         self.proj = nn.Linear(dim, dim)
         self.proj_drop = nn.Dropout(proj_drop)
 
+        self.flash_atten = flash_atten
+
     def forward(self, x):
         B, N, C = x.shape
-        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
-        q, k, v = qkv.unbind(0)   # make torchscript happy (cannot use tensor as tuple)
 
-        attn = (q @ k.transpose(-2, -1)) * self.scale
-        attn = attn.softmax(dim=-1)
-        attn = self.attn_drop(attn)
+        if self.flash_atten:
+            qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads)
+            qkv = einops.rearrange(qkv, 'b s ... -> (b s) ...')
+            cu_seqlens = torch.arange(0, (B + 1) * N, step=N, dtype=torch.int32, device=qkv.device)
+            x = flash_attn_unpadded_qkvpacked_func(
+                qkv, cu_seqlens, N, self.attn_drop_prob if self.training else 0.0,
+                softmax_scale=self.scale)
+            x = x.reshape(B, N, C)
+        else:
+            qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+            q, k, v = qkv.unbind(0)   # make torchscript happy (cannot use tensor as tuple)
+    
+            attn = (q @ k.transpose(-2, -1)) * self.scale
+            attn = attn.softmax(dim=-1)
+            attn = self.attn_drop(attn)
+    
+            x = (attn @ v).transpose(1, 2).reshape(B, N, C)
 
-        x = (attn @ v).transpose(1, 2).reshape(B, N, C)
         x = self.proj(x)
         x = self.proj_drop(x)
+
         return x
 
 
@@ -151,10 +175,10 @@ class Block(nn.Module):
 
     def __init__(
             self, dim, num_heads, mlp_ratio=4., qkv_bias=False, drop=0., attn_drop=0., init_values=None,
-            drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm):
+            drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm, flash_atten=False):
         super().__init__()
         self.norm1 = norm_layer(dim)
-        self.attn = Attention(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop)
+        self.attn = Attention(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop, flash_atten=flash_atten)
         self.ls1 = LayerScale(dim, init_values=init_values) if init_values else nn.Identity()
         # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
         self.drop_path1 = DropPath(drop_path) if drop_path > 0. else nn.Identity()
@@ -220,6 +244,9 @@ class VisionTransformer(BaseModel):
         self.num_tokens = 1 if vit_config.class_token else 0
         self.grad_checkpointing = vit_config.checkpoint_activations
 
+        # flash_atten
+        self.flash_atten = config.get("enable_flash_atten", False)
+
         self.patch_embed = embed_layer(
             img_size=vit_config.img_size, patch_size=vit_config.patch_size, in_chans=vit_config.in_chans, embed_dim=vit_config.embed_dim)
         num_patches = self.patch_embed.num_patches
@@ -232,7 +259,8 @@ class VisionTransformer(BaseModel):
         self.blocks = nn.Sequential(*[
             block_fn(
                 dim=vit_config.embed_dim, num_heads=vit_config.num_heads, mlp_ratio=vit_config.mlp_ratio, qkv_bias=vit_config.qkv_bias, init_values=vit_config.init_values,
-                drop=vit_config.drop_rate, attn_drop=vit_config.attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, act_layer=act_layer)
+                drop=vit_config.drop_rate, attn_drop=vit_config.attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, act_layer=act_layer,
+                flash_atten=self.flash_atten)
             for i in range(vit_config.depth)])
         self.norm = norm_layer(vit_config.embed_dim) if not use_fc_norm else nn.Identity()
 
