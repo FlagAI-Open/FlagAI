@@ -44,16 +44,16 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 
 <!-- tocstop -->
 ## Requirements and Installation
-* PyTorch version >= 1.8.0
 * Python version >= 3.8
-* For training/testing models on GPUs, you'll also need to install CUDA and NCCL
+* PyTorch version >= 1.8.0
+* [Optional] For training/testing models on GPUs, you'll also need to install CUDA and NCCL
 
 To install FlagAI with pip:
 ```shell
 pip install -U flagai
 ```
 
-- [Optional]To install FlagAI and develop locally:
+- To install FlagAI and develop locally:
 
 ```shell
 git clone https://github.com/FlagAI-Open/FlagAI.git
