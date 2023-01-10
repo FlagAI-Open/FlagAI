@@ -15,7 +15,7 @@
 
 * 这些模型可以应用于文本，用于文本分类、信息提取、问答、摘要、文本生成等任务，尤其是中文。
 
-* 飞智由三个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
+* 飞智由三个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
 
 
 本项目的部分代码基于[GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
@@ -72,6 +72,12 @@ git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # 检查deepspeed的状态
+```
+- [可选] 开启BMTrain训练，需要安装 [BMTrain](https://github.com/OpenBMB/BMTrain)
+```
+git clone https://github.com/OpenBMB/BMTrain
+cd BMTrain
+python setup.py install 
 ```
 - [提示] 单节点docker环境下，运行多卡数据并行需要设置host。 例如，docker节点 root@127.0.0.1，其端口 7110。
 ```
@@ -237,3 +243,4 @@ for text_pair in test_data:
 
 * Megatron-LM 是基于协议[Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM 是基于协议[MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
+* AltDiffusion 是基于协议 [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
