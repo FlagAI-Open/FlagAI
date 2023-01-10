@@ -48,12 +48,12 @@
 * PyTorch 版本 >= 1.8.0
 * [可选] 使用GPUs进行训练和测试, 你需要安装CUDA 和 NCCL
 
-通过`pip`安装:
+- 通过`pip`安装:
 ```shell
 pip install -U flagai
 ```
 
-- 下载源码安装:
+- [可选] 下载源码安装:
 
 ```shell
 git clone https://github.com/FlagAI-Open/FlagAI.git
