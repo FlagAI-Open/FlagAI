@@ -22,13 +22,17 @@ def inference():
     image = Image.open("./dog.jpeg")
     image = transform(image)
     image = torch.tensor(image["pixel_values"]).to(device)
-    text = tokenizer(["a rat", "a dog", "a cat"])["input_ids"]
+    tokenizer_out = tokenizer(["a rat", "a dog", "a cat"], 
+                                padding=True,
+                                truncation=True,
+                                max_length=77,
+                                return_tensors='pt')
 
-    text = torch.tensor(text).to(device)
-
+    text = tokenizer_out["input_ids"].to(device)
+    attention_mask = tokenizer_out["attention_mask"].to(device)
     with torch.no_grad():
         image_features = model.get_image_features(image)
-        text_features = model.get_text_features(text)
+        text_features = model.get_text_features(text, attention_mask=attention_mask)
         text_probs = (image_features @ text_features.T).softmax(dim=-1)
 
     print(text_probs.cpu().numpy()[0].tolist())

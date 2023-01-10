@@ -33,7 +33,7 @@ You can either use [Pipenv](https://pipenv.readthedocs.io/) for this:
 
 or create a python environment of your preference and run
 ```bash
-pip install -r requirements.txt
+python setup.py install
 ```
 
 ### tests
