@@ -15,9 +15,9 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 * These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
-* FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
+* FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
-The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 ## News
 - [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
@@ -44,16 +44,16 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 
 <!-- tocstop -->
 ## Requirements and Installation
-* PyTorch version >= 1.8.0
 * Python version >= 3.8
-* For training/testing models on GPUs, you'll also need to install CUDA and NCCL
+* PyTorch version >= 1.8.0
+* [Optional] For training/testing models on GPUs, you'll also need to install CUDA and NCCL
 
-To install FlagAI with pip:
+- To install FlagAI with pip:
 ```shell
 pip install -U flagai
 ```
 
-- [Optional]To install FlagAI and develop locally:
+- [Optional] To install FlagAI and develop locally:
 
 ```shell
 git clone https://github.com/FlagAI-Open/FlagAI.git
@@ -72,6 +72,12 @@ git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # check the deespeed status
+```
+- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain)
+```
+git clone https://github.com/OpenBMB/BMTrain
+cd BMTrain
+python setup.py install
 ```
 - [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 7110
 ```
