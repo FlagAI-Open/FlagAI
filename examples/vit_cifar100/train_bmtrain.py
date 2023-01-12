@@ -71,11 +71,9 @@ if __name__ == '__main__':
                         num_classes=100)
 
     model = loader.get_model()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     train_dataset, val_dataset = build_cifar()
 
     trainer.train(model,
-                #   optimizer=optimizer,
                   train_dataset=train_dataset,
                   valid_dataset=val_dataset,
                   metric_methods=[["accuracy", validate]],
