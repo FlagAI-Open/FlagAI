@@ -848,8 +848,8 @@ class Trainer():
                              single_step=False): #bmt 自带loss scale 需要查看是否有重复
         """Single training step."""
         optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-        # optim_manager.add_optimizer(optimizer, lr_scheduler)
-        optim_manager.add_optimizer(optimizer)
+        optim_manager.add_optimizer(optimizer, lr_scheduler)
+        # optim_manager.add_optimizer(optimizer)
         optim_manager.zero_grad()
         self.timers('forward').start()
         model_output = model(**data)
