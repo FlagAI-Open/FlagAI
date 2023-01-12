@@ -471,21 +471,21 @@ class Trainer():
                 fp16=self.fp16,
                 optimizer='adam')  # if not self.fp16 else 'adafactor')
 
-        if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
-            if self.env_type == 'bmtrain':
-                lr_scheduler = bmt.lr_scheduler.Noam(optimizer,
-                                                    start_lr =self.lr, 
-                                                    warmup_iter =int(self.warm_up * self.epochs * len(train_dataloader)),
-                                                    end_iter = self.epochs * len(train_dataloader)
-                                                )
-            else:
-                lr_scheduler = AnnealingLR(
-                    optimizer,
-                    start_lr=self.lr,
-                    warmup_iter=int(self.warm_up * self.epochs *
-                                    len(train_dataloader)),
-                    decay_style='linear',
-                    num_iters=self.epochs * len(train_dataloader))
+        # if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
+        #     if self.env_type == 'bmtrain':
+        #         lr_scheduler = bmt.lr_scheduler.Noam(optimizer,
+        #                                             start_lr =self.lr, 
+        #                                             warmup_iter =int(self.warm_up * self.epochs * len(train_dataloader)),
+        #                                             end_iter = self.epochs * len(train_dataloader)
+        #                                         )
+        #     else:
+        #         lr_scheduler = AnnealingLR(
+        #             optimizer,
+        #             start_lr=self.lr,
+        #             warmup_iter=int(self.warm_up * self.epochs *
+        #                             len(train_dataloader)),
+        #             decay_style='linear',
+        #             num_iters=self.epochs * len(train_dataloader))
 
         if  self.env_type == 'bmtrain':
             bmt.synchronize()
@@ -732,7 +732,13 @@ class Trainer():
 
             # accumulate gradients
             lm_loss = step_output['loss']
+            logits = step_output['logits']
+            
+            
             lm_loss = lm_loss / self.gradient_accumulation_steps
+            # print('----------------logits---------------', logits)
+            # print('----------------loss---------------', lm_loss)
+            # assert 1==2
             # reduce sum of losses
             reduced_loss = lm_loss.detach().clone().view(1)
             # dist.all_reduce(reduced_loss.data)
@@ -775,6 +781,7 @@ class Trainer():
                     self.accumulate_count += 1
                 if lr_scheduler:
                     lr_scheduler.step()
+                # print('----------------optimizer.param_groups----------------',optimizer.param_groups)
                 self.timers('optimizer').stop()
                 dist.barrier()
 
@@ -783,7 +790,7 @@ class Trainer():
                 del lm_loss, reduced_loss
                 mems = None
                 reduced_loss = None
-            # print('reduced_loss', reduced_loss)
+            # print('--------------reduced_loss--------------', reduced_loss)
             # print('self.gradient_accumulation_steps', self.gradient_accumulation_steps)
         return reduced_loss, mems
 
@@ -848,8 +855,8 @@ class Trainer():
                              single_step=False): #bmt 自带loss scale 需要查看是否有重复
         """Single training step."""
         optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-        optim_manager.add_optimizer(optimizer, lr_scheduler)
-        # optim_manager.add_optimizer(optimizer)
+        # optim_manager.add_optimizer(optimizer, lr_scheduler)
+        optim_manager.add_optimizer(optimizer)
         optim_manager.zero_grad()
         self.timers('forward').start()
         model_output = model(**data)
@@ -857,7 +864,9 @@ class Trainer():
         logits = model_output['logits']
         loss = model_output['loss']
         # print('bmt loss', loss)
-        # bmt.print_rank('-----------logits-----------',logits)
+        # print('-----------logits-----------',logits)
+        # print('-----------loss-----------',loss)
+        # assert 1==2
         lm_loss = bmt.sum_loss(loss).item()
         self.timers('backward').start()
         try:
