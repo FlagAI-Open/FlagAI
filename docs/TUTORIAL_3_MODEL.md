@@ -28,17 +28,17 @@ All supported models now support the three most common model types [encoder, dec
 By calling `ClassName.from_pretrian()` to load following [supported models](#all-supported-models), it will automatically download the model configuration file `config.json`, model weights `pytorch_model.bin`, and dictionary files `vocab .txt`.
 
 ```python
-# Downloading GLM-large-ch from modelhub
-from flagai.model.glm_model import GLMModel
-model = GLMModel.from_pretrain(download_path="./state_dict", model_name="GLM-large-ch")
+>>> # Downloading GLM-large-ch from modelhub
+>>> from flagai.model.glm_model import GLMModel
+>>> model = GLMModel.from_pretrain(download_path="./state_dict", model_name="GLM-large-ch")
 ```
 ### load local model weights
 If the model weights are stored in `download_path/model_name/`, where `model_name` is the directory where the model is located, and `download_path` is the directory where `model_name` is located,
 
 ```python
-# load  `pytorch_model.bin` and `config.json` from `./state_dict/GLM-large-ch`
-from flagai.model.glm_model import GLMModel
-model = GLMModel.from_pretrain(download_path="./state_dict", model_name="GLM-large-ch")
+>>> # load  `pytorch_model.bin` and `config.json` from `./state_dict/GLM-large-ch`
+>>> from flagai.model.glm_model import GLMModel
+>>> model = GLMModel.from_pretrain(download_path="./state_dict", model_name="GLM-large-ch")
 ```
 
 ## All supported models
@@ -61,18 +61,18 @@ We can use `from_pretrain` to automatically download following models
 At the same time, we support the finetuned model on the task, as shown in the table below, the model weights can be loaded through `ClassName.from_pretrain()`, for example, we automatically download and load a `GLM-large-ch` model finetuned on the title-generation task:
 
 ````python
-from flagai.model.glm_model import GLMForSeq2Seq
-model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
+>>> from flagai.model.glm_model import GLMForSeq2Seq
+>>> model = GLMForSeq2Seq.from_pretrain(model_name='GLM-large-ch')
 ````
 
 We also provide the `AutoLoader` class to help load models. For example, the `GLM-large-ch` model is used for `seq2seq` tasks. Here we adopt a task- and model-independent design. In theory, tasks and models can be freely replaced.
 
 ````python
-from flagai.auto_model.auto_loader import AutoLoader
-auto_loader = AutoLoader("title-generation",
-                         model_name="GLM-large-ch",
-                         model_dir= "./state_dict")
-model = auto_loader.get_model()
+>>> from flagai.auto_model.auto_loader import AutoLoader
+>>> auto_loader = AutoLoader("title-generation",
+>>>                          model_name="GLM-large-ch",
+>>>                          model_dir= "./state_dict")
+>>> model = auto_loader.get_model()
 ````
 
 | ClassName | Model Name | language | Task |
@@ -104,22 +104,22 @@ Input parameters are keyword arguments: including input_ids, position_ids, atten
 For example, GLM's forward function:
 
 ```python
-def forward(self,
-            input_ids=None,
-            position_ids=None,
-            attention_mask=None,
-            mems=None,
-            return_memory=False,
-            detach_memory=True,
-            prompt_pos=None,
-            **kwargs)
+>>> def forward(self,
+>>>             input_ids=None,
+>>>             position_ids=None,
+>>>             attention_mask=None,
+>>>             mems=None,
+>>>             return_memory=False,
+>>>             detach_memory=True,
+>>>             prompt_pos=None,
+>>>             **kwargs)
 ```
 
 ### output
 The output is a dictionary, including logits and hidden states, which are required, such as the return of the GLM forword function:
 
 ```python
-return {'loss': loss, 'logits': logits, 'hidden_states': mems}
+>>> return {'loss': loss, 'logits': logits, 'hidden_states': mems}
 ```
 
 ## init_from_json
@@ -129,7 +129,7 @@ The input is a json and `**kwargs` which is used for the new initialization para
 For example, the initialization of GLMModel is as follows:
 
 ```python
-GLMModel.init_from_json(config_file = "./config.json", checkpoint_activations=True)
+>>> GLMModel.init_from_json(config_file = "./config.json", checkpoint_activations=True)
 ```
 `checkpoint_activations=True` is a new parameter used to control whether to perform gradient recomputation.
 

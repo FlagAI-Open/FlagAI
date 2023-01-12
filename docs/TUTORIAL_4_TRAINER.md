@@ -37,9 +37,9 @@ env_type: `pytorch`, `pytorchDDP`, `deepspeed`, `deepspeed+mpu`, `bmtrain`
 When using a custom model, when the input and output of the model are inconsistent with the behavior of the model in the FlagAI framework (refer to the introduction of the [model forward function](TUTORIAL_3_MODEL.md#forward-function)), a custom Trainer is required for training. To customize Trainer to quickly support custom models, you can inherent Trainer and override the forward_step method. Note: the return of the forward_step method is a dict
 ```python
 >>> from flagai.trainer import Trainer
->>> 
+
 >>> class MyTrainer(Trainer):
->>> 
+
 >>>     def forward_step(self, data, model, mems):
 >>> 
 >>>         model_outputs = model(**data)
@@ -115,20 +115,20 @@ FlagAI example：`examples/t5_huggingface`
 >>> from transformers import T5ForConditionalGeneration, T5Tokenizer
 >>> from torch.utils.data import Dataset
 >>> import torch
->>> 
->>> 
+
+
 >>> class MyTrainer(Trainer):
 >>> 
 >>>     def forward_step(self, data, model, mems):
->>> 
+
 >>>         model_outputs = model(**data)
 >>>         output = {}
 >>>         output['loss'] = model_outputs.loss
 >>>         output['logits'] = model_outputs.logits
 >>>         output['hidden_states'] = model_outputs.decoder_hidden_states
 >>>         return output
->>> 
->>> 
+
+
 >>> trainer = MyTrainer(
 >>>     env_type='deepspeed',
 >>>     epochs=1,
@@ -147,7 +147,7 @@ FlagAI example：`examples/t5_huggingface`
 >>>     # deepspeed
 >>>     deepspeed_config='deepspeed.json'
 >>> )
->>> 
+
 >>> model_name = 't5-11b'
 >>> tokenizer = T5Tokenizer.from_pretrained(model_name)
 >>> model = T5ForConditionalGeneration.from_pretrained(model_name)
@@ -157,17 +157,17 @@ FlagAI example：`examples/t5_huggingface`
 >>> src_dir = './data/train.src'
 >>> tgt_dir = './data/train.tgt'
 >>> maxlen = 1024
->>> 
->>> 
+
+
 >>> def read_file():
 >>>     src = []
 >>>     tgt = []
->>> 
+
 >>>     with open(src_dir, 'r', encoding='utf-8') as f:
 >>>         lines = f.readlines()
 >>>         for line in lines:
 >>>             src.append(line.strip('\n').lower())
->>> 
+
 >>>     with open(tgt_dir, 'r', encoding='utf-8') as f:
 >>>         lines = f.readlines()
 >>>         for line in lines:
@@ -176,14 +176,14 @@ FlagAI example：`examples/t5_huggingface`
 
 
 >>> class T5Seq2seqDataset(Dataset):
->>> 
+
 >>>     def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
 >>>         super(T5Seq2seqDataset, self).__init__()
 >>>         self.sents_src = sents_src
 >>>         self.sents_tgt = sents_tgt
 >>>         self.tokenizer = tokenizer
 >>>         self.maxlen = maxlen
->>> 
+
 >>>     def __getitem__(self, i):
 >>>         src = self.sents_src[i]
 >>>         tgt = self.sents_tgt[i]
@@ -194,43 +194,43 @@ FlagAI example：`examples/t5_huggingface`
 >>>         output['input_ids'] = inputs.input_ids
 >>>         output['labels'] = labels.input_ids
 >>>         return output
->>> 
+
 >>>     def __len__(self):
 >>>         return len(self.sents_src)
->>> 
->>> 
+
+
 >>> def seq2seq_collate_fn(batch):
->>> 
+
 >>>     def padding(indice, max_length, pad_idx=0):
->>> 
+
 >>>         pad_indice = [
 >>>             item + [pad_idx] * max(0, max_length - len(item))
 >>>             for item in indice
 >>>         ]
 >>>         return torch.tensor(pad_indice)
->>> 
+
 >>>     token_ids = [data["input_ids"] for data in batch]
 >>>     max_length_tk = max([len(t) for t in token_ids])
 >>>     labels = [data["labels"] for data in batch]
 >>>     max_length_lb = max([len(t) for t in labels])
->>> 
+
 >>>     token_ids_padded = padding(token_ids, max_length_tk)
 >>>     labels_padded = padding(labels, max_length_lb)
->>> 
+
 >>>     data = {"input_ids": token_ids_padded, "labels": labels_padded}
->>> 
+
 >>>     return data
->>> 
->>> 
+
+
 >>> sents_src, sents_tgt = read_file()
 >>> data_len = len(sents_tgt)
 >>> train_size = int(data_len * 0.8)
 >>> train_src = sents_src[:train_size][:200]
 >>> train_tgt = sents_tgt[:train_size][:200]
->>> 
+
 >>> val_src = sents_src[train_size:]
 >>> val_tgt = sents_tgt[train_size:]
->>> 
+
 >>> train_dataset = T5Seq2seqDataset(train_src,
 >>>                                  train_tgt,
 >>>                                  tokenizer=tokenizer,
@@ -239,7 +239,7 @@ FlagAI example：`examples/t5_huggingface`
 >>>                                val_tgt,
 >>>                                tokenizer=tokenizer,
 >>>                                maxlen=maxlen)
->>> 
+
 >>> trainer.train(model,
 >>>               train_dataset=train_dataset,
 >>>               collate_fn=seq2seq_collate_fn)
@@ -356,7 +356,7 @@ Taking the code for example:
 >>> import torch
 >>> from flagai.env_args import EnvArgs
 >>> from flagai.env_trainer import EnvTrainer
->>> 
+
 >>> lr = 2e-5
 >>> n_epochs = 50
 >>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -377,7 +377,7 @@ Taking the code for example:
 >>>     save_interval=1000,
 >>>     num_checkpoints=1,
 >>> )
->>> 
+
 >>> env_args.add_arg(arg_name="test1", default=0, type=int, )
 >>> env_args_parse = env_args.parse_args()
 >>> trainer = EnvTrainer(env_args)
