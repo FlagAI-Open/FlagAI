@@ -14,10 +14,10 @@ if __name__ == "__main__":
     # Model,
     model_name = 'GLM-large-ch'
     model = GLMModel.from_pretrain(model_name=model_name,
-                                   download_path="./state_dict/")
+                                   download_path="./checkpoints")
     tokenizer = Tokenizer.from_pretrained(model_name)
   
-    model.load_state_dict(torch.load("../glm_pretrain/checkpoints/1000/pytorch_model.bin")["module"])
+    # model.load_state_dict(torch.load("../glm_pretrain/checkpoints/1000/pytorch_model.bin")["module"])
     model.cuda(torch.cuda.current_device())
 
     predictor = Predictor(model, tokenizer)

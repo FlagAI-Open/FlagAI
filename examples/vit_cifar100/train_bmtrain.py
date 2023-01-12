@@ -6,14 +6,14 @@ ssl._create_default_https_context = ssl._create_unverified_context
 from flagai.trainer import Trainer
 from flagai.auto_model.auto_loader import AutoLoader
 
-lr = 2e-3
+lr = 2e-4
 n_epochs = 50
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 env_type = "bmtrain"
 trainer = Trainer(
     env_type=env_type,
-    experiment_name="vit-cifar100-deepspeed",
+    experiment_name="vit-cifar100-bmtrain",
     batch_size=64,
     num_gpus=2,
     gradient_accumulation_steps=1,
@@ -21,12 +21,12 @@ trainer = Trainer(
     warm_up=0.001,
     weight_decay=1e-5,
     epochs=n_epochs,
-    log_interval=100,
+    log_interval=10,
     eval_interval=1000,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_vit_cifar100_deepspeed",
-    save_interval=1000,
+    save_dir="checkpoints_vit_cifar100_bmtrain",
+    save_interval=10000,
     num_checkpoints=1,
     hostfile="./hostfile",
     deepspeed_config='./deepspeed.json',

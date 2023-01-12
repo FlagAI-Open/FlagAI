@@ -13,7 +13,7 @@ from torch import nn
 import os 
 if os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
-elif os.getenv('ENV_TYPE') == 'pytorch' or os.getenv('ENV_TYPE') == 'pytorchDDP':
+elif os.getenv('ENV_TYPE') == 'pytorch' or os.getenv('ENV_TYPE') == 'pytorchDDP' or os.getenv('ENV_TYPE') == 'bmtrain':
     from torch.utils.checkpoint import checkpoint
 else :
     print(f"not support the {os.getenv('ENV_TYPE')} for checkpoint activation")
