@@ -22,20 +22,20 @@ and have different vocabulary files.
 
 ## Loading a tokenizer
 ```python
-from flagai.data.tokenizer import Tokenizer
-model_name = "GLM-large-en"
-tokenizer = Tokenizer.from_pretrained(model_name) # Load tokenizer 
+>>> from flagai.data.tokenizer import Tokenizer
+>>> model_name = "GLM-large-en"
+>>> tokenizer = Tokenizer.from_pretrained(model_name) # Load tokenizer 
 ```
 At this step, the vocab files from Modelhub will be automatically downloaded to the path specified in `cache_dir` parameter. It is set to `./checkpoints/{model_name}` directory in default.  
 
 ## Applying a tokenizer
 The tokenizer can be used to encode text to a list of token IDs, as well as decoding the token IDs to the original text. 
 ```python
-text = "Jack is walking a dog."                  # Input text
-encoded_ids = tokenizer.EncodeAsIds(text)        # Convert text string to a list of token ids
-# Now encoded_ids = [2990, 2003, 3788, 1037, 3899, 1012]
-recoverd_text = tokenizer.DecodeIds(encoded_ids) # Recover text string
-# recovered_text should be the same as text
+>>> text = "Jack is walking a dog."                  # Input text
+>>> encoded_ids = tokenizer.EncodeAsIds(text)        # Convert text string to a list of token ids
+>>> # Now encoded_ids = [2990, 2003, 3788, 1037, 3899, 1012]
+>>> recoverd_text = tokenizer.DecodeIds(encoded_ids) # Recover text string
+>>> # recovered_text should be the same as text
 ```
 ## Creating your own tokenizer
 Different tokenizers has different vocabulary and different ways to split text. To suit your project, sometimes it is significant to create a new tokenizer, and how to implement that is given below: 
@@ -46,12 +46,12 @@ Different tokenizers has different vocabulary and different ways to split text. 
 let's take T5 tokenizer as an example
 
 ```python
-from transformers import T5Tokenizer
-from ..tokenizer import Tokenizer
-class T5BPETokenizer(Tokenizer):
-    def __init__(self, model_type_or_path="t5-base", cache_dir=None):
-        self.text_tokenizer = T5Tokenizer.from_pretrained(model_type_or_path,
-                                                            cache_dir=cache_dir)
-        self.text_tokenizer.max_len = int(1e12)
+>>> from transformers import T5Tokenizer
+>>> from ..tokenizer import Tokenizer
+>>> class T5BPETokenizer(Tokenizer):
+>>>     def __init__(self, model_type_or_path="t5-base", cache_dir=None):
+>>>         self.text_tokenizer = T5Tokenizer.from_pretrained(model_type_or_path,
+>>>                                                             cache_dir=cache_dir)
+>>>         self.text_tokenizer.max_len = int(1e12)
 ```
 

@@ -26,40 +26,40 @@ The sample data is in /examples/bert_title_generation/data/
 
 You need to define the data loading process in train.py. For example:
 ```python
-def read_file():
-    src = []
-    tgt = []
+>>> def read_file():
+>>>     src = []
+>>>     tgt = []
 
-    ## read data file to load src and tgt, for example:
-    ## src = ["article_1", "article_2", "article_3" ......]
-    ## tgt = ["title_1", "title_2", "title_3" ......]
-    ## no matter what data you use, you need to construct the right src and tgt.
-    with open(src_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            src.append(line.strip('\n').lower())
+>>>     ## read data file to load src and tgt, for example:
+>>>     ## src = ["article_1", "article_2", "article_3" ......]
+>>>     ## tgt = ["title_1", "title_2", "title_3" ......]
+>>>     ## no matter what data you use, you need to construct the right src and tgt.
+>>>     with open(src_dir, 'r', encoding='utf-8') as f:
+>>>         lines = f.readlines()
+>>>         for line in lines:
+>>>             src.append(line.strip('\n').lower())
 
-    with open(tgt_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            tgt.append(line.strip('\n').lower())
-    return src,tgt
+>>>     with open(tgt_dir, 'r', encoding='utf-8') as f:
+>>>         lines = f.readlines()
+>>>         for line in lines:
+>>>             tgt.append(line.strip('\n').lower())
+>>>     return src,tgt
 ```
 
 ### 2.Load model and tokenizer
 
 ```python
-from flagai.auto_model.auto_loader import AutoLoader
+>>> from flagai.auto_model.auto_loader import AutoLoader
 
-# the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
-# or we will download these files from the model hub to this dir.
-# Autoloader can build the model and tokenizer automatically.
-# 'seq2seq' is the task_name.
-auto_loader = AutoLoader("seq2seq",
-                         model_dir="./state_dict/",
-                         model_name="RoBERTa-base-ch")
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
+>>> # the model dir, which contains the 1.config.json, 2.pytorch_model.bin, 3.vocab.txt,
+>>> # or we will download these files from the model hub to this dir.
+>>> # Autoloader can build the model and tokenizer automatically.
+>>> # 'seq2seq' is the task_name.
+>>> auto_loader = AutoLoader("seq2seq",
+>>>                          model_dir="./state_dict/",
+>>>                          model_name="RoBERTa-base-ch")
+>>> model = auto_loader.get_model()
+>>> tokenizer = auto_loader.get_tokenizer()
 ```
 
 ### 3. Train
@@ -69,33 +69,33 @@ python ./train.py
 ```
 Modify the training configuration by this code:
 ```python
-from flagai.trainer import Trainer
-import torch
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-trainer = Trainer(env_type="pytorch",
-                  experiment_name="roberta_seq2seq",
-                  batch_size=8, gradient_accumulation_steps=1,
-                  lr = 2e-4,
-                  weight_decay=1e-3,
-                  epochs=10, log_interval=10, eval_interval=10000,
-                  load_dir=None, pytorch_device=device,
-                  save_dir="checkpoints",
-                  save_interval=1
-                  )
+>>> from flagai.trainer import Trainer
+>>> import torch
+>>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+>>> trainer = Trainer(env_type="pytorch",
+>>>                   experiment_name="roberta_seq2seq",
+>>>                   batch_size=8, gradient_accumulation_steps=1,
+>>>                   lr = 2e-4,
+>>>                   weight_decay=1e-3,
+>>>                   epochs=10, log_interval=10, eval_interval=10000,
+>>>                   load_dir=None, pytorch_device=device,
+>>>                   save_dir="checkpoints",
+>>>                   save_interval=1
+>>>                   )
 ```
 Divide the training set validation set and create the dataset:
 ```python
-sents_src, sents_tgt = read_file()
-data_len = len(sents_tgt)
-train_size = int(data_len * 0.8)
-train_src = sents_src[: train_size]
-train_tgt = sents_tgt[: train_size]
+>>> sents_src, sents_tgt = read_file()
+>>> data_len = len(sents_tgt)
+>>> train_size = int(data_len * 0.8)
+>>> train_src = sents_src[: train_size]
+>>> train_tgt = sents_tgt[: train_size]
 
-val_src = sents_src[train_size: ]
-val_tgt = sents_tgt[train_size: ]
+>>> val_src = sents_src[train_size: ]
+>>> val_tgt = sents_tgt[train_size: ]
 
-train_dataset = BertSeq2seqDataset(train_src, train_tgt, tokenizer=tokenizer, maxlen=maxlen)
-val_dataset = BertSeq2seqDataset(val_src, val_tgt, tokenizer=tokenizer, maxlen=maxlen)
+>>> train_dataset = BertSeq2seqDataset(train_src, train_tgt, tokenizer=tokenizer, maxlen=maxlen)
+>>> val_dataset = BertSeq2seqDataset(val_src, val_tgt, tokenizer=tokenizer, maxlen=maxlen)
 ```
 
 ### Generation
@@ -103,7 +103,7 @@ If you have already trained a model, in order to see the results more intuitivel
 You can run the generation file.
 First to modify the path of saved model.
 ```python
-model_save_path = "./checkpoints/1001/mp_rank_00_model_states.pt" ## 1001 is example, you need modify the number.
+>>> model_save_path = "./checkpoints/1001/mp_rank_00_model_states.pt" ## 1001 is example, you need modify the number.
 ```
 ```commandline
 python ./generate.py
