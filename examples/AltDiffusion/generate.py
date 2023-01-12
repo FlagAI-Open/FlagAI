@@ -4,7 +4,7 @@
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
-from flagai.fp16 import FP16_Module
+
 # Initialize 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
