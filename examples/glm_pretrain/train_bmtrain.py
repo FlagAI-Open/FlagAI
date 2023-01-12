@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     trainer = Trainer(env_type='bmtrain',
                       epochs=1,
-                      batch_size=4,
+                      batch_size=32,
                       eval_interval=100,
                       log_interval=10,
                       experiment_name='glm_large_bmtrain',
