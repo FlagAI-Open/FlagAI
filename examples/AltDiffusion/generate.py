@@ -8,7 +8,6 @@ from flagai.model.predictor.predictor import Predictor
 # Initialize 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
 loader = AutoLoader(task_name="text2img", #contrastive learning
                     model_name="AltDiffusion-m9",
                     model_dir="./checkpoints",
