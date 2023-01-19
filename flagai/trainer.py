@@ -444,7 +444,9 @@ class Trainer():
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)
         elif self.env_type == 'bmtrain':
+            print('*'*20, 'model', model, __file__)
             model = bmt.BMTrainModelWrapper(model)
+            print('*'*20, 'BMTrainModelWrapper model', model, __file__)
         else:
             model.cuda(torch.device('cuda', self.local_rank))
         if self.fp16:
@@ -457,19 +459,19 @@ class Trainer():
             param_groups = param_groups[0]['params']
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
-            # if self.env_type == 'bmtrain':
-            #     optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
-            #                                    weight_decay=self.weight_decay, lr=5e-6)
-            #     # optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
-            # else:
-            optimizer = get_optimizer(
-                param_groups=param_groups,
-                lr=self.lr,
-                weight_decay=self.weight_decay,
-                cpu_optimizer=False,
-                cpu_torch_adam=False,
-                fp16=self.fp16,
-                optimizer='adam')  # if not self.fp16 else 'adafactor')
+            if self.env_type == 'bmtrain':
+                optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                                                    weight_decay=self.weight_decay,
+                                                    lr=self.lr)
+            else:
+                optimizer = get_optimizer(
+                    param_groups=param_groups,
+                    lr=self.lr,
+                    weight_decay=self.weight_decay,
+                    cpu_optimizer=False,
+                    cpu_torch_adam=False,
+                    fp16=self.fp16,
+                    optimizer='adam')  # if not self.fp16 else 'adafactor')
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
@@ -532,6 +534,9 @@ class Trainer():
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
+                # print('*'*20, 'batch keys', batch.keys())
+                print('*'*20, 'batch input_ids', batch['input_ids'].size())
+                # print('*'*20, 'batch labels', batch['labels'].size())
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
@@ -553,8 +558,10 @@ class Trainer():
                         batch, model, optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
+                    optim_manager = bmt.optim.OptimManager(loss_scale=1024)
+                    optim_manager.add_optimizer(optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
-                        batch, model, optimizer, lr_scheduler)
+                        batch, model, optim_manager)
 
                 else:
                     lm_loss, _ = self.train_step_deepspeed(batch,
@@ -584,7 +591,8 @@ class Trainer():
                         optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,
                         self.iteration + 1,
-                        self.epochs * len(train_dataloader))
+                        self.epochs * len(train_dataloader),
+                        optimizer_manager=optim_manager if self.env_type == 'bmtrain' else None)
                     self.tb_writer.add_scalar('train/loss', avg_lm_loss,
                                               self.iteration + 1)
                     self.tb_writer.add_scalar('lr', learning_rate,
@@ -732,11 +740,7 @@ class Trainer():
 
             # accumulate gradients
             lm_loss = step_output['loss']
-            logits = step_output['logits']
-            
-            
             lm_loss = lm_loss / self.gradient_accumulation_steps
-
             # reduce sum of losses
             reduced_loss = lm_loss.detach().clone().view(1)
             # dist.all_reduce(reduced_loss.data)
@@ -757,7 +761,9 @@ class Trainer():
 
                 grad_norm = torch.nn.utils.clip_grad_norm_(model.module.parameters(),
                                                self.clip_grad)
-              
+                # print('--------------grad_norm------------------')
+                # print(grad_norm)
+                
                 self.timers('backward').stop()
 
                 # Update parameters.
@@ -785,6 +791,8 @@ class Trainer():
                 del lm_loss, reduced_loss
                 mems = None
                 reduced_loss = None
+            # print('reduced_loss', reduced_loss)
+            # print('self.gradient_accumulation_steps', self.gradient_accumulation_steps)
         return reduced_loss, mems
 
     def train_step_deepspeed(self,
@@ -840,15 +848,12 @@ class Trainer():
         return reduced_loss, mems
     
     def train_step_bmtrain(self,
-                             data,
-                             model,
-                             optimizer,
-                             lr_scheduler,
-                             mems=None,
-                             single_step=False): #bmt 自带loss scale 需要查看是否有重复
+                           data,
+                           model,
+                           optim_manager,
+                           mems=None,
+                           single_step=False):
         """Single training step."""
-        optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-        optim_manager.add_optimizer(optimizer, lr_scheduler)
         # optim_manager.add_optimizer(optimizer)
         optim_manager.zero_grad()
         self.timers('forward').start()
@@ -856,6 +861,8 @@ class Trainer():
         self.timers('forward').stop()
         logits = model_output['logits']
         loss = model_output['loss']
+        # print('bmt loss', loss)
+        # bmt.print_rank('-----------logits-----------',logits)
         lm_loss = bmt.sum_loss(loss).item()
         self.timers('backward').start()
         try:
@@ -864,9 +871,22 @@ class Trainer():
             loss.backward()
         self.timers('backward').stop()
         self.timers('optimizer').start()
-        grad_norm = optim_manager.clip_grad_norm(optimizer.param_groups, max_norm=1.0)
+        #grad = bmt.inspect.inspect_model(model, '*')
+        # text_summray = bmt.inspect.format_summary(grad)
+        # bmt.print_rank(text_summray)
+        
+        
+        # grad_norm = optim_manager.clip_grad_norm(optimizer.param_groups, max_norm=1.0)
+        grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=1.0)
+        
+        # bmt.print_rank('-----------------grad_norm-----------------------------',grad_norm)
+        # assert 1==2
         optim_manager.step()
+        # bmt.print_rank('----------------optimizer.param_groups----------------',optimizer.param_groups)
+        # bmt.print_rank(optimizer.state_dict())
+        # assert 1==2
         self.timers('optimizer').stop()
+        # bmt.print_rank('lm_loss', lm_loss)
         return lm_loss, mems
 
     def forward_step(self, data, model, mems=None):
@@ -1073,17 +1093,23 @@ class Trainer():
         return metric_dct
 
     def report_iteration_metrics(self, optimizer, lr, loss, elapsed_time, step,
-                                 total_step):
+                                 total_step, optimizer_manager=None):
         log_string = ' iteration {:8d}/{:8d} |'.format(step, total_step)
         log_string += ' elapsed time per iteration (ms): {:.1f} |'.format(
             elapsed_time)
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
-        if self.fp16:
+
+        # when bmtrain, optimizer is optimizer_manager
+        if self.fp16 and 'bmtrain' in self.env_type:
+            log_string += ' loss scale {:.1f} |'.format(
+                optimizer_manager.loss_scale)
+        elif self.fp16:
             log_string += ' loss scale {:.1f} |'.format(
                 optimizer.cur_scale if 'deepspeed' in self.env_type else
                 hasattr(optimizer, 'loss_scale') and optimizer.loss_scale)
         # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
+
         log_dist(log_string, [0])
 
     def report_evaluate_metrics(self, prefix, loss, ppl, gpt_loss, bert_loss,
