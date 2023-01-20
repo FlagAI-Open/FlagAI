@@ -523,6 +523,7 @@ class Trainer():
         best_score = float('inf')
         if len(self.metric_methods) > 0:
             best_score = -best_score
+
         for epoch in range(self.epochs):
             # log_dist('working on epoch {} ...'.format(epoch), [0])
             # Set the data loader epoch to shuffle the index iterator.
@@ -761,9 +762,6 @@ class Trainer():
 
                 grad_norm = torch.nn.utils.clip_grad_norm_(model.module.parameters(),
                                                self.clip_grad)
-                # print('--------------grad_norm------------------')
-                # print(grad_norm)
-                
                 self.timers('backward').stop()
 
                 # Update parameters.
@@ -791,8 +789,6 @@ class Trainer():
                 del lm_loss, reduced_loss
                 mems = None
                 reduced_loss = None
-            # print('reduced_loss', reduced_loss)
-            # print('self.gradient_accumulation_steps', self.gradient_accumulation_steps)
         return reduced_loss, mems
 
     def train_step_deepspeed(self,
@@ -1010,6 +1006,7 @@ class Trainer():
             all_losses = []
             for data_iterator in data_loader:
                 # Forward evaluation.
+
                 meta = data_iterator.get('meta', None)
 
                 if 'deepspeed' in self.env_type or 'DDP' in self.env_type:

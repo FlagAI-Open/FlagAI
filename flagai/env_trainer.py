@@ -251,7 +251,8 @@ class EnvTrainer():
               train_dataset=None,
               valid_dataset=None,
               metric_methods=[],
-              collate_fn=None):
+              collate_fn=None,
+              find_unused_parameters=True):
         """Training Loops"""
         """
        Trainer is a simple but unifed training and eval loop for PyTorch/Deepspeed/Megatron-LM.
@@ -319,10 +320,14 @@ class EnvTrainer():
             model.to(torch.device('cuda', self.local_rank))
             model = DDP(model,
                         device_ids=[self.local_rank],
-                        find_unused_parameters=True)
+                        find_unused_parameters=find_unused_parameters)
 
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)
+        elif self.env_type == 'bmtrain':
+            print('*'*20, 'model', model, __file__)
+            model = bmt.BMTrainModelWrapper(model)
+            print('*'*20, 'BMTrainModelWrapper model', model, __file__)
         else:
             model.cuda(torch.device('cuda', self.local_rank))
         if self.fp16:
@@ -382,8 +387,6 @@ class EnvTrainer():
                 config=self.deepspeed_config,
                 dist_init_required=True)
         if self.load_optim:
-            print(self.load_optim)
-            print(type(self.load_optim))
             load_optim(optimizer, lr_scheduler, sd)
         if self.load_rng:
             load_rng(sd)
@@ -413,8 +416,11 @@ class EnvTrainer():
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
+                # print('*'*20, 'batch keys', batch.keys())
+                print('*'*20, 'batch input_ids', batch['input_ids'].size())
+                # print('*'*20, 'batch labels', batch['labels'].size())
                 # Train for one step.
-                if 'deepspeed' in self.env_type or self.env_type == 'pytorchDDP':
+                if 'pytorch' != self.env_type:
                     batch = {
                         x: batch[x].to(torch.device('cuda', self.local_rank))
                         for x in batch if x not in ['uid', 'meta', 'mode']
@@ -447,7 +453,10 @@ class EnvTrainer():
                                                            single_step=True)
                     dist.barrier()
                 if lm_loss is not None:
-                    total_lm_loss += lm_loss.data.detach().float()
+                    if not isinstance(lm_loss, float):
+                        total_lm_loss += lm_loss.data.detach().float()
+                    else:
+                        total_lm_loss += lm_loss
 
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
@@ -613,7 +622,7 @@ class EnvTrainer():
 
             # accumulate gradients
             lm_loss = step_output['loss']
-            lm_loss /= self.gradient_accumulation_steps
+            lm_loss = lm_loss / self.gradient_accumulation_steps
             # reduce sum of losses
             reduced_loss = lm_loss.detach().clone().view(1)
             # dist.all_reduce(reduced_loss.data)
@@ -632,7 +641,7 @@ class EnvTrainer():
                 else:
                     lm_loss.backward()
 
-                torch.nn.utils.clip_grad_norm_(model.module.parameters(),
+                grad_norm = torch.nn.utils.clip_grad_norm_(model.module.parameters(),
                                                self.clip_grad)
                 self.timers('backward').stop()
 
@@ -910,16 +919,21 @@ class EnvTrainer():
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
-
-                all_logits.append(logits)
-                all_labels.append(labels)
+                if len(self.metric_methods) != 0:
+                    if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
+                        batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()
+                        batch_labels = labels.detach().cpu()
+                        all_logits.extend(batch_preds)
+                        all_labels.extend(batch_labels)
+                    else:
+                        all_logits.append(logits)
+                        all_labels.append(labels)
                 all_losses.append(lm_loss.view(1))
 
+            all_losses = torch.cat(all_losses, dim=0)
             if len(self.metric_methods) != 0:
                 all_logits = torch.cat(all_logits, dim=0)
                 all_labels = torch.cat(all_labels, dim=0)
-
-            all_losses = torch.cat(all_losses, dim=0)
 
             if self.env_type == 'pytorchDDP' or self.env_type == 'deepspeed':
                 if len(self.metric_methods) != 0:
@@ -934,7 +948,7 @@ class EnvTrainer():
                 all_losses = self._gather_all_mpu(all_losses)
 
             if all_losses.device != torch.device('cpu'):
-                all_losses = all_losses.cpu().detach().numpy()[0]
+                all_losses = all_losses.mean().cpu().detach().numpy()
 
             for i in range(len(self.metric_methods)):
                 eval_method = self.metric_methods[i][1]
