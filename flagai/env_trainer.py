@@ -106,7 +106,7 @@ class EnvTrainer():
         self.hostfile = env_args.hostfile
         self.training_script = env_args.training_script
 
-        if 'deepspeed' in self.env_type or self.env_type == 'pytorchDDP':
+        if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
             self.rank = int(os.environ.get('RANK', 0))
             self.world_size = int(os.environ.get('WORLD_SIZE', 1))
