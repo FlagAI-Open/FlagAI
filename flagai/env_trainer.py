@@ -341,9 +341,14 @@ class EnvTrainer():
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
+                '''
                 optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                     weight_decay=self.weight_decay,
                                                     lr=self.lr)
+                '''
+                optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                                                           weight_decay=self.weight_decay,
+                                                           lr=self.lr)
             else:
                 optimizer = get_optimizer(
                     param_groups=param_groups,
