@@ -15,6 +15,9 @@ echo "pwd:" $(pwd)
 #port=29502
 #script_file=train_env_xl_bmtrain.py
 
+# ENV_TYPE
+export ENV_TYPE=bmtrain
+
 python -m torch.distributed.launch \
     --nproc_per_node $GPU_NUM --nnodes $WORLD_SIZE --node_rank $RANK \
     --master_addr $MASTER_ADDR --master_port $MASTER_PORT \

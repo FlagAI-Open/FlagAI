@@ -111,7 +111,6 @@ def read_file_dev():
 
     if enable_debug:
         part_file = '/share/project/ldwang/data/pile/train/00.txt'
-        part_file = './dev.txt'
     else:
         part_file = '/share/project/ldwang/data/pile/val.txt'
     if True:
