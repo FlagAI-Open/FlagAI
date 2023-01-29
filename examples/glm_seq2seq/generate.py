@@ -1,8 +1,9 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import torch
 import sys 
-sys.path.append('/home/yanzhaodong/anhforth/FlagAI')
+sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSeq2Seq
 from flagai.data.tokenizer import Tokenizer
@@ -34,19 +35,20 @@ train_dataset = Seq2SeqDataset(task_name=task_name,
 valid_dataset = Seq2SeqDataset(task_name=task_name,
                                data_dir='./datasets/',
                                dataset_type='dev',
-                               tokenizer=tokenizer)
+                               tokenizer=tokenizer)                            
 collate_fn = ConstructSeq2seqStrategy(cl_args,
                                       tokenizer,
                                       task_name=task_name)
 
 model = GLMForSeq2Seq.from_pretrain(model_name=model_name)
+# model.load_state_dict(torch.load("./checkpoints/2000/pytorch_model.bin")["module"])
+
 
 trainer = Trainer(env_type='pytorch',
-                  epochs=5,
-                  batch_size=8,
-                  eval_interval=1000,
+                  epochs=0,
+                  batch_size=1,
+                  eval_interval=10,
                   log_interval=50,
-                  save_interval=5000,
                   experiment_name='glm_large',
                   pytorch_device='cuda',
                   load_dir=None,
@@ -56,5 +58,5 @@ trainer = Trainer(env_type='pytorch',
 trainer.train(model,
               collate_fn=collate_fn,
               train_dataset=train_dataset,
-              valid_dataset=valid_dataset,
+              valid_dataset=valid_dataset[:100],
               metric_methods=[["blue_metric", bleu_metric],["rouge_metric", rouge_metric]])

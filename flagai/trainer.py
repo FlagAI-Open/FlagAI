@@ -133,6 +133,7 @@ class Trainer():
         fp16=False,
         clip_grad=1.0,
         checkpoint_activations=False,
+        tokenizer=None,
 
         # model checkpointing
         save_dir='checkpoints',  # 'Output directory to save checkpoints to.')
@@ -182,6 +183,7 @@ class Trainer():
 
         self.log_interval = log_interval
         self.eval_interval = eval_interval
+        self.tokenizer = tokenizer
 
         # model checkpointing
         self.save_dir = save_dir
@@ -974,7 +976,7 @@ class Trainer():
 
         mems = None
         metrics = [0. for _ in range(len(self.metric_methods))]
-
+        # import pdb;pdb.set_trace()
         with torch.no_grad():
             assert data_loader is not None, "val loader is not None."
             all_logits = []
@@ -1020,10 +1022,16 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
+                        if logits.size(0) != 1:
+                            logits = torch.argmax(logits, dim=-1).unsqueeze(0)
                         all_logits.append(logits)
                         all_labels.append(labels)
+                        pass
                 all_losses.append(lm_loss.view(1))
-
+            # size of all_logits: (1, n)
+            if all_logits[0].size() != all_logits[-1].size():
+                pd = (all_logits[0].size(0)-all_logits[-1].size(0), all_logits[0].size(1)-all_logits[-1].size(1))
+                all_logits[-1] = torch.nn.functional.pad(all_logits[-1], pd ,"constant",0)
             all_losses = torch.cat(all_losses, dim=0)
             if len(self.metric_methods) != 0:
                 all_logits = torch.cat(all_logits, dim=0)
@@ -1046,7 +1054,7 @@ class Trainer():
 
             for i in range(len(self.metric_methods)):
                 eval_method = self.metric_methods[i][1]
-                metrics[i] += eval_method(all_logits, all_labels, meta=meta)
+                metrics[i] += eval_method(all_logits, all_labels, meta=meta, tokenizer=self.tokenizer)
 
         # Move model back to the train mode.
 
@@ -1098,6 +1106,10 @@ class Trainer():
         verbose=False,
     ):
         """Helper function to evaluate and dump results on screen."""
+        
+        # print(torch.cuda.memory_allocated())
+        # torch.cuda.empty_cache()
+        # print(torch.cuda.memory_allocated())
         eval_dict = self.evaluate(forward_step_func=forward_step_func,
                                   data_loader=data_loader,
                                   model=model,
