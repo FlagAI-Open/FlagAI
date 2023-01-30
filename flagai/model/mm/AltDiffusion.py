@@ -14,6 +14,7 @@ from flagai.model.mm.autoencoders import VQModelInterface, IdentityFirstStage, A
 from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise_like
 from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
+from torch.cuda.amp import autocast as autocast
 
 __conditioning_keys__ = {
     'concat': 'c_concat',
@@ -66,7 +67,7 @@ class DDPM(BaseModel):
         **kwargs,
     ):
         super(DDPM, self).__init__(unet_config, **kwargs)
-       
+        unet_config.params.update(kwargs)
         assert parameterization in [
             "eps", "x0"
         ], 'currently only supporting "eps" and "x0"'
@@ -854,7 +855,6 @@ class LatentDiffusion(DDPM):
 
             if not self.cond_stage_trainable or force_c_encode:
                 if isinstance(xc, dict) or isinstance(xc, list):
-                    # import pudb; pudb.set_trace()
                     # Determine if learning the cond, otherwise it will return
                     # if the image editing is driven by texts, we will process the init_img and caption
                     if cond_key == "img_and_caption":
@@ -1269,7 +1269,8 @@ class LatentDiffusion(DDPM):
             x_recon = fold(o) / normalization
 
         else:
-            x_recon = self.model(x_noisy, t, **cond)
+            with autocast():            
+                x_recon = self.model(x_noisy, t, **cond)
 
         if isinstance(x_recon, tuple) and not return_ids:
             return x_recon[0]
