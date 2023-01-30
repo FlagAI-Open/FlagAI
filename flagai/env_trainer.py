@@ -330,6 +330,8 @@ class EnvTrainer():
             print('*'*20, 'BMTrainModelWrapper model', model, __file__)
         else:
             model.cuda(torch.device('cuda', self.local_rank))
+        
+        # TODO
         if self.fp16:
             model = FP16_Module(model)
 
@@ -341,7 +343,6 @@ class EnvTrainer():
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                '''
                 optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                     weight_decay=self.weight_decay,
                                                     lr=self.lr)
@@ -349,6 +350,7 @@ class EnvTrainer():
                 optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
                                                            weight_decay=self.weight_decay,
                                                            lr=self.lr)
+                '''
             else:
                 optimizer = get_optimizer(
                     param_groups=param_groups,
@@ -359,21 +361,20 @@ class EnvTrainer():
                     fp16=self.fp16,
                     optimizer='adam')  # if not self.fp16 else 'adafactor')
 
+        self.total_iter = int(self.epochs * len(train_dataloader))
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
                 lr_scheduler = bmt.lr_scheduler.Noam(optimizer,
-                                                    start_lr =self.lr, 
-                                                    warmup_iter =int(self.warm_up * self.epochs * len(train_dataloader)),
-                                                    end_iter = self.epochs * len(train_dataloader)
-                                                )
+                                                     start_lr=self.lr, 
+                                                     warmup_iter=int(self.warm_up * self.total_iter / self.gradient_accumulation_steps),
+                                                     end_iter=int(self.total_iter / self.gradient_accumulation_steps))
             else:
                 lr_scheduler = AnnealingLR(
                     optimizer,
                     start_lr=self.lr,
-                    warmup_iter=int(self.warm_up * self.epochs *
-                                    len(train_dataloader)),
+                    warmup_iter=int(self.warm_up * self.total_iter),
                     decay_style='linear',
-                    num_iters=self.epochs * len(train_dataloader))
+                    num_iters=self.total_iter)
 
         if  self.env_type == 'bmtrain':
             bmt.synchronize()
@@ -478,7 +479,7 @@ class EnvTrainer():
                         optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,
                         self.iteration + 1,
-                        self.epochs * len(train_dataloader),
+                        self.total_iter,
                         optimizer_manager=optim_manager if self.env_type == 'bmtrain' else None)
                     self.tb_writer.add_scalar('train/loss', avg_lm_loss,
                                               self.iteration + 1)
@@ -736,39 +737,46 @@ class EnvTrainer():
                            mems=None,
                            single_step=False):
         """Single training step."""
-        # optim_manager.add_optimizer(optimizer)
-        optim_manager.zero_grad()
+
+        # Forward model for one step.
         self.timers('forward').start()
-        model_output = model(**data)
+        model_output = self.forward_step(data, model, mems)
         self.timers('forward').stop()
+
+        # accumulate gradients
         logits = model_output['logits']
         loss = model_output['loss']
-        # print('bmt loss', loss)
-        # bmt.print_rank('-----------logits-----------',logits)
-        lm_loss = bmt.sum_loss(loss).item()
-        self.timers('backward').start()
-        try:
+
+        lm_loss = bmt.sum_loss(loss)
+        lm_loss /= self.gradient_accumulation_steps
+        reduced_loss = lm_loss.detach().clone().view(1)
+
+        # skip the iter while loss has NAN
+        if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
+            # Calculate gradients, reduce across processes, and clip.
+            self.timers('backward').start()
             optim_manager.backward(loss)
-        except:
-            loss.backward()
-        self.timers('backward').stop()
-        self.timers('optimizer').start()
-        #grad = bmt.inspect.inspect_model(model, '*')
-        # text_summray = bmt.inspect.format_summary(grad)
-        # bmt.print_rank(text_summray)
-        
-        
-        # grad_norm = optim_manager.clip_grad_norm(optimizer.param_groups, max_norm=1.0)
-        grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=1.0)
-        
-        # bmt.print_rank('-----------------grad_norm-----------------------------',grad_norm)
-        # assert 1==2
-        optim_manager.step()
-        # bmt.print_rank('----------------optimizer.param_groups----------------',optimizer.param_groups)
-        # bmt.print_rank(optimizer.state_dict())
-        # assert 1==2
-        self.timers('optimizer').stop()
-        # bmt.print_rank('lm_loss', lm_loss)
+            grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=1.0)
+            self.timers('backward').stop()
+
+            # Update parameters.
+            self.timers('optimizer').start()
+            if (self.accumulate_count +
+                    1) % self.gradient_accumulation_steps == 0:
+                optim_manager.step()
+                optim_manager.zero_grad()
+                self.accumulate_count = 0
+            else:
+                self.accumulate_count += 1
+
+            self.timers('optimizer').stop()
+
+        else:
+            log_dist("Found NaN loss, skip backward", [0])
+            del lm_loss, reduced_loss
+            mems = None
+            reduced_loss = None
+
         return lm_loss, mems
 
     def forward_step(self, data, model, mems=None):
