@@ -65,7 +65,8 @@ enable_debug = True
 if enable_debug:
     trainer.set_seed(2023)
 
-model_dir = "./state_dict/"
+## TODO
+model_dir = "./"
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 1024
 
