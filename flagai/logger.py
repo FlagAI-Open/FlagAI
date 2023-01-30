@@ -67,7 +67,7 @@ def log_dist(message, ranks=None, level=logging.INFO):
     if os.getenv('ENV_TYPE') == 'bmtrain':
         should_log = True
         import bmtrain as bmt
-        my_rank = bmt.rank() if bmt.is_initialized() else -1
+        my_rank = bmt.rank() if bmt.init.is_initialized() else -1
     else:
         should_log = not dist.is_initialized()
         my_rank = dist.get_rank() if dist.is_initialized() else -1
