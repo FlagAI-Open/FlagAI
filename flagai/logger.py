@@ -73,7 +73,6 @@ def log_dist(message, ranks=None, level=logging.INFO):
         my_rank = dist.get_rank() if dist.is_initialized() else -1
         
     ranks = ranks or []
-    my_rank = dist.get_rank() if dist.is_initialized() else -1
     if ranks and not should_log:
         should_log = ranks[0] == -1
         should_log = should_log or (my_rank in set(ranks))
