@@ -74,7 +74,7 @@ def log_dist(message, ranks=None, level=logging.INFO):
         should_log = ranks[0] == -1
         should_log = should_log or (my_rank in set(ranks))
     if should_log:
-        if is_bmt:
+        if is_bmt and bmt.init.is_initialized():
             if bmt.rank() == 0:
                 final_message = "[Rank {}] {}".format(bmt.rank(), message)
                 logger.log(level, final_message)
