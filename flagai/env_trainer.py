@@ -332,7 +332,7 @@ class EnvTrainer():
             model.cuda(torch.device('cuda', self.local_rank))
         
         # TODO
-        if self.fp16:
+        if self.fp16 and self.env_type != 'bmtrain':
             model = FP16_Module(model)
 
         param_groups = get_optimizer_param_groups(model)
@@ -364,10 +364,12 @@ class EnvTrainer():
         self.total_iter = int(self.epochs * len(train_dataloader))
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                lr_scheduler = bmt.lr_scheduler.Noam(optimizer,
-                                                     start_lr=self.lr, 
-                                                     warmup_iter=int(self.warm_up * self.total_iter / self.gradient_accumulation_steps),
-                                                     end_iter=int(self.total_iter / self.gradient_accumulation_steps))
+                ## lr_scheduler.step with optim_manager.step
+                lr_scheduler = bmt.lr_scheduler.Noam(
+                    optimizer,
+                    start_lr=self.lr, 
+                    warmup_iter=int(self.warm_up * self.total_iter / self.gradient_accumulation_steps),
+                    end_iter=int(self.total_iter / self.gradient_accumulation_steps))
             else:
                 lr_scheduler = AnnealingLR(
                     optimizer,
@@ -475,6 +477,9 @@ class EnvTrainer():
                     else:
                         avg_lm_loss = total_lm_loss.item() / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
+
+                    # TODO
+                    avg_lm_loss *= self.gradient_accumulation_steps
                     self.report_iteration_metrics(
                         optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,

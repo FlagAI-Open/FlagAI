@@ -452,7 +452,7 @@ class Trainer():
             model.cuda(torch.device('cuda', self.local_rank))
         
         # TODO
-        if self.fp16:
+        if self.fp16 and self.env_type != 'bmtrain':
             model = FP16_Module(model)
 
         param_groups = get_optimizer_param_groups(model)
@@ -597,6 +597,9 @@ class Trainer():
                     else:
                         avg_lm_loss = total_lm_loss.item() / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
+
+                    # TODO
+                    avg_lm_loss *= self.gradient_accumulation_steps
                     self.report_iteration_metrics(
                         optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,
