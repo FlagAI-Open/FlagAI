@@ -5,6 +5,7 @@ import logging
 import sys
 import os
 import torch.distributed as dist
+from flagai.logger import log_dist
 
 is_bmt = 0
 try:
