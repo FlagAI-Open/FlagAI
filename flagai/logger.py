@@ -6,6 +6,13 @@ import sys
 import os
 import torch.distributed as dist
 
+is_bmt = 0
+try:
+    import bmtrain as bmt
+    is_bmt = 1
+except:
+    log_dist("Unsupported bmtrain")
+
 log_levels = {
     "debug": logging.DEBUG,
     "info": logging.INFO,
@@ -67,8 +74,13 @@ def log_dist(message, ranks=None, level=logging.INFO):
         should_log = ranks[0] == -1
         should_log = should_log or (my_rank in set(ranks))
     if should_log:
-        final_message = "[Rank {}] {}".format(my_rank, message)
-        logger.log(level, final_message)
+        if is_bmt:
+            if bmt.rank() == 0:
+                final_message = "[Rank {}] {}".format(bmt.rank(), message)
+                logger.log(level, final_message)
+        else:
+            final_message = "[Rank {}] {}".format(my_rank, message)
+            logger.log(level, final_message)
 
 
 def print_json_dist(message, ranks=None, path=None):
