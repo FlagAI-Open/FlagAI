@@ -5,14 +5,13 @@ import logging
 import sys
 import os
 import torch.distributed as dist
-from flagai.logger import log_dist
 
 is_bmt = 0
 try:
     import bmtrain as bmt
     is_bmt = 1
 except:
-    log_dist("Unsupported bmtrain")
+    is_bmt = 0
 
 log_levels = {
     "debug": logging.DEBUG,
