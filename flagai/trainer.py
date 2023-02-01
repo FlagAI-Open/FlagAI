@@ -891,7 +891,7 @@ class Trainer():
         if 'deepspeed' in self.env_type:
             model.backward(loss)
         else:
-            # optimizer.zero_grad()
+            optimizer.zero_grad()
             if hasattr(optimizer, 'backward'):
                 optimizer.backward(loss, update_master_grads=False)
             else:
@@ -1022,8 +1022,9 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
+                        # import pdb;pdb.set_trace()
                         if logits.size(0) != 1:
-                            logits = torch.argmax(logits, dim=-1).unsqueeze(0)
+                            logits = torch.argmax(logits, dim=0).unsqueeze(0)
                         all_logits.append(logits)
                         all_labels.append(labels)
                         pass

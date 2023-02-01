@@ -22,7 +22,6 @@ def accuracy_metric(predictions, labels, meta=None):
     predictions: torch.size(n, class_num)
     labels: torch.size(n)
     '''
-    import pdb; pdb.set_trace()
     count = 0
     assert len(predictions) == len(labels)
     if predictions.size() != labels.size():      
@@ -52,7 +51,7 @@ def bleu_metric(predictions, labels, meta=None, tokenizer=None):
         prediction = prediction.tolist()
         prediction = tokenizer.DecodeIds(prediction)
         pred_list.append(prediction)
-
+    import pdb;pdb.set_trace()
     bleu_results = sacrebleu.corpus_bleu(pred_list, [ref_list])
     bleu_score = bleu_results.score
     return bleu_score

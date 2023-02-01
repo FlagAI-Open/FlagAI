@@ -15,7 +15,7 @@ from flagai.metrics import accuracy_metric, exact_match_score,bleu_metric, rouge
 
 # Compared with original seq2seq, seq2seq dataset is used
 # task_name :['cmrc',xxxx]
-task_name = "cmrc"
+task_name = "lang8_hsk"
 
 cl_args = Seq2SeqCollateArguments()
 
@@ -41,8 +41,7 @@ collate_fn = ConstructSeq2seqStrategy(cl_args,
                                       task_name=task_name)
 
 model = GLMForSeq2Seq.from_pretrain(model_name=model_name)
-# model.load_state_dict(torch.load("./checkpoints/2000/pytorch_model.bin")["module"])
-
+model.load_state_dict(torch.load("./checkpoints/5000/pytorch_model.bin")["module"])
 
 trainer = Trainer(env_type='pytorch',
                   epochs=0,

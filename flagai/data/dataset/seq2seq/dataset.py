@@ -146,6 +146,7 @@ class SummmaryProcessor:
                     (source_text.encode('utf-8'), target_text.encode('utf-8'),
                      meta["ref"].encode('utf-8')))
             example_list.append(example)
+        
         return example_list
 
 
@@ -393,7 +394,6 @@ class Seq2SeqDataset(torch.utils.data.Dataset):
         self.dataset_type = dataset_type
         self.tokenizer = tokenizer
         self.dataset_name = dataset_type
-
         if not os.path.exists(data_dir + '/' + task_name):
             SuperGlueProcessor()._download_data(data_dir, task_name)
 

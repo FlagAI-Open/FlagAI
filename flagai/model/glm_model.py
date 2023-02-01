@@ -972,11 +972,7 @@ class GLMForSeq2Seq(BaseModel):
         vocab_size = outputs.size()[-1]
         target_ids = target_ids.view(-1)
         loss_mask = loss_mask.view(-1).float()
-        # print(torch.cuda.memory_allocated(), 0)
         Loss = nn.CrossEntropyLoss(ignore_index=0, reduction="none")
         logits = outputs.view(-1, vocab_size)
-        # print(torch.cuda.memory_allocated(), 1)
         loss = (Loss(logits, target_ids) * loss_mask).sum() / loss_mask.sum()
-        # print(torch.cuda.memory_allocated(), 2)
-        # torch.cuda.empty_cache()
         return {"loss": loss, "hidden_states": mems, "logits": logits}
