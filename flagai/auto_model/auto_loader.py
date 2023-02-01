@@ -169,6 +169,7 @@ class AutoLoader:
                                          class_num=2)
 
         """
+        print(kwargs)
         raw_model_name = copy.deepcopy(model_name)
 
         model_name = model_name.lower()
