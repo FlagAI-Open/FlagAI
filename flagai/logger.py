@@ -64,11 +64,12 @@ def log_dist(message, ranks=None, level=logging.INFO):
     # TODO
     # export ENV_TYPE=bmtrain
     my_rank = -1
+    should_log = False
     import os
     if os.getenv('ENV_TYPE') == 'bmtrain':
-        should_log = True
         try:
             import bmtrain as bmt
+            should_log = not bmt.init.is_initialized()
             my_rank = bmt.rank() if bmt.init.is_initialized() else -1
         except:
             pass
