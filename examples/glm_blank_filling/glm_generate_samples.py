@@ -17,7 +17,7 @@ if __name__ == "__main__":
                                    download_path="./checkpoints")
     tokenizer = Tokenizer.from_pretrained(model_name)
   
-    model.load_state_dict(torch.load("../glm_pretrain/checkpoints/1000/pytorch_model.bin")["module"])
+    # model.load_state_dict(torch.load("../glm_pretrain/checkpoints/1000/pytorch_model.bin")["module"])
     model.cuda(torch.cuda.current_device())
 
     predictor = Predictor(model, tokenizer)

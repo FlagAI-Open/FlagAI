@@ -107,7 +107,7 @@ class OPTModel(GPT2Model):
     def __init__(self, config, **kwargs):
         config = trans_opt_to_gpt_config(config)
         super(OPTModel, self).__init__(config, **kwargs)
-        self.transformer = OPTStack(self.config)
+        self.transformer = OPTStack(self.config_gpt)
 
     def load_weights(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path,

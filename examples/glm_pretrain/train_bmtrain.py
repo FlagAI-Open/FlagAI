@@ -15,10 +15,10 @@ if __name__ == '__main__':
 
     trainer = Trainer(env_type='bmtrain',
                       epochs=1,
-                      batch_size=1,
+                      batch_size=32,
                       eval_interval=100,
                       log_interval=10,
-                      experiment_name='glm_large',
+                      experiment_name='glm_large_bmtrain',
                       pytorch_device='cuda',
                       load_dir=None,
                       lr=1e-4,
