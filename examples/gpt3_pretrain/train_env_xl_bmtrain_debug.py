@@ -180,6 +180,7 @@ class GPT2Seq2seqDataset(Dataset):
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len', data_len)
+mem = psutil.virtual_memory()
 print('*'*20, 'after read_file', mem.used / 1024.0 ** 3)
 
 train_src = sents_src
@@ -188,6 +189,7 @@ train_tgt = train_src
 sents_src, sents_tgt = read_file_dev()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len dev', data_len)
+mem = psutil.virtual_memory()
 print('*'*20, 'after read_file_dev', mem.used / 1024.0 ** 3)
 
 val_src = sents_src
