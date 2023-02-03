@@ -2,19 +2,12 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
-import psutil
 import torch
 from torch.utils.data import Dataset
-mem = psutil.virtual_memory()
-print('*'*20, 'before flagai', mem.used / 1024.0 ** 3)
-
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
-#from flagai.env_trainer import EnvTrainer
-from flagai.env_trainer_v1 import EnvTrainer
+from flagai.env_trainer import EnvTrainer
 from flagai.env_args import EnvArgs
-mem = psutil.virtual_memory()
-print('*'*20, 'after flagai', mem.used / 1024.0 ** 3)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -23,19 +16,19 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env_args = EnvArgs(
     env_type="bmtrain",
     experiment_name="gpt_13b",
-    batch_size=1,
+    batch_size=4,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=1,
+    epochs=2,
     log_interval=1,
     eval_interval=10000,
-    num_gpus=2,
+    num_gpus=1,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints_gpt_13b",
     checkpoint_activations=False,
-    save_interval=1000,
+    save_interval=100000,
     fp16=True,
     training_script=__file__,
 )
@@ -67,7 +60,7 @@ trainer = Trainer(
 '''
 
 ## 
-enable_debug = True
+enable_debug = False
 ## 
 if enable_debug:
     trainer.set_seed(2023)
@@ -76,47 +69,51 @@ if enable_debug:
 model_dir = "./"
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 2048
-maxlen = 1024
 
 from flagai.data.tokenizer import Tokenizer
 model_name = "gpt3-13b-en"
 cache_dir = model_dir + model_name
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
 print('*'*20, "tokenizer", tokenizer)
-mem = psutil.virtual_memory()
-print('*'*20, 'after Tokenizer', mem.used / 1024.0 ** 3)
 
 config_file = model_dir + model_name + "/config.json"
 print('*'*20, "config_file", config_file)
 from flagai.model.gpt2_model import GPT2Model
 model = GPT2Model.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
+import psutil
 mem = psutil.virtual_memory()
 print('*'*20, 'before pre_train', mem.used / 1024.0 ** 3)
-trainer.pre_train(model)
+trainer.pre_train(model, optimizer=None)
 mem = psutil.virtual_memory()
 print('*'*20, 'after pre_train', mem.used / 1024.0 ** 3)
+
+
+# TODO
+data_path = '/wangldai47/Downloads/Data'
+data_path = '/share/project/ldwang/data/pile'
 
 def read_file():
     src = []
     tgt = []
 
     if enable_debug:
-        part_file = '/share/project/ldwang/data/pile/train/00.txt'
         part_file = './debug.txt'
-    path = '/share/project/ldwang/data/pile/train/'
+        part_file = '/share/project/ldwang/data/pile/train/00.txt'
+    #path = '/share/project/ldwang/data/pile/train/'
+    path = '%s/train/' % data_path
     lines_count = 0
-    if True: # enable_debug
-    # for part_file in os.listdir(path):
-        # filename = path+part_file
-        filename = part_file # enable_debug
+    # if True: # enable_debug
+    for part_file in os.listdir(path):
+        filename = path+part_file
+        # filename = part_file # enable_debug
         print('*'*20, "filename", filename)
         with open(filename, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             for line in lines:
                 lines_count += 1
                 src.append(line.strip('\n').lower())
-                if lines_count%100==1:
+                if lines_count%10000==1:
                     print('*'*20, 'lines_count', lines_count)
     return src, src
 
@@ -129,6 +126,7 @@ def read_file_dev():
         part_file = './dev.txt'
     else:
         part_file = '/share/project/ldwang/data/pile/val.txt'
+        part_file = '%s/val.txt' % data_path
     if True:
         filename = part_file
         # print('*'*20, "filename", filename)
@@ -202,11 +200,12 @@ val_dataset = GPT2Seq2seqDataset(val_src,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
 
-trainer.do_train(
-    train_dataset=train_dataset,
-    valid_dataset=val_dataset,
-    collate_fn=GPT2Seq2seqDataset.collate_fn,
-    optimizer=None)
+trainer.do_train(model,
+              train_dataset=train_dataset,
+              valid_dataset=val_dataset,
+              collate_fn=GPT2Seq2seqDataset.collate_fn,
+              optimizer=None
+              )
 
 '''
 trainer.train(model,
@@ -216,3 +215,4 @@ trainer.train(model,
               optimizer=None
               )
 '''
+

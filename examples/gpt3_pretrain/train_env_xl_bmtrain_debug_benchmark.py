@@ -10,8 +10,7 @@ print('*'*20, 'before flagai', mem.used / 1024.0 ** 3)
 
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
-#from flagai.env_trainer import EnvTrainer
-from flagai.env_trainer_v1 import EnvTrainer
+from flagai.env_trainer import EnvTrainer
 from flagai.env_args import EnvArgs
 mem = psutil.virtual_memory()
 print('*'*20, 'after flagai', mem.used / 1024.0 ** 3)
@@ -91,9 +90,6 @@ print('*'*20, "config_file", config_file)
 from flagai.model.gpt2_model import GPT2Model
 model = GPT2Model.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
-mem = psutil.virtual_memory()
-print('*'*20, 'before pre_train', mem.used / 1024.0 ** 3)
-trainer.pre_train(model)
 mem = psutil.virtual_memory()
 print('*'*20, 'after pre_train', mem.used / 1024.0 ** 3)
 
@@ -202,17 +198,8 @@ val_dataset = GPT2Seq2seqDataset(val_src,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
 
-trainer.do_train(
-    train_dataset=train_dataset,
-    valid_dataset=val_dataset,
-    collate_fn=GPT2Seq2seqDataset.collate_fn,
-    optimizer=None)
-
-'''
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
               collate_fn=GPT2Seq2seqDataset.collate_fn,
-              optimizer=None
-              )
-'''
+              optimizer=None)

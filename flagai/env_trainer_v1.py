@@ -247,47 +247,56 @@ class EnvTrainer():
                                                prefetch_factor=4,
                                                collate_fn=collate_fn)
 
-    def train(self,
-              model=None,
-              optimizer=None,
-              lr_scheduler=None,
-              train_dataset=None,
-              valid_dataset=None,
-              metric_methods=[],
-              collate_fn=None,
-              find_unused_parameters=True):
-        """Training Loops"""
-        """
-       Trainer is a simple but unifed training and eval loop for PyTorch/Deepspeed/Megatron-LM.
-       Args:
-           model (`torch.nn.Module`, *optional*):
-               The model to train, evaluate or use for predictions.
-           args ([`env_type`]):
-               The enviroment type for training. Will default to 'pytorch'.
-               env_type: `pytorch`, `pytorchDDP`, `deepspeed`, `deepspeed+mpu`
-                           pytorch: single node cpu/gpu
-                           pytorchDDP: single-/multi- node gpu <data parallel>
-                           deepspeed: single-/multi- node gpu <data/pipline parallel>
-                           deepspeed+mpu: single-/multi- node gpu <data parallel + model parallel>
-           train_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
-               The dataset to use for training.
-               If it is an `Dataset`, we will create a `DataLoader` with the provided `Dataset` and `collate_fn' for the selected `env_type`.
-               `Dataset` is prefred to iterally return a sample as followings,
-               >>> {'text': 'I like big model.', 'label': 'positive'}
-               If it is an `DataLoader`, we will directly use it.
-               Important: Columns not accepted by the `model.forward()` method are automatically droped.
-           eval_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
-                The dataset to use for evaluation. Similar to `train_dataset`.
-           collate_fn (`DataCollator` or `function`, *optional*):
-               The function to use to form a batch from a list of elements of `train_dataset` or `eval_dataset`.
-           metrics (`function`, *optional*):
-               The function that will be used to compute metrics at evaluation. Must return
-               a dictionary string to metric values.
-           optimizers (`torch.optim.Optimizer`, *optional*): A optimizer to use. Will default to an instance of
-                [`AdamW`] on your model.
-           lr_scheduler (`torch.optim.lr_scheduler`,  *optional*): A lr_scheduler to use. Will default to an instance of
-                [`AnnealingLR`].
-           """
+    def pre_train(self, model=None, find_unused_parameters=True):
+        # TODO
+        self.model = model
+
+        if self.load_dir:
+            log_dist("loading checkpoints form {}".format(self.load_dir))
+            sd = load_checkpoint(self.model,
+                                 load_dir=self.load_dir,
+                                 load_type=self.load_type)
+
+        # Turn on training mode which enables dropout.
+        self.model.train()
+
+        if self.fp16 and self.env_type == 'pytorchDDP':
+            log_dist(
+                "Warning: The pytorchDDP plus FP16 may not working togather!!!"
+            )
+        if self.fp16:
+            self.model.half()
+        if self.checkpoint_activations:
+            self.model.config[
+                'checkpoint_activations'] = self.checkpoint_activations
+
+        if self.env_type == 'pytorchDDP':
+            self.model.to(torch.device('cuda', self.local_rank))
+            self.model = DDP(self.model,
+                             device_ids=[self.local_rank],
+                             find_unused_parameters=find_unused_parameters)
+
+        elif self.env_type == 'pytorch':
+            self.model.to(self.pytorch_device)
+        elif self.env_type == 'bmtrain':
+            print('*'*20, 'self.model', model, __file__)
+            self.model = bmt.BMTrainModelWrapper(self.model)
+            print('*'*20, 'BMTrainModelWrapper model', self.model, __file__)
+        else:
+            self.model.cuda(torch.device('cuda', self.local_rank))
+        
+        # TODO
+        if self.fp16 and self.env_type != 'bmtrain':
+            self.model = FP16_Module(self.model)
+
+    def do_train(self,
+                 optimizer=None,
+                 lr_scheduler=None,
+                 train_dataset=None,
+                 valid_dataset=None,
+                 metric_methods=[],
+                 collate_fn=None,
+                 find_unused_parameters=True):
         if not isinstance(train_dataset, torch.utils.data.DataLoader):
             train_dataloader = self.get_dataloader(train_dataset, collate_fn,
                                                    True)
@@ -295,67 +304,30 @@ class EnvTrainer():
             train_dataloader = train_dataset
 
         if not isinstance(valid_dataset, torch.utils.data.DataLoader):
-
             valid_dataloader = self.get_dataloader(valid_dataset, collate_fn,
                                                    False)
         else:
             valid_dataloader = valid_dataset
 
-        if self.load_dir:
-            log_dist("loading checkpoints form {}".format(self.load_dir))
-            sd = load_checkpoint(model,
-                                 load_dir=self.load_dir,
-                                 load_type=self.load_type)
-        """Train the model."""
-        # Turn on training mode which enables dropout.
-        model.train()
-        if self.fp16 and self.env_type == 'pytorchDDP':
-            log_dist(
-                "Warning: The pytorchDDP plus FP16 may not working togather!!!"
-            )
-        if self.fp16:
-            model.half()
-        if self.checkpoint_activations:
-            model.config[
-                'checkpoint_activations'] = self.checkpoint_activations
-
-        if self.env_type == 'pytorchDDP':
-            model.to(torch.device('cuda', self.local_rank))
-            model = DDP(model,
-                        device_ids=[self.local_rank],
-                        find_unused_parameters=find_unused_parameters)
-
-        elif self.env_type == 'pytorch':
-            model.to(self.pytorch_device)
-        elif self.env_type == 'bmtrain':
-            print('*'*20, 'model', model, __file__)
-            model = bmt.BMTrainModelWrapper(model)
-            print('*'*20, 'BMTrainModelWrapper model', model, __file__)
-        else:
-            model.cuda(torch.device('cuda', self.local_rank))
-        
-        # TODO
-        if self.fp16 and self.env_type != 'bmtrain':
-            model = FP16_Module(model)
-
-        param_groups = get_optimizer_param_groups(model)
+        param_groups = get_optimizer_param_groups(self.model)
 
         if hasattr(param_groups[0], 'params'):
             # for T5 Model
             param_groups = param_groups[0]['params']
 
-        if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
+        self.optimizer = optimizer
+        if self.optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                     weight_decay=self.weight_decay,
                                                     lr=self.lr)
                 '''
-                optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
                                                            weight_decay=self.weight_decay,
                                                            lr=self.lr)
                 '''
             else:
-                optimizer = get_optimizer(
+                self.optimizer = get_optimizer(
                     param_groups=param_groups,
                     lr=self.lr,
                     weight_decay=self.weight_decay,
@@ -364,43 +336,45 @@ class EnvTrainer():
                     fp16=self.fp16,
                     optimizer='adam')  # if not self.fp16 else 'adafactor')
 
+        if  self.env_type == 'bmtrain':
+            bmt.synchronize()
+
+        if 'deepspeed' in self.env_type:
+            # initialize the deepspeed
+            model, self.optimizer, _, lr_scheduler = deepspeed.initialize(
+                model=self.model,
+                # if huggingface t5: param_groups[0]['params']
+                model_parameters=param_groups,
+                optimizer=self.optimizer,
+                lr_scheduler=lr_scheduler,
+                mpu=mpu if self.env_type == 'deepspeed+mpu' else None,
+                config=self.deepspeed_config,
+                dist_init_required=True)
+            self.model = model
+
+        if self.load_optim:
+            load_optim(self.optimizer, lr_scheduler, sd)
+        if self.load_rng:
+            load_rng(sd)
+
         self.total_iter = int(self.epochs * len(train_dataloader))
-        if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
+        if lr_scheduler == None and self.optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
                 ## lr_scheduler.step with optim_manager.step
                 lr_scheduler = bmt.lr_scheduler.Noam(
-                    optimizer,
+                    self.optimizer,
                     start_lr=self.lr, 
                     warmup_iter=int(self.warm_up * self.total_iter / self.gradient_accumulation_steps),
                     end_iter=int(self.total_iter / self.gradient_accumulation_steps))
             else:
                 lr_scheduler = AnnealingLR(
-                    optimizer,
+                    self.optimizer,
                     start_lr=self.lr,
-                    warmup_iter=int(self.warm_up * self.total_iter),
+                    warmup_iter=int(self.warm_up * self.epochs *
+                                    len(train_dataloader)),
                     decay_style='linear',
-                    num_iters=self.total_iter)
+                    num_iters=self.epochs * len(train_dataloader))
 
-        if  self.env_type == 'bmtrain':
-            bmt.synchronize()
-
-        model.train()
-
-        if 'deepspeed' in self.env_type:
-            # initialize the deepspeed
-            model, optimizer, _, lr_scheduler = deepspeed.initialize(
-                model=model,
-                # if huggingface t5: param_groups[0]['params']
-                model_parameters=param_groups,
-                optimizer=optimizer,
-                lr_scheduler=lr_scheduler,
-                mpu=mpu if self.env_type == 'deepspeed+mpu' else None,
-                config=self.deepspeed_config,
-                dist_init_required=True)
-        if self.load_optim:
-            load_optim(optimizer, lr_scheduler, sd)
-        if self.load_rng:
-            load_rng(sd)
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
@@ -427,9 +401,7 @@ class EnvTrainer():
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
-                # print('*'*20, 'batch keys', batch.keys())
                 print('*'*20, 'batch input_ids', batch['input_ids'].size())
-                # print('*'*20, 'batch labels', batch['labels'].size())
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
@@ -443,23 +415,24 @@ class EnvTrainer():
                     }
                 if self.env_type == 'pytorchDDP':
                     lm_loss, _ = self.train_step_pytorchDDP(
-                        batch, model, optimizer, lr_scheduler)
+                        batch, self.model, self.optimizer, lr_scheduler)
                     dist.barrier()
 
                 elif self.env_type == 'pytorch':
                     lm_loss, _ = self.train_step_pytorch(
-                        batch, model, optimizer, lr_scheduler)
+                        batch, self.model, self.optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
+                    ## TODO
                     optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-                    optim_manager.add_optimizer(optimizer, lr_scheduler)
+                    optim_manager.add_optimizer(self.optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
-                        batch, model, optim_manager)
+                        batch, self.model, optim_manager)
 
                 else:
                     lm_loss, _ = self.train_step_deepspeed(batch,
-                                                           model,
-                                                           optimizer,
+                                                           self.model,
+                                                           self.optimizer,
                                                            lr_scheduler,
                                                            single_step=True)
                     dist.barrier()
@@ -471,10 +444,10 @@ class EnvTrainer():
 
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
-                    if optimizer is not None:
-                        learning_rate = optimizer.param_groups[0]['lr']
+                    if self.optimizer is not None:
+                        learning_rate = self.optimizer.param_groups[0]['lr']
                     else:
-                        learning_rate = model.optimizer.param_groups[0]['lr']
+                        learning_rate = self.model.optimizer.param_groups[0]['lr']
                     if self.env_type == 'bmtrain':
                         avg_lm_loss = total_lm_loss / self.log_interval
                     else:
@@ -484,10 +457,10 @@ class EnvTrainer():
                     # TODO
                     avg_lm_loss *= self.gradient_accumulation_steps
                     self.report_iteration_metrics(
-                        optimizer, learning_rate, avg_lm_loss,
+                        self.optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,
                         self.iteration + 1,
-                        self.total_iter,
+                        self.epochs * len(train_dataloader),
                         optimizer_manager=optim_manager if self.env_type == 'bmtrain' else None)
                     self.tb_writer.add_scalar('train/loss', avg_lm_loss,
                                               self.iteration + 1)
@@ -504,7 +477,7 @@ class EnvTrainer():
                     eval_dict = self.evaluate_and_print_results(
                         prefix=prefix,
                         data_loader=valid_dataloader,
-                        model=model,
+                        model=self.model,
                         forward_step_func=self.forward_step,
                         verbose=False)
                     if eval_dict is not None:
@@ -524,9 +497,8 @@ class EnvTrainer():
                             best_iteration = self.iteration
                             save_checkpoint(self.iteration+1,
                                             best_iteration+1,
-
-                                            model,
-                                            optimizer,
+                                            self.model,
+                                            self.optimizer,
                                             lr_scheduler,
                                             save_optim=self.save_optim,
                                             save_dir=self.save_dir,
@@ -535,8 +507,8 @@ class EnvTrainer():
                         self.iteration != best_iteration:
                     save_checkpoint(self.iteration+1,
                                     best_iteration+1,
-                                    model,
-                                    optimizer,
+                                    self.model,
+                                    self.optimizer,
                                     lr_scheduler,
                                     save_optim=self.save_optim,
                                     save_dir=self.save_dir,
@@ -553,7 +525,7 @@ class EnvTrainer():
             self.evaluate_and_print_results(
                 prefix=prefix,
                 data_loader=valid_dataloader,
-                model=model,
+                model=self.model,
                 forward_step_func=self.forward_step,
                 verbose=False)
 

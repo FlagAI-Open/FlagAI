@@ -44,77 +44,179 @@ The Trainer class, to easily train a pytorh model on a new task.
 def save_best(best_score, eval_dict):
     return best_score if best_score < eval_dict['loss'] else eval_dict['loss']
 
-def get_args_list(env_args):
-    not_need_to_launch_args = ["not_call_launch", "local_rank", "master_port", "master_ip", "hostfile", "num_gpus", "num_nodes"]
-    args_list = []
-    args = dir(env_args)
-    for arg in args:
-        if not arg.startswith("__") and not arg.startswith("_") and arg not in not_need_to_launch_args:
-            args_list.append(f"--{arg}")
-            args_list.append(str(getattr(env_args, arg)))
+class Trainer():
+    """
+    Trainer is a simple but unifed training and eval loop for PyTorch/Deepspeed/Megatron-LM.
+    Args:
+        model (`torch.nn.Module`, *optional*):
+            The model to train, evaluate or use for predictions.
+        args ([`env_type`]):
+            The enviroment type for training. Will default to 'pytorch'.
+            env_type: `pytorch`, `pytorchDDP`, `deepspeed`, `deepspeed+mpu`
+                        pytorch: single node cpu/gpu
+                        pytorchDDP: single-/multi- node gpu <data parallel>
+                        deepspeed: single-/multi- node gpu <data/pipline parallel>
+                        deepspeed+mpu: single-/multi- node gpu <data parallel + model parallel>
+        train_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
+            The dataset to use for training.
+            If it is an `Dataset`, we will create a `DataLoader` with the provided `Dataset` and `collate_fn' for the selected `env_type`.
+            `Dataset` is prefred to iterally return a sample as followings,
+            >>> {'text': 'I like big model.', 'label': 'positive'}
+            If it is an `DataLoader`, we will directly use it.
+            Important: Columns not accepted by the `model.forward()` method are automatically droped.
+        eval_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
+             The dataset to use for evaluation. Similar to `train_dataset`.
+        collate_fn (`DataCollator` or `function`, *optional*):
+            The function to use to form a batch from a list of elements of `train_dataset` or `eval_dataset`.
+        metrics (`function`, *optional*):
+            The function that will be used to compute metrics at evaluation. Must return
+            a dictionary string to metric values.
+        optimizers (`torch.optim.Optimizer`, *optional*): A optimizer to use. Will default to an instance of
+             [`AdamW`] on your model.
+        lr_scheduler (`torch.optim.lr_scheduler`,  *optional*): A lr_scheduler to use. Will default to an instance of
+             [`AnnealingLR`].
+    Examples:
+        Usage for Trainer:
+            If we write the training pipline using Trainer in `train.py`.
+            We only have to run it. And the rest works is done by the Trainer.
+            >>> python train.py
+            Done! The model is runing under the setted enviroment.
+        Example settings for `pytorch`:
+            >>> trainer = Trainer(env_type='pytorch', pytorch_device='cpu') # pytorch_device could be 'cuda' or 'cpu'
+        Example settings for `pyrochDDP`:
+            >>> trainer = Trainer(env_type='pytorchDDP',
+            >>>                        master_ip='127.0.0.1',
+            >>>                        master_port=17750,
+            >>>                        num_nodes=1,   # nodes
+            >>>                        num_gpus=2,    # gpus for each nodes
+            >>>                        hostfile='./hostfile',
+            >>>                        training_script=__file__)
+            >>> cat ./hostfile
+            >>> 127.0.0.1 slots=2
+        Example settings for `deepspeed`:
+            >>> trainer = Trainer(env_type='pytorchDDP',
+            >>>                        master_ip='127.0.0.1',
+            >>>                        master_port=17750,
+            >>>                        num_nodes=1,   # nodes
+            >>>                        num_gpus=2,    # gpus for each nodes
+            >>>                        hostfile='./hostfile',
+            >>>                        deepspeed_config='./deepspeed.json',
+            >>>                        training_script=__file__)
+            The detail settings for deepspeed.json refer to https://www.deepspeed.ai/docs/config-json/
+        Example settins for `deepspeed+mpu`:
+            The model must be build by megatron-lm!!!
+            >>> trainer = Trainer(env_type='pytorchDDP',
+            >>>                        master_ip='127.0.0.1',
+            >>>                        master_port=17750,
+            >>>                        num_nodes=1,   # nodes
+            >>>                        num_gpus=2,    # gpus for each nodes
+            >>>                        hostfile='./hostfile',
+            >>>                        deepspeed_config='./deepspeed.json',
+            >>>                        model_parallel_size=2, # mp_size ==1
+            >>>                        training_script=__file__)
 
-    print(f"args list is {args_list}")
-    return args_list
+    """
 
-class EnvTrainer():
-    def __init__(self,
-                 env_args,
-    ):
-        self.timers = Timers()
-        self.env_type = env_args.env_type
-        if self.env_type not in set(
-            ["deepspeed", 'pytorch', 'pytorchDDP', 'deepspeed+mpu', 'bmtrain']):
-            raise Exception("Not supported env_type!!!!")
-        os.environ["ENV_TYPE"] = env_args.env_type
-        self.experiment_name = env_args.experiment_name
-        self.batch_size = env_args.batch_size
-        self.gradient_accumulation_steps = env_args.gradient_accumulation_steps
-        self.lr = env_args.lr
-        self.weight_decay = env_args.weight_decay
-        self.epochs = env_args.epochs
-        self.clip_grad = env_args.clip_grad
-        self.seed = env_args.seed
-        self.fp16 = env_args.fp16
-        self.warm_up = env_args.warm_up
-
-        self.log_interval = env_args.log_interval
-        self.eval_interval = env_args.eval_interval
+    def __init__(
+        self,
+        timers=None,
+        env_type='pytorch',
+        pytorch_device='cpu',  # "cuda:0" etc.
+        experiment_name="glm_large",  # "The experiment name for summary and checkpoint"
+        batch_size=1,  # 'Data Loader batch size'
+        gradient_accumulation_steps=1,  # 'Data Loader batch size'
+        weight_decay=0.1,  # 'weight decay coefficient for L2 regularization'
+        lr=1e-3,
+        warm_up=0.1,
+        epochs=0,  # 'Number of finetunning epochs. Zero results in evaluation only.'
+        save_interval=1000,  # 'number of epochs between saves')
+        eval_interval=100,
+        log_interval=100,
+        seed=1234,  # 'random seed'
+        fp16=False,
+        clip_grad=1.0,
+        checkpoint_activations=False,
 
         # model checkpointing
-        self.save_dir = env_args.save_dir
-        self.save_interval = env_args.save_interval
-        self.save_optim = env_args.save_optim
-        self.save_rng = env_args.save_rng
-        self.save_best = save_best
-        self.load_dir = env_args.load_dir
-        self.load_type = env_args.load_type
-        self.load_optim = env_args.load_optim
-        self.load_rng = env_args.load_rng
-        self.tb_writer = SummaryWriter(
-            os.path.join(env_args.tensorboard_dir, env_args.experiment_name))
+        save_dir='checkpoints',  # 'Output directory to save checkpoints to.')
+        save_best=save_best,
+        save_optim=False,  # save current optimizer.')
+        save_rng=False,  # save current rng state.')
+        load_dir=None,  # Path to a directory containing a model checkpoint.')
+        load_type='latest',  # latest, best
+        load_optim=False,  # not load optimizer when loading checkpoint.')
+
+        # ' not load rng state when loading checkpoint.')):
+        load_rng=False,
+        tensorboard_dir="tensorboard_summary",
 
         # distribute settings
-        self.pytorch_device = env_args.pytorch_device
-        self.checkpoint_activations = env_args.checkpoint_activations
-        self.deepspeed_activation_checkpointing = env_args.deepspeed_activation_checkpointing
-        self.num_checkpoints = env_args.num_checkpoints
-        self.env_type = env_args.env_type
-        self.not_call_launch = env_args.not_call_launch
-        self.deepspeed_config = env_args.deepspeed_config
-        self.model_parallel_size = env_args.model_parallel_size
-        self.num_nodes = env_args.num_nodes
-        self.num_gpus = env_args.num_gpus
-        self.master_ip = env_args.master_ip
-        self.master_port = env_args.master_port
-        self.hostfile = env_args.hostfile
-        self.training_script = env_args.training_script
+        deepspeed_activation_checkpointing=False,
+        num_checkpoints=1,
+        master_ip='localhost',
+        master_port=17750,
+        num_nodes=1,
+        num_gpus=1,
+        hostfile=None,
+        deepspeed_config=None,
+        model_parallel_size=1,
+        training_script="train.py",
+    ):
+
+        if timers is not None:
+            self.timers = timers
+        else:
+            self.timers = Timers()
+        self.env_type = env_type
+        if env_type not in set(
+            ["deepspeed", 'pytorch', 'pytorchDDP', 'deepspeed+mpu', 'bmtrain']):
+            raise Exception("Not supported env_type!!!!")
+        os.environ["ENV_TYPE"] = env_type
+        self.experiment_name = experiment_name
+        self.batch_size = batch_size
+        self.gradient_accumulation_steps = gradient_accumulation_steps
+        self.lr = lr
+        self.weight_decay = weight_decay
+        self.epochs = epochs
+        self.clip_grad = clip_grad
+        self.seed = seed
+        self.fp16 = fp16
+        self.warm_up = warm_up
+
+        self.log_interval = log_interval
+        self.eval_interval = eval_interval
+
+        # model checkpointing
+        self.save_dir = save_dir
+        self.save_interval = save_interval
+        self.save_optim = save_optim
+        self.save_rng = save_rng
+        self.save_best = save_best
+        self.load_dir = load_dir
+        self.load_type = load_type
+        self.load_optim = load_optim
+        self.load_rng = load_rng
+        self.tb_writer = SummaryWriter(
+            os.path.join(tensorboard_dir, experiment_name))
+
+        # distribute settings
+        self.pytorch_device = pytorch_device
+        self.checkpoint_activations = checkpoint_activations
+        self.deepspeed_activation_checkpointing = deepspeed_activation_checkpointing
+        self.num_checkpoints = num_checkpoints
+        self.env_type = env_type
+        self.not_call_launch = True
+        self.deepspeed_config = deepspeed_config
+        self.model_parallel_size = model_parallel_size
+        self.num_nodes = num_nodes
+        self.num_gpus = num_gpus
+        self.master_ip = master_ip
+        self.master_port = master_port
+        self.hostfile = hostfile
+        self.training_script = training_script
 
         if self.env_type != 'pytorch':
-            training_paras = get_args_list(env_args)
-            self.rank = int(os.environ.get('RANK', 0))
-            self.world_size = int(os.environ.get('WORLD_SIZE', 1))
-            self.local_rank = env_args.local_rank
-            log_dist("not_call_launch: {}".format(self.not_call_launch))
+            training_paras = self.get_dist_args()
             # Implement for AutoLaunch
             # >>> python train.py # will call get_dist_args()
             # `--not_call_launch` is default 'False'
@@ -132,6 +234,28 @@ class EnvTrainer():
                             training_paras=training_paras)
                 os._exit(1)
             self.initialize_distributed()
+
+    def get_dist_args(self):
+        """
+        Get required parameters for initialize the distributed enviroment, e.g., rank, local_rank & world_size...
+        Important: --not_call_launch, default False, will not call launch_dist
+        Returns: None
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--local_rank',
+                            type=int,
+                            default=0,
+                            help="local_rank")
+        parser.add_argument('--not_call_launch',
+                            action='store_true',
+                            help="not call launch!")
+        ds_args = parser.parse_args()
+        self.local_rank = ds_args.local_rank
+        self.not_call_launch = ds_args.not_call_launch
+        self.rank = int(os.environ.get('RANK', 0))
+        self.world_size = int(os.environ.get('WORLD_SIZE', 1))
+        log_dist("not_call_launch: {}".format(ds_args.not_call_launch))
+        return []
 
     def set_seed(self, seed=1234):
         """Set random seed for reproducability."""
@@ -247,7 +371,7 @@ class EnvTrainer():
                                                prefetch_factor=4,
                                                collate_fn=collate_fn)
 
-    def train(self,
+    def pre_train(self,
               model=None,
               optimizer=None,
               lr_scheduler=None,
@@ -256,51 +380,6 @@ class EnvTrainer():
               metric_methods=[],
               collate_fn=None,
               find_unused_parameters=True):
-        """Training Loops"""
-        """
-       Trainer is a simple but unifed training and eval loop for PyTorch/Deepspeed/Megatron-LM.
-       Args:
-           model (`torch.nn.Module`, *optional*):
-               The model to train, evaluate or use for predictions.
-           args ([`env_type`]):
-               The enviroment type for training. Will default to 'pytorch'.
-               env_type: `pytorch`, `pytorchDDP`, `deepspeed`, `deepspeed+mpu`
-                           pytorch: single node cpu/gpu
-                           pytorchDDP: single-/multi- node gpu <data parallel>
-                           deepspeed: single-/multi- node gpu <data/pipline parallel>
-                           deepspeed+mpu: single-/multi- node gpu <data parallel + model parallel>
-           train_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
-               The dataset to use for training.
-               If it is an `Dataset`, we will create a `DataLoader` with the provided `Dataset` and `collate_fn' for the selected `env_type`.
-               `Dataset` is prefred to iterally return a sample as followings,
-               >>> {'text': 'I like big model.', 'label': 'positive'}
-               If it is an `DataLoader`, we will directly use it.
-               Important: Columns not accepted by the `model.forward()` method are automatically droped.
-           eval_dataset (`torch.utils.data.Dataset` or `torch.utils.data.DataLoader`, *optional*):
-                The dataset to use for evaluation. Similar to `train_dataset`.
-           collate_fn (`DataCollator` or `function`, *optional*):
-               The function to use to form a batch from a list of elements of `train_dataset` or `eval_dataset`.
-           metrics (`function`, *optional*):
-               The function that will be used to compute metrics at evaluation. Must return
-               a dictionary string to metric values.
-           optimizers (`torch.optim.Optimizer`, *optional*): A optimizer to use. Will default to an instance of
-                [`AdamW`] on your model.
-           lr_scheduler (`torch.optim.lr_scheduler`,  *optional*): A lr_scheduler to use. Will default to an instance of
-                [`AnnealingLR`].
-           """
-        if not isinstance(train_dataset, torch.utils.data.DataLoader):
-            train_dataloader = self.get_dataloader(train_dataset, collate_fn,
-                                                   True)
-        else:
-            train_dataloader = train_dataset
-
-        if not isinstance(valid_dataset, torch.utils.data.DataLoader):
-
-            valid_dataloader = self.get_dataloader(valid_dataset, collate_fn,
-                                                   False)
-        else:
-            valid_dataloader = valid_dataset
-
         if self.load_dir:
             log_dist("loading checkpoints form {}".format(self.load_dir))
             sd = load_checkpoint(model,
@@ -344,18 +423,19 @@ class EnvTrainer():
             # for T5 Model
             param_groups = param_groups[0]['params']
 
-        if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
+        self.optimizer = optimizer
+        if self.optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                '''
+                self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                     weight_decay=self.weight_decay,
                                                     lr=self.lr)
                 '''
-                optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
                                                            weight_decay=self.weight_decay,
                                                            lr=self.lr)
-                '''
             else:
-                optimizer = get_optimizer(
+                self.optimizer = get_optimizer(
                     param_groups=param_groups,
                     lr=self.lr,
                     weight_decay=self.weight_decay,
@@ -363,6 +443,49 @@ class EnvTrainer():
                     cpu_torch_adam=False,
                     fp16=self.fp16,
                     optimizer='adam')  # if not self.fp16 else 'adafactor')
+
+        if  self.env_type == 'bmtrain':
+            bmt.synchronize()
+
+        model.train()
+
+        if 'deepspeed' in self.env_type:
+            # initialize the deepspeed
+            model, self.optimizer, _, lr_scheduler = deepspeed.initialize(
+                model=model,
+                # if huggingface t5: param_groups[0]['params']
+                model_parameters=param_groups,
+                optimizer=self.optimizer,
+                lr_scheduler=lr_scheduler,
+                mpu=mpu if self.env_type == 'deepspeed+mpu' else None,
+                config=self.deepspeed_config,
+                dist_init_required=True)
+        if self.load_optim:
+            load_optim(self.optimizer, lr_scheduler, sd)
+        if self.load_rng:
+            load_rng(sd)
+
+    def do_train(self,
+              model=None,
+              optimizer=None,
+              lr_scheduler=None,
+              train_dataset=None,
+              valid_dataset=None,
+              metric_methods=[],
+              collate_fn=None,
+              find_unused_parameters=True):
+        if not isinstance(train_dataset, torch.utils.data.DataLoader):
+            train_dataloader = self.get_dataloader(train_dataset, collate_fn,
+                                                   True)
+        else:
+            train_dataloader = train_dataset
+
+        if not isinstance(valid_dataset, torch.utils.data.DataLoader):
+
+            valid_dataloader = self.get_dataloader(valid_dataset, collate_fn,
+                                                   False)
+        else:
+            valid_dataloader = valid_dataset
 
         self.total_iter = int(self.epochs * len(train_dataloader))
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
@@ -375,32 +498,13 @@ class EnvTrainer():
                     end_iter=int(self.total_iter / self.gradient_accumulation_steps))
             else:
                 lr_scheduler = AnnealingLR(
-                    optimizer,
+                    self.optimizer,
                     start_lr=self.lr,
-                    warmup_iter=int(self.warm_up * self.total_iter),
+                    warmup_iter=int(self.warm_up * self.epochs *
+                                    len(train_dataloader)),
                     decay_style='linear',
-                    num_iters=self.total_iter)
+                    num_iters=self.epochs * len(train_dataloader))
 
-        if  self.env_type == 'bmtrain':
-            bmt.synchronize()
-
-        model.train()
-
-        if 'deepspeed' in self.env_type:
-            # initialize the deepspeed
-            model, optimizer, _, lr_scheduler = deepspeed.initialize(
-                model=model,
-                # if huggingface t5: param_groups[0]['params']
-                model_parameters=param_groups,
-                optimizer=optimizer,
-                lr_scheduler=lr_scheduler,
-                mpu=mpu if self.env_type == 'deepspeed+mpu' else None,
-                config=self.deepspeed_config,
-                dist_init_required=True)
-        if self.load_optim:
-            load_optim(optimizer, lr_scheduler, sd)
-        if self.load_rng:
-            load_rng(sd)
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
@@ -443,23 +547,24 @@ class EnvTrainer():
                     }
                 if self.env_type == 'pytorchDDP':
                     lm_loss, _ = self.train_step_pytorchDDP(
-                        batch, model, optimizer, lr_scheduler)
+                        batch, model, self.optimizer, lr_scheduler)
                     dist.barrier()
 
                 elif self.env_type == 'pytorch':
                     lm_loss, _ = self.train_step_pytorch(
-                        batch, model, optimizer, lr_scheduler)
+                        batch, model, self.optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
+                    ## TODO
                     optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-                    optim_manager.add_optimizer(optimizer, lr_scheduler)
+                    optim_manager.add_optimizer(self.optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
                         batch, model, optim_manager)
 
                 else:
                     lm_loss, _ = self.train_step_deepspeed(batch,
                                                            model,
-                                                           optimizer,
+                                                           self.optimizer,
                                                            lr_scheduler,
                                                            single_step=True)
                     dist.barrier()
@@ -471,8 +576,8 @@ class EnvTrainer():
 
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
-                    if optimizer is not None:
-                        learning_rate = optimizer.param_groups[0]['lr']
+                    if self.optimizer is not None:
+                        learning_rate = self.optimizer.param_groups[0]['lr']
                     else:
                         learning_rate = model.optimizer.param_groups[0]['lr']
                     if self.env_type == 'bmtrain':
@@ -484,10 +589,10 @@ class EnvTrainer():
                     # TODO
                     avg_lm_loss *= self.gradient_accumulation_steps
                     self.report_iteration_metrics(
-                        optimizer, learning_rate, avg_lm_loss,
+                        self.optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,
                         self.iteration + 1,
-                        self.total_iter,
+                        self.epochs * len(train_dataloader),
                         optimizer_manager=optim_manager if self.env_type == 'bmtrain' else None)
                     self.tb_writer.add_scalar('train/loss', avg_lm_loss,
                                               self.iteration + 1)
@@ -526,7 +631,7 @@ class EnvTrainer():
                                             best_iteration+1,
 
                                             model,
-                                            optimizer,
+                                            self.optimizer,
                                             lr_scheduler,
                                             save_optim=self.save_optim,
                                             save_dir=self.save_dir,
@@ -536,7 +641,7 @@ class EnvTrainer():
                     save_checkpoint(self.iteration+1,
                                     best_iteration+1,
                                     model,
-                                    optimizer,
+                                    self.optimizer,
                                     lr_scheduler,
                                     save_optim=self.save_optim,
                                     save_dir=self.save_dir,

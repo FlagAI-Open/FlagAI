@@ -35,6 +35,9 @@ from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from flagai.fp16 import DynamicLossScaler
 
+# TODO
+# torch.autograd.set_detect_anomaly(True)
+
 """
 The Trainer class, to easily train a pytorh model on a new task.
 """
@@ -221,7 +224,7 @@ class Trainer():
             # Otherwise, the lanch_dist() is called to launch 'train.py' with `--not_call_launch`
             if not self.not_call_launch:
                 launch_dist(launcher='distributed_deepspeed' if 'deepspeed'
-                            in env_type else 'distributed_torch',
+                            in self.env_type else 'distributed_torch',
                             num_nodes=self.num_nodes,
                             gpus_per_node=self.num_gpus,
                             master_addr=self.master_ip,
@@ -905,6 +908,7 @@ class Trainer():
             del lm_loss, reduced_loss
             mems = None
             reduced_loss = None
+            lm_loss = None
 
         return lm_loss, mems
 

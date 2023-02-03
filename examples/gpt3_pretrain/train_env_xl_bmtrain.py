@@ -2,11 +2,13 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
+import psutil
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
-from flagai.env_trainer import EnvTrainer
+#from flagai.env_trainer import EnvTrainer
+from flagai.env_trainer_v1 import EnvTrainer
 from flagai.env_args import EnvArgs
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -15,20 +17,20 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # For example: python train_env_trainer.py --epochs=300 --batch_size=4 --env_type=pytorch
 env_args = EnvArgs(
     env_type="bmtrain",
-    experiment_name="opt_13b",
-    batch_size=16,
+    experiment_name="gpt_13b",
+    batch_size=4,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=10000,
+    epochs=2,
     log_interval=1,
     eval_interval=10000,
     num_gpus=1,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_opt_13b",
+    save_dir="checkpoints_gpt_13b",
     checkpoint_activations=False,
-    save_interval=1000,
+    save_interval=100000,
     fp16=True,
     training_script=__file__,
 )
@@ -81,6 +83,15 @@ print('*'*20, "config_file", config_file)
 from flagai.model.gpt2_model import GPT2Model
 model = GPT2Model.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
+mem = psutil.virtual_memory()
+print('*'*20, 'before pre_train', mem.used / 1024.0 ** 3)
+trainer.pre_train(model)
+mem = psutil.virtual_memory()
+print('*'*20, 'after pre_train', mem.used / 1024.0 ** 3)
+
+
+# TODO
+data_path = '/wangldai47/Downloads/Data'
 
 def read_file():
     src = []
@@ -89,7 +100,8 @@ def read_file():
     if enable_debug:
         part_file = './debug.txt'
         part_file = '/share/project/ldwang/data/pile/train/00.txt'
-    path = '/share/project/ldwang/data/pile/train/'
+    #path = '/share/project/ldwang/data/pile/train/'
+    path = '%s/train/' % data_path
     lines_count = 0
     # if True: # enable_debug
     for part_file in os.listdir(path):
@@ -114,6 +126,7 @@ def read_file_dev():
         part_file = './dev.txt'
     else:
         part_file = '/share/project/ldwang/data/pile/val.txt'
+        part_file = '%s/val.txt' % data_path
     if True:
         filename = part_file
         # print('*'*20, "filename", filename)
@@ -165,6 +178,7 @@ class GPT2Seq2seqDataset(Dataset):
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len', data_len)
+print('*'*20, 'after read_file', mem.used / 1024.0 ** 3)
 
 train_src = sents_src
 train_tgt = train_src
@@ -172,6 +186,7 @@ train_tgt = train_src
 sents_src, sents_tgt = read_file_dev()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len dev', data_len)
+print('*'*20, 'after read_file_dev', mem.used / 1024.0 ** 3)
 
 val_src = sents_src
 val_tgt = sents_tgt
@@ -185,10 +200,19 @@ val_dataset = GPT2Seq2seqDataset(val_src,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
 
+trainer.do_train(model,
+              train_dataset=train_dataset,
+              valid_dataset=val_dataset,
+              collate_fn=GPT2Seq2seqDataset.collate_fn,
+              optimizer=None
+              )
+
+'''
 trainer.train(model,
               train_dataset=train_dataset,
               valid_dataset=val_dataset,
               collate_fn=GPT2Seq2seqDataset.collate_fn,
               optimizer=None
               )
+'''
 
