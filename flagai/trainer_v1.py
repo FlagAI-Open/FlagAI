@@ -527,13 +527,13 @@ class Trainer():
             #     if mpu.get_model_parallel_rank() == 0:
             #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
             if self.env_type != 'pytorch':
-                train_dataloader.sampler.set_epoch(epoch + self.world_size)
+                set_epoch = getattr(train_dataloader.sampler, "set_epoch", None)
+                if set_epoch is not None:
+                    train_dataloader.sampler.set_epoch(epoch + self.world_size)
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
-                # print('*'*20, 'batch keys', batch.keys())
-                print('*'*20, 'batch input_ids', batch['input_ids'].size())
-                # print('*'*20, 'batch labels', batch['labels'].size())
+                log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
@@ -547,23 +547,23 @@ class Trainer():
                     }
                 if self.env_type == 'pytorchDDP':
                     lm_loss, _ = self.train_step_pytorchDDP(
-                        batch, model, self.optimizer, lr_scheduler)
+                        batch, self.model, self.optimizer, lr_scheduler)
                     dist.barrier()
 
                 elif self.env_type == 'pytorch':
                     lm_loss, _ = self.train_step_pytorch(
-                        batch, model, self.optimizer, lr_scheduler)
+                        batch, self.model, self.optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
                     ## TODO
                     optim_manager = bmt.optim.OptimManager(loss_scale=1024)
                     optim_manager.add_optimizer(self.optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
-                        batch, model, optim_manager)
+                        batch, self.model, optim_manager)
 
                 else:
                     lm_loss, _ = self.train_step_deepspeed(batch,
-                                                           model,
+                                                           self.model,
                                                            self.optimizer,
                                                            lr_scheduler,
                                                            single_step=True)
@@ -579,7 +579,7 @@ class Trainer():
                     if self.optimizer is not None:
                         learning_rate = self.optimizer.param_groups[0]['lr']
                     else:
-                        learning_rate = model.optimizer.param_groups[0]['lr']
+                        learning_rate = self.model.optimizer.param_groups[0]['lr']
                     if self.env_type == 'bmtrain':
                         avg_lm_loss = total_lm_loss / self.log_interval
                     else:
@@ -609,7 +609,7 @@ class Trainer():
                     eval_dict = self.evaluate_and_print_results(
                         prefix=prefix,
                         data_loader=valid_dataloader,
-                        model=model,
+                        model=self.model,
                         forward_step_func=self.forward_step,
                         verbose=False)
                     if eval_dict is not None:
@@ -629,8 +629,7 @@ class Trainer():
                             best_iteration = self.iteration
                             save_checkpoint(self.iteration+1,
                                             best_iteration+1,
-
-                                            model,
+                                            self.model,
                                             self.optimizer,
                                             lr_scheduler,
                                             save_optim=self.save_optim,
@@ -640,7 +639,7 @@ class Trainer():
                         self.iteration != best_iteration:
                     save_checkpoint(self.iteration+1,
                                     best_iteration+1,
-                                    model,
+                                    self.model,
                                     self.optimizer,
                                     lr_scheduler,
                                     save_optim=self.save_optim,
@@ -658,7 +657,7 @@ class Trainer():
             self.evaluate_and_print_results(
                 prefix=prefix,
                 data_loader=valid_dataloader,
-                model=model,
+                model=self.model,
                 forward_step_func=self.forward_step,
                 verbose=False)
 
