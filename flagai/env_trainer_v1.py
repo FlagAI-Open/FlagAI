@@ -45,7 +45,7 @@ def save_best(best_score, eval_dict):
     return best_score if best_score < eval_dict['loss'] else eval_dict['loss']
 
 def get_args_list(env_args):
-    not_need_to_launch_args = ["not_call_launch", "local_rank", "master_port", "master_ip", "hostfile", "num_gpus", "num_nodes"]
+    not_need_to_launch_args = ["not_call_launch", "local_rank", "master_port", "master_ip", "hostfile", "num_gpus", "num_nodes", "node_rank"]
     args_list = []
     args = dir(env_args)
     for arg in args:
@@ -194,7 +194,7 @@ class EnvTrainer():
         if self.env_type != 'bmtrain':
             self.set_seed(self.seed)
 
-    def get_dataloader(self, dataset, collate_fn, shuffle=False):
+    def get_dataloader(self, dataset, collate_fn, shuffle=False, rank_split=False):
         """ initilize the dataloader"""
         if dataset is None:
             return None
@@ -226,13 +226,24 @@ class EnvTrainer():
                 print("*"*80)
                 print("local rank", self.rank, "world_size", self.world_size, "bmt rank", bmt.rank())
                 print("*"*80)
-                num_replicas = self.world_size
-                rank = self.rank
-                sampler = torch.utils.data.distributed.DistributedSampler(
-                    dataset,
-                    num_replicas=num_replicas,
-                    rank=rank,
-                    shuffle=shuffle)
+                # TODO
+                if rank_split:
+                    return torch.utils.data.DataLoader(dataset,
+                                                       batch_size=self.batch_size,
+                                                       collate_fn=collate_fn,
+                                                       num_workers=4,
+                                                       prefetch_factor=4,
+                                                       pin_memory=True,
+                                                       drop_last=False,
+                                                       shuffle=shuffle)
+                else:
+                    num_replicas = self.world_size
+                    rank = self.rank
+                    sampler = torch.utils.data.distributed.DistributedSampler(
+                        dataset,
+                        num_replicas=num_replicas,
+                        rank=rank,
+                        shuffle=shuffle)
             else:
                 num_replicas = self.world_size
                 rank = self.rank
@@ -296,10 +307,11 @@ class EnvTrainer():
                  valid_dataset=None,
                  metric_methods=[],
                  collate_fn=None,
-                 find_unused_parameters=True):
+                 find_unused_parameters=True,
+                 rank_split=False):
         if not isinstance(train_dataset, torch.utils.data.DataLoader):
             train_dataloader = self.get_dataloader(train_dataset, collate_fn,
-                                                   True)
+                                                   True, rank_split=rank_split)
         else:
             train_dataloader = train_dataset
 
@@ -375,6 +387,11 @@ class EnvTrainer():
                     decay_style='linear',
                     num_iters=self.epochs * len(train_dataloader))
 
+        ## Needed global optim_manager
+        if self.env_type == 'bmtrain':
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            optim_manager.add_optimizer(self.optimizer, lr_scheduler)
+
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
@@ -397,11 +414,13 @@ class EnvTrainer():
             #     if mpu.get_model_parallel_rank() == 0:
             #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
             if self.env_type != 'pytorch':
-                train_dataloader.sampler.set_epoch(epoch + self.world_size)
+                set_epoch = getattr(train_dataloader.sampler, "set_epoch", None)
+                if set_epoch is not None:
+                    train_dataloader.sampler.set_epoch(epoch + self.world_size)
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
-                print('*'*20, 'batch input_ids', batch['input_ids'].size())
+                log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
@@ -423,9 +442,6 @@ class EnvTrainer():
                         batch, self.model, self.optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
-                    ## TODO
-                    optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-                    optim_manager.add_optimizer(self.optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
                         batch, self.model, optim_manager)
 

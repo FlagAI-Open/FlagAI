@@ -23,7 +23,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env_args = EnvArgs(
     env_type="bmtrain",
     experiment_name="gpt_13b",
-    batch_size=1,
+    batch_size=2,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
@@ -43,28 +43,10 @@ env_args = env_args.parse_args()
 
 trainer = EnvTrainer(env_args)
 
-'''
-trainer = Trainer(
-    env_type="bmtrain",
-    experiment_name="gpt3_13b",
-    batch_size=16,
-    gradient_accumulation_steps=1,
-    lr=2e-4,
-    weight_decay=1e-3,
-    epochs=10,
-    log_interval=10,
-    eval_interval=10000,
-    num_gpus=2,
-    load_dir=None,
-    pytorch_device=device,
-    save_dir="checkpoints_gpt3_13b",
-    checkpoint_activations=False,
-    save_interval=1000,
-    fp16=True,
-    hostfile='./hostfile',
-    training_script=__file__
-)
-'''
+# Trainer as Trigger
+if not env_args.not_call_launch:
+    import sys
+    sys.exit(0)
 
 ## 
 enable_debug = True
@@ -106,6 +88,12 @@ def read_file():
         part_file = './debug.txt'
     path = '/share/project/ldwang/data/pile/train/'
     lines_count = 0
+    packed = []
+
+    print('*'*20, 'trainer.rank', trainer.rank)
+    print('*'*20, 'trainer.num_gpus', trainer.num_gpus)
+    print('*'*20, 'trainer.world_size', trainer.world_size)
+    print('*'*20, 'trainer.local_rank', trainer.local_rank)
     if True: # enable_debug
     # for part_file in os.listdir(path):
         # filename = path+part_file
@@ -115,9 +103,16 @@ def read_file():
             lines = f.readlines()
             for line in lines:
                 lines_count += 1
-                src.append(line.strip('\n').lower())
+                packed.append(line.strip('\n').lower())
+                if len(packed) == trainer.world_size:
+                    src.append(packed[trainer.rank])
+                    packed = []
                 if lines_count%100==1:
                     print('*'*20, 'lines_count', lines_count)
+    if len(packed) == env_args.num_gpus:
+        src.append(packed[trainer.rank])
+        packed = []
+
     return src, src
 
 def read_file_dev():
@@ -177,11 +172,12 @@ class GPT2Seq2seqDataset(Dataset):
         }
         return data
 
+print('*'*20, 'mem.used before read_file', mem.used / 1024.0 ** 3)
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len', data_len)
 mem = psutil.virtual_memory()
-print('*'*20, 'after read_file', mem.used / 1024.0 ** 3)
+print('*'*20, 'mem.used after read_file', mem.used / 1024.0 ** 3)
 
 train_src = sents_src
 train_tgt = train_src
@@ -208,7 +204,8 @@ trainer.do_train(
     train_dataset=train_dataset,
     valid_dataset=val_dataset,
     collate_fn=GPT2Seq2seqDataset.collate_fn,
-    optimizer=None)
+    optimizer=None,
+    rank_split=True)
 
 '''
 trainer.train(model,
