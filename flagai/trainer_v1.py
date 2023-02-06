@@ -488,11 +488,11 @@ class Trainer():
             valid_dataloader = valid_dataset
 
         self.total_iter = int(self.epochs * len(train_dataloader))
-        if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
+        if lr_scheduler == None and self.optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
                 ## lr_scheduler.step with optim_manager.step
                 lr_scheduler = bmt.lr_scheduler.Noam(
-                    optimizer,
+                    self.optimizer,
                     start_lr=self.lr, 
                     warmup_iter=int(self.warm_up * self.total_iter / self.gradient_accumulation_steps),
                     end_iter=int(self.total_iter / self.gradient_accumulation_steps))
@@ -504,6 +504,11 @@ class Trainer():
                                     len(train_dataloader)),
                     decay_style='linear',
                     num_iters=self.epochs * len(train_dataloader))
+
+        ## Needed global optim_manager
+        if self.env_type == 'bmtrain':
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.
         total_lm_loss = 0.0
@@ -555,9 +560,6 @@ class Trainer():
                         batch, self.model, self.optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
-                    ## TODO
-                    optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-                    optim_manager.add_optimizer(self.optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
                         batch, self.model, optim_manager)
 

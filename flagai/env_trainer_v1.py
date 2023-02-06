@@ -387,6 +387,11 @@ class EnvTrainer():
                     decay_style='linear',
                     num_iters=self.epochs * len(train_dataloader))
 
+        ## Needed global optim_manager
+        if self.env_type == 'bmtrain':
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            optim_manager.add_optimizer(self.optimizer, lr_scheduler)
+
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
@@ -437,9 +442,6 @@ class EnvTrainer():
                         batch, self.model, self.optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
-                    ## TODO
-                    optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-                    optim_manager.add_optimizer(self.optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
                         batch, self.model, optim_manager)
 

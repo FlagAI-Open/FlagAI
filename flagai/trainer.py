@@ -525,6 +525,12 @@ class Trainer():
             load_optim(optimizer, lr_scheduler, sd)
         if self.load_rng:
             load_rng(sd)
+
+        ## Needed global optim_manager
+        if self.env_type == 'bmtrain':
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            optim_manager.add_optimizer(self.optimizer, lr_scheduler)
+
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
@@ -575,8 +581,6 @@ class Trainer():
                         batch, model, optimizer, lr_scheduler)
                 
                 elif self.env_type == 'bmtrain':
-                    optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-                    optim_manager.add_optimizer(optimizer, lr_scheduler)
                     lm_loss, _ = self.train_step_bmtrain(
                         batch, model, optim_manager)
 
