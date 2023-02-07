@@ -48,6 +48,7 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
+print('*'*20, 'wandb', env_args.wandb)
 ## 
 enable_debug = True
 ## 
@@ -206,12 +207,3 @@ trainer.do_train(
     collate_fn=GPT2Seq2seqDataset.collate_fn,
     optimizer=None,
     rank_split=True)
-
-'''
-trainer.train(model,
-              train_dataset=train_dataset,
-              valid_dataset=val_dataset,
-              collate_fn=GPT2Seq2seqDataset.collate_fn,
-              optimizer=None
-              )
-'''
