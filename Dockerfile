@@ -1,4 +1,5 @@
 #Change to your base image, such as pytorch1.11+py38
+#https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel_21-02.html#rel_21-02
 FROM nvcr.io/nvidia/pytorch:21.06-py3
 #You can set available pypi sources
 RUN /bin/bash -c "pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple"
