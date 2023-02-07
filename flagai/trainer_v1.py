@@ -17,6 +17,10 @@ try:
 except:
     pass
 
+try:
+    import wandb
+except ImportError:
+    wandb = None
 
 import torch
 import argparse
@@ -161,6 +165,7 @@ class Trainer():
         deepspeed_config=None,
         model_parallel_size=1,
         training_script="train.py",
+        wandb=True
     ):
 
         if timers is not None:
@@ -214,6 +219,9 @@ class Trainer():
         self.master_port = master_port
         self.hostfile = hostfile
         self.training_script = training_script
+
+        # wandb
+        self.wandb = wandb
 
         if self.env_type != 'pytorch':
             training_paras = self.get_dist_args()
@@ -318,7 +326,11 @@ class Trainer():
         if self.env_type != 'bmtrain':
             self.set_seed(self.seed)
 
-    def get_dataloader(self, dataset, collate_fn, shuffle=False):
+        # wandb
+        if self.wandb and wandb is not None and self.rank == 0:
+            wandb.init(project=self.experiment_name)
+
+    def get_dataloader(self, dataset, collate_fn, shuffle=False, rank_split=False):
         """ initilize the dataloader"""
         if dataset is None:
             return None
@@ -350,13 +362,24 @@ class Trainer():
                 print("*"*80)
                 print("local rank", self.rank, "world_size", self.world_size, "bmt rank", bmt.rank())
                 print("*"*80)
-                num_replicas = self.world_size
-                rank = self.rank
-                sampler = torch.utils.data.distributed.DistributedSampler(
-                    dataset,
-                    num_replicas=num_replicas,
-                    rank=rank,
-                    shuffle=shuffle)
+                # TODO
+                if rank_split:
+                    return torch.utils.data.DataLoader(dataset,
+                                                       batch_size=self.batch_size,
+                                                       collate_fn=collate_fn,
+                                                       num_workers=4,
+                                                       prefetch_factor=4,
+                                                       pin_memory=True,
+                                                       drop_last=False,
+                                                       shuffle=shuffle)
+                else:
+                    num_replicas = self.world_size
+                    rank = self.rank
+                    sampler = torch.utils.data.distributed.DistributedSampler(
+                        dataset,
+                        num_replicas=num_replicas,
+                        rank=rank,
+                        shuffle=shuffle)
             else:
                 num_replicas = self.world_size
                 rank = self.rank
@@ -371,53 +394,69 @@ class Trainer():
                                                prefetch_factor=4,
                                                collate_fn=collate_fn)
 
-    def pre_train(self,
-              model=None,
-              optimizer=None,
-              lr_scheduler=None,
-              train_dataset=None,
-              valid_dataset=None,
-              metric_methods=[],
-              collate_fn=None,
-              find_unused_parameters=True):
+    def pre_train(self, model=None, find_unused_parameters=True):
+        # TODO
+        self.model = model
+
         if self.load_dir:
             log_dist("loading checkpoints form {}".format(self.load_dir))
-            sd = load_checkpoint(model,
+            sd = load_checkpoint(self.model,
                                  load_dir=self.load_dir,
                                  load_type=self.load_type)
-        """Train the model."""
         # Turn on training mode which enables dropout.
-        model.train()
+        self.model.train()
+
         if self.fp16 and self.env_type == 'pytorchDDP':
             log_dist(
                 "Warning: The pytorchDDP plus FP16 may not working togather!!!"
             )
         if self.fp16:
-            model.half()
+            self.model.half()
         if self.checkpoint_activations:
-            model.config[
+            self.model.config[
                 'checkpoint_activations'] = self.checkpoint_activations
 
         if self.env_type == 'pytorchDDP':
-            model.to(torch.device('cuda', self.local_rank))
-            model = DDP(model,
-                        device_ids=[self.local_rank],
-                        find_unused_parameters=find_unused_parameters)
+            self.model.to(torch.device('cuda', self.local_rank))
+            self.model = DDP(self.model,
+                             device_ids=[self.local_rank],
+                             find_unused_parameters=find_unused_parameters)
 
         elif self.env_type == 'pytorch':
-            model.to(self.pytorch_device)
+            self.model.to(self.pytorch_device)
         elif self.env_type == 'bmtrain':
-            print('*'*20, 'model', model, __file__)
-            model = bmt.BMTrainModelWrapper(model)
-            print('*'*20, 'BMTrainModelWrapper model', model, __file__)
+            print('*'*20, 'self.model', model, __file__)
+            self.model = bmt.BMTrainModelWrapper(self.model)
+            print('*'*20, 'BMTrainModelWrapper model', self.model, __file__)
         else:
-            model.cuda(torch.device('cuda', self.local_rank))
+            self.model.cuda(torch.device('cuda', self.local_rank))
         
         # TODO
         if self.fp16 and self.env_type != 'bmtrain':
-            model = FP16_Module(model)
+            self.model = FP16_Module(self.model)
 
-        param_groups = get_optimizer_param_groups(model)
+    def do_train(self,
+                 optimizer=None,
+                 lr_scheduler=None,
+                 train_dataset=None,
+                 valid_dataset=None,
+                 metric_methods=[],
+                 collate_fn=None,
+                 find_unused_parameters=True,
+                 rank_split=False):
+        if not isinstance(train_dataset, torch.utils.data.DataLoader):
+            train_dataloader = self.get_dataloader(train_dataset, collate_fn,
+                                                   True, rank_split=rank_split)
+        else:
+            train_dataloader = train_dataset
+
+        if not isinstance(valid_dataset, torch.utils.data.DataLoader):
+            valid_dataloader = self.get_dataloader(valid_dataset, collate_fn,
+                                                   False)
+        else:
+            valid_dataloader = valid_dataset
+
+        param_groups = get_optimizer_param_groups(self.model)
 
         if hasattr(param_groups[0], 'params'):
             # for T5 Model
@@ -426,7 +465,6 @@ class Trainer():
         self.optimizer = optimizer
         if self.optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                '''
                 self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                     weight_decay=self.weight_decay,
                                                     lr=self.lr)
@@ -434,6 +472,7 @@ class Trainer():
                 self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
                                                            weight_decay=self.weight_decay,
                                                            lr=self.lr)
+                '''
             else:
                 self.optimizer = get_optimizer(
                     param_groups=param_groups,
@@ -452,7 +491,7 @@ class Trainer():
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
             model, self.optimizer, _, lr_scheduler = deepspeed.initialize(
-                model=model,
+                model=self.model,
                 # if huggingface t5: param_groups[0]['params']
                 model_parameters=param_groups,
                 optimizer=self.optimizer,
@@ -460,32 +499,12 @@ class Trainer():
                 mpu=mpu if self.env_type == 'deepspeed+mpu' else None,
                 config=self.deepspeed_config,
                 dist_init_required=True)
+            self.model = model
+
         if self.load_optim:
             load_optim(self.optimizer, lr_scheduler, sd)
         if self.load_rng:
             load_rng(sd)
-
-    def do_train(self,
-              model=None,
-              optimizer=None,
-              lr_scheduler=None,
-              train_dataset=None,
-              valid_dataset=None,
-              metric_methods=[],
-              collate_fn=None,
-              find_unused_parameters=True):
-        if not isinstance(train_dataset, torch.utils.data.DataLoader):
-            train_dataloader = self.get_dataloader(train_dataset, collate_fn,
-                                                   True)
-        else:
-            train_dataloader = train_dataset
-
-        if not isinstance(valid_dataset, torch.utils.data.DataLoader):
-
-            valid_dataloader = self.get_dataloader(valid_dataset, collate_fn,
-                                                   False)
-        else:
-            valid_dataloader = valid_dataset
 
         self.total_iter = int(self.epochs * len(train_dataloader))
         if lr_scheduler == None and self.optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
@@ -662,6 +681,10 @@ class Trainer():
                 model=self.model,
                 forward_step_func=self.forward_step,
                 verbose=False)
+
+        # wandb
+        if self.wandb and wandb is not None and self.rank == 0:
+            wandb.finish()
 
     def train_step_pytorch(self,
                            data,
@@ -1106,17 +1129,28 @@ class Trainer():
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
 
+        loss_scale = 0.0
         # when bmtrain, optimizer is optimizer_manager
         if self.fp16 and 'bmtrain' in self.env_type:
-            log_string += ' loss scale {:.1f} |'.format(
-                optimizer_manager.loss_scale)
+            loss_scale = optimizer_manager.loss_scale
         elif self.fp16:
-            log_string += ' loss scale {:.1f} |'.format(
-                optimizer.cur_scale if 'deepspeed' in self.env_type else
-                hasattr(optimizer, 'loss_scale') and optimizer.loss_scale)
+            loss_scale = optimizer.cur_scale if 'deepspeed' in self.env_type \
+                else hasattr(optimizer, 'loss_scale') and optimizer.loss_scale
+        log_string += ' loss scale {:.1f} |'.format(loss_scale)
         # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
 
         log_dist(log_string, [0])
+
+        # wandb
+        if self.wandb and wandb is not None and self.rank == 0:
+            metrics = dict()
+            metrics['total_step'] = total_step
+            metrics['elapsed_time'] = elapsed_time
+            metrics['learning rate'] = lr
+            metrics['loss'] = loss
+            metrics['loss_scale'] = loss_scale
+
+            wandb.log(metrics, step=step)
 
     def report_evaluate_metrics(self, prefix, loss, ppl, gpt_loss, bert_loss,
                                 sent_loss, multi_loss, step):
