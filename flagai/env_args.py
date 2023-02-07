@@ -40,6 +40,7 @@ class EnvArgs:
                  load_optim=False,  # not load optimizer when loading checkpoint.')
                  load_rng=False,
                  tensorboard_dir="tensorboard_summary",
+                 wandb=True,
 
                  # distribute settings
                  deepspeed_activation_checkpointing=False,
@@ -92,6 +93,8 @@ class EnvArgs:
         self.parser.add_argument('--num_gpus', default=num_gpus, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--not_call_launch', action="store_true", help='start training from saved checkpoint')
         self.parser.add_argument('--local_rank', default=0, type=int, help='start training from saved checkpoint')
+
+        self.parser.add_argument('--wandb', default=wandb, type=str2bool, help='whether to use wandb')
 
     def add_arg(self, arg_name, default=None, type=str, help="", store_true=False):
         if store_true:

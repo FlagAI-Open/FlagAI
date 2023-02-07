@@ -17,6 +17,10 @@ try:
 except:
     pass
 
+try:
+    import wandb
+except ImportError:
+    wandb = None
 
 import torch
 import argparse
@@ -109,6 +113,9 @@ class EnvTrainer():
         self.hostfile = env_args.hostfile
         self.training_script = env_args.training_script
 
+        # wandb
+        self.wandb = env_args.wandb
+
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
             self.rank = int(os.environ.get('RANK', 0))
@@ -194,6 +201,10 @@ class EnvTrainer():
         if self.env_type != 'bmtrain':
             self.set_seed(self.seed)
 
+        # wandb
+        if self.wandb and wandb is not None and self.rank == 0:
+            wandb.init(project=self.experiment_name)
+
     def get_dataloader(self, dataset, collate_fn, shuffle=False, rank_split=False):
         """ initilize the dataloader"""
         if dataset is None:
@@ -267,7 +278,6 @@ class EnvTrainer():
             sd = load_checkpoint(self.model,
                                  load_dir=self.load_dir,
                                  load_type=self.load_type)
-
         # Turn on training mode which enables dropout.
         self.model.train()
 
@@ -350,6 +360,8 @@ class EnvTrainer():
 
         if  self.env_type == 'bmtrain':
             bmt.synchronize()
+
+        model.train()
 
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
@@ -544,6 +556,10 @@ class EnvTrainer():
                 model=self.model,
                 forward_step_func=self.forward_step,
                 verbose=False)
+
+        # wandb
+        if self.wandb and wandb is not None and self.rank == 0:
+            wandb.finish()
 
     def train_step_pytorch(self,
                            data,
@@ -988,17 +1004,28 @@ class EnvTrainer():
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
 
+        loss_scale = 0.0
         # when bmtrain, optimizer is optimizer_manager
         if self.fp16 and 'bmtrain' in self.env_type:
-            log_string += ' loss scale {:.1f} |'.format(
-                optimizer_manager.loss_scale)
+            loss_scale = optimizer_manager.loss_scale
         elif self.fp16:
-            log_string += ' loss scale {:.1f} |'.format(
-                optimizer.cur_scale if 'deepspeed' in self.env_type else
-                hasattr(optimizer, 'loss_scale') and optimizer.loss_scale)
+            loss_scale = optimizer.cur_scale if 'deepspeed' in self.env_type \
+                else hasattr(optimizer, 'loss_scale') and optimizer.loss_scale
+        log_string += ' loss scale {:.1f} |'.format(loss_scale)
         # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
 
         log_dist(log_string, [0])
+
+        # wandb
+        if self.wandb and wandb is not None and self.rank == 0:
+            metrics = dict()
+            metrics['total_step'] = total_step
+            metrics['elapsed_time'] = elapsed_time
+            metrics['learning rate'] = lr
+            metrics['loss'] = loss
+            metrics['loss_scale'] = loss_scale
+
+            wandb.log(metrics, step=step)
 
     def report_evaluate_metrics(self, prefix, loss, ppl, gpt_loss, bert_loss,
                                 sent_loss, multi_loss, step):
