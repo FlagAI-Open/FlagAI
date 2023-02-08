@@ -486,7 +486,7 @@ class Trainer():
         if  self.env_type == 'bmtrain':
             bmt.synchronize()
 
-        model.train()
+        self.model.train()
 
         if 'deepspeed' in self.env_type:
             # initialize the deepspeed
