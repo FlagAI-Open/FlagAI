@@ -651,7 +651,6 @@ class LatentDiffusion(DDPM):
             z = encoder_posterior
         else:
             # raise NotImplementedError(f"encoder_posterior of type '{type(encoder_posterior)}' not yet implemented")
-
             z = encoder_posterior.sample()
         return self.scale_factor * z
     def set_cond_stage_forward(self):
@@ -664,10 +663,8 @@ class LatentDiffusion(DDPM):
                             return_overflowing_tokens=False,
                             padding="max_length",
                             return_tensors="pt")
-            text["input_ids"] = torch.tensor(text["input_ids"]).to(device)
-            text["attention_mask"] = torch.tensor(
-                text['attention_mask']).to(device)
-            # text = torch.tensor(text).to(device
+            text["input_ids"] = text["input_ids"].clone().detach().to(device)
+            text["attention_mask"] = text['attention_mask'].clone().detach().to(device)
             features = self.cond_stage_model(**text)
             return features['projection_state']
         self.cond_stage_forward = func

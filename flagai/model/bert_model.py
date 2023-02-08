@@ -354,7 +354,7 @@ class BertForSeq2seq(BaseModel):
         label = label.view(-1)
         loss = nn.CrossEntropyLoss(ignore_index=0, reduction="none")
         return (loss(pred, label) * target_mask
-                ).sum() / target_mask.sum()  ## 通过mask 取消 pad 和句子a部分预测的影响
+                ).sum() / target_mask.sum()  ## Deinfluence pad and prediction of sentenceA through mask
 
     def make_unilm_mask(self, token_type_id, seq_len):
         device = token_type_id.device
