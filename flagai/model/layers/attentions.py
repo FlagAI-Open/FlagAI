@@ -74,6 +74,10 @@ class GPT2Attention(nn.Module):
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
+        init_method = config.init_method
+        output_layer_init_method = config.output_layer_init_method
+        if output_layer_init_method is None:
+            output_layer_init_method = init_method
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             world_size = get_model_parallel_world_size()
             self.split_size = divide(n_state, world_size)
@@ -94,10 +98,18 @@ class GPT2Attention(nn.Module):
                                             bias=True,
                                             input_is_parallel=True,
                                             stride=1,
-                                            init_method=init_method)
+                                            init_method=output_layer_init_method)
         else:
             self.c_attn = nn.Linear(nx, 3 * n_state)
             self.c_proj = nn.Linear(nx, n_state)
+
+            # TODO
+            with torch.no_grad():
+                self.c_attn.bias.zero_()
+                self.c_proj.bias.zero_()
+            init_method(self.c_attn.weight)
+            init_method(self.c_proj.weight)
+
         self.attn_dropout = nn.Dropout(config.attn_pdrop)
         self.resid_dropout = nn.Dropout(config.resid_pdrop)
         self.pruned_heads = set()
