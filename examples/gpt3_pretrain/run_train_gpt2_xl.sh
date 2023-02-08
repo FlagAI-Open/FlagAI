@@ -18,7 +18,7 @@ echo "pwd:" $(pwd)
 #export ENV_TYPE=bmtrain
 
 SCRIPT_FILE=train_env_xl_bmtrain_gpt2_xl.py
-SAVE_DIR=/share/project/ldwang/checkpoints_gpt2_xl
+SAVE_DIR=/share/project/ldwang/checkpoints_${EXP_NAME}
 
 OPTS=" --lr 6.0e-5 \
        --warm_up 0.01 \
