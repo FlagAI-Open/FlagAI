@@ -43,7 +43,7 @@ if not env_args.not_call_launch:
     sys.exit(0)
 
 ## 
-enable_debug = True
+enable_debug = False
 ## 
 if enable_debug:
     trainer.set_seed(2023)
@@ -64,28 +64,28 @@ config_file = model_dir + model_name + "/config.json"
 from flagai.model.gpt2_model import GPT2Model
 model = GPT2Model.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
-mem = psutil.virtual_memory()
-print('*'*20, 'before pre_train', mem.used / 1024.0 ** 3)
 trainer.pre_train(model)
-mem = psutil.virtual_memory()
-print('*'*20, 'after pre_train', mem.used / 1024.0 ** 3)
+
+# TODO
+data_path = '/share/project/ldwang/data/pile'
 
 def read_file():
     src = []
     tgt = []
 
     if enable_debug:
-        part_file = '/share/project/ldwang/data/pile/train/00.txt'
         part_file = './debug.txt'
-    path = '/share/project/ldwang/data/pile/train/'
+        part_file = '/share/project/ldwang/data/pile/train/00.txt'
+
+    path = '%s/train/' % data_path
     lines_count = 0
     packed = []
 
-    if True: # enable_debug
-    # for part_file in os.listdir(path):
-        # filename = path+part_file
-        filename = part_file # enable_debug
-        # print('*'*20, "filename", filename)
+    #if True: # enable_debug
+    for part_file in os.listdir(path):
+        filename = path+part_file
+        # filename = part_file # enable_debug
+        print('*'*20, "filename", filename)
         with open(filename, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             for line in lines:

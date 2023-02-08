@@ -207,6 +207,7 @@ class EnvTrainer():
 
         # wandb
         if self.wandb and wandb is not None and self.rank == 0:
+            wandb.login(key='3e614eb678063929b16c9b9aec557e2949d5a814')
             wandb.init(project=self.experiment_name)
 
     def get_dataloader(self, dataset, collate_fn, shuffle=False, rank_split=False):
