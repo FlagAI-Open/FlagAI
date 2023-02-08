@@ -202,9 +202,9 @@ class Trainer():
         self.load_optim = load_optim
         self.load_rng = load_rng
         self.tb_writer = None
-        if tensorboard_dir is not None:
+        if env_args.tensorboard:
             self.tb_writer = SummaryWriter(
-                os.path.join(tensorboard_dir, experiment_name))
+                os.path.join(env_args.tensorboard_dir, env_args.experiment_name))
 
         # distribute settings
         self.pytorch_device = pytorch_device
