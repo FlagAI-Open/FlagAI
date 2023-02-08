@@ -48,6 +48,9 @@ enable_debug = False
 if enable_debug:
     trainer.set_seed(2023)
 
+## 
+rank_split = False
+
 ## TODO
 model_dir = "./"
 os.makedirs(model_dir, exist_ok=True)
@@ -79,26 +82,41 @@ def read_file():
 
     path = '%s/train/' % data_path
     lines_count = 0
-    packed = []
 
-    #if True: # enable_debug
-    for part_file in os.listdir(path):
-        filename = path+part_file
-        # filename = part_file # enable_debug
-        print('*'*20, "filename", filename)
-        with open(filename, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            for line in lines:
-                lines_count += 1
-                packed.append(line.strip('\n').lower())
-                if len(packed) == trainer.world_size:
-                    src.append(packed[trainer.rank])
-                    packed = []
-                if lines_count%100==1:
-                    print('*'*20, 'lines_count', lines_count)
-    if len(packed) == env_args.num_gpus:
-        src.append(packed[trainer.rank])
+    if rank_split:
         packed = []
+        #if True: # enable_debug
+        for part_file in os.listdir(path):
+            filename = path+part_file
+            # filename = part_file # enable_debug
+            print('*'*20, "filename", filename)
+            with open(filename, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                for line in lines:
+                    lines_count += 1
+                    packed.append(line.strip('\n').lower())
+                    if len(packed) == trainer.world_size:
+                        src.append(packed[trainer.rank])
+                        packed = []
+                    if lines_count%100==1:
+                        print('*'*20, 'lines_count', lines_count)
+        if len(packed) == env_args.num_gpus:
+            src.append(packed[trainer.rank])
+            packed = []
+    else:
+        lines_count = 0
+        # if True: # enable_debug
+        for part_file in os.listdir(path):
+            filename = path+part_file
+            # filename = part_file # enable_debug
+            print('*'*20, "filename", filename)
+            with open(filename, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                for line in lines:
+                    lines_count += 1
+                    src.append(line.strip('\n').lower())
+                    if lines_count%10000==1:
+                        print('*'*20, 'lines_count', lines_count)
 
     return src, src
 
@@ -187,4 +205,4 @@ trainer.do_train(
     valid_dataset=val_dataset,
     collate_fn=GPT2Seq2seqDataset.collate_fn,
     optimizer=None,
-    rank_split=True)
+    rank_split=rank_split)
