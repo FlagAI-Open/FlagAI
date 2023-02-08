@@ -6,7 +6,8 @@ import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
-from flagai.env_trainer import EnvTrainer
+#from flagai.env_trainer import EnvTrainer
+from flagai.env_trainer_v1 import EnvTrainer
 from flagai.env_args import EnvArgs
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -15,20 +16,20 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # For example: python train_env_trainer.py --epochs=300 --batch_size=4 --env_type=pytorch
 env_args = EnvArgs(
     env_type="bmtrain",
-    experiment_name="gpt_13b",
-    batch_size=4,
+    experiment_name="gpt2_xl",
+    batch_size=16,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=2,
+    epochs=10000,
     log_interval=1,
     eval_interval=10000,
     num_gpus=1,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_gpt_13b",
+    save_dir="checkpoints_gpt2_xl",
     checkpoint_activations=False,
-    save_interval=100000,
+    save_interval=1000,
     fp16=True,
     training_script=__file__,
 )
@@ -36,31 +37,13 @@ env_args = env_args.parse_args()
 
 trainer = EnvTrainer(env_args)
 
-'''
-trainer = Trainer(
-    env_type="bmtrain",
-    experiment_name="gpt3_13b",
-    batch_size=16,
-    gradient_accumulation_steps=1,
-    lr=2e-4,
-    weight_decay=1e-3,
-    epochs=10,
-    log_interval=10,
-    eval_interval=10000,
-    num_gpus=2,
-    load_dir=None,
-    pytorch_device=device,
-    save_dir="checkpoints_gpt3_13b",
-    checkpoint_activations=False,
-    save_interval=1000,
-    fp16=True,
-    hostfile='./hostfile',
-    training_script=__file__
-)
-'''
+# Trainer as Trigger
+if not env_args.not_call_launch:
+    import sys
+    sys.exit(0)
 
 ## 
-enable_debug = False
+enable_debug = True
 ## 
 if enable_debug:
     trainer.set_seed(2023)
@@ -68,53 +51,55 @@ if enable_debug:
 ## TODO
 model_dir = "./"
 os.makedirs(model_dir, exist_ok=True)
-maxlen = 2048
+maxlen = 1024
 
 from flagai.data.tokenizer import Tokenizer
-model_name = "gpt3-13b-en"
+model_name = "gpt2-xlarge-en"
 cache_dir = model_dir + model_name
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-print('*'*20, "tokenizer", tokenizer)
+# print('*'*20, "tokenizer", tokenizer)
 
 config_file = model_dir + model_name + "/config.json"
-print('*'*20, "config_file", config_file)
+# print('*'*20, "config_file", config_file)
 from flagai.model.gpt2_model import GPT2Model
 model = GPT2Model.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
-import psutil
 mem = psutil.virtual_memory()
 print('*'*20, 'before pre_train', mem.used / 1024.0 ** 3)
-trainer.pre_train(model, optimizer=None)
+trainer.pre_train(model)
 mem = psutil.virtual_memory()
 print('*'*20, 'after pre_train', mem.used / 1024.0 ** 3)
-
-
-# TODO
-data_path = '/wangldai47/Downloads/Data'
-data_path = '/share/project/ldwang/data/pile'
 
 def read_file():
     src = []
     tgt = []
 
     if enable_debug:
-        part_file = './debug.txt'
         part_file = '/share/project/ldwang/data/pile/train/00.txt'
-    #path = '/share/project/ldwang/data/pile/train/'
-    path = '%s/train/' % data_path
+        part_file = './debug.txt'
+    path = '/share/project/ldwang/data/pile/train/'
     lines_count = 0
-    # if True: # enable_debug
-    for part_file in os.listdir(path):
-        filename = path+part_file
-        # filename = part_file # enable_debug
-        print('*'*20, "filename", filename)
+    packed = []
+
+    if True: # enable_debug
+    # for part_file in os.listdir(path):
+        # filename = path+part_file
+        filename = part_file # enable_debug
+        # print('*'*20, "filename", filename)
         with open(filename, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             for line in lines:
                 lines_count += 1
-                src.append(line.strip('\n').lower())
-                if lines_count%10000==1:
+                packed.append(line.strip('\n').lower())
+                if len(packed) == trainer.world_size:
+                    src.append(packed[trainer.rank])
+                    packed = []
+                if lines_count%100==1:
                     print('*'*20, 'lines_count', lines_count)
+    if len(packed) == env_args.num_gpus:
+        src.append(packed[trainer.rank])
+        packed = []
+
     return src, src
 
 def read_file_dev():
@@ -126,7 +111,6 @@ def read_file_dev():
         part_file = './dev.txt'
     else:
         part_file = '/share/project/ldwang/data/pile/val.txt'
-        part_file = '%s/val.txt' % data_path
     if True:
         filename = part_file
         # print('*'*20, "filename", filename)
@@ -178,7 +162,6 @@ class GPT2Seq2seqDataset(Dataset):
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len', data_len)
-print('*'*20, 'after read_file', mem.used / 1024.0 ** 3)
 
 train_src = sents_src
 train_tgt = train_src
@@ -186,7 +169,6 @@ train_tgt = train_src
 sents_src, sents_tgt = read_file_dev()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len dev', data_len)
-print('*'*20, 'after read_file_dev', mem.used / 1024.0 ** 3)
 
 val_src = sents_src
 val_tgt = sents_tgt
@@ -200,19 +182,9 @@ val_dataset = GPT2Seq2seqDataset(val_src,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
 
-trainer.do_train(model,
-              train_dataset=train_dataset,
-              valid_dataset=val_dataset,
-              collate_fn=GPT2Seq2seqDataset.collate_fn,
-              optimizer=None
-              )
-
-'''
-trainer.train(model,
-              train_dataset=train_dataset,
-              valid_dataset=val_dataset,
-              collate_fn=GPT2Seq2seqDataset.collate_fn,
-              optimizer=None
-              )
-'''
-
+trainer.do_train(
+    train_dataset=train_dataset,
+    valid_dataset=val_dataset,
+    collate_fn=GPT2Seq2seqDataset.collate_fn,
+    optimizer=None,
+    rank_split=True)

@@ -80,6 +80,8 @@ class EnvTrainer():
         self.seed = env_args.seed
         self.fp16 = env_args.fp16
         self.warm_up = env_args.warm_up
+        self.adam_beta1 = env_args.adam_beta1
+        self.adam_beta2 = env_args.adam_beta2
 
         self.log_interval = env_args.log_interval
         self.eval_interval = env_args.eval_interval
@@ -94,8 +96,10 @@ class EnvTrainer():
         self.load_type = env_args.load_type
         self.load_optim = env_args.load_optim
         self.load_rng = env_args.load_rng
-        self.tb_writer = SummaryWriter(
-            os.path.join(env_args.tensorboard_dir, env_args.experiment_name))
+        self.tb_writer = None
+        if tensorboard_dir is not None:
+            self.tb_writer = SummaryWriter(
+                os.path.join(tensorboard_dir, experiment_name))
 
         # distribute settings
         self.pytorch_device = env_args.pytorch_device
@@ -342,6 +346,7 @@ class EnvTrainer():
             if self.env_type == 'bmtrain':
                 self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                     weight_decay=self.weight_decay,
+                                                    betas=(self.adam_beta1, self.adam_beta2),
                                                     lr=self.lr)
                 '''
                 self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
@@ -490,10 +495,11 @@ class EnvTrainer():
                         self.iteration + 1,
                         self.epochs * len(train_dataloader),
                         optimizer_manager=optim_manager if self.env_type == 'bmtrain' else None)
-                    self.tb_writer.add_scalar('train/loss', avg_lm_loss,
-                                              self.iteration + 1)
-                    self.tb_writer.add_scalar('lr', learning_rate,
-                                              self.iteration + 1)
+                    if self.tb_writer:
+                        self.tb_writer.add_scalar('train/loss', avg_lm_loss,
+                                                  self.iteration + 1)
+                        self.tb_writer.add_scalar('lr', learning_rate,
+                                                  self.iteration + 1)
                     total_lm_loss = 0.0
                 # Evaluation #todo add train_args
                 if self.eval_interval and (
@@ -510,14 +516,16 @@ class EnvTrainer():
                         verbose=False)
                     if eval_dict is not None:
                         eval_loss = eval_dict.get("loss", 0.0)
-                        self.tb_writer.add_scalar('eval/loss', eval_loss,
-                                                  self.iteration + 1)
+                        if self.tb_writer:
+                            self.tb_writer.add_scalar('eval/loss', eval_loss,
+                                                      self.iteration + 1)
                         for i in range(len(self.metric_methods)):
                             name = self.metric_methods[i][0]
                             score = eval_dict.get(name, 0)
-                            self.tb_writer.add_scalar(
-                                'eval_metrics/%s' % (name), score,
-                                self.iteration + 1)
+                            if self.tb_writer:
+                                self.tb_writer.add_scalar(
+                                    'eval_metrics/%s' % (name), score,
+                                    self.iteration + 1)
                                 
                         if self.save_best is not None and self.save_best(best_score, eval_dict) != best_score:
                             best_score = self.save_best(best_score, eval_dict)
