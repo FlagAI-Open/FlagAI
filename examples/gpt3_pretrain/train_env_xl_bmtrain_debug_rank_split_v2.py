@@ -40,7 +40,6 @@ env_args = EnvArgs(
     training_script=__file__,
 )
 env_args = env_args.parse_args()
-print('*'*20, 'ldwang run self.load_dir', env_args.load_dir, "type:", type(env_args.load_dir))
 
 trainer = EnvTrainer(env_args)
 
@@ -91,6 +90,10 @@ def read_file():
     lines_count = 0
     packed = []
 
+    print('*'*20, 'trainer.rank', trainer.rank)
+    print('*'*20, 'trainer.num_gpus', trainer.num_gpus)
+    print('*'*20, 'trainer.world_size', trainer.world_size)
+    print('*'*20, 'trainer.local_rank', trainer.local_rank)
     if True: # enable_debug
     # for part_file in os.listdir(path):
         # filename = path+part_file
@@ -100,7 +103,12 @@ def read_file():
             lines = f.readlines()
             for line in lines:
                 lines_count += 1
-                packed.append(line.strip('\n').lower())
+                sent = line.strip('\n').lower()
+                global tokenizer
+                global maxlen
+                data = tokenizer.encode_plus(sent, None, max_length=maxlen)
+                sample = {"input_ids": data["input_ids"][:maxlen]}
+                packed.append(sample)
                 if len(packed) == trainer.world_size:
                     src.append(packed[trainer.rank])
                     packed = []
@@ -138,16 +146,8 @@ class GPT2Seq2seqDataset(Dataset):
         self.tokenizer = tokenizer
         self.maxlen = maxlen
 
-    def __getitem__(self, i):
-        src = self.sents_src[i]
-        tgt = self.sents_tgt[i]
-        tgt = None
-        data = self.tokenizer.encode_plus(src, tgt, max_length=self.maxlen)
-
-        output = {
-            "input_ids": data["input_ids"],
-        }
-        return output
+    def __getitem__(self, sample):
+        return sample
 
     def __len__(self):
         return len(self.sents_src)

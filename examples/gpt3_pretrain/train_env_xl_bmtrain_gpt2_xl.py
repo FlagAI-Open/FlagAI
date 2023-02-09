@@ -148,7 +148,7 @@ class GPT2Seq2seqDataset(Dataset):
 
     def __getitem__(self, i):
         src = self.sents_src[i]
-        tgt = self.sents_tgt[i]
+        tgt = None
         data = self.tokenizer.encode_plus(src, tgt, max_length=self.maxlen)
 
         output = {

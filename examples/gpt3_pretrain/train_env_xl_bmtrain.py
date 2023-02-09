@@ -38,29 +38,6 @@ env_args = env_args.parse_args()
 
 trainer = EnvTrainer(env_args)
 
-'''
-trainer = Trainer(
-    env_type="bmtrain",
-    experiment_name="gpt3_13b",
-    batch_size=16,
-    gradient_accumulation_steps=1,
-    lr=2e-4,
-    weight_decay=1e-3,
-    epochs=10,
-    log_interval=10,
-    eval_interval=10000,
-    num_gpus=2,
-    load_dir=None,
-    pytorch_device=device,
-    save_dir="checkpoints_gpt3_13b",
-    checkpoint_activations=False,
-    save_interval=1000,
-    fp16=True,
-    hostfile='./hostfile',
-    training_script=__file__
-)
-'''
-
 ## 
 enable_debug = False
 ## 
@@ -146,7 +123,7 @@ class GPT2Seq2seqDataset(Dataset):
 
     def __getitem__(self, i):
         src = self.sents_src[i]
-        tgt = self.sents_tgt[i]
+        tgt = None
         data = self.tokenizer.encode_plus(src, tgt, max_length=self.maxlen)
 
         output = {
