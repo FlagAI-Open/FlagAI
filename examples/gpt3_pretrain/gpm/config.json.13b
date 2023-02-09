@@ -5,7 +5,7 @@
   ],
   "attn_pdrop": 0.1,
   "embd_pdrop": 0.1,
-  "initializer_range": 0.02,
+  "initializer_range": 0.006,
   "layer_norm_epsilon": 1e-05,
   "model_type": "gpt2",
   "n_ctx": 1024,
@@ -16,6 +16,7 @@
   "n_positions": 2048,
   "output_past": true,
   "resid_pdrop": 0.1,
+  "use_scaled_init_for_output_weights": true,
   "task_specific_params": {
     "text-generation": {
       "do_sample": true,
