@@ -23,7 +23,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env_args = EnvArgs(
     env_type="bmtrain",
     experiment_name="gpt_13b",
-    batch_size=1,
+    batch_size=2,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
@@ -92,10 +92,10 @@ from flagai.model.gpt2_model import GPT2Model
 model = GPT2Model.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
 mem = psutil.virtual_memory()
-print('*'*20, 'before pre_train', mem.used / 1024.0 ** 3)
+print('*'*20, 'mem.used before pre_train', mem.used / 1024.0 ** 3)
 trainer.pre_train(model)
 mem = psutil.virtual_memory()
-print('*'*20, 'after pre_train', mem.used / 1024.0 ** 3)
+print('*'*20, 'mem.used after pre_train', mem.used / 1024.0 ** 3)
 
 def read_file():
     src = []
@@ -148,7 +148,7 @@ class GPT2Seq2seqDataset(Dataset):
 
     def __getitem__(self, i):
         src = self.sents_src[i]
-        tgt = self.sents_tgt[i]
+        tgt = None
         data = self.tokenizer.encode_plus(src, tgt, max_length=self.maxlen)
 
         output = {
@@ -177,11 +177,12 @@ class GPT2Seq2seqDataset(Dataset):
         }
         return data
 
+print('*'*20, 'mem.used before read_file', mem.used / 1024.0 ** 3)
 sents_src, sents_tgt = read_file()
 data_len = len(sents_tgt)
 print('*'*20, 'data_len', data_len)
 mem = psutil.virtual_memory()
-print('*'*20, 'after read_file', mem.used / 1024.0 ** 3)
+print('*'*20, 'mem.used after read_file', mem.used / 1024.0 ** 3)
 
 train_src = sents_src
 train_tgt = train_src

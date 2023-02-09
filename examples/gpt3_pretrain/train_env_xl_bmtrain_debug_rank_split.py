@@ -40,6 +40,7 @@ env_args = EnvArgs(
     training_script=__file__,
 )
 env_args = env_args.parse_args()
+print('*'*20, 'ldwang run self.load_dir', env_args.load_dir, "type:", type(env_args.load_dir))
 
 trainer = EnvTrainer(env_args)
 
@@ -48,7 +49,6 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
-print('*'*20, 'wandb', env_args.wandb)
 ## 
 enable_debug = True
 ## 
@@ -91,10 +91,6 @@ def read_file():
     lines_count = 0
     packed = []
 
-    print('*'*20, 'trainer.rank', trainer.rank)
-    print('*'*20, 'trainer.num_gpus', trainer.num_gpus)
-    print('*'*20, 'trainer.world_size', trainer.world_size)
-    print('*'*20, 'trainer.local_rank', trainer.local_rank)
     if True: # enable_debug
     # for part_file in os.listdir(path):
         # filename = path+part_file
@@ -145,6 +141,7 @@ class GPT2Seq2seqDataset(Dataset):
     def __getitem__(self, i):
         src = self.sents_src[i]
         tgt = self.sents_tgt[i]
+        tgt = None
         data = self.tokenizer.encode_plus(src, tgt, max_length=self.maxlen)
 
         output = {

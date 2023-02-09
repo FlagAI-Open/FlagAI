@@ -1,0 +1,28 @@
+{
+  "activation_function": "gelu_new",
+  "architectures": [
+    "GPT2LMHeadModel"
+  ],
+  "attn_pdrop": 0.1,
+  "embd_pdrop": 0.1,
+  "initializer_range": 0.006,
+  "layer_norm_epsilon": 1e-05,
+  "model_type": "gpt2",
+  "n_ctx": 1024,
+  "n_embd": 5120,
+  "n_head": 40,
+  "n_inner": null,
+  "n_layer": 40,
+  "n_positions": 2048,
+  "output_past": true,
+  "resid_pdrop": 0.1,
+  "use_scaled_init_for_output_weights": true,
+  "task_specific_params": {
+    "text-generation": {
+      "do_sample": true,
+      "max_length": 400
+    }
+  },
+  "tokenizer_class": "BertTokenizer",
+  "vocab_size": 50257
+}
