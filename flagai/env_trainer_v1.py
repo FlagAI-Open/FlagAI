@@ -1013,7 +1013,7 @@ class EnvTrainer():
             elapsed_time)
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
-	perplexity = math.exp(loss)
+        perplexity = math.exp(loss)
         log_string += ' perplexity {:.6E} |'.format(perplexity)
 
         loss_scale = 0.0
