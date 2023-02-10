@@ -26,6 +26,7 @@ import torch
 import argparse
 import os
 import random
+import math
 import numpy as np
 import torch.distributed as dist
 from flagai.logger import log_dist
@@ -1012,6 +1013,8 @@ class EnvTrainer():
             elapsed_time)
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
+	perplexity = math.exp(loss)
+        log_string += ' perplexity {:.6E} |'.format(perplexity)
 
         loss_scale = 0.0
         # when bmtrain, optimizer is optimizer_manager
@@ -1033,6 +1036,7 @@ class EnvTrainer():
             metrics['learning rate'] = lr
             metrics['loss'] = loss
             metrics['loss_scale'] = loss_scale
+            metrics['perplexity'] = perplexity
 
             wandb.log(metrics, step=step)
 
