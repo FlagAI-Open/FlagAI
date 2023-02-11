@@ -57,7 +57,7 @@ os.makedirs(model_dir, exist_ok=True)
 maxlen = 1024
 
 from flagai.data.tokenizer import Tokenizer
-model_name = "gpm-xlarge"
+model_name = "gpm-xl"
 cache_dir = model_dir + model_name
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
 print('*'*20, "tokenizer", tokenizer)
