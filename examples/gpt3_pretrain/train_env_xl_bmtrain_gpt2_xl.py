@@ -129,6 +129,7 @@ def read_file_dev():
         part_file = './dev.txt'
     else:
         part_file = '/share/project/ldwang/data/pile/val.txt'
+        part_file = '%s/val.txt' % data_path
     if True:
         filename = part_file
         # print('*'*20, "filename", filename)
