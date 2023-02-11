@@ -447,7 +447,11 @@ class Trainer():
                  metric_methods=[],
                  collate_fn=None,
                  find_unused_parameters=True,
-                 rank_split=False):
+                 rank_split=False,
+                 tokenizer=None):
+        # TODO
+        self.tokenizer = tokenizer
+
         if not isinstance(train_dataset, torch.utils.data.DataLoader):
             train_dataloader = self.get_dataloader(train_dataset, collate_fn,
                                                    True, rank_split=rank_split)
@@ -651,6 +655,16 @@ class Trainer():
                                 self.tb_writer.add_scalar(
                                     'eval_metrics/%s' % (name), score,
                                     self.iteration + 1)
+
+                        # wandb
+                        if self.wandb and wandb is not None and self.rank == 0:
+                            metrics = dict()
+                            if "loss" in eval_dict:
+                                metrics['dev loss'] = eval_dict.get("loss", 0.0)
+                            if "perplexity" in eval_dict:
+                                metrics['dev perplexity'] = eval_dict.get("perplexity", 0.0)
+                            if len(metrics) > 0:
+                                wandb.log(metrics, step=self.iteration+1)
                                 
                         if self.save_best is not None and self.save_best(best_score, eval_dict) != best_score:
                             best_score = self.save_best(best_score, eval_dict)
@@ -1106,13 +1120,32 @@ class Trainer():
                     all_labels = self._gather_all_mpu(all_labels)
                 all_losses = self._gather_all_mpu(all_losses)
 
+            all_ppls = []
             if all_losses.device != torch.device('cpu'):
+                all_ppls = torch.exp(all_losses)
                 all_losses = all_losses.mean().cpu().detach().numpy()
+                all_ppls = all_ppls.mean().cpu().detach().numpy()
 
             for i in range(len(self.metric_methods)):
                 eval_method = self.metric_methods[i][1]
                 metrics[i] += eval_method(all_logits, all_labels, meta=meta)
 
+        # TODO
+        if self.tokenizer is not None:
+            test_data = [
+                "Hollym Gate railway station",
+                "In mathematics, the Haagerup property"
+            ]
+            from flagai.model.predictor.predictor import Predictor
+            predictor = Predictor(model, self.tokenizer)
+            for text in test_data:
+                log_dist(text, [0])
+                output_text = predictor.predict_generate_beamsearch(
+                    text,
+                    out_max_length=128,
+                    beam_size=3)
+                log_dist(output_text, [0])
+    
         # Move model back to the train mode.
 
         # model.train()
@@ -1127,6 +1160,7 @@ class Trainer():
             metric_name = self.metric_methods[i][0]
             metric_dct.update({metric_name: metrics[i]})
         metric_dct.update({"loss": all_losses})
+        metric_dct.update({"perplexity": all_ppls})
         return metric_dct
 
     def report_iteration_metrics(self, optimizer, lr, loss, elapsed_time, step,
@@ -1136,7 +1170,7 @@ class Trainer():
             elapsed_time)
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
-	perplexity = math.exp(loss)
+        perplexity = math.exp(loss)
         log_string += ' perplexity {:.6E} |'.format(perplexity)
 
         loss_scale = 0.0
@@ -1190,6 +1224,9 @@ class Trainer():
         if eval_dict.get("loss", None) is not None:
             string = ' validation loss at {} | {:.4f}, '.format(
                 prefix, eval_dict["loss"])
+        if eval_dict.get("perplexity", None) is not None:
+            string = ' validation perplexity at {} | {:.4f}, '.format(
+                prefix, eval_dict["perplexity"])
         # with open("results.txt", "a") as myfile:
         #     myfile.write(string)
         if self.metric_methods is None:
