@@ -23,13 +23,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env_args = EnvArgs(
     env_type="bmtrain",
     experiment_name="gpt_13b",
-    batch_size=2,
+    batch_size=1,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
     epochs=1,
     log_interval=1,
-    eval_interval=10000,
+    eval_interval=1,
     num_gpus=2,
     load_dir=None,
     pytorch_device=device,
@@ -62,7 +62,7 @@ maxlen = 2048
 maxlen = 1024
 
 from flagai.data.tokenizer import Tokenizer
-model_name = "gpt3-13b-en"
+model_name = "gpm-xlarge"
 cache_dir = model_dir + model_name
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
 print('*'*20, "tokenizer", tokenizer)
@@ -203,4 +203,5 @@ trainer.do_train(
     valid_dataset=val_dataset,
     collate_fn=GPT2Seq2seqDataset.collate_fn,
     optimizer=None,
-    rank_split=True)
+    rank_split=True,
+    tokenizer=tokenizer)
