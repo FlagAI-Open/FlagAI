@@ -17,8 +17,7 @@ from tqdm import trange, tqdm
 import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
-from torchvision.utils import make_grid
-from pytorch_lightning import seed_everything
+from torch.cuda.amp import autocast as autocast
 
 class Predictor:
     def __init__(self, model, tokenizer=None):
@@ -369,7 +368,10 @@ class Predictor:
                                 f: int = 8,
                                 scale: float = 7.5,
                                 from_file: str = None,
-                                seed: int = 34234):
+                                seed: int = 34234,
+                                fp16: bool = False):
+        from torchvision.utils import make_grid
+        from pytorch_lightning import seed_everything
         from flagai.model.predictor.utils import chunk, check_safety, get_safety_checker
         safety_checker, safety_feature_extractor = get_safety_checker()
         """
@@ -389,7 +391,6 @@ class Predictor:
         C: channels of images, 4 for colored images
         """
         seed_everything(seed)
-        
         assert "diffusion" in self.class_name.lower()
         device = next(self.model.parameters()).device
         if plms:
@@ -447,9 +448,9 @@ class Predictor:
                             unconditional_conditioning=uc,
                             eta=ddim_eta,
                             x_T=start_code)
-
-                        x_samples_ddim = self.model.decode_first_stage(
-                            samples_ddim)
+                        with autocast():
+                            x_samples_ddim = self.model.decode_first_stage(
+                                samples_ddim)
                         x_samples_ddim = torch.clamp(
                             (x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
                         x_samples_ddim = x_samples_ddim.cpu().permute(

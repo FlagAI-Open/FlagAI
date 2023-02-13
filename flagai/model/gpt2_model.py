@@ -269,6 +269,7 @@ class GPT2Model(BaseModel):
                 hidden_size=self.config.get("hidden_size", None),
                 do_layer_norm_before=self.config.get("do_layer_norm_before", True),
             )
+            self.config_gpt = config_gpt
 
         self.parallel_output = True
 

@@ -45,63 +45,63 @@ As example, GLM finish the question task as an autoregressive blank in-
 filling task
 
 ```python
-import torch
-from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import Tokenizer
-from flagai.model.predictor.predictor import Predictor
-if __name__ == "__main__":
-    """Main training program."""
-    print('Generate Samples') 
-    model_name = 'GLM-large-ch'
-    model = GLMModel.from_pretrain(model_name=model_name,
-                                   download_path="./state_dict/")
-    tokenizer = Tokenizer.from_pretrained(model_name)
-    tokenizer = Tokenizer.from_pretrained("GLM-large-ch", only_download_config=False)
-    model.cuda(torch.cuda.current_device())
-    predictor = Predictor(model, tokenizer)
-    # question-answering
-    text = '问题：啤酒伤胃吗？回答：[gMASK]'
-    output=predictor.predict_generate_randomsample(text)
-    print(text,'\n',output)
+>>> import torch
+>>> from flagai.model.glm_model import GLMModel
+>>> from flagai.data.tokenizer import Tokenizer
+>>> from flagai.model.predictor.predictor import Predictor
+>>> if __name__ == "__main__":
+>>>     """Main training program."""
+>>>     print('Generate Samples') 
+>>>     model_name = 'GLM-large-ch'
+>>>     model = GLMModel.from_pretrain(model_name=model_name,
+>>>                                    download_path="./state_dict/")
+>>>     tokenizer = Tokenizer.from_pretrained(model_name)
+>>>     tokenizer = Tokenizer.from_pretrained("GLM-large-ch", only_download_config=False)
+>>>     model.cuda(torch.cuda.current_device())
+>>>     predictor = Predictor(model, tokenizer)
+>>>     # question-answering
+>>>     text = '问题：啤酒伤胃吗？回答：[gMASK]'
+>>>     output=predictor.predict_generate_randomsample(text)
+>>>     print(text,'\n',output)
 ```
 
 Similar to BERT, GLM can predict masked tokens as
 
 ```python
-import torch
-from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import Tokenizer
-from flagai.model.predictor.predictor import Predictor
-if __name__ == "__main__":
-    """Main training program."""
-    print('Generate Samples') 
-    model_name = 'GLM-large-ch'
-    tokenizer = Tokenizer.from_pretrained(model_name)
-    model = GLMModel.from_pretrain(model_name=model_name, only_download_config=False)
-    model.cuda(torch.cuda.current_device())
-    predictor = Predictor(model, tokenizer)
-    # question-answering
-    text = '北京故宫是中国[MASK]非物质文化遗产。'
-    output=predictor.predict_generate_randomsample(text)
-    print(text,'\n',output)
+>>> import torch
+>>> from flagai.model.glm_model import GLMModel
+>>> from flagai.data.tokenizer import Tokenizer
+>>> from flagai.model.predictor.predictor import Predictor
+>>> if __name__ == "__main__":
+>>>     """Main training program."""
+>>>     print('Generate Samples') 
+>>>     model_name = 'GLM-large-ch'
+>>>     tokenizer = Tokenizer.from_pretrained(model_name)
+>>>     model = GLMModel.from_pretrain(model_name=model_name, only_download_config=False)
+>>>     model.cuda(torch.cuda.current_device())
+>>>     predictor = Predictor(model, tokenizer)
+>>>     # question-answering
+>>>     text = '北京故宫是中国[MASK]非物质文化遗产。'
+>>>     output=predictor.predict_generate_randomsample(text)
+>>>     print(text,'\n',output)
 ```
 and predict masked sentences as
 
 ```python
-import torch
-from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import Tokenizer
-from flagai.model.predictor.predictor import Predictor
-if __name__ == "__main__":
-    """Main training program."""
-    print('Generate Samples') 
-    model_name = 'GLM-large-ch'
-    tokenizer = Tokenizer.from_pretrained(model_name)
-    model = GLMModel.from_pretrain(model_name=model_name, only_download_config=False)
-    model.cuda(torch.cuda.current_device())
-    predictor = Predictor(model, tokenizer)
-    # question-answering
-    text = '人工智能是一个以计算机科学为基础，由计算机、数学、哲学等多学科交叉融合的交叉学科，[sMASK]，具有非常巨大的前景。'
-    output=predictor.predict_generate_randomsample(text)
-    print(text,'\n',output)
+>>> import torch
+>>> from flagai.model.glm_model import GLMModel
+>>> from flagai.data.tokenizer import Tokenizer
+>>> from flagai.model.predictor.predictor import Predictor
+>>> if __name__ == "__main__":
+>>>     """Main training program."""
+>>>     print('Generate Samples') 
+>>>     model_name = 'GLM-large-ch'
+>>>     tokenizer = Tokenizer.from_pretrained(model_name)
+>>>     model = GLMModel.from_pretrain(model_name=model_name, only_download_config=False)
+>>>     model.cuda(torch.cuda.current_device())
+>>>     predictor = Predictor(model, tokenizer)
+>>>     # question-answering
+>>>     text = '人工智能是一个以计算机科学为基础，由计算机、数学、哲学等多学科交叉融合的交叉学科，[sMASK]，具有非常巨大的前景。'
+>>>     output=predictor.predict_generate_randomsample(text)
+>>>     print(text,'\n',output)
 ```

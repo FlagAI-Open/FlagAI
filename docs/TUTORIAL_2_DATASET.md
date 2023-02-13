@@ -11,45 +11,45 @@ There are two forms of tuning for classification tasks: one is fine-tuning, and 
 ### Application code
 
 ```python
-import torch
-from flagai.data.tokenizer import Tokenizer
-from flagai.data.dataset import SuperGlueDataset
-from flagai.test_utils import CollateArguments
-from flagai.data.dataset import ConstructSuperglueStrategy
+>>> import torch
+>>> from flagai.data.tokenizer import Tokenizer
+>>> from flagai.data.dataset import SuperGlueDataset
+>>> from flagai.test_utils import CollateArguments
+>>> from flagai.data.dataset import ConstructSuperglueStrategy
 
-# get default parameters
-cl_args = CollateArguments()
+>>> # get default parameters
+>>> cl_args = CollateArguments()
 
-# Create tokenizer
-tokenizer = Tokenizer.from_pretrained("GLM-large-en")
-            
-# Initially read and process the dataset
-dataset = SuperGlueDataset(task_name='cb',
-                           data_dir='./datasets/',
-                           dataset_type='train',
-                           tokenizer=tokenizer)
+>>> # Create tokenizer
+>>> tokenizer = Tokenizer.from_pretrained("GLM-large-en")
+           
+>>> # Initially read and process the dataset
+>>> dataset = SuperGlueDataset(task_name='cb',
+>>>                            data_dir='./datasets/',
+>>>                            dataset_type='train',
+>>>                            tokenizer=tokenizer)
 
-# Construct collate function
-collate_fn = ConstructSuperglueStrategy(cl_args, tokenizer, task_name="rte")
+>>> # Construct collate function
+>>> collate_fn = ConstructSuperglueStrategy(cl_args, tokenizer, task_name="rte")
 
-# create loader
-loader = torch.utils.data.DataLoader(dataset,
-                                    batch_size=1,
-                                    shuffle=False,
-                                    num_workers=1,
-                                    drop_last=False,
-                                    pin_memory=False,
-                                    collate_fn=collate_fn)
+>>> # create loader
+>>> loader = torch.utils.data.DataLoader(dataset,
+>>>                                     batch_size=1,
+>>>                                     shuffle=False,
+>>>                                     num_workers=1,
+>>>                                     drop_last=False,
+>>>                                     pin_memory=False,
+>>>                                     collate_fn=collate_fn)
 ```
 
 ### Initially read and process the dataset
 The corresponding code module is shown below, which consists of two steps: automatically loading the dataset, and unifying the structure of all datasets
 
 ```python
-dataset = SuperGlueDataset(task_name='cb',
-                           data_dir='./datasets/',
-                           dataset_type='train',
-                           tokenizer=tokenizer)
+>>> dataset = SuperGlueDataset(task_name='cb',
+>>>                            data_dir='./datasets/',
+>>>                            dataset_type='train',
+>>>                            tokenizer=tokenizer)
 ```
 `SuperGlueDataset`is the function in this step，and its major parameters are introduced below：
 
@@ -133,7 +133,7 @@ In this step, we will unify the data structures of different datasets to facilit
 When the dataset is built, you can view one of the samples directly in the code by indexing:
 
 ```python
-example = dataset[3]  # The third example in dataset 
+>>> example = dataset[3]  # The third example in dataset 
 ```
 
 For instance, the example of CommitBank in the previous step will be processed into the following form
@@ -149,9 +149,9 @@ Noted that if text_a and text_b cannot be filled with background text informatio
 The corresponding function is implemented in the following function, which consists of two steps: constructing the template, segmenting the word and constructing the input sample.
 
 ```python
-collate_fn = ConstructSuperglueStrategy(cl_args,
-                                        tokenizer,
-                                        task_name=task_name)
+>>> collate_fn = ConstructSuperglueStrategy(cl_args,
+>>>                                         tokenizer,
+>>>                                         task_name=task_name)
 ```
 
 #### 1. Build the cloze template
@@ -206,21 +206,21 @@ In the first case, the label categories contained in the dataset are limited. Fo
 Finally, put the data into the [PyTorch Loader](https://pytorch.org/docs/stable/data.html?highlight=dataloader#torch.utils.data.DataLoader).
 
 ```python
-loader = torch.utils.data.DataLoader(dataset,
-                                    batch_size=1,
-                                    shuffle=False,
-                                    num_workers=1,
-                                    drop_last=False,
-                                    pin_memory=False,
-                                    collate_fn=collate_fn)
+>>> loader = torch.utils.data.DataLoader(dataset,
+>>>                                     batch_size=1,
+>>>                                     shuffle=False,
+>>>                                     num_workers=1,
+>>>                                     drop_last=False,
+>>>                                     pin_memory=False,
+>>>                                     collate_fn=collate_fn)
 ```
 The data in the Dataloader can be viewed by the following methods
 
 ```python
-for data_iterator in train_loader:
-    for key, value in data_iterator.items():
-        print(key, value)
-    # break
+>>> for data_iterator in train_loader:
+>>>     for key, value in data_iterator.items():
+>>>         print(key, value)
+>>>     # break
 ```
 Once the loader is constructed, it can be used for the subsequent training and prediction process. <br /><br /><br />
 
@@ -254,39 +254,39 @@ Sample pre-training task data format:
 Pre-trained task processing example code:
 
 ```python
-from flagai.data.tokenizer import Tokenizer
-from flagai.test_utils import PretrainDatasetArguments
-from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
-from flagai.data.dataset import BlockDataset
+>>> from flagai.data.tokenizer import Tokenizer
+>>> from flagai.test_utils import PretrainDatasetArguments
+>>> from flagai.data.dataset.block.data_utils import split_ds, get_dataset_lazy, add_args
+>>> from flagai.data.dataset import BlockDataset
 
-ds_args = PretrainDatasetArguments()
+>>> ds_args = PretrainDatasetArguments()
 
-tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
+>>> tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
 
-ds_args = add_args(ds_args, tokenizer)
+>>> ds_args = add_args(ds_args, tokenizer)
 
-def create_dataset(tokenizer, should_split):
-    dataset = get_dataset_lazy("./examples/glm_pretrain/data", # load
-                               tokenizer=tokenizer,
-                               pre_tokenize=True,
-                               num_processes=10,
-                               no_lazy_loader=True)
-    if should_split:
-        datasets = split_ds(dataset, split=[.8, .2, .0], shuffle=True) # Manual segmentation
-    else:
-        datasets = [dataset]
+>>> def create_dataset(tokenizer, should_split):
+>>>     dataset = get_dataset_lazy("./examples/glm_pretrain/data", # load
+>>>                                tokenizer=tokenizer,
+>>>                                pre_tokenize=True,
+>>>                                num_processes=10,
+>>>                                no_lazy_loader=True)
+>>>     if should_split:
+>>>         datasets = split_ds(dataset, split=[.8, .2, .0], shuffle=True) # Manual segmentation
+>>>     else:
+>>>         datasets = [dataset]
 
-    datasets = [
-        BlockDataset(ds,
-                     tokenizer,
-                     max_seq_len=512,
-                     sample_across_doc=True,
-                     non_sentence_start=0.0) if ds is not None else None
-        for ds in datasets
-    ]
-    return datasets
+>>>     datasets = [
+>>>         BlockDataset(ds,
+>>>                      tokenizer,
+>>>                      max_seq_len=512,
+>>>                      sample_across_doc=True,
+>>>                      non_sentence_start=0.0) if ds is not None else None
+>>>         for ds in datasets
+>>>     ]
+>>>     return datasets
 
-datasets = create_dataset(tokenizer, should_split=True)
+>>> datasets = create_dataset(tokenizer, should_split=True)
 ```
 
 Pre-training data processing also follows the same process, with the following differences
@@ -309,35 +309,35 @@ Pre-training data processing also follows the same process, with the following d
 The code implementation is as follows:
 
 ```python 
-import torch
-from flagai.data.dataset import Seq2SeqDataset
-from flagai.data.tokenizer import Tokenizer
-from flagai.test_utils import Seq2SeqCollateArguments
-from flagai.data.dataset import ConstructSeq2seqStrategy
+>>> import torch
+>>> from flagai.data.dataset import Seq2SeqDataset
+>>> from flagai.data.tokenizer import Tokenizer
+>>> from flagai.test_utils import Seq2SeqCollateArguments
+>>> from flagai.data.dataset import ConstructSeq2seqStrategy
 
-# get default parameters
-cl_args = Seq2SeqCollateArguments()
+>>> # get default parameters
+>>> cl_args = Seq2SeqCollateArguments()
 
-# create tokenizer
-tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
-            
-# Initially read and process the dataset
-dataset = Seq2SeqDataset(task_name='cmrc',
-                           data_dir='./datasets/',
-                           dataset_type='train',
-                           tokenizer=tokenizer)
+>>> # create tokenizer
+>>> tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
+        
+>>> # Initially read and process the dataset
+>>> dataset = Seq2SeqDataset(task_name='cmrc',
+>>>                            data_dir='./datasets/',
+>>>                            dataset_type='train',
+>>>                            tokenizer=tokenizer)
 
-# build collate function
-collate_fn = ConstructSeq2seqStrategy(cl_args, tokenizer, task_name="rte")
+>>> # build collate function
+>>> collate_fn = ConstructSeq2seqStrategy(cl_args, tokenizer, task_name="rte")
 
-# Create a loader
-loader = torch.utils.data.DataLoader(dataset,
-                                    batch_size=1,
-                                    shuffle=False,
-                                    num_workers=1,
-                                    drop_last=False,
-                                    pin_memory=False,
-                                    collate_fn=collate_fn)
+>>> # Create a loader
+>>> loader = torch.utils.data.DataLoader(dataset,
+>>>                                     batch_size=1,
+>>>                                     shuffle=False,
+>>>                                     num_workers=1,
+>>>                                     drop_last=False,
+>>>                                     pin_memory=False,
+>>>                                     collate_fn=collate_fn)
 ```
 
 ### Supported Tasks
@@ -382,8 +382,8 @@ Currently, [CMRC2018](https://www.clue.ai/introduce.html) task is supported. CMR
 When using it, we can change the `task_name` parameter to `cmrc`. The implementation process is similar to the fine-tuning of the classification task, and the data set will be initially processed into the same structure in the end. The corresponding code is as follows:
 
 ```python 
-dataset = Seq2SeqDataset(task_name='cmrc', data_dir='./datasets/', 
-                            dataset_type='train', tokenizer=tokenizer) 
+>>> dataset = Seq2SeqDataset(task_name='cmrc', data_dir='./datasets/', 
+>>>                             dataset_type='train', tokenizer=tokenizer) 
 ```
 
 ### Organize the data into input to the model
@@ -391,9 +391,9 @@ dataset = Seq2SeqDataset(task_name='cmrc', data_dir='./datasets/',
 The code is shown below. Compared with the generation task, it is also the construction template and model input, the difference is that the construction method is different
 
 ```python 
-collate_fn = ConstructSeq2seqStrategy(cl_args,
-                                        tokenizer,
-                                        task_name=task_name) 
+>>> collate_fn = ConstructSeq2seqStrategy(cl_args,
+>>>                                         tokenizer,
+>>>                                         task_name=task_name) 
 ```
 
 #### 1. Build a fill-in-the-blank template

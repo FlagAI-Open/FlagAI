@@ -10,7 +10,7 @@ The GPT2 generation task is to only input the beginning of a text, and the model
 
 #### Input
 ```python
-text = "今天天气不错，"
+>>> text = "今天天气不错，"
 ```
 #### Output
 ```
@@ -22,14 +22,14 @@ text = "今天天气不错，"
 ### 1. Load model and tokenizer
 
 ```python
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
-loader = AutoLoader("seq2seq",
-                    "GPT2-base-ch",
-                    model_dir="./state_dict/")
-model = loader.get_model()
-tokenizer = loader.get_tokenizer()
-predictor = Predictor(model, tokenizer)
+>>> from flagai.auto_model.auto_loader import AutoLoader
+>>> from flagai.model.predictor.predictor import Predictor
+>>> loader = AutoLoader("seq2seq",
+>>>                     "GPT2-base-ch",
+>>>                     model_dir="./state_dict/")
+>>> model = loader.get_model()
+>>> tokenizer = loader.get_tokenizer()
+>>> predictor = Predictor(model, tokenizer)
 ```
 
 ### Run

@@ -35,15 +35,15 @@ def validate(logits, labels, meta=None):
 
 if __name__ == '__main__':
 
-    model_save_dir = "./checkpoints_vit_cifar100"
+    model_save_dir = "./checkpoints_vit_cifar100_deepspeed"
     print(f"loadding model in :{model_save_dir}")
-    loader = AutoLoader(task_name="backbone",
+    loader = AutoLoader(task_name="classification",
                         model_name="vit-base-p16-224",
                         num_classes=100)
 
     model = loader.get_model()
 
-    model.load_state_dict(torch.load(os.path.join(model_save_dir, "38000", "pytorch_model.bin"), map_location=device)["module"])
+    model.load_state_dict(torch.load(os.path.join(model_save_dir, "19000", "pytorch_model.bin"), map_location=device)["module"])
     print(f"model load success.......")
     model.to(device)
 
