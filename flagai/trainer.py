@@ -459,19 +459,18 @@ class Trainer():
             param_groups = param_groups[0]['params']
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
-            # if self.env_type == 'bmtrain':
-            #     optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
-            #                                    weight_decay=self.weight_decay, lr=5e-6)
-            #     # optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
-            # else:
-            optimizer = get_optimizer(
-                param_groups=param_groups,
-                lr=self.lr,
-                weight_decay=self.weight_decay,
-                cpu_optimizer=False,
-                cpu_torch_adam=False,
-                fp16=self.fp16,
-                optimizer='adam')  # if not self.fp16 else 'adafactor')
+            if self.env_type == 'bmtrain':
+                optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
+                                               weight_decay=self.weight_decay,)
+            else:
+                optimizer = get_optimizer(
+                    param_groups=param_groups,
+                    lr=self.lr,
+                    weight_decay=self.weight_decay,
+                    cpu_optimizer=False,
+                    cpu_torch_adam=False,
+                    fp16=self.fp16,
+                    optimizer='adam')  # if not self.fp16 else 'adafactor')
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
@@ -729,11 +728,7 @@ class Trainer():
 
             # accumulate gradients
             lm_loss = step_output['loss']
-            logits = step_output['logits']
-            
-            
-            lm_loss = lm_loss / self.gradient_accumulation_steps
-
+            lm_loss /= self.gradient_accumulation_steps
             # reduce sum of losses
             reduced_loss = lm_loss.detach().clone().view(1)
             # dist.all_reduce(reduced_loss.data)
@@ -752,9 +747,8 @@ class Trainer():
                 else:
                     lm_loss.backward()
 
-                grad_norm = torch.nn.utils.clip_grad_norm_(model.module.parameters(),
+                torch.nn.utils.clip_grad_norm_(model.module.parameters(),
                                                self.clip_grad)
-              
                 self.timers('backward').stop()
 
                 # Update parameters.
@@ -846,7 +840,6 @@ class Trainer():
         """Single training step."""
         optim_manager = bmt.optim.OptimManager(loss_scale=1024)
         optim_manager.add_optimizer(optimizer, lr_scheduler)
-        # optim_manager.add_optimizer(optimizer)
         optim_manager.zero_grad()
         self.timers('forward').start()
         model_output = model(**data)
@@ -861,7 +854,6 @@ class Trainer():
             loss.backward()
         self.timers('backward').stop()
         self.timers('optimizer').start()
-        grad_norm = optim_manager.clip_grad_norm(optimizer.param_groups, max_norm=1.0)
         optim_manager.step()
         self.timers('optimizer').stop()
         return lm_loss, mems
@@ -1024,13 +1016,11 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
-                        # import pdb;pdb.set_trace()
                         if logits.size(0) != 1:
                             logits = torch.argmax(logits, dim=1).unsqueeze(0)
                         all_logits.append(logits)
                         all_labels.append(labels)
                         pass
-                import pdb;pdb.set_trace()
                 all_losses.append(lm_loss.view(1))
             # size of all_logits: (1, n)
             if all_logits[0].size() != all_logits[-1].size():
