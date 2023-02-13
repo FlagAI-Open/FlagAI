@@ -141,7 +141,7 @@ class SummmaryProcessor:
                                    text_a=source_text,
                                    text_b=target_text,
                                    meta=meta)
-            if idx < 10:
+            if idx < 1:
                 print_rank_0(
                     (source_text.encode('utf-8'), target_text.encode('utf-8'),
                      meta["ref"].encode('utf-8')))

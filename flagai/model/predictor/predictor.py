@@ -17,6 +17,8 @@ from tqdm import trange, tqdm
 import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
+from torchvision.utils import make_grid
+from pytorch_lightning import seed_everything
 
 class Predictor:
     def __init__(self, model, tokenizer=None):
@@ -368,8 +370,6 @@ class Predictor:
                                 scale: float = 7.5,
                                 from_file: str = None,
                                 seed: int = 34234):
-        from torchvision.utils import make_grid
-        from pytorch_lightning import seed_everything
         from flagai.model.predictor.utils import chunk, check_safety, get_safety_checker
         safety_checker, safety_feature_extractor = get_safety_checker()
         """

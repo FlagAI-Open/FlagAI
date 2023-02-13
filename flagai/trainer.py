@@ -523,11 +523,7 @@ class Trainer():
         if len(self.metric_methods) > 0:
             best_score = -best_score
         for epoch in range(self.epochs):
-            # log_dist('working on epoch {} ...'.format(epoch), [0])
-            # Set the data loader epoch to shuffle the index iterator.
-            # if self.env_type == 'deepspeed+mpu':
-            #     if mpu.get_model_parallel_rank() == 0:
-            #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
+            print("epoch "+str(epoch))
             if self.env_type != 'pytorch':
                 train_dataloader.sampler.set_epoch(epoch + self.world_size)
 
@@ -639,7 +635,6 @@ class Trainer():
                                     save_dir=self.save_dir,
                                     save_rng=self.save_rng)
                 self.iteration += 1
-
                 # Checkpointing at the end of each epoch.
 
         # Evaluation #todo add train_args
@@ -841,7 +836,7 @@ class Trainer():
                              optimizer,
                              lr_scheduler,
                              mems=None,
-                             single_step=False): #bmt 自带loss scale 需要查看是否有重复
+                             single_step=False): #bmt has loss scale, which need to be checked repetition
         """Single training step."""
         optim_manager = bmt.optim.OptimManager(loss_scale=1024)
         optim_manager.add_optimizer(optimizer, lr_scheduler)
@@ -960,7 +955,6 @@ class Trainer():
                  forward_step_func=None,
                  verbose=False):
         """Evaluation."""
-
         # Turn off checkpoint_activations
         tmp_checkpoint_activations = None
         tmp_model = model
@@ -976,7 +970,6 @@ class Trainer():
 
         mems = None
         metrics = [0. for _ in range(len(self.metric_methods))]
-        # import pdb;pdb.set_trace()
         with torch.no_grad():
             assert data_loader is not None, "val loader is not None."
             all_logits = []
@@ -1010,11 +1003,12 @@ class Trainer():
                     deepspeed.checkpointing.reset()
                 logits = step_output['logits']
                 lm_loss = step_output['loss']
-
+                
                 if 'labels' in data_iterator:
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
+                loss_mask = data_iterator['loss_mask']
                 if len(self.metric_methods) != 0:
                     if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
                         batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()
@@ -1024,10 +1018,11 @@ class Trainer():
                     else:
                         # import pdb;pdb.set_trace()
                         if logits.size(0) != 1:
-                            logits = torch.argmax(logits, dim=0).unsqueeze(0)
+                            logits = torch.argmax(logits, dim=1).unsqueeze(0)
                         all_logits.append(logits)
                         all_labels.append(labels)
                         pass
+                import pdb;pdb.set_trace()
                 all_losses.append(lm_loss.view(1))
             # size of all_logits: (1, n)
             if all_logits[0].size() != all_logits[-1].size():
@@ -1059,7 +1054,6 @@ class Trainer():
 
         # Move model back to the train mode.
 
-        # model.train()
         tmp_model.train()
         # recover the settings for checkpoint_activations
         if hasattr(tmp_model,
@@ -1108,9 +1102,6 @@ class Trainer():
     ):
         """Helper function to evaluate and dump results on screen."""
         
-        # print(torch.cuda.memory_allocated())
-        # torch.cuda.empty_cache()
-        # print(torch.cuda.memory_allocated())
         eval_dict = self.evaluate(forward_step_func=forward_step_func,
                                   data_loader=data_loader,
                                   model=model,

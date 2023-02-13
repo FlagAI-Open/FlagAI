@@ -974,5 +974,6 @@ class GLMForSeq2Seq(BaseModel):
         loss_mask = loss_mask.view(-1).float()
         Loss = nn.CrossEntropyLoss(ignore_index=0, reduction="none")
         logits = outputs.view(-1, vocab_size)
+        # import pdb;pdb.set_trace()
         loss = (Loss(logits, target_ids) * loss_mask).sum() / loss_mask.sum()
         return {"loss": loss, "hidden_states": mems, "logits": logits}

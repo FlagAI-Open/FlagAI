@@ -35,9 +35,9 @@ tokenizer = Tokenizer.from_pretrained(model_name)
 
 if task_name in MULTI_TOKEN_TASKS:
     model = GLMForMultiTokenCloze.from_pretrain(
-        download_path="/mnt/test_10b_models", model_name=model_name)
+        download_path="/checkpoints/test_10b_models", model_name=model_name)
 else:
-    model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
+    model = GLMForSingleTokenCloze.from_pretrain(download_path="/checkpoints/test_10b_models",
                                                  model_name=model_name)
 
 # model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",

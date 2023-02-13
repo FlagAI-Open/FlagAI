@@ -148,15 +148,15 @@ class Tokenizer(BaseTokenizer):
             if add_block_symbols:
                 self.add_command_token('sop', '<|startofpiece|>')
                 self.add_command_token('eop', '<|endofpiece|>',)
-            #     if add_task_mask:
-            #         self.add_command_token('gMASK', '[gMASK]')
-            #         self.add_command_token('sMASK', '[sMASK]')
-            #     if add_decoder_mask:
-            #         self.add_command_token('dBLOCK', '[dBLOCK]')
-            # if add_sentinel_token > 0:
-            #     for i in range(1, add_sentinel_token):
-            #         self.add_command_token(f'MASK{i}', f'[MASK{i}]')
-            #         self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>')
+                if add_task_mask:
+                    self.add_command_token('gMASK', '[gMASK]')
+                    self.add_command_token('sMASK', '[sMASK]')
+                if add_decoder_mask:
+                    self.add_command_token('dBLOCK', '[dBLOCK]')
+            if add_sentinel_token > 0:
+                for i in range(1, add_sentinel_token):
+                    self.add_command_token(f'MASK{i}', f'[MASK{i}]')
+                    self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>')
         elif self.tokenizer_class == "bpe":
             if self.tokenizer_model_name.lower().startswith('roberta'):
                 self.num_command_tokens = 6
