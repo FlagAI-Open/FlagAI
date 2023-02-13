@@ -459,18 +459,19 @@ class Trainer():
             param_groups = param_groups[0]['params']
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
-            if self.env_type == 'bmtrain':
-                optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
-                                               weight_decay=self.weight_decay,)
-            else:
-                optimizer = get_optimizer(
-                    param_groups=param_groups,
-                    lr=self.lr,
-                    weight_decay=self.weight_decay,
-                    cpu_optimizer=False,
-                    cpu_torch_adam=False,
-                    fp16=self.fp16,
-                    optimizer='adam')  # if not self.fp16 else 'adafactor')
+            # if self.env_type == 'bmtrain':
+            #     optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
+            #                                    weight_decay=self.weight_decay, lr=5e-6)
+            #     # optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
+            # else:
+            optimizer = get_optimizer(
+                param_groups=param_groups,
+                lr=self.lr,
+                weight_decay=self.weight_decay,
+                cpu_optimizer=False,
+                cpu_torch_adam=False,
+                fp16=self.fp16,
+                optimizer='adam')  # if not self.fp16 else 'adafactor')
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
