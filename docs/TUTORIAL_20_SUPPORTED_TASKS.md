@@ -3,16 +3,16 @@
 You can input the different "task_name" parameters in AutoLoader to load model to perform different task.
 
 ```python
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
+>>> from flagai.auto_model.auto_loader import AutoLoader
+>>> from flagai.model.predictor.predictor import Predictor
 
-auto_loader = AutoLoader(
-    "seq2seq",
-    model_name="RoBERTa-base-ch",
-    load_pretrain_params=True,
-)
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
+>>> auto_loader = AutoLoader(
+>>>     "seq2seq",
+>>>     model_name="RoBERTa-base-ch",
+>>>     load_pretrain_params=True,
+>>> )
+>>> model = auto_loader.get_model()
+>>> tokenizer = auto_loader.get_tokenizer()
 ```
 The "task_name" is "seq2seq" in this example. We construct a roberta seq2seq model by the AutoLoader class.
 

@@ -27,7 +27,7 @@ trainer = Trainer(
     save_interval=40,
     num_checkpoints=1,
     hostfile='./hostfile',
-    training_script="train_bmtrain.py",
+    training_script=__file__,
     deepspeed_config='./deepspeed.json'
 )
 

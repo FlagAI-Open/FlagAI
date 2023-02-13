@@ -25,6 +25,7 @@ class EnvArgs:
                  clip_grad=1.0,
                  checkpoint_activations=False,
                  gradient_accumulation_steps=1,
+
                  weight_decay=1e-5,
                  warm_up=0.1,
 
@@ -40,6 +41,8 @@ class EnvArgs:
                  load_optim=False,  # not load optimizer when loading checkpoint.')
                  load_rng=False,
                  tensorboard_dir="tensorboard_summary",
+                 tensorboard=False,
+                 wandb=True,
 
                  # distribute settings
                  deepspeed_activation_checkpointing=False,
@@ -52,6 +55,10 @@ class EnvArgs:
                  deepspeed_config="./deepspeed.json",
                  model_parallel_size=1,
                  training_script="train.py",
+
+                 ## TODO optim
+                 adam_beta1=0.9,
+                 adam_beta2=0.999,
                  ):
 
         self.parser = argparse.ArgumentParser(description='Env args parser')
@@ -78,6 +85,7 @@ class EnvArgs:
         self.parser.add_argument('--load_type', default=load_type, type=str2bool,help='start training from saved checkpoint')
         self.parser.add_argument('--load_optim', default=load_optim, type=str2bool,help='start training from saved checkpoint')
         self.parser.add_argument('--load_rng', default=load_rng, type=str2bool, help='start training from saved checkpoint')
+        self.parser.add_argument('--tensorboard', default=tensorboard, type=str2bool, help='start training from saved checkpoint')
         self.parser.add_argument('--tensorboard_dir', default=tensorboard_dir, help='start training from saved checkpoint')
         self.parser.add_argument('--deepspeed_activation_checkpointing', default=deepspeed_activation_checkpointing, help='start training from saved checkpoint')
         self.parser.add_argument('--num_checkpoints', default=num_checkpoints, help='start training from saved checkpoint')
@@ -92,6 +100,11 @@ class EnvArgs:
         self.parser.add_argument('--num_gpus', default=num_gpus, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--not_call_launch', action="store_true", help='start training from saved checkpoint')
         self.parser.add_argument('--local_rank', default=0, type=int, help='start training from saved checkpoint')
+
+        self.parser.add_argument('--wandb', default=wandb, type=str2bool, help='whether to use wandb')
+
+        self.parser.add_argument('--adam_beta1', default=adam_beta1, type=float, help='adam beta1')
+        self.parser.add_argument('--adam_beta2', default=adam_beta2, type=float, help='adam beta2')
 
     def add_arg(self, arg_name, default=None, type=str, help="", store_true=False):
         if store_true:

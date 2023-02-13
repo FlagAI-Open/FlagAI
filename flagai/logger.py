@@ -6,6 +6,13 @@ import sys
 import os
 import torch.distributed as dist
 
+is_bmt = 0
+try:
+    import bmtrain as bmt
+    is_bmt = 1
+except:
+    is_bmt = 0
+
 log_levels = {
     "debug": logging.DEBUG,
     "info": logging.INFO,
@@ -45,7 +52,7 @@ class LoggerFactory:
 
 
 if 'logger' not in dir():
-    logger = LoggerFactory.create_logger(name="DeepSpeed", level=logging.INFO)
+    logger = LoggerFactory.create_logger(name="FlagAI", level=logging.INFO)
 while len(logger.handlers) > 1:
     # Why is this happening?
     logger.removeHandler(logger.handlers[-1])
@@ -60,16 +67,22 @@ def log_dist(message, ranks=None, level=logging.INFO):
         ranks (list)
         level (int)
     """
-    should_log = not dist.is_initialized()
+    
+    my_rank = -1
+    if is_bmt and bmt.init.is_initialized():
+        should_log = not bmt.init.is_initialized()
+        my_rank = bmt.rank() if bmt.init.is_initialized() else -1
+    else:
+        should_log = not dist.is_initialized()
+        my_rank = dist.get_rank() if dist.is_initialized() else -1
+        
     ranks = ranks or []
-    my_rank = dist.get_rank() if dist.is_initialized() else -1
     if ranks and not should_log:
         should_log = ranks[0] == -1
         should_log = should_log or (my_rank in set(ranks))
     if should_log:
         final_message = "[Rank {}] {}".format(my_rank, message)
         logger.log(level, final_message)
-
 
 def print_json_dist(message, ranks=None, path=None):
     """Print message when one of following condition meets

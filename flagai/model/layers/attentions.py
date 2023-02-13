@@ -36,6 +36,14 @@ from flagai.model.utils import ensure_divisibility
 from flagai.model.utils import split_tensor_along_last_dim
 from flagai.model.layers.layer_norm import CPM3LayerNorm
 
+try:
+    from flagai.logger import log_dist
+    import einops
+    from flash_attn.bert_padding import unpad_input, pad_input, index_first_axis
+    from flash_attn.flash_attn_interface import flash_attn_unpadded_qkvpacked_func
+except:
+    pass
+
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu import get_model_parallel_world_size
     from flagai.mpu import gather_from_model_parallel_region
@@ -66,6 +74,10 @@ class GPT2Attention(nn.Module):
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
+        init_method = config.init_method
+        output_layer_init_method = config.output_layer_init_method
+        if output_layer_init_method is None:
+            output_layer_init_method = init_method
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             world_size = get_model_parallel_world_size()
             self.split_size = divide(n_state, world_size)
@@ -86,10 +98,18 @@ class GPT2Attention(nn.Module):
                                             bias=True,
                                             input_is_parallel=True,
                                             stride=1,
-                                            init_method=init_method)
+                                            init_method=output_layer_init_method)
         else:
             self.c_attn = nn.Linear(nx, 3 * n_state)
             self.c_proj = nn.Linear(nx, n_state)
+
+            # TODO
+            with torch.no_grad():
+                self.c_attn.bias.zero_()
+                self.c_proj.bias.zero_()
+            init_method(self.c_attn.weight)
+            init_method(self.c_proj.weight)
+
         self.attn_dropout = nn.Dropout(config.attn_pdrop)
         self.resid_dropout = nn.Dropout(config.resid_pdrop)
         self.pruned_heads = set()
@@ -923,8 +943,7 @@ class BertParallelSelfAttention(torch.nn.Module):
         tensor = tensor.view(*new_tensor_shape)
         return tensor.permute(0, 2, 1, 3)
 
-    def forward(self, hidden_states, attention_mask):
-
+    def forward(self, hidden_states, attention_mask, **kwargs):
         # Attention heads. [b, s, hp]
         mixed_x_layer = self.query_key_value(hidden_states)
         (mixed_query_layer, mixed_key_layer,
@@ -974,6 +993,84 @@ class BertParallelSelfAttention(torch.nn.Module):
         return output
 
 
+class BertParallelSelfFlashAttention(torch.nn.Module):
+    """
+        FlashAttention
+    """
+
+    def __init__(self,
+                 hidden_size,
+                 num_attention_heads,
+                 dropout_prob,
+                 output_parallel=False,
+                 init_method=init.xavier_normal_):
+        super(BertParallelSelfFlashAttention, self).__init__()
+        # Input configuration.
+        self.hidden_size = hidden_size
+        self.num_attention_heads = num_attention_heads
+        self.dropout_prob = dropout_prob
+        self.output_parallel = output_parallel
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            # Per attention head and per partition values.
+            world_size = get_model_parallel_world_size()
+            self.hidden_size_per_partition = divide(hidden_size, world_size)
+            self.hidden_size_per_attention_head = divide(
+                hidden_size, num_attention_heads)
+            self.num_attention_heads_per_partition = divide(
+                num_attention_heads, world_size)
+            # Strided linear layer.
+            self.query_key_value = ColumnParallelLinear(
+                hidden_size,
+                3 * hidden_size,
+                stride=3,
+                gather_output=False,
+                init_method=init_method)
+        else:
+            self.hidden_size_per_partition = hidden_size
+            self.hidden_size_per_attention_head = divide(
+                hidden_size, num_attention_heads)
+            self.num_attention_heads_per_partition = num_attention_heads
+            # Strided linear layer.
+            self.query_key_value = Linear(hidden_size, 3 * hidden_size)
+
+    def forward(self, hidden_states, attention_mask, **kwargs):
+        nheads = self.num_attention_heads
+        batch_size = hidden_states.size(0)
+        seqlen = hidden_states.size(1)
+
+        input_ids = kwargs['input_ids']
+        key_padding_mask = input_ids > 0
+        indices = torch.nonzero(key_padding_mask.flatten(), as_tuple=False).flatten()
+        # Attention heads. [b, s, hd]
+        x_unpad = index_first_axis(einops.rearrange(hidden_states, 'b s ... -> (b s) ...'), indices)
+
+        cu_seqlens = kwargs['cu_seqlens']
+        x_unpad = einops.rearrange(self.query_key_value(x_unpad), 'nnz (t h d) -> nnz t h d', t=3,
+                                   h=nheads)
+        output_unpad = flash_attn_unpadded_qkvpacked_func(
+            x_unpad, cu_seqlens, seqlen, self.dropout_prob if self.training else 0.0,
+            causal=False
+        )
+        output = einops.rearrange(pad_input(einops.rearrange(output_unpad, 'nnz h d -> nnz (h d)'),
+                                            indices, batch_size, seqlen),
+                                  'b s (h d) -> b s h d', h=nheads)
+        context_layer = einops.rearrange(output, '(b s) ... -> b s ...', b=batch_size)
+
+        # [b, s, hp]
+        new_context_layer_shape = hidden_states.size()[:-1] + \
+                                  (self.hidden_size_per_partition,)
+        context_layer = context_layer.view(*new_context_layer_shape)
+
+        # Output. [b, s, h]
+        if self.output_parallel:
+            output = context_layer
+        else:
+            if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+                output = gather_from_model_parallel_region(context_layer)
+            else:
+                output = context_layer
+        return output
+
 class BertSelfOutput(torch.nn.Module):
 
     def __init__(self, hidden_size, initializer_range, layernorm_epsilon,
@@ -1004,19 +1101,27 @@ class BertAttention(torch.nn.Module):
 
     def __init__(self, hidden_size, num_attention_heads,
                  attention_probs_dropout_prob, initializer_range,
-                 layernorm_epsilon, hidden_dropout_prob):
+                 layernorm_epsilon, hidden_dropout_prob, enable_flash_atten=False):
         super(BertAttention, self).__init__()
-        self.self = BertParallelSelfAttention(
-            hidden_size=hidden_size,
-            num_attention_heads=num_attention_heads,
-            dropout_prob=attention_probs_dropout_prob,
-            output_parallel=True,
-            init_method=normal_init_method(mean=0.0, std=initializer_range))
+        if enable_flash_atten:
+            self.self = BertParallelSelfFlashAttention(
+                hidden_size=hidden_size,
+                num_attention_heads=num_attention_heads,
+                dropout_prob=attention_probs_dropout_prob,
+                output_parallel=True,
+                init_method=normal_init_method(mean=0.0, std=initializer_range))
+        else:
+            self.self = BertParallelSelfAttention(
+                hidden_size=hidden_size,
+                num_attention_heads=num_attention_heads,
+                dropout_prob=attention_probs_dropout_prob,
+                output_parallel=True,
+                init_method=normal_init_method(mean=0.0, std=initializer_range))
         self.output = BertSelfOutput(hidden_size, initializer_range,
                                      layernorm_epsilon, hidden_dropout_prob)
 
-    def forward(self, input_tensor, attention_mask):
-        self_output = self.self(input_tensor, attention_mask)
+    def forward(self, input_tensor, attention_mask, **kwargs):
+        self_output = self.self(input_tensor, attention_mask, **kwargs)
         attention_output = self.output(self_output, input_tensor)
         return attention_output
 

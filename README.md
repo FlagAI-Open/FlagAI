@@ -15,11 +15,12 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 * These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
-* FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
+* FlagAI is backed by the three most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
-The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 ## News
+- [12 Jan 2023] release v1.6.0, support a new parallel lib called [**BMTrain**](https://github.com/OpenBMB/BMTrain) and integate [**Flash Attention**](https://github.com/HazyResearch/flash-attention) to speedup training of Bert and Vit models, examples in [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py) and [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). Also add the contrastive search based text generation method [**SimCTG**](https://github.com/yxuansu/SimCTG) and DreamBooth finetuning based on AltDiffusion, examples in [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
 - [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
 - [10 Nov 2022] release v1.4.0, support [AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities](https://arxiv.org/abs/2211.06679v1), examples in [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
 - [29 Aug 2022] release v1.3.0, Added CLIP module and redesigned tokenizer APIs in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
@@ -44,16 +45,16 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 
 <!-- tocstop -->
 ## Requirements and Installation
-* PyTorch version >= 1.8.0
 * Python version >= 3.8
-* For training/testing models on GPUs, you'll also need to install CUDA and NCCL
+* PyTorch version >= 1.8.0
+* [Optional] For training/testing models on GPUs, you'll also need to install CUDA and NCCL
 
-To install FlagAI with pip:
+- To install FlagAI with pip:
 ```shell
 pip install -U flagai
 ```
 
-- [Optional]To install FlagAI and develop locally:
+- [Optional] To install FlagAI and develop locally:
 
 ```shell
 git clone https://github.com/FlagAI-Open/FlagAI.git
@@ -72,6 +73,12 @@ git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # check the deespeed status
+```
+- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain)
+```
+git clone https://github.com/OpenBMB/BMTrain
+cd BMTrain
+python setup.py install
 ```
 - [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 7110
 ```
@@ -229,6 +236,7 @@ Thanks for your interest in contributing! There are many ways to get involved;
 start with our [contributor guidelines](CONTRIBUTING.md) and then
 check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
 
+
 ## Contact us
 
 <img src="./flagai_wechat.png" width = "200" height = "200"  align=center />
@@ -239,3 +247,18 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 * Megatron-LM is licensed under the [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM is licensed under the [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
 * AltDiffusion is licensed under the [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
+
+## Misc
+
+### &#8627; Stargazers, thank you for your support!
+[![Stargazers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/stars/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/stargazers)
+
+### &#8627; Forkers, thank you for your support!
+[![Forkers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/forks/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/network/members)
+
+### &#8627; Star History
+<div align="center">
+
+[![Star History Chart](https://api.star-history.com/svg?repos=FlagAI-Open/FlagAI&type=Date)](https://star-history.com/#baaivision/EVA&Date)
+
+</div>

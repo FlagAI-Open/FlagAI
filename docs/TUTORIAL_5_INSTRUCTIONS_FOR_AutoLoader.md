@@ -8,22 +8,22 @@ AutoLoader can quickly find the corresponding pre-trained model and tokenizer, j
 
 Take title generation tasks as an example:
 ```python
-from flagai.auto_model.auto_loader import AutoLoader
-auto_loader = AutoLoader(task_name="title-generation", ## The task name
-                         model_name="RoBERTa-base-ch", ## The model name.
-                         )
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
+>>> from flagai.auto_model.auto_loader import AutoLoader
+>>> auto_loader = AutoLoader(task_name="title-generation", ## The task name
+>>>                          model_name="RoBERTa-base-ch", ## The model name.
+>>>                          )
+>>> model = auto_loader.get_model()
+>>> tokenizer = auto_loader.get_tokenizer()
 ```
 ```task_name``` is the name of the task you want to do, in addition to ```title-generation```, you can also choose other subdivided tasks, such as ```semantic-matching```、```ner``` and so on.
 ```python
-target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
-from flagai.auto_model.auto_loader import AutoLoader
-auto_loader = AutoLoader(task_name="ner",
-                         model_name="RoBERTa-base-ch",
-                         class_num=len(target))
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
+>>> target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
+>>> from flagai.auto_model.auto_loader import AutoLoader
+>>> auto_loader = AutoLoader(task_name="ner",
+>>>                          model_name="RoBERTa-base-ch",
+>>>                          class_num=len(target))
+>>> model = auto_loader.get_model()
+>>> tokenizer = auto_loader.get_tokenizer()
 ```
 When building the model of classification related task, you also need to input a ``class_num`` parameter to tell the model how many classed to classify.
 
@@ -33,14 +33,14 @@ And the downloaded pretrained model, config and vocab will be put into the "./st
 In addition, by entering a different model_name, you can also directly call the already trained downstream task model, such as ``Roberta-base-ch-ner``, ``Roberta-base-ch-title-generation`` and so on.
 
 ```python
-target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
-from flagai.auto_model.auto_loader import AutoLoader
-auto_loader = AutoLoader(task_name="ner",
-                         model_name="RoBERTa-base-ch-ner",
-                         class_num=len(target))
+>>> target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
+>>> from flagai.auto_model.auto_loader import AutoLoader
+>>> auto_loader = AutoLoader(task_name="ner",
+>>>                          model_name="RoBERTa-base-ch-ner",
+>>>                          class_num=len(target))
 
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
+>>> model = auto_loader.get_model()
+>>> tokenizer = auto_loader.get_tokenizer()
 ```
 See https://github.com/FlagAI-Open/FlagAI/blob/master/quickstart/ner_ch.py to learn more.
 ## All supported tasks and models

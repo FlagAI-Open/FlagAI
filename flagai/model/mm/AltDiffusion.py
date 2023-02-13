@@ -14,6 +14,7 @@ from flagai.model.mm.autoencoders import VQModelInterface, IdentityFirstStage, A
 from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise_like
 from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
+from torch.cuda.amp import autocast as autocast
 
 __conditioning_keys__ = {
     'concat': 'c_concat',
@@ -66,7 +67,7 @@ class DDPM(BaseModel):
         **kwargs,
     ):
         super(DDPM, self).__init__(unet_config, **kwargs)
-       
+        unet_config.params.update(kwargs)
         assert parameterization in [
             "eps", "x0"
         ], 'currently only supporting "eps" and "x0"'
@@ -650,7 +651,6 @@ class LatentDiffusion(DDPM):
             z = encoder_posterior
         else:
             # raise NotImplementedError(f"encoder_posterior of type '{type(encoder_posterior)}' not yet implemented")
-
             z = encoder_posterior.sample()
         return self.scale_factor * z
     def set_cond_stage_forward(self):
@@ -663,10 +663,8 @@ class LatentDiffusion(DDPM):
                             return_overflowing_tokens=False,
                             padding="max_length",
                             return_tensors="pt")
-            text["input_ids"] = torch.tensor(text["input_ids"]).to(device)
-            text["attention_mask"] = torch.tensor(
-                text['attention_mask']).to(device)
-            # text = torch.tensor(text).to(device
+            text["input_ids"] = text["input_ids"].clone().detach().to(device)
+            text["attention_mask"] = text['attention_mask'].clone().detach().to(device)
             features = self.cond_stage_model(**text)
             return features['projection_state']
         self.cond_stage_forward = func
@@ -854,7 +852,6 @@ class LatentDiffusion(DDPM):
 
             if not self.cond_stage_trainable or force_c_encode:
                 if isinstance(xc, dict) or isinstance(xc, list):
-                    # import pudb; pudb.set_trace()
                     # Determine if learning the cond, otherwise it will return
                     # if the image editing is driven by texts, we will process the init_img and caption
                     if cond_key == "img_and_caption":
@@ -1269,7 +1266,8 @@ class LatentDiffusion(DDPM):
             x_recon = fold(o) / normalization
 
         else:
-            x_recon = self.model(x_noisy, t, **cond)
+            with autocast():            
+                x_recon = self.model(x_noisy, t, **cond)
 
         if isinstance(x_recon, tuple) and not return_ids:
             return x_recon[0]
