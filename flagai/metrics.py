@@ -51,7 +51,6 @@ def bleu_metric(predictions, labels, meta=None, tokenizer=None):
         prediction = prediction.tolist()
         prediction = tokenizer.DecodeIds(prediction)
         pred_list.append(prediction)
-    import pdb;pdb.set_trace()
     bleu_results = sacrebleu.corpus_bleu(pred_list, [ref_list])
     bleu_score = bleu_results.score
     return bleu_score
