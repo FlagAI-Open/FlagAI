@@ -443,7 +443,8 @@ class EnvTrainer():
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
-                log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
+                if 'input_ids' in batch:
+                    log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
