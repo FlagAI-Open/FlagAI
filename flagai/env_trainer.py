@@ -434,7 +434,8 @@ class EnvTrainer():
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
                 # print('*'*20, 'batch keys', batch.keys())
-                print('*'*20, 'batch input_ids', batch['input_ids'].size())
+                if 'input_ids' in batch:
+                    print('*'*20, 'batch input_ids', batch['input_ids'].size())
                 # print('*'*20, 'batch labels', batch['labels'].size())
                 # Train for one step.
                 if 'pytorch' != self.env_type:
