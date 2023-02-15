@@ -1024,7 +1024,7 @@ class Trainer():
                         pass
                 all_losses.append(lm_loss.view(1))
             # size of all_logits: (1, n)
-            if all_logits[0].size() != all_logits[-1].size():
+            if len(self.metric_methods) != 0 and all_logits[0].size() != all_logits[-1].size():
                 pd = (all_logits[0].size(0)-all_logits[-1].size(0), all_logits[0].size(1)-all_logits[-1].size(1))
                 all_logits[-1] = torch.nn.functional.pad(all_logits[-1], pd ,"constant",0)
             all_losses = torch.cat(all_losses, dim=0)
