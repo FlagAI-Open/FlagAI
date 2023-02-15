@@ -48,7 +48,6 @@ class PromptSpell(torch.nn.Module):
                     target_embedding = word_embedding * ratio + task_embedding * (
                         1 - ratio)
                 self.spell_embeddings.weight.data[i] = target_embedding
-        
 
     def forward(self):
         prompt_embeds = self.spell_embeddings.weight.unsqueeze(0)
