@@ -1,14 +1,11 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys 
-sys.path.append("/home/yanzhaodong/anhforth/test/FlagAI")
 import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSequenceClassification
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import Tokenizer
-
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
 from flagai.data.dataset.superglue.control import DEFAULT_METRICS, MULTI_TOKEN_TASKS, CH_TASKS
@@ -17,23 +14,6 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 
 # task_name options: ['boolq', 'cb', 'copa', 'multirc', 'rte', 'wic', 'wsc', 'afqmc', 'tnews']
 task_name = "cb"
-if task_name == "qqp":
-    class_num = 2
-else:
-    class_num = 3
-# trainer = Trainer(env_type='pytorch',
-#                     epochs=10,
-#                     batch_size=4,
-#                     eval_interval=100,
-#                     save_interval = 1000,
-#                     log_interval=50,
-#                     experiment_name='glm_large',
-#                     pytorch_device='cuda',
-#                     load_dir=None,
-#                     lr=1e-4)
-
-
-print("downloading...")
 
 cl_args = CollateArguments()
 cl_args.cloze_eval = True
@@ -47,9 +27,6 @@ if task_name in CH_TASKS:
 else:
     model_name = 'GLM-large-en'
 tokenizer = Tokenizer.from_pretrained(model_name)
-
-# model = GLMForSequenceClassification.from_pretrain(model_name=model_name, spell_length=8,
-#                                                     class_num=class_num, tune_prefix_layers=1)
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
                                              model_name=model_name, spell_length=8,
@@ -89,7 +66,7 @@ trainer = Trainer(env_type='deepspeed',
                   deepspeed_config='./deepspeed.json',
                   lr=1e-4,
                   training_script=__file__)
-
+# Single-GPU training
 # trainer = Trainer(env_type='pytorch',
 #                     epochs=100,
 #                     batch_size=1,
