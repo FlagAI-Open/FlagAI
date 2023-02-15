@@ -49,6 +49,7 @@ valid_dataset = SuperGlueDataset(task_name=task_name,
 
 metric_methods = DEFAULT_METRICS[task_name]
 
+# Deepspeed parallel trainer
 trainer = Trainer(env_type='deepspeed',
                   epochs=10000000,
                   batch_size=16,
@@ -66,7 +67,7 @@ trainer = Trainer(env_type='deepspeed',
                   deepspeed_config='./deepspeed.json',
                   lr=1e-4,
                   training_script=__file__)
-# Single-GPU training
+# Single-GPU trainer
 # trainer = Trainer(env_type='pytorch',
 #                     epochs=100,
 #                     batch_size=1,
