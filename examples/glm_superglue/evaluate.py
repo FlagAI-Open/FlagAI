@@ -24,6 +24,8 @@ tokenizer = Tokenizer.from_pretrained(model_name)
 
 model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
                                              model_name=model_name)
+                                             
+# Load                                              
 model_save_path = "./checkpoints/90000/pytorch_model.bin"
 model.load_state_dict(
     torch.load(model_save_path, map_location=device)["module"])

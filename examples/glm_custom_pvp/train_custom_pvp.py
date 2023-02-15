@@ -103,7 +103,6 @@ train_dataset = SuperGlueDataset(task_name=task_name,
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,
                                         task_name=task_name,
-                                        PET=True,
                                         custom_pvp=RtePVP)
 
 valid_dataset = SuperGlueDataset(task_name=task_name,

@@ -16,7 +16,6 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 task_name = "cb"
 
 cl_args = CollateArguments()
-cl_args.cloze_eval = True
 cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
 cl_args.continuous_prompt = True
 cl_args.prefix_prompt = 2
