@@ -126,6 +126,7 @@ class CollateArguments:
         self.pattern_text = False
 
 
+
 class Seq2SeqCollateArguments:
 
     def __init__(self):

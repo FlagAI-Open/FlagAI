@@ -77,7 +77,7 @@ class PVP(ABC):
         self.max_dec_seq_length = 16
         self._is_multi_token = is_multi_token
         self.max_segment_length = max_segment_length
-        self.task_mask = args.task_mask
+        # self.task_mask = args.task_mask
         self.continuous_prompt = args.continuous_prompt
         self.prefix_prompt = args.prefix_prompt
         # if self.continuous_prompt:
@@ -140,40 +140,66 @@ class PVP(ABC):
         return [0]
 
     def replace_prompt_tokens(self, parts_a, parts_b):
-        if not self.continuous_prompt:
+        """
+        In the patterns of parts a and b, there are None(s) in between, which stands for
+        prefix-tuning tokens
+        """
+        if not self.continuous_prompt:  # Remove None in parts_a and parts_b if no p-tuning
             parts_a = [part for part in parts_a if part is not None]
             parts_b = [part for part in parts_b if part is not None]
             return parts_a, parts_b
         num_prompt_tokens = self.num_prompt_tokens
-        num_pos = 0
+        num_pos = 0  # The number of None in parts a and b
         for parts in (parts_a, parts_b):
             for part in parts:
                 if part is None:
                     num_pos += 1
+        # Average p-tuning tokens to be inserted in each position
         avg_prompt_tokens = math.ceil(num_prompt_tokens / num_pos)
-        new_parts_a, new_parts_b = [], []
-        for part in parts_a:
-            if part is None:
-                if num_prompt_tokens > 0:
-                    if num_prompt_tokens >= avg_prompt_tokens:
-                        new_parts_a.append(avg_prompt_tokens)
-                        num_prompt_tokens -= avg_prompt_tokens
-                    else:
-                        new_parts_a.append(num_prompt_tokens)
-                        num_prompt_tokens = 0
-            else:
-                new_parts_a.append(part)
-        for part in parts_b:
-            if part is None:
-                if num_prompt_tokens > 0:
-                    if num_prompt_tokens >= avg_prompt_tokens:
-                        new_parts_b.append(avg_prompt_tokens)
-                        num_prompt_tokens -= avg_prompt_tokens
-                    else:
-                        new_parts_b.append(num_prompt_tokens)
-                        num_prompt_tokens = 0
-            else:
-                new_parts_b.append(part)
+        def insert_tokens(parts, num_prompt_tokens, avg_prompt_tokens):
+            """
+            replace None with the number of tokens need to be added
+            """
+            new_parts = []
+            for part in parts:
+                if part is None:
+                    if num_prompt_tokens > 0:
+                        if num_prompt_tokens >= avg_prompt_tokens:
+                            new_parts.append(avg_prompt_tokens)
+                            num_prompt_tokens -= avg_prompt_tokens
+                        else:
+                            new_parts.append(num_prompt_tokens)
+                            num_prompt_tokens = 0
+                else:
+                    new_parts.append(part)
+            return new_parts
+        
+        new_parts_a = insert_tokens(parts_a, num_prompt_tokens, avg_prompt_tokens)
+        new_parts_b = insert_tokens(parts_b, num_prompt_tokens, avg_prompt_tokens)
+        # new_parts_a, new_parts_b = [], []
+        # for part in parts_a:
+        #     if part is None:
+        #         if num_prompt_tokens > 0:
+        #             if num_prompt_tokens >= avg_prompt_tokens:
+        #                 new_parts_a.append(avg_prompt_tokens)
+        #                 num_prompt_tokens -= avg_prompt_tokens
+        #             else:
+        #                 new_parts_a.append(num_prompt_tokens)
+        #                 num_prompt_tokens = 0
+        #     else:
+        #         new_parts_a.append(part)
+        # for part in parts_b:
+        #     if part is None:
+        #         if num_prompt_tokens > 0:
+        #             if num_prompt_tokens >= avg_prompt_tokens:
+        #                 new_parts_b.append(avg_prompt_tokens)
+        #                 num_prompt_tokens -= avg_prompt_tokens
+        #             else:
+        #                 new_parts_b.append(num_prompt_tokens)
+        #                 num_prompt_tokens = 0
+        #     else:
+        #         new_parts_b.append(part)
+
         return new_parts_a, new_parts_b
 
     def encode(self,
@@ -199,7 +225,6 @@ class PVP(ABC):
             x if isinstance(x, tuple) else (x, False) for x in raw_parts_a
         ]
         prompt_id = tokenizer.num_tokens
-
         def encode_input(raw_parts):
             parts = []
             for x, s in raw_parts:
@@ -212,18 +237,19 @@ class PVP(ABC):
                 parts.append((x, s))
             return parts
 
+
+
         parts_a = encode_input(
             raw_parts_a)  # Encode part a from text to token ids
         if self.prefix_prompt > 0:
             parts_a = [([prompt_id] * self.prefix_prompt, False)] + parts_a
-
         parts_b = None
         if raw_parts_b:
             raw_parts_b = [
                 x if isinstance(x, tuple) else (x, False) for x in raw_parts_b
             ]
             parts_b = encode_input(raw_parts_b)
-        if self.is_multi_token:  # note: meta is not added for multi_token yet!
+        if self.is_multi_token:  # Note: meta is not added for multi_token yet!
             answers = self.get_answers(example)  # All text answer choices
 
             if example.label is not None:
@@ -344,6 +370,7 @@ class PVP(ABC):
             else:
                 this_parts_a, this_parts_b = copy.deepcopy(
                     parts_a), copy.deepcopy(parts_b)
+
                 self.num_truncated += self.truncate(
                     this_parts_a,
                     this_parts_b,
@@ -854,8 +881,6 @@ class WscPVP(PVP):
                               meta=example.meta)
         # sample['input_ids'] = np.stack((sample['input_ids'],sample['input_ids']))
         # sample['input_ids'] = np.stack((sample['input_ids'], sample['input_ids']))
-        # print(sample['input_ids'].shape, sample['target_ids'].shape,  sample['attention_mask'].shape,  sample['logit_mask'].shape)
-
         return sample
 
     def verbalize(self, label) -> List[str]:
@@ -1698,35 +1723,3 @@ def get_verbalization_ids(word: str, tokenizer,
         return ids
 
 
-# PVPS = {
-#     'agnews': AgnewsPVP,
-#     'mnli': MnliPVP,
-#     'yelp-polarity': YelpPolarityPVP,
-#     'yelp-full': YelpFullPVP,
-#     'yahoo': YahooPVP,
-#     'xstance': XStancePVP,
-#     'xstance-de': XStancePVP,
-#     'xstance-fr': XStancePVP,
-#     'rte': RtePVP,
-#     'wic': WicPVP,
-#     'cb': CbPVP,
-#     'wsc': WscPVP,
-#     'boolq': BoolQPVP,
-#     'copa': CopaPVP,
-#     'multirc': MultiRcPVP,
-#     'record': RecordPVP,
-#     'ax-b': RtePVP,
-#     'ax-g': RtePVP,
-#     'sst2': Sst2PVP,
-#     'cola': ColaPVP,
-#     'mrpc': MrpcPVP,
-#     'qqp': QqpPVP,
-#     'qnli': QnliPVP,
-#     'squad': SquadPVP,
-#     'race': RacePVP,
-#     "afqmc": AFQMCPVP,
-#     'tnews': TNewsPVP,
-#     'cluewsc': CLUEWSCPVP,
-#     'wanke': WankePVP,
-#     # 'cmrc': CMRCPVP
-# }

@@ -188,6 +188,7 @@ class SuperGlueProcessor:
     def get_processor(self, dirname, dname):
         if dname in self.processdict:
             # dirname is none means that we are processing collate function and datadir is not required
+            # return self.PROCESSOR_DICT[dname]
             if dirname is None or self._check_files(dirname, dname):
                 return self.processdict[dname]
             else:
