@@ -34,5 +34,7 @@ setup(
         'diffusers == 0.7.2',
         'pytorch-lightning == 1.6.5',
         'taming-transformers-rom1504 == 0.0.6',
+        'rouge-score == 0.1.2',
+        'sacrebleu == 2.3.1',
     ]
 )
