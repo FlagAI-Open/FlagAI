@@ -11,8 +11,7 @@ class PromptSpell(torch.nn.Module):
         super(PromptSpell, self).__init__()
         self.spell_length = spell_length
         self.hidden_size = hidden_size
-        self.spell_embeddings = torch.nn.Embedding(self.spell_length,
-                                                   self.hidden_size)
+        self.spell_embeddings = torch.nn.Embedding(self.spell_length,self.hidden_size)
         self.spell_func = spell_func
         if self.spell_func == "lstm":
             self.lstm_head = torch.nn.LSTM(
