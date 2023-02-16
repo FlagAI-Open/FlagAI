@@ -105,7 +105,6 @@ class DataProcessor(ABC):
             label = example.label
             label = self.get_labels().index(label)
         if args.pretrained_bert:
-
             sample = build_sample(ids,
                                   label=label,
                                   types=types,
@@ -125,7 +124,7 @@ class DataProcessor(ABC):
 class SuperGLUEProcessor(DataProcessor):
 
     def __init__(self, few_superglue):
-        super(SuperGLUEProcessor, self).__init__(few_superglue)
+        super(SuperGLUEProcessor, self).__init__(few_superglue=False)
         self.few_superglue = few_superglue
 
     def get_train_examples(self, data_dir):

@@ -1,23 +1,22 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSingleTokenCloze
 from flagai.data.tokenizer import Tokenizer
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
-
+from flagai.data.dataset import ConstructSuperglueStrategy
 
 
 task_name = 'qqp'
 trainer = Trainer(env_type='pytorch',
                   pytorch_device='cuda',
-                  epochs=2,
+                  epochs=10,
                   batch_size=128+256,
                   eval_interval=500,
-                  log_interval=10,
+                  log_interval=100,
                   save_interval=1e5,
                   lr=1e-5,
                   weight_decay=0.1,
@@ -45,11 +44,8 @@ valid_dataset = SuperGlueDataset(task_name=task_name,
                                  tokenizer=tokenizer,
                                  cloze_eval=True)
 cl_args = CollateArguments()
-cl_args.cloze_eval = True
 if task_name in ['copa', 'wsc', 'record']:
     cl_args.multi_token = True
-
-from flagai.data.dataset import ConstructSuperglueStrategy
 
 collate_fn = ConstructSuperglueStrategy(cl_args,
                                         tokenizer,

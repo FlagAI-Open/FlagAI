@@ -341,6 +341,7 @@ class GLMModel(BaseModel):
     def __init__(self, config, **kwargs):
 
         super(GLMModel, self).__init__(config, **kwargs)
+        print(config)
         self.config = config
         num_layers = config["num_layers"]
         vocab_size = config["vocab_size"]
@@ -362,10 +363,12 @@ class GLMModel(BaseModel):
         attention_scale = config["attention_scale"]
         tune_prefix_layers = config.get("tune_prefix_layers", None)
 
+
         self.parallel_output = parallel_output
         self.output_predict = output_predict
         self.hidden_size = hidden_size
-
+        self.spell_length = spell_length
+        self.spell_func = spell_func
         init_method = normal_init_method(std=0.02)
 
         self.word_embeddings = VocabParallelEmbedding(vocab_size,
@@ -387,10 +390,8 @@ class GLMModel(BaseModel):
             attention_scale=attention_scale,
             relative_encoding=relative_encoding,
             block_position_encoding=block_position_encoding)
-
         if spell_length is not None:
-            self.prompt_spell = PromptSpell(spell_length, self.hidden_size,
-                                            spell_func)
+            self.prompt_spell = PromptSpell(spell_length, self.hidden_size, spell_func)
         if tune_prefix_layers != None:
             log_dist("the model is freezed!")
             self.freeze_transformer(tune_prefix_layers=tune_prefix_layers)
@@ -400,7 +401,7 @@ class GLMModel(BaseModel):
         self.word_embeddings.requires_grad_(False)
         self.transformer.requires_grad_(False)
         if tune_prefix_layers is not None:
-            log_str += f" tune {tune_prefix_layers} prefix layers"
+            log_str += f"and tune {tune_prefix_layers} prefix layers"
             for i in range(tune_prefix_layers):
                 self.transformer.layers[i].requires_grad_(True)
         print_rank_0(log_str)
@@ -425,16 +426,17 @@ class GLMModel(BaseModel):
         attention_mask: 2 x 3
         '''
         # Embeddings.
-
         batch_size = input_ids.size(0)
         words_embeddings = self.word_embeddings(input_ids)
         embeddings = words_embeddings
+        device = input_ids.device
         if prompt_pos is not None:
             embeddings = embeddings.clone()
-            prompt_embeds = self.prompt_spell()
-            batch_index = torch.arange(batch_size,
-                                       device=input_ids.device).unsqueeze(1)
-            embeddings[batch_index, prompt_pos] = prompt_embeds
+            prompt_embeds = self.prompt_spell().to(device)
+            # batch_index = torch.arange(batch_size,
+            #                            device=device).unsqueeze(1)
+            for batch_index in range(batch_size):
+                embeddings[batch_index, prompt_pos] = prompt_embeds.to(dtype=embeddings.dtype)
         # Transformer.
         transformer_output = self.transformer(embeddings,
                                               position_ids,

@@ -348,7 +348,7 @@ class Tokenizer(BaseTokenizer):
         }
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
-        print([(k,v.Id) for k,v in self.command_name_map.items()])
+        logger.info("All special tokens: %s", str([(k,v.Id) for k,v in self.command_name_map.items()]))
 
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()

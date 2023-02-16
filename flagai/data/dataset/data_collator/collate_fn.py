@@ -10,7 +10,7 @@ import math
 from torch.utils.data.dataloader import default_collate
 from scipy.stats import poisson
 from flagai.data.dataset.data_utils import build_sample
-from flagai.data.dataset.superglue.control import PVPS, SuperGlueProcessor
+from flagai.data.dataset.superglue.control import PVPS, SuperGlueProcessor, PROCESSOR_DICT
 
 
 def rindex(lst, val, start=None):
@@ -81,22 +81,26 @@ def my_collate(batch):
 
 class ConstructSuperglueStrategy:
 
-    def __init__(self, args, tokenizer, task_name):
+    def __init__(self, args, tokenizer, task_name, custom_pvp=None):
         # pattern_id, seq_length, num_prompt_tokens, multi_token, segment_length, fast_decode, dataset_type, cloze_val=True
         self.tokenizer = tokenizer
         self.cloze_eval = args.cloze_eval
+        # self.processor = PROCESSOR_DICT[task_name]
         self.processor = SuperGlueProcessor().get_processor(None,
                                                             task_name)(False)
+        pvp_func = custom_pvp if custom_pvp else PVPS[task_name]
+        self.pvp = pvp_func(args,
+                                tokenizer,
+                                self.processor.get_labels(),
+                                args.seq_length,
+                                pattern_id=args.pattern_id,
+                                num_prompt_tokens=args.num_prompt_tokens,
+                                is_multi_token=args.multi_token,
+                                max_segment_length=args.segment_length,
+                                fast_decode=args.fast_decode)
 
-        self.pvp = PVPS[task_name](args,
-                                   tokenizer,
-                                   self.processor.get_labels(),
-                                   args.seq_length,
-                                   pattern_id=args.pattern_id,
-                                   num_prompt_tokens=args.num_prompt_tokens,
-                                   is_multi_token=args.multi_token,
-                                   max_segment_length=args.segment_length,
-                                   fast_decode=args.fast_decode)
+
+
         self.args = args
 
     def __call__(self, examples):

@@ -170,7 +170,6 @@ class AutoLoader:
 
         """
         raw_model_name = copy.deepcopy(model_name)
-
         model_name = model_name.lower()
 
         if model_name not in MODEL_DICT:
