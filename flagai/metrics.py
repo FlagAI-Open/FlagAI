@@ -9,7 +9,8 @@ from typing import List
 import functools
 import string
 import math
-
+import sacrebleu
+from rouge_score import rouge_scorer
 
 def sigmoid(x):
     sig = 1 / (1 + math.exp(-x))
@@ -17,14 +18,19 @@ def sigmoid(x):
 
 
 def accuracy_metric(predictions, labels, meta=None):
+    '''
+    predictions: torch.size(n, class_num)
+    labels: torch.size(n)
+    '''
     count = 0
     assert len(predictions) == len(labels)
-    if predictions.size() != labels.size():
+    if predictions.size() != labels.size():      
         predictions = torch.argmax(predictions, dim=-1)
         for prediction, label in zip(predictions, labels):
             count += prediction == label
     else:
         prediction, label = predictions[0], labels[0]
+        
         if sigmoid(prediction) >= 0.5:
             count += label == 1
         else:
@@ -32,6 +38,42 @@ def accuracy_metric(predictions, labels, meta=None):
     return 100.0 * count / len(labels)
 
 
+def bleu_metric(predictions, labels, meta=None, tokenizer=None):
+    ref_list = []
+    for i in labels:
+        i = i.tolist()
+        ref = tokenizer.DecodeIds(i)
+        ref_list.append(ref)
+    pred_list = []
+
+    for prediction in predictions:
+        buf = []
+        prediction = prediction.tolist()
+        prediction = tokenizer.DecodeIds(prediction)
+        pred_list.append(prediction)
+    bleu_results = sacrebleu.corpus_bleu(pred_list, [ref_list])
+    bleu_score = bleu_results.score
+    return bleu_score
+
+def rouge_metric(predictions, labels, meta=None, tokenizer=None, metric="rouge-1"):
+    metric_dict = {"rouge-1": "rouge1", "rouge-2": "rouge2", "rouge-l": "rougeLsum"}
+    ref_list = []
+    for i in labels:
+        i = i.tolist()
+        ref = tokenizer.DecodeIds(i)
+        ref_list.append(ref)
+    pred_list = []
+    for prediction in predictions:
+        buf = []
+        prediction = prediction.tolist()
+        prediction = tokenizer.DecodeIds(prediction)
+        pred_list.append(prediction)
+    scorer = rouge_scorer.RougeScorer([metric_dict[metric]], use_stemmer=True)
+    scores = [scorer.score(pred, ref) for pred, ref in zip(pred_list, ref_list)]
+    scores = [score[metric_dict[metric]].fmeasure * 100 for score in scores]
+    scores = sum(scores) / len(scores)
+    return scores
+    
 def f1_metric(predictions, labels, meta=None):
     pred = torch.argmax(predictions, dim=-1).cpu()
     labels = labels.cpu()
@@ -91,7 +133,7 @@ def normalize_answer(s):
     return white_space_fix(remove_articles(remove_punc(lower(s))))
 
 
-def exact_match_score(prediction, ground_truth):
+def exact_match_score(prediction, ground_truth, meta=None):
     return normalize_answer(prediction) == normalize_answer(ground_truth)
 
 

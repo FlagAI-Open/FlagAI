@@ -131,7 +131,7 @@ urls = {
 
 MULTI_TOKEN_TASKS = ['copa', 'record', 'cmrc', 'wsc']
 
-CH_TASKS = ['afqmc', 'tnews', 'cmrc', 'wanke']
+CH_TASKS = ['afqmc', 'tnews', 'cmrc', 'wanke', 'lang8_hsk']
 
 
 class SuperGlueProcessor:
