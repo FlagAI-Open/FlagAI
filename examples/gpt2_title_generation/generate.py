@@ -1,6 +1,8 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import sys 
+sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor

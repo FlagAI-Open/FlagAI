@@ -42,6 +42,7 @@ except ImportError:
         return lambda func: func
 
 
+
 class BPETokenizer(object):
 
     def __init__(self,

@@ -14,6 +14,10 @@ class TokenizerTestCase(unittest.TestCase):
                          [3378, 1567, 2613, 20282], 'EncodeAsIds Error')
         self.assertEqual(tokenizer.DecodeIds([3378, 1567, 2613, 20282]),
                          '今天吃饭吃了肯德基', 'DecodeIds Error')
+        self.assertEqual([(v.name, k,v.Id) for k,v in tokenizer.command_token_map.items()],
+                [('eos', '<|endoftext|>', 50000), ('sep', '[SEP]', 50001), ('cls', '[CLS]', 50002), 
+                ('MASK', '[MASK]', 50003), ('unk', '[UNK]', 50004), ('sop', '<|startofpiece|>', 50006),
+                 ('eop', '<|endofpiece|>', 50007), ('sMASK', '[sMASK]', 50008), ('gMASK', '[gMASK]', 50009)])
 
     def test_tokenizer_GLM_large_en(self):
         tokenizer = Tokenizer.from_pretrained("GLM-large-en")
@@ -22,6 +26,10 @@ class TokenizerTestCase(unittest.TestCase):
                          [13017, 7975, 3084, 2033, 3407], '')
         self.assertEqual(tokenizer.DecodeIds([13017, 7975, 3084, 2033, 3407]),
                          'fried chicken makes me happy', 'DecodeIds Error')
+        self.assertEqual([(v.name, k,v.Id) for k,v in tokenizer.command_token_map.items()],
+                [('eos', '[PAD]', 0), ('cls', '[CLS]', 101), ('MASK', '[MASK]', 103), ('unk', '[UNK]', 100), 
+                ('sep', '[SEP]', 102), ('sop', '<|startofpiece|>', 30522), ('eop', '<|endofpiece|>', 30523), 
+                ('gMASK', '[gMASK]', 30524), ('sMASK', '[sMASK]', 30525)])
 
     # def test_tokenizer_glm_10b_en(self):
     #     tokenizer = Tokenizer.from_pretrained("GLM-10b-en")
@@ -38,9 +46,12 @@ class TokenizerTestCase(unittest.TestCase):
                          [3, 7704, 3832, 656, 140, 1095], '')
         self.assertEqual(tokenizer.DecodeIds([3, 7704, 3832, 656, 140, 1095]),
                          'fried chicken makes me happy', 'DecodeIds Error')
+        self.assertEqual([(v.name, k,v.Id) for k,v in tokenizer.command_token_map.items()],
+                        [('eos', '<|endoftext|>', 32000), ('sep', '[SEP]', 32001), ('cls', '[CLS]', 32002), 
+                        ('MASK', '[MASK]', 32003), ('unk', '[UNK]', 32004)])
 
     def test_tokenizer_roberta(self):
-        tokenizer = Tokenizer.from_pretrained('RoBERTa-base-ch')
+        tokenizer = Tokenizer.from_pretrained('roberta-base-ch')
         # print(tokenizer.DecodeIds([791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825]))
         self.assertEqual(tokenizer.TokenToId("人"), 782, '')
         self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
@@ -48,13 +59,18 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.DecodeIds([791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825]),
                          '今天吃饭吃了肯德基', 'DecodeIds Error')
 
+        self.assertEqual([(v.name, k,v.Id) for k,v in tokenizer.command_token_map.items()],
+                [('eos', '[PAD]', 0), ('cls', '[CLS]', 101), ('MASK', '[MASK]', 103), ('unk', '[UNK]', 100), ('sep', '[SEP]', 102)])                 
+
     def test_tokenizer_bert(self):
-        tokenizer = Tokenizer.from_pretrained('BERT-base-en')
+        tokenizer = Tokenizer.from_pretrained('bert-base-en')
         self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
         self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
                          [13017, 7975, 3084, 2033, 3407], '')
         self.assertEqual(tokenizer.DecodeIds([13017, 7975, 3084, 2033, 3407]),
                          'fried chicken makes me happy', 'DecodeIds Error')
+        self.assertEqual([(v.name, k,v.Id) for k,v in tokenizer.command_token_map.items()],
+                [('eos', '[PAD]', 0), ('cls', '[CLS]', 101), ('MASK', '[MASK]', 103), ('unk', '[UNK]', 100), ('sep', '[SEP]', 102)])
 
     def test_tokenizer_cpm1(self):
         loader = AutoLoader(task_name="lm",
