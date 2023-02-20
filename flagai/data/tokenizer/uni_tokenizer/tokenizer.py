@@ -22,13 +22,14 @@
 import itertools
 import logging
 import torch 
+import json
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
 from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer, MMBPETokenizer
 from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
-from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer import FullTokenizer
+from flagai.data.tokenizer.uni_tokenizer.diffusion_bert_tokenizer import FullTokenizer
 from typing import List, Union, Optional
 import unicodedata
 
@@ -53,7 +54,6 @@ class Tokenizer(BaseTokenizer):
                  fix_command_token=True,
                  **kwargs):
         super().__init__(**kwargs)
-
         if self.tokenizer_class == "wp":
             if self.tokenizer_model_name.lower().startswith('clip-cn'):
                 self.text_tokenizer = FullTokenizer(self.vocab_file)
@@ -73,11 +73,12 @@ class Tokenizer(BaseTokenizer):
             raise NotImplementedError("cannot assign a tokenize class")
 
         if self.tokenizer_model_name.lower().startswith('glm') or self.tokenizer_model_name.lower().startswith('alm'):
-            add_block_symbols=False
-        add_block_symbols = True
+            add_block_symbols=True
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
         self.num_tokens = self.text_tokenizer.vocab_size
-            
+        with open(self.special_tokens_map, encoding='utf8') as file: dct=json.load(file)
+        sp_tokens = [(k.replace("_token",""),v['content']) for k,v in dct.items()]
+        # self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens ]
         if self.tokenizer_class == "wp":
             # set command tokens from wordpiece tokenizer values
             self.num_command_tokens = 6
@@ -207,6 +208,29 @@ class Tokenizer(BaseTokenizer):
                 self.num_tokens += self.num_command_tokens
                 self.token_end_id = self.text_tokenizer.convert_token_to_id(
                     '</s>')
+            elif self.tokenizer_model_name.lower().startswith('opt'):
+                self._command_tokens = [
+                    CommandToken(
+                        'pad', '<|endoftext|>',
+                        self.text_tokenizer.convert_token_to_id('<pad>')),
+                    CommandToken(
+                        'eos', '<|endoftext|>',
+                        self.text_tokenizer.convert_token_to_id('</s>')),
+                    CommandToken(
+                        'sep', '[SEP]',
+                        self.text_tokenizer.convert_token_to_id('</s>')),
+                    CommandToken(
+                        'cls', '[CLS]',
+                        self.text_tokenizer.convert_token_to_id('<s>')),
+                    CommandToken(
+                        'MASK',
+                        '[MASK]',
+                        self.text_tokenizer.convert_token_to_id('<mask>'),
+                        lstrip=True),
+                    CommandToken(
+                        'unk', '[UNK]',
+                        self.text_tokenizer.convert_token_to_id('<unk>'))
+                ]
             else:
                 self.num_command_tokens = 2
                 self.num_text_tokens = self.num_tokens - 1
@@ -273,7 +297,7 @@ class Tokenizer(BaseTokenizer):
             self.num_command_tokens = 0
             self.num_text_tokens = self.text_tokenizer.vocab_size
             self.num_tokens = self.num_text_tokens
-
+            import pdb;
             if self.tokenizer_model_name.lower().startswith('glm'):
                 pad_token_id = self.num_tokens
                 eos_token_id = self.num_tokens

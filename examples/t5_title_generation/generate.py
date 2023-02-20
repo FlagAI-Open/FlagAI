@@ -1,11 +1,13 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
+import sys 
+sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 
 if __name__ == '__main__':
-    loader = AutoLoader("title-generation", "T5-base-ch", model_dir="./state_dict/")
+    loader = AutoLoader("title-generation", "T5-base-ch", model_dir="./checkpoints")
     model = loader.get_model()
     tokenizer = loader.get_tokenizer()
     predictor = Predictor(model, tokenizer)

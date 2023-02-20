@@ -46,6 +46,7 @@ ALL_TASK = {
     "cpm_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "t5_lm": ["flagai.model.t5_model", "T5Model"],
+    "t5_title-generation": ["flagai.model.t5_model", "T5Model"],
     "alm_lm": ["flagai.model.alm_model", "ALMModel"],
     "glm_lm": ["flagai.model.glm_model", "GLMModel"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
