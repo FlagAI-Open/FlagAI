@@ -928,8 +928,9 @@ def t5_random_sample(model, tokenizer, text, input_max_length, out_max_length,
         TopPLogitsProcessor(top_p=top_p),
     ]
     list_processor = ListProcessor(lp)
+    from tqdm import trange
     with torch.no_grad():
-        for step in range(out_max_length):
+        for step in trange(out_max_length):
             scores = model(**{
                 "input_ids": token_ids,
                 "decoder_input_ids": input_decoder_ids

@@ -19,12 +19,12 @@ if __name__ == '__main__':
                                                   beam_size=3,
                                                   input_max_length=512,
                                                   out_max_length=100)
-    out_2 = predictor.predict_generate_randomsample(text,
-                                                    input_max_length=512,
-                                                    out_max_length=100,
-                                                    repetition_penalty=1.5,
-                                                    top_k=20,
-                                                    top_p=0.8)
+#     out_2 = predictor.predict_generate_randomsample(text,
+#                                                     input_max_length=512,
+#                                                     out_max_length=100,
+#                                                     repetition_penalty=1.5,
+#                                                     top_k=20,
+#                                                     top_p=0.8)
 
     print(f"out_1 is {out_1}")
-    print(f"out_2 is {out_2}")
+#     print(f"out_2 is {out_2}")

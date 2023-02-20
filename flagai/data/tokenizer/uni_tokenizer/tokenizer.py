@@ -52,6 +52,7 @@ class Tokenizer(BaseTokenizer):
                  add_task_mask=True,
                  add_decoder_mask=False,
                  fix_command_token=True,
+                 pre_tokenizer=None,
                  **kwargs):
         super().__init__(**kwargs)
         if self.tokenizer_class == "wp":
@@ -75,6 +76,9 @@ class Tokenizer(BaseTokenizer):
         if self.tokenizer_model_name.lower().startswith('glm') or self.tokenizer_model_name.lower().startswith('alm'):
             add_block_symbols=True
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
+        # if self.tokenizer_model_name.startswith('t5'):
+        #     import jieba
+        #     self.pre_tokenizer = lambda x: jieba.cut(x, HMM=False)
         self.num_tokens = self.text_tokenizer.vocab_size
         with open(self.special_tokens_map, encoding='utf8') as file: dct=json.load(file)
         sp_tokens = [(k.replace("_token",""),v['content']) for k,v in dct.items()]
@@ -590,7 +594,8 @@ class Tokenizer(BaseTokenizer):
             truncation=True,
             max_length=None,
     ):
-
+        if self.tokenizer_model_name.startswith('t5'):
+            assert second_text is None, "t5 does not support multi-sentence encoding"
         def get_input_ids(text):
             tokens = self.text_tokenizer.tokenize(text)
             return self.text_tokenizer.convert_tokens_to_ids(tokens)
@@ -753,6 +758,10 @@ class Tokenizer(BaseTokenizer):
                                             eot_token=eot_token)
 
     def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
+        """
+        add_spatial_token: (bool) Add cls at the front and sep at the end
+        max_len: Truncate the length to max_len
+        """
         tokens = self.text_tokenizer.tokenize(text)
 
         if add_spatial_tokens:

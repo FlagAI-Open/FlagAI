@@ -49,8 +49,8 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.DecodeIds([3, 7704, 3832, 656, 140, 1095]),
                          'fried chicken makes me happy', 'DecodeIds Error')
         self.assertEqual([(v.name, k,v.Id) for k,v in tokenizer.command_token_map.items()],
-                        [('eos', '<|endoftext|>', 32000), ('sep', '[SEP]', 32001), ('cls', '[CLS]', 32002), 
-                        ('MASK', '[MASK]', 32003), ('unk', '[UNK]', 32004)])
+                        [('eos', '[PAD]', 0), ('cls', '[CLS]', 101), ('MASK', '[MASK]', 103),
+                         ('unk', '[UNK]', 100), ('sep', '[SEP]', 102)])
 
     # def test_tokenizer_roberta(self):
     #     tokenizer = Tokenizer.from_pretrained('RoBERTa-base-ch')
