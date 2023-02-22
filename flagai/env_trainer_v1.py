@@ -445,9 +445,6 @@ class EnvTrainer():
             for iteration_, batch in enumerate(train_dataloader):
                 if 'input_ids' in batch:
                     log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
-                    log_dist("Batch Keys %s"%str(batch.keys()), [0])
-                    log_dist("Batch Input_ids %s"%str(batch['input_ids']), [0])
-                    log_dist("Batch Labels %s"%str(batch['labels']), [0])
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
