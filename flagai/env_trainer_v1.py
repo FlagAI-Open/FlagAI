@@ -412,7 +412,7 @@ class EnvTrainer():
 
         ## Needed global optim_manager
         if self.env_type == 'bmtrain':
-            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.
@@ -445,6 +445,9 @@ class EnvTrainer():
             for iteration_, batch in enumerate(train_dataloader):
                 if 'input_ids' in batch:
                     log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
+                    log_dist("Batch Keys %s"%str(batch.keys()), [0])
+                    log_dist("Batch Input_ids %s"%str(batch['input_ids']), [0])
+                    log_dist("Batch Labels %s"%str(batch['labels']), [0])
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
@@ -491,7 +494,7 @@ class EnvTrainer():
                     if self.env_type == 'bmtrain':
                         avg_lm_loss = total_lm_loss / self.log_interval
                     else:
-                        avg_lm_loss = total_lm_loss.item() / self.log_interval
+                        avg_lm_loss = total_lm_loss / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
 
                     # TODO

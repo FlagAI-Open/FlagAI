@@ -614,7 +614,7 @@ class Trainer():
                     if self.env_type == 'bmtrain':
                         avg_lm_loss = total_lm_loss / self.log_interval
                     else:
-                        avg_lm_loss = total_lm_loss.item() / self.log_interval
+                        avg_lm_loss = total_lm_loss / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
 
                     # TODO
