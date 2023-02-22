@@ -1,6 +1,6 @@
 import json
 
-fout = open('{}'.format('/sharefs/baai-mrnd/xw/cpm3_trian_data/cpm3_train_data.jsonl'), "w", encoding='utf-8')
+fout = open('{}'.format('/sharefs/baai-mrnd/xw/cpm3_train_data/cpm3_train_data.jsonl'), "w", encoding='utf-8')
 fin = open('{}'.format('/sharefs/webbrain-lijijie/data/CEPSUM/test_public.jsonl'), 'r', encoding='utf-8')
 
 def random_mask(source: str):

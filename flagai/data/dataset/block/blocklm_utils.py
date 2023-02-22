@@ -205,7 +205,7 @@ class ConstructBlockStrategy:
         #
         position_ids = np.arange(len(tokens), dtype=np.int64)
         targets = copy.deepcopy(tokens)
-        mask_id = self.tokenizer.get_command_id('MASK')
+        mask_id = self.tokenizer.get_command_id('mask')
         mlm_masks = np.zeros(len(tokens), dtype=np.int64)
         for start, end in block_spans:
             for idx in range(start, end):

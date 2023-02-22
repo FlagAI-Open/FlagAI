@@ -24,7 +24,7 @@
 ### 1. 数据加载
 样例数据位于 /examples/bert_title_generation/data/
 
-需要在 ```trianer.py```文件中定义数据读取过程，例如：
+需要在 ```trainer.py```文件中定义数据读取过程，例如：
 ```python
 def read_file():
     src = []

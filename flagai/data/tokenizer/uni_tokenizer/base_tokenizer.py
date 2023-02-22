@@ -1,6 +1,6 @@
 import os
 from flagai.model.file_utils import _get_model_files, _get_model_id, _get_vocab_path
-from flagai.data.tokenizer.uni_tokenizer.properties import VOCAB_FILE, MERGES_FILE, SP_MODEL_FILE, VOCAB_JSON_FILE, SPECIAL_TOKENS_MAP
+from flagai.data.tokenizer.uni_tokenizer.properties import VOCAB_FILE, MERGES_FILE, SP_MODEL_FILE, VOCAB_JSON_FILE, TOKENIZER_JSON_FILE, SPECIAL_TOKENS_MAP
 import warnings
 
 
@@ -64,6 +64,7 @@ class BaseTokenizer(object):
         resolved_merges_file = os.path.join(cache_dir, MERGES_FILE)
         resolved_sp_file = os.path.join(cache_dir, SP_MODEL_FILE)
         special_tokens_map = os.path.join(cache_dir, SPECIAL_TOKENS_MAP)
+        resolved_tokenizer_json_file = os.path.join(cache_dir, TOKENIZER_JSON_FILE)
         if tokenizer_class == "wp":
             return cls(vocab_file=resolved_vocab_file,
                        tokenizer_class=tokenizer_class,
@@ -85,6 +86,7 @@ class BaseTokenizer(object):
             return cls(sp_model_file=resolved_sp_file,
                        tokenizer_class=tokenizer_class,
                        tokenizer_model_name=tokenizer_model_name,
+                       tokenizer_json_file=resolved_tokenizer_json_file,
                        special_tokens_map=special_tokens_map,
                        cache_dir=cache_dir,
                        *inputs,
@@ -98,6 +100,7 @@ class BaseTokenizer(object):
                  vocab_file=None,
                  merges_file=None,
                  sp_model_file=None,
+                 tokenizer_json_file=None,
                  tokenizer_class=None,
                  tokenizer_model_name=None,
                  special_tokens_map=None,
@@ -110,6 +113,7 @@ class BaseTokenizer(object):
         self.sp_model_file = sp_model_file
         self.tokenizer_class = tokenizer_class
         self.tokenizer_model_name = tokenizer_model_name
+        self.tokenizer_json_file = tokenizer_json_file
         self.special_tokens_map = special_tokens_map
         self.cache_dir = cache_dir
         self.deprecation_warnings = ({})

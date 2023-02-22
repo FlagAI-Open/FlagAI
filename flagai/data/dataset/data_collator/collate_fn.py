@@ -175,7 +175,7 @@ class ConstructSeq2seqStrategy:
             source_tokens = [cls_id] + source_tokens + [mask_id
                                                         ] + answer_tokens
         elif self.task_name in ["cmrc"]:
-            mask_id = self.tokenizer.get_command_id('MASK')
+            mask_id = self.tokenizer.get_command_id('mask')
             source_text = example.text_a
             target_text = example.meta["answer"].strip()
             question = example.meta["question"].strip()
@@ -191,7 +191,7 @@ class ConstructSeq2seqStrategy:
                 mask_id
             ] + source_tokens[:max_src_length]
         elif self.task_name in ["wsc"]:
-            mask_id = self.tokenizer.get_command_id('MASK')
+            mask_id = self.tokenizer.get_command_id('mask')
             source_text = example.text_a
             target_text = example.meta["answer"].strip()
             question = example.meta["question"].strip()
@@ -426,7 +426,7 @@ class ConstructBlockStrategy:
 
         position_ids = np.arange(len(tokens), dtype=np.int64)
         targets = copy.deepcopy(tokens)
-        mask_id = self.tokenizer.get_command_id('MASK')
+        mask_id = self.tokenizer.get_command_id('mask')
         mlm_masks = np.zeros(len(tokens), dtype=np.int64)
         for start, end in block_spans:
             for idx in range(start, end):

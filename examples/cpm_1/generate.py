@@ -1,3 +1,5 @@
+import sys 
+sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 
@@ -9,7 +11,7 @@ if __name__ == '__main__':
 
     loader = AutoLoader(task_name="lm",
                         model_name="CPM-large-ch",
-                        model_dir="./state_dict/")
+                        model_dir="./checkpoints")
 
     model = loader.get_model()
     tokenizer = loader.get_tokenizer()
