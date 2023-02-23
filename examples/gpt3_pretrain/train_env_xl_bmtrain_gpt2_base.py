@@ -9,6 +9,7 @@ from flagai.trainer import Trainer
 #from flagai.env_trainer import EnvTrainer
 from flagai.env_trainer_v1 import EnvTrainer
 from flagai.env_args import EnvArgs
+from examples.gpt3_pretrain.build_index_mappings import _build_train_valid_test_datasets
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -21,10 +22,10 @@ env_args = EnvArgs(
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=10000,
-    log_interval=100,
+    epochs=1,
+    log_interval=10,
     eval_interval=10000,
-    num_gpus=1,
+    num_gpus=2,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints_gpt2_base",
@@ -42,19 +43,9 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
-## 
-enable_debug = False
-## 
-if enable_debug:
-    trainer.set_seed(2023)
-
-## 
-rank_split = False
-
 ## TODO
 model_dir = "./"
 os.makedirs(model_dir, exist_ok=True)
-maxlen = 1024
 
 from flagai.data.tokenizer import Tokenizer
 model_name = "gpt2-base-en"
@@ -70,140 +61,51 @@ print('*'*20, "model", model)
 trainer.pre_train(model)
 
 # TODO
-data_path = '/share/project/ldwang/data/pile'
+### 需要根据数据集情况填写
+### documents_stat.py
+### 确定好文档数和样本量后先执行一次
+### 样本量需要提前考虑执行多少epochs
+### build_index_mappings.py
+### 样本量-名称-最大长度-种子很重要,如果存在对应文件直接加载
+### merged_text_document_train_indexmap_41313229ns_1024sl_2023s_doc_idx.npy
+### merged_text_document_valid_indexmap_41313229ns_1024sl_2023s_doc_idx.npy
 
-def read_file():
-    src = []
-    tgt = []
+data_prefix = '00_text_document'
+data_prefix = '/share/project/ldwang/data/indexed_dataset/gpt2/merged_text_document'
+data_impl = 'mmap'
+splits_string = '9999,1,0'
+train_valid_test_num_samples = [41313, 4132, 0]
+train_valid_test_num_samples = [41313229, 4132, 0]
+seq_length = 1024
+seed = 2023
+skip_warmup = False
 
-    if enable_debug:
-        part_file = './debug.txt'
-        part_file = '/share/project/ldwang/data/pile/train/00.txt'
+train_dataset, val_dataset, test_dataset = _build_train_valid_test_datasets(
+    data_prefix, data_impl, splits_string,
+    train_valid_test_num_samples,
+    seq_length, seed, skip_warmup)
 
-    path = '%s/train/' % data_path
-    lines_count = 0
+def collate_fn(batch):
+    def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
+        pad_indice = [
+            item.tolist() + [pad_idx] * max(0, max_length - len(item.tolist())) for item in indice
+        ]
+        return torch.tensor(pad_indice)
 
-    if rank_split:
-        packed = []
-        #if True: # enable_debug
-        for part_file in os.listdir(path):
-            filename = path+part_file
-            # filename = part_file # enable_debug
-            print('*'*20, "filename", filename)
-            with open(filename, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                for line in lines:
-                    lines_count += 1
-                    packed.append(line.strip('\n').lower())
-                    if len(packed) == trainer.world_size:
-                        src.append(packed[trainer.rank])
-                        packed = []
-                    if lines_count%100==1:
-                        print('*'*20, 'lines_count', lines_count)
-        if len(packed) == env_args.num_gpus:
-            src.append(packed[trainer.rank])
-            packed = []
-    else:
-        lines_count = 0
-        # if True: # enable_debug
-        for part_file in os.listdir(path):
-            filename = path+part_file
-            # filename = part_file # enable_debug
-            print('*'*20, "filename", filename)
-            with open(filename, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                for line in lines:
-                    lines_count += 1
-                    src.append(line.strip('\n').lower())
-                    if lines_count%10000==1:
-                        print('*'*20, 'lines_count', lines_count)
+    input_ids = [data["input_ids"] for data in batch]
+    max_length = max([len(t) for t in input_ids])
+    input_ids = padding(input_ids, max_length)[:,:seq_length]
 
-    return src, src
-
-def read_file_dev():
-    src = []
-    tgt = []
-
-    if enable_debug:
-        part_file = '/share/project/ldwang/data/pile/train/00.txt'
-        part_file = './dev.txt'
-    else:
-        part_file = '/share/project/ldwang/data/pile/val.txt'
-        part_file = '%s/val.txt' % data_path
-    if True:
-        filename = part_file
-        # print('*'*20, "filename", filename)
-        with open(filename, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            for line in lines:
-                src.append(line.strip('\n').lower())
-    return src, src
-
-class GPT2Seq2seqDataset(Dataset):
-    def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
-        super(GPT2Seq2seqDataset, self).__init__()
-        self.sents_src = sents_src
-        self.sents_tgt = sents_tgt
-        self.tokenizer = tokenizer
-        self.maxlen = maxlen
-
-    def __getitem__(self, i):
-        src = self.sents_src[i]
-        tgt = None
-        data = self.tokenizer.encode_plus(src, tgt, max_length=self.maxlen)
-
-        output = {
-            "input_ids": data["input_ids"],
-        }
-        return output
-
-    def __len__(self):
-        return len(self.sents_src)
-
-    @staticmethod
-    def collate_fn(batch):
-        def padding(indice, max_length, pad_idx=0):
-            pad_indice = [
-                item + [pad_idx] * max(0, max_length - len(item)) for item in indice
-            ]
-            return torch.tensor(pad_indice)
-
-        input_ids = [data["input_ids"] for data in batch]
-        max_length = max([len(t) for t in input_ids])
-        input_ids = padding(input_ids, max_length)[:,:maxlen]
-
-        data = {
-            "input_ids": input_ids,
-            "labels": input_ids
-        }
-        return data
-
-sents_src, sents_tgt = read_file()
-data_len = len(sents_tgt)
-print('*'*20, 'data_len', data_len)
-
-train_src = sents_src
-train_tgt = train_src
-
-sents_src, sents_tgt = read_file_dev()
-data_len = len(sents_tgt)
-print('*'*20, 'data_len dev', data_len)
-
-val_src = sents_src
-val_tgt = sents_tgt
-
-train_dataset = GPT2Seq2seqDataset(train_src,
-                                   train_tgt,
-                                   tokenizer=tokenizer,
-                                   maxlen=maxlen)
-val_dataset = GPT2Seq2seqDataset(val_src,
-                                 val_tgt,
-                                 tokenizer=tokenizer,
-                                 maxlen=maxlen)
+    data = {
+        "input_ids": input_ids,
+        "labels": input_ids
+    }
+    return data
 
 trainer.do_train(
     train_dataset=train_dataset,
     valid_dataset=val_dataset,
-    collate_fn=GPT2Seq2seqDataset.collate_fn,
+    collate_fn=collate_fn,
     optimizer=None,
-    rank_split=rank_split)
+    rank_split=False)
+
