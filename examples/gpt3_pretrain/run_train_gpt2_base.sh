@@ -10,13 +10,6 @@ echo "WORLD_SIZE: $WORLD_SIZE"
 echo "RANK: $RANK"
 echo "pwd:" $(pwd)
 
-# configs
-#GPU_NUM=$GPU_NUM
-#port=29502
-#script_file=train_env_xl_bmtrain.py
-# ENV_TYPE
-#export ENV_TYPE=bmtrain
-
 ## TODO
 export NCCL_SOCKET_IFNAME=eth0
 export NCCL_IB_DISABLE=0
