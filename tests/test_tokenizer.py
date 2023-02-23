@@ -23,19 +23,19 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()],
                [('pad', '<|endoftext|>', 50000), ('eos', '<|endoftext|>', 50000), ('sep', '[SEP]', 50001), 
                ('cls', '[CLS]', 50002), ('mask', '[MASK]', 50003), ('unk', '[UNK]', 50004), ('sop', '<|startofpiece|>', 50006),
-                ('eop', '<|endofpiece|>', 50007), ('gMASK', '[gMASK]', 50007), ('sMASK', '[sMASK]', 50008)], 'SpecialTokens error')
+                ('eop', '<|endofpiece|>', 50007), ('sMASK', '[sMASK]', 50008), ('gMASK', '[gMASK]', 50009)], 'SpecialTokens error')
 
-    # def test_tokenizer_GLM_large_en(self):
-    #     tokenizer = Tokenizer.from_pretrained("GLM-large-en")
-    #     self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
-    #     self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
-    #                      [13017, 7975, 3084, 2033, 3407], '')
-    #     self.assertEqual(tokenizer.DecodeIds([13017, 7975, 3084, 2033, 3407]),
-    #                      'fried chicken makes me happy', 'DecodeIds Error')
-    #     self.assertEqual([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()],
-    #             [('eos', '[PAD]', 0), ('cls', '[CLS]', 101), ('mask', '[MASK]', 103), ('unk', '[UNK]', 100), 
-    #             ('sep', '[SEP]', 102), ('pad', '[PAD]', 0), ('sop', '<|startofpiece|>', 30522), ('eop', '<|endofpiece|>', 30523), 
-    #             ('gMASK', '[gMASK]', 30524), ('sMASK', '[sMASK]', 30525)])
+    def test_tokenizer_GLM_large_en(self):
+        tokenizer = Tokenizer.from_pretrained("GLM-large-en")
+        self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
+        self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
+                         [13017, 7975, 3084, 2033, 3407], '')
+        self.assertEqual(tokenizer.DecodeIds([13017, 7975, 3084, 2033, 3407]),
+                         'fried chicken makes me happy', 'DecodeIds Error')
+        self.assertEqual([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()],
+                [('eos', '[PAD]', 0), ('cls', '[CLS]', 101), ('mask', '[MASK]', 103), ('unk', '[UNK]', 100), 
+                ('sep', '[SEP]', 102), ('pad', '[PAD]', 0), ('sop', '<|startofpiece|>', 30522), ('eop', '<|endofpiece|>', 30523), 
+                ('gMASK', '[gMASK]', 30524), ('sMASK', '[sMASK]', 30525)])
 
     # # def test_tokenizer_glm_10b_en(self):
     # #     tokenizer = Tokenizer.from_pretrained("GLM-10b-en")

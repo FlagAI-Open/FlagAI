@@ -7,7 +7,7 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
                       top_k, top_p, repetition_penalty, temperature, device):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
     token_ids = tokenizer_out["input_ids"]
-    token_end_id = tokenizer.get_command_id('sep')
+    token_end_id = tokenizer.token_end_id
     if token_ids[-1] == token_end_id:
         token_ids = token_ids[:-1]
 

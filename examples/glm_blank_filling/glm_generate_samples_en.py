@@ -14,7 +14,7 @@ if __name__ == "__main__":
     print('Generate Samples')
 
     loader = AutoLoader(task_name='lm',
-                            model_name='GLM-large-en-generation',
+                            model_name='GLM-large-en',
                             only_download_config=False)
     model = loader.get_model()
     tokenizer = loader.get_tokenizer()

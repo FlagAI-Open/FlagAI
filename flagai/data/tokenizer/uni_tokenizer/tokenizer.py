@@ -99,7 +99,7 @@ class Tokenizer(BaseTokenizer):
                 self.text_tokenizer._token_sep = "[SEP]"
                 fix_command_token = False
             elif self.tokenizer_class == "sp":
-                
+                fix_command_token = True
                 self._command_tokens = [
                     CommandToken('pad', '<|endoftext|>', self.num_tokens),
                     CommandToken('eos', '<|endoftext|>', self.num_tokens),

@@ -1419,7 +1419,7 @@ def glm_generate_sample(
     context_length = context_length_tensor[0].item()
     context_tokens_tensor = torch.LongTensor(context_tokens)
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
-
+    
     start_time = time.time()
     mems = []
     tokens = context_tokens_tensor
@@ -1446,6 +1446,7 @@ def glm_generate_sample(
     mask_positions.sort()
     output_ = model(tokens, position_ids, attention_mask, return_memory=True)
     mems = output_['hidden_states']
+    import pdb;pdb.set_trace()
     for mask_position in mask_positions:
         position = mask_position
         tokens, mems = glm_sample_sequence(model,
