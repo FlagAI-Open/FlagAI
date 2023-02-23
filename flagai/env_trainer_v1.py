@@ -412,7 +412,7 @@ class EnvTrainer():
 
         ## Needed global optim_manager
         if self.env_type == 'bmtrain':
-            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.
@@ -491,7 +491,7 @@ class EnvTrainer():
                     if self.env_type == 'bmtrain':
                         avg_lm_loss = total_lm_loss / self.log_interval
                     else:
-                        avg_lm_loss = total_lm_loss.item() / self.log_interval
+                        avg_lm_loss = total_lm_loss / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
 
                     # TODO
