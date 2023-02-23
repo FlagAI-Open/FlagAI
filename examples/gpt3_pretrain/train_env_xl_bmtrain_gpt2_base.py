@@ -31,7 +31,7 @@ env_args = EnvArgs(
     save_dir="checkpoints_gpt2_base",
     checkpoint_activations=False,
     save_interval=10000,
-    fp16=True,
+    fp16=False,
     training_script=__file__,
 )
 env_args = env_args.parse_args()
@@ -71,11 +71,11 @@ trainer.pre_train(model)
 ### merged_text_document_train_indexmap_41313229ns_1024sl_2023s_doc_idx.npy
 ### merged_text_document_valid_indexmap_41313229ns_1024sl_2023s_doc_idx.npy
 
-data_prefix = '00_text_document'
+data_prefix = '00_text_document' # debug
 data_prefix = '/share/project/ldwang/data/indexed_dataset/gpt2/merged_text_document'
 data_impl = 'mmap'
 splits_string = '9999,1,0'
-train_valid_test_num_samples = [41313, 4132, 0]
+train_valid_test_num_samples = [41313, 4132, 0] # debug
 train_valid_test_num_samples = [41313229, 4132, 0]
 seq_length = 1024
 seed = 2023
