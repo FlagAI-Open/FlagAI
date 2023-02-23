@@ -25,7 +25,7 @@ env_args = EnvArgs(
     epochs=1,
     log_interval=10,
     eval_interval=10000,
-    num_gpus=2,
+    num_gpus=1,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints_gpt2_base",
@@ -64,7 +64,8 @@ trainer.pre_train(model)
 ### 需要根据数据集情况填写
 ### documents_stat.py
 ### 确定好文档数和样本量后先执行一次
-### 样本量需要提前考虑执行多少epochs
+### 样本量需要提前考虑执行多少epochs,同时强制参数epochs=1
+### 相当于由二进制索引管理所有epochs里的样本和打散
 ### build_index_mappings.py
 ### 样本量-名称-最大长度-种子很重要,如果存在对应文件直接加载
 ### merged_text_document_train_indexmap_41313229ns_1024sl_2023s_doc_idx.npy
@@ -79,6 +80,8 @@ train_valid_test_num_samples = [41313229, 4132, 0]
 seq_length = 1024
 seed = 2023
 skip_warmup = False
+### FORCE SETTING
+env_args.epochs = 1
 
 train_dataset, val_dataset, test_dataset = _build_train_valid_test_datasets(
     data_prefix, data_impl, splits_string,

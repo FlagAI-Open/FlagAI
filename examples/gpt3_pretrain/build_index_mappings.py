@@ -248,10 +248,11 @@ def _build_train_valid_test_datasets(data_prefix, data_impl, splits_string,
 if __name__ == '__main__':
     ### 需要根据数据集情况填写
     ### documents_stat.py
+    ### 样本量和epochs提前考虑,这里统一做打散
     data_prefix = '/share/project/ldwang/data/indexed_dataset/gpt2/merged_text_document'
     data_impl = 'mmap'
     splits_string = '9999,1,0'
-    train_valid_test_num_samples = [41313229, 4132, 0]
+    train_valid_test_num_samples = [413132290, 41320, 0]
     seq_length = 1024
     seed = 2023
     skip_warmup = False
