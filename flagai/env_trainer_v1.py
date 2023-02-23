@@ -121,6 +121,9 @@ class EnvTrainer():
         # wandb
         self.wandb = env_args.wandb
 
+        # if model already_fp16, OPT 1.3B
+        self.already_fp16 = env_args.already_fp16
+
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
             self.rank = int(os.environ.get('RANK', 0))
@@ -291,7 +294,9 @@ class EnvTrainer():
             log_dist(
                 "Warning: The pytorchDDP plus FP16 may not working togather!!!"
             )
-        if self.fp16:
+
+        # TODO
+        if self.fp16 and not self.already_fp16:
             self.model.half()
         if self.checkpoint_activations:
             self.model.config[
@@ -412,7 +417,7 @@ class EnvTrainer():
 
         ## Needed global optim_manager
         if self.env_type == 'bmtrain':
-            optim_manager = bmt.optim.OptimManager(loss_scale=1024)
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.

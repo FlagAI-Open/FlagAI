@@ -43,6 +43,7 @@ class EnvArgs:
                  tensorboard_dir="tensorboard_summary",
                  tensorboard=False,
                  wandb=True,
+                 already_fp16=False,
 
                  # distribute settings
                  deepspeed_activation_checkpointing=False,
@@ -102,6 +103,7 @@ class EnvArgs:
         self.parser.add_argument('--local_rank', default=0, type=int, help='start training from saved checkpoint')
 
         self.parser.add_argument('--wandb', default=wandb, type=str2bool, help='whether to use wandb')
+        self.parser.add_argument('--already_fp16', default=already_fp16, type=str2bool, help='whether already_fp16')
 
         self.parser.add_argument('--adam_beta1', default=adam_beta1, type=float, help='adam beta1')
         self.parser.add_argument('--adam_beta2', default=adam_beta2, type=float, help='adam beta2')
