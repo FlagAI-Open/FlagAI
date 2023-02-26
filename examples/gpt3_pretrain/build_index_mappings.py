@@ -163,7 +163,7 @@ def _build_index_mappings(name, data_prefix, documents, sizes,
             # First compile and then import.
             # from megatron.data import helpers
             assert doc_idx.dtype == np.int32
-            assert sizes.dtype == np.int32
+            #assert sizes.dtype == np.int32
             sample_idx = _build_sample_idx(sizes, doc_idx, seq_length,
                                                   num_epochs, tokens_per_epoch)
             # sample_idx = _build_sample_idx(sizes, doc_idx, seq_length,
@@ -249,16 +249,102 @@ if __name__ == '__main__':
     ### 需要根据数据集情况填写
     ### documents_stat.py
     ### 样本量和epochs提前考虑,这里统一做打散
+
+    ### gpt2
     data_prefix = '/share/project/ldwang/data/indexed_dataset/gpt2/merged_text_document'
     data_impl = 'mmap'
     splits_string = '9999,1,0'
-    train_valid_test_num_samples = [413132290, 41320, 0]
+    train_valid_test_num_samples = [41313229, 4132, 0]
     seq_length = 1024
     seed = 2023
     skip_warmup = False
+
+    ### gpm
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [343969381, 344314, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = False
+
+    ### debug
+    data_prefix = '2000_text_document/merged_text_document'
+    data_impl = 'lazy'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [10, 1, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = False
+
+    ### debug
+    data_prefix = '00_text_document/00_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [1, 1, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = False
+
+    ### gpm part
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/part_merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [99136540, 99236, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = False
+
+    ### gpm 10
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/10_merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [29375962, 29406, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = False
+
+    ### gpm 20
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/20_merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [70166341, 70237, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = False
+
+    ### gpm 12
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/12_merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [33605368, 33606, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = False
+
+    ### gpm debug
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/debug_merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [29375962, 29406, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = False
+
+    ### gpm
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [344379254, 34441, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+
     train_dataset, valid_dataset, test_dataset = _build_train_valid_test_datasets(
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
         seq_length, seed, skip_warmup)
     print(len(train_dataset))
+    print(type(train_dataset))
+    print(train_dataset[0])
 
