@@ -28,12 +28,16 @@ from megatron.data.dataset_utils import get_train_valid_test_split_
 from megatron.data.indexed_dataset import make_dataset as make_indexed_dataset
 from megatron.data.gpt_dataset import _build_shuffle_idx, _build_doc_idx, _num_epochs, _num_tokens, get_indexed_dataset_
 
+import sys
+data_prefix = 'merged_text_document'
+
 # Indexed dataset.
 dataset = get_indexed_dataset_(
-    'merged_text_document',
+    data_prefix,
     data_impl='mmap',
-    skip_warmup=False)
+    skip_warmup=True)
 total_num_of_documents = dataset.sizes.shape[0]
+
 splits_string='9999,1,0'
 splits = get_train_valid_test_split_(splits_string, total_num_of_documents)
 print(total_num_of_documents)
@@ -41,4 +45,17 @@ print(splits)
 print(dataset[0])
 print(type(dataset[0]))
 print(dataset[0].shape)
+last = total_num_of_documents-1
+print(dataset[last])
+'''
+
+# Test Index
+last = total_num_of_documents-1
+result = True
+try:
+    dataset[last]
+except:
+    result = False
+print(f"check\t{data_prefix}\t{result}")
+'''
 

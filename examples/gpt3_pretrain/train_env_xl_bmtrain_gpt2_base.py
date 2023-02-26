@@ -22,7 +22,7 @@ env_args = EnvArgs(
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=1,
+    epochs=2,
     log_interval=10,
     eval_interval=10000,
     num_gpus=2,
@@ -31,7 +31,7 @@ env_args = EnvArgs(
     save_dir="checkpoints_gpt2_base",
     checkpoint_activations=False,
     save_interval=10000,
-    fp16=True,
+    fp16=False,
     training_script=__file__,
 )
 env_args = env_args.parse_args()
@@ -64,17 +64,17 @@ trainer.pre_train(model)
 ### 需要根据数据集情况填写
 ### documents_stat.py
 ### 确定好文档数和样本量后先执行一次
-### 样本量需要提前考虑执行多少epochs
+### 相当于由二进制索引管理所有epochs里的样本和打散
 ### build_index_mappings.py
 ### 样本量-名称-最大长度-种子很重要,如果存在对应文件直接加载
 ### merged_text_document_train_indexmap_41313229ns_1024sl_2023s_doc_idx.npy
 ### merged_text_document_valid_indexmap_41313229ns_1024sl_2023s_doc_idx.npy
 
-data_prefix = '00_text_document'
+data_prefix = '00_text_document' # debug
 data_prefix = '/share/project/ldwang/data/indexed_dataset/gpt2/merged_text_document'
 data_impl = 'mmap'
 splits_string = '9999,1,0'
-train_valid_test_num_samples = [41313, 4132, 0]
+train_valid_test_num_samples = [41313, 4132, 0] # debug
 train_valid_test_num_samples = [41313229, 4132, 0]
 seq_length = 1024
 seed = 2023
