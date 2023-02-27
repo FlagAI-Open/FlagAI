@@ -52,7 +52,7 @@ class LoggerFactory:
 
 
 if 'logger' not in dir():
-    logger = LoggerFactory.create_logger(name="DeepSpeed", level=logging.INFO)
+    logger = LoggerFactory.create_logger(name="FlagAI", level=logging.INFO)
 while len(logger.handlers) > 1:
     # Why is this happening?
     logger.removeHandler(logger.handlers[-1])
