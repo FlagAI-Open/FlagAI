@@ -225,7 +225,8 @@ class Trainer():
         self.training_script = training_script
 
         # wandb
-        self.wandb = wandb
+        self.wandb = env_args.wandb
+        self.wandb = False
 
         # if model already_fp16, OPT 1.3B
         self.already_fp16 = already_fp16

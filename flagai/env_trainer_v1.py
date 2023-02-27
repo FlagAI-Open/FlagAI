@@ -120,6 +120,7 @@ class EnvTrainer():
 
         # wandb
         self.wandb = env_args.wandb
+        self.wandb = False
 
         # if model already_fp16, OPT 1.3B
         self.already_fp16 = env_args.already_fp16
