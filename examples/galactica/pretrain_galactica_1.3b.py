@@ -67,10 +67,8 @@ def read_file():
     src = []
     tgt = []
 
-    part_file = './debug.txt'
-    lines_count = 0
+    part_file = './train.txt'
     packed = []
-
     if True: # enable_debug
         filename = part_file
         with open(filename, 'r', encoding='utf-8') as f:
@@ -81,8 +79,6 @@ def read_file():
                 if len(packed) == trainer.world_size:
                     src.append(packed[trainer.rank])
                     packed = []
-                if lines_count%100==1:
-                    print('*'*20, 'lines_count', lines_count)
     if len(packed) == env_args.num_gpus:
         src.append(packed[trainer.rank])
         packed = []
@@ -170,6 +166,6 @@ trainer.do_train(
     valid_dataset=val_dataset,
     collate_fn=GPT2Seq2seqDataset.collate_fn,
     optimizer=None,
-    rank_split=False,
+    rank_split=True,
     tokenizer=None)
 
