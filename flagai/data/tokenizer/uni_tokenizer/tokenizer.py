@@ -57,7 +57,7 @@ class Tokenizer(BaseTokenizer):
         super().__init__(**kwargs)
         if self.tokenizer_class == "wp":
             if self.tokenizer_model_name.lower().startswith('clip-cn'):
-                self.text_tokenizer = FullTokenizer(self.vocab_file)               
+                self.text_tokenizer = FullTokenizer(self.vocab_file)             
             else:
                 self.text_tokenizer = WordpieceTokenizer(self.vocab_file, 
                                         is_ch=self.tokenizer_model_name.lower().endswith("ch"))
@@ -128,19 +128,7 @@ class Tokenizer(BaseTokenizer):
                     CommandToken('unk', '[UNK]', self.num_tokens + 5)
                 ])
                 self.num_tokens += 6
-        # elif self.tokenizer_model_name.lower().startswith("glm-large-ch"):
-        #     self._command_tokens = [
-        #         CommandToken('pad', '<|endoftext|>', self.num_tokens),
-        #         CommandToken('eos', '<|endoftext|>', self.num_tokens),
-        #         CommandToken('sep', '[SEP]', self.num_tokens + 1),
-        #         CommandToken('cls', '[CLS]', self.num_tokens + 2),
-        #         CommandToken('mask', '[MASK]', self.num_tokens + 3, lstrip=True),
-        #         CommandToken('unk', '[UNK]', self.num_tokens + 4)
-        #     ]
-        #     self.num_tokens += 5
         if add_block_symbols:
-            # sop_id = self.text_tokenizer.convert_token_to_id('<|startofpiece|>')
-            # eop_id = self.text_tokenizer.convert_token_to_id('<|endofpiece|>')
             if not self.tokenizer_class == "bpe":
                 self.add_command_token('sop', '<|startofpiece|>')
                 self.add_command_token('eop', '<|endofpiece|>')
@@ -157,337 +145,6 @@ class Tokenizer(BaseTokenizer):
                 for i in range(1, add_sentinel_token):
                     self.add_command_token(f'MASK{i}', f'[MASK{i}]')
                     self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>')
-                # self._command_tokens.extend([
-                #     CommandToken('sop', '<|startofpiece|>',
-                #                 self.num_tokens + 1),
-                #     CommandToken('eop', '<|endofpiece|>', self.num_tokens + 2)
-                # ])
-                # if fix_command_token:
-                #     self.num_tokens += 3
-                # else:
-                #     self.num_tokens += 2
-                # if add_task_mask:
-                #     if fix_command_token:
-                #         self._command_tokens.extend([
-                #             CommandToken('sMASK',
-                #                         '[sMASK]',
-                #                         self.num_tokens,
-                #                         lstrip=True),
-                #             CommandToken('gMASK',
-                #                         '[gMASK]',
-                #                         self.num_tokens + 1,
-                #                         lstrip=True)
-                #         ])
-                #     else:
-                #         self._command_tokens.extend([
-                #             CommandToken('gMASK',
-                #                         '[gMASK]',
-                #                         self.num_tokens,
-                #                         lstrip=True),
-                #             CommandToken('sMASK',
-                #                         '[sMASK]',
-                #                         self.num_tokens + 1,
-                #                         lstrip=True)
-                #         ])
-                # if add_decoder_mask:
-                #     self._command_tokens.extend(
-                #         [CommandToken('dBLOCK', '[dBLOCK]', self.num_tokens)])
-        # import pdb;pdb.set_trace()
-        # 
-        # if self.tokenizer_class == "wp":
-        #     # set command tokens from wordpiece tokenizer values
-        #     self.num_command_tokens = 6
-        #     self.num_text_tokens = self.num_tokens - 5
-        #     self.num_type_tokens = 2
-        #     self.token_start_id = None
-        #     self.token_end_id = None
-        #     self.token_pad_id = None
-        #     # try:
-        #     self._command_tokens = [
-        #         CommandToken(
-        #             'pad', '[PAD]',
-        #             self.text_tokenizer.convert_token_to_id('[PAD]')),
-        #         CommandToken(
-        #             'cls', '[CLS]',
-        #             self.text_tokenizer.convert_token_to_id('[CLS]')),
-        #         CommandToken(
-        #             'MASK', '[MASK]',
-        #             self.text_tokenizer.convert_token_to_id('[MASK]')),
-        #         CommandToken(
-        #             'unk', '[UNK]',
-        #             self.text_tokenizer.convert_token_to_id('[UNK]')),
-        #         CommandToken(
-        #             'sep', '[SEP]',
-        #             self.text_tokenizer.convert_token_to_id('[SEP]')),
-        #         CommandToken(
-        #             'eos', '[PAD]',
-        #             self.text_tokenizer.convert_token_to_id('[PAD]')),
-        #     ]
-        #     self.token_start_id = self.text_tokenizer.convert_token_to_id(
-        #         '[CLS]')
-        #     self.token_end_id = self.text_tokenizer.convert_token_to_id(
-        #         '[SEP]')
-        #     self.token_pad_id = self.text_tokenizer.convert_token_to_id(
-        #         '[PAD]')
-        #     self.text_tokenizer._token_cls = "[CLS]"
-        #     self.text_tokenizer._token_sep = "[SEP]"
-
-        #     # except KeyError:
-        #     #     self._command_tokens = [
-        #     #         CommandToken(
-        #     #             'pad', '[PAD]',
-        #     #             self.text_tokenizer.convert_token_to_id('<pad>')),
-        #     #         CommandToken(
-        #     #             'cls', '[CLS]',
-        #     #             self.text_tokenizer.convert_token_to_id('<s>')),
-        #     #         CommandToken(
-        #     #             'MASK', '[MASK]',
-        #     #             self.text_tokenizer.convert_token_to_id('<mask>')),
-        #     #         CommandToken(
-        #     #             'unk', '[UNK]',
-        #     #             self.text_tokenizer.convert_token_to_id('<unk>')),
-        #     #         CommandToken(
-        #     #             'sep', '[SEP]',
-        #     #             self.text_tokenizer.convert_token_to_id('<sep>')),
-        #     #         CommandToken(
-        #     #             'eos', '[PAD]',
-        #     #             self.text_tokenizer.convert_token_to_id('</s>')),
-        #     #     ]
-        #     #     self.token_start_id = self.text_tokenizer.convert_token_to_id(
-        #     #         '<s>')
-        #     #     self.token_end_id = self.text_tokenizer.convert_token_to_id(
-        #     #         '</s>')
-        #     #     self.token_pad_id = self.text_tokenizer.convert_token_to_id(
-        #     #         '<pad>')
-        #     #     self.text_tokenizer._token_cls = "<s>"
-        #     #     self.text_tokenizer._token_sep = "</s>"
-        #     if add_block_symbols:
-        #         self.add_command_token('sop', '<|startofpiece|>')
-        #         self.add_command_token('eop', '<|endofpiece|>',)
-        #         if add_task_mask:
-        #             self.add_command_token('gMASK', '[gMASK]')
-        #             self.add_command_token('sMASK', '[sMASK]')
-        #         if add_decoder_mask:
-        #             self.add_command_token('dBLOCK', '[dBLOCK]')
-        #     if add_sentinel_token > 0:
-        #         for i in range(1, add_sentinel_token):
-        #             self.add_command_token(f'MASK{i}', f'[MASK{i}]')
-        #             self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>')
-        # elif self.tokenizer_class == "bpe":
-        #     if self.tokenizer_model_name.lower().startswith('roberta'):
-        #         self.num_command_tokens = 6
-        #         self.num_text_tokens = self.num_tokens - 3
-        #         self._command_tokens = [
-        #             CommandToken(
-        #                 'pad', '<|endoftext|>',
-        #                 self.text_tokenizer.convert_token_to_id('</s>')),
-        #             CommandToken(
-        #                 'eos', '<|endoftext|>',
-        #                 self.text_tokenizer.convert_token_to_id('</s>')),
-        #             CommandToken(
-        #                 'sep', '[SEP]',
-        #                 self.text_tokenizer.convert_token_to_id('</s>')),
-        #             CommandToken(
-        #                 'cls', '[CLS]',
-        #                 self.text_tokenizer.convert_token_to_id('<s>')),
-        #             CommandToken(
-        #                 'MASK',
-        #                 '[MASK]',
-        #                 self.text_tokenizer.convert_token_to_id('<mask>'),
-        #                 lstrip=True),
-        #             CommandToken(
-        #                 'unk', '[UNK]',
-        #                 self.text_tokenizer.convert_token_to_id('<unk>'))
-        #         ]
-        #         if add_block_symbols:
-        #             self._command_tokens.extend([
-        #                 CommandToken('sop', '<|startofpiece|>',
-        #                              self.num_tokens),
-        #                 CommandToken('eop', '<|endofpiece|>',
-        #                              self.num_tokens + 1)
-        #             ])
-        #             self.num_tokens += 2
-        #             self.num_command_tokens += 2
-        #         self.token_end_id = self.text_tokenizer.convert_token_to_id(
-        #             '</s>')
-        #     elif self.tokenizer_model_name.lower().startswith('clip'):
-        #         self.num_command_tokens = 2
-        #         self._command_tokens = [
-        #             CommandToken(
-        #                 'sot', '<start_of_text>',
-        #                 self.text_tokenizer.convert_token_to_id('</s>')),
-        #             CommandToken(
-        #                 'eot', '<end_of_text>',
-        #                 self.text_tokenizer.convert_token_to_id('</s>')),
-        #         ]
-        #         self.num_tokens += self.num_command_tokens
-        #         self.token_end_id = self.text_tokenizer.convert_token_to_id(
-        #             '</s>')
-        #     elif self.tokenizer_model_name.lower().startswith('opt'):
-        #         self._command_tokens = [
-        #             CommandToken(
-        #                 'pad', '<|endoftext|>',
-        #                 self.text_tokenizer.convert_token_to_id('<pad>')),
-        #             CommandToken(
-        #                 'eos', '<|endoftext|>',
-        #                 self.text_tokenizer.convert_token_to_id('</s>')),
-        #             CommandToken(
-        #                 'sep', '[SEP]',
-        #                 self.text_tokenizer.convert_token_to_id('</s>')),
-        #             CommandToken(
-        #                 'cls', '[CLS]',
-        #                 self.text_tokenizer.convert_token_to_id('<s>')),
-        #             CommandToken(
-        #                 'MASK',
-        #                 '[MASK]',
-        #                 self.text_tokenizer.convert_token_to_id('<mask>'),
-        #                 lstrip=True),
-        #             CommandToken(
-        #                 'unk', '[UNK]',
-        #                 self.text_tokenizer.convert_token_to_id('<unk>'))
-        #         ]
-        #     else:
-        #         self.num_command_tokens = 2
-        #         self.num_text_tokens = self.num_tokens - 1
-        #         self._command_tokens = [
-        #             CommandToken(
-        #                 'pad', '<|endoftext|>',
-        #                 self.text_tokenizer.convert_token_to_id(
-        #                     '<|endoftext|>')),
-        #             CommandToken(
-        #                 'eos', '<|endoftext|>',
-        #                 self.text_tokenizer.convert_token_to_id(
-        #                     '<|endoftext|>'))
-        #         ]
-        #         self.token_end_id = self.text_tokenizer.convert_token_to_id(
-        #             '<|endoftext|>')
-        #         if add_block_symbols:
-        #             if self.tokenizer_model_name.lower().startswith('glm'):
-        #                 unk_token_id = self.num_tokens + 5
-        #                 cls_token_id = self.num_tokens + 2
-        #                 num_tokens_to_add = 5
-        #             else:
-        #                 unk_token_id = self.text_tokenizer.convert_token_to_id(
-        #                     '<|endoftext|>')
-        #                 cls_token_id = self.text_tokenizer.convert_token_to_id(
-        #                     '<|endoftext|>')
-        #                 num_tokens_to_add = 4
-        #             self._command_tokens.extend([
-        #                 CommandToken('sop', '<|startofpiece|>',
-        #                              self.num_tokens),
-        #                 CommandToken('eop', '<|endofpiece|>',
-        #                              self.num_tokens + 1),
-        #                 CommandToken('cls', '[CLS]', cls_token_id),
-        #                 CommandToken('MASK',
-        #                              '[MASK]',
-        #                              self.num_tokens + 3,
-        #                              lstrip=True),
-        #                 CommandToken('sep', '[SEP]', self.num_tokens + 4),
-        #                 CommandToken('unk', '[UNK]', unk_token_id)
-        #             ])
-        #             self.num_tokens += num_tokens_to_add
-        #             self.num_command_tokens += 6
-
-        #     if add_block_symbols:
-        #         if add_task_mask:
-        #             self._command_tokens.extend([
-        #                 CommandToken('gMASK',
-        #                              '[gMASK]',
-        #                              self.num_tokens,
-        #                              lstrip=True),
-        #                 CommandToken('sMASK',
-        #                              '[sMASK]',
-        #                              self.num_tokens + 1,
-        #                              lstrip=True)
-        #             ])
-        #             self.num_tokens += 2
-        #             self.num_command_tokens += 2
-        #         if add_decoder_mask:
-        #             self._command_tokens.extend(
-        #                 [CommandToken('dBLOCK', '[dBLOCK]', self.num_tokens)])
-        #             self.num_tokens += 1
-        #             self.num_command_tokens += 1
-
-        # elif self.tokenizer_class == "sp":
-        #     import pdb;pdb.set_trace()
-        #     self.num_command_tokens = 0
-        #     self.num_text_tokens = self.text_tokenizer.vocab_size
-        #     self.num_tokens = self.num_text_tokens
-        #     if self.tokenizer_model_name.lower().startswith('glm'):
-        #         self._command_tokens = [
-        #             CommandToken('pad', '<|endoftext|>', self.num_text_tokens),
-        #             CommandToken('eos', '<|endoftext|>', self.num_text_tokens),
-        #             CommandToken('sep', '[SEP]', self.num_text_tokens + 1),
-        #             CommandToken('cls', '[CLS]', self.num_text_tokens + 2),
-        #             CommandToken('MASK',
-        #                         '[MASK]',
-        #                         self.num_text_tokens + 3,
-        #                         lstrip=True),
-        #             CommandToken('unk', '[UNK]', self.num_text_tokens + 4)
-        #         ]
-        #         self.num_tokens += 5
-        #         self.num_command_tokens += 6
-        #     else: 
-        #         # try:
-        #         #     self.text_tokenizer.convert_token_to_id('<unk>')
-        #         #     self.text_tokenizer.convert_token_to_id('<s>')
-        #         #     self.text_tokenizer.convert_token_to_id('</s>')
-        #         #     self.text_tokenizer.convert_token_to_id('<cls>')
-        #         #     self.text_tokenizer.convert_token_to_id('<sep>')
-        #         #     self.text_tokenizer.convert_token_to_id('<mask>')
-        #         #     self.text_tokenizer.convert_token_to_id('<eod>')
-        #         # self._command_tokens = [
-        #         #     CommandToken('pad', '<pad>', self.text_tokenizer.convert_token_to_id('<pad>')),
-        #         #     CommandToken('eos', '</s>', self.text_tokenizer.convert_token_to_id('</s>')),
-        #         #     CommandToken('unk', '<unk>', self.text_tokenizer.convert_token_to_id('<unk>'))
-        #         # ]
-        #         self.num_tokens += 3
-        #         self.num_command_tokens += 3
-        #     self.token_end_id = self.text_tokenizer.convert_token_to_id(
-        #         '</s>')
-        #     if add_block_symbols:
-        #         sop_id = self.text_tokenizer.convert_token_to_id('<|startofpiece|>')
-        #         eop_id = self.text_tokenizer.convert_token_to_id('<|endofpiece|>')
-        #         self._command_tokens.extend([
-        #             CommandToken('sop', '<|startofpiece|>',
-        #                          self.num_tokens + 1),
-        #             CommandToken('eop', '<|endofpiece|>', self.num_tokens + 2)
-        #         ])
-        #         if fix_command_token:
-        #             self.num_tokens += 3
-        #         else:
-        #             self.num_tokens += 2
-        #         self.num_command_tokens += 2
-        #         if add_task_mask:
-        #             if fix_command_token:
-        #                 self._command_tokens.extend([
-        #                     CommandToken('sMASK',
-        #                                  '[sMASK]',
-        #                                  self.num_tokens,
-        #                                  lstrip=True),
-        #                     CommandToken('gMASK',
-        #                                  '[gMASK]',
-        #                                  self.num_tokens + 1,
-        #                                  lstrip=True)
-        #                 ])
-        #             else:
-        #                 self._command_tokens.extend([
-        #                     CommandToken('gMASK',
-        #                                  '[gMASK]',
-        #                                  self.num_tokens,
-        #                                  lstrip=True),
-        #                     CommandToken('sMASK',
-        #                                  '[sMASK]',
-        #                                  self.num_tokens + 1,
-        #                                  lstrip=True)
-        #                 ])
-        #             self.num_tokens += 2
-        #             self.num_command_tokens += 2
-        #         if add_decoder_mask:
-        #             self._command_tokens.extend(
-        #                 [CommandToken('dBLOCK', '[dBLOCK]', self.num_tokens)])
-        #             self.num_tokens += 1
-        #             self.num_command_tokens += 1
         self.command_name_map = {tok.name: tok for tok in self._command_tokens}
         self.command_token_map = {
             tok.token: tok
@@ -509,7 +166,7 @@ class Tokenizer(BaseTokenizer):
         # import pdb;pdb.set_trace()
         print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
         # logger.info("All special tokens: %s", str([(k,v.Id) for k,v in self.command_name_map.items()]))
-
+        
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()
 
@@ -569,6 +226,7 @@ class Tokenizer(BaseTokenizer):
         return ids
 
     def convert_tokens_to_ids(self, tokens):
+        import pdb;pdb.set_trace()
         res = []
         for token in tokens:
             if token in self.command_token_map:
