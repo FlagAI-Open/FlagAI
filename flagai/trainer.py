@@ -136,6 +136,7 @@ class Trainer():
         fp16=False,
         clip_grad=1.0,
         checkpoint_activations=False,
+        tokenizer=None,
 
         # model checkpointing
         save_dir='checkpoints',  # 'Output directory to save checkpoints to.')
@@ -185,6 +186,7 @@ class Trainer():
 
         self.log_interval = log_interval
         self.eval_interval = eval_interval
+        self.tokenizer = tokenizer
 
         # model checkpointing
         self.save_dir = save_dir
@@ -547,11 +549,7 @@ class Trainer():
             best_score = -best_score
 
         for epoch in range(self.epochs):
-            # log_dist('working on epoch {} ...'.format(epoch), [0])
-            # Set the data loader epoch to shuffle the index iterator.
-            # if self.env_type == 'deepspeed+mpu':
-            #     if mpu.get_model_parallel_rank() == 0:
-            #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
+            print("epoch "+str(epoch))
             if self.env_type != 'pytorch':
                 train_dataloader.sampler.set_epoch(epoch + self.world_size)
 
@@ -671,7 +669,6 @@ class Trainer():
                                     save_dir=self.save_dir,
                                     save_rng=self.save_rng)
                 self.iteration += 1
-
                 # Checkpointing at the end of each epoch.
 
         # Evaluation #todo add train_args
@@ -765,6 +762,7 @@ class Trainer():
 
             # accumulate gradients
             lm_loss = step_output['loss']
+            lm_loss /= self.gradient_accumulation_steps
             lm_loss = lm_loss / self.gradient_accumulation_steps
             # reduce sum of losses
             reduced_loss = lm_loss.detach().clone().view(1)
@@ -784,7 +782,7 @@ class Trainer():
                 else:
                     lm_loss.backward()
 
-                grad_norm = torch.nn.utils.clip_grad_norm_(model.module.parameters(),
+                torch.nn.utils.clip_grad_norm_(model.module.parameters(),
                                                self.clip_grad)
                 self.timers('backward').stop()
 
@@ -893,6 +891,7 @@ class Trainer():
             # Calculate gradients, reduce across processes, and clip.
             self.timers('backward').start()
             optim_manager.backward(loss)
+            
             grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=1.0)
             self.timers('backward').stop()
 
@@ -945,7 +944,7 @@ class Trainer():
         if 'deepspeed' in self.env_type:
             model.backward(loss)
         else:
-            # optimizer.zero_grad()
+            optimizer.zero_grad()
             if hasattr(optimizer, 'backward'):
                 optimizer.backward(loss, update_master_grads=False)
             else:
@@ -1014,7 +1013,6 @@ class Trainer():
                  forward_step_func=None,
                  verbose=False):
         """Evaluation."""
-
         # Turn off checkpoint_activations
         tmp_checkpoint_activations = None
         tmp_model = model
@@ -1030,7 +1028,6 @@ class Trainer():
 
         mems = None
         metrics = [0. for _ in range(len(self.metric_methods))]
-
         with torch.no_grad():
             assert data_loader is not None, "val loader is not None."
             all_logits = []
@@ -1065,11 +1062,12 @@ class Trainer():
                     deepspeed.checkpointing.reset()
                 logits = step_output['logits']
                 lm_loss = step_output['loss']
-
+                
                 if 'labels' in data_iterator:
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
+                loss_mask = data_iterator['loss_mask']
                 if len(self.metric_methods) != 0:
                     if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
                         batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()
@@ -1077,10 +1075,16 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
+                        if logits.size(0) != 1:
+                            logits = torch.argmax(logits, dim=1).unsqueeze(0)
                         all_logits.append(logits)
                         all_labels.append(labels)
+                        pass
                 all_losses.append(lm_loss.view(1))
-
+            # size of all_logits: (1, n)
+            if len(self.metric_methods) != 0 and all_logits[0].size() != all_logits[-1].size():
+                pd = (all_logits[0].size(0)-all_logits[-1].size(0), all_logits[0].size(1)-all_logits[-1].size(1))
+                all_logits[-1] = torch.nn.functional.pad(all_logits[-1], pd ,"constant",0)
             all_losses = torch.cat(all_losses, dim=0)
             if len(self.metric_methods) != 0:
                 all_logits = torch.cat(all_logits, dim=0)
@@ -1103,11 +1107,10 @@ class Trainer():
 
             for i in range(len(self.metric_methods)):
                 eval_method = self.metric_methods[i][1]
-                metrics[i] += eval_method(all_logits, all_labels, meta=meta)
+                metrics[i] += eval_method(all_logits, all_labels, meta=meta, tokenizer=self.tokenizer)
 
         # Move model back to the train mode.
 
-        # model.train()
         tmp_model.train()
         # recover the settings for checkpoint_activations
         if hasattr(tmp_model,
@@ -1161,6 +1164,7 @@ class Trainer():
         verbose=False,
     ):
         """Helper function to evaluate and dump results on screen."""
+        
         eval_dict = self.evaluate(forward_step_func=forward_step_func,
                                   data_loader=data_loader,
                                   model=model,

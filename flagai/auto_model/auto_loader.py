@@ -55,6 +55,7 @@ ALL_TASK = {
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "opt_seq2seq": ("flagai.model.opt_model", "OPTModel"),
     "opt_lm": ("flagai.model.opt_model", "OPTModel"),
+    "galactica_lm": ("flagai.model.galactica_model", "GalacticaModel"),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
@@ -90,6 +91,10 @@ MODEL_DICT = {
     "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "cpm3": ["flagai.model.cpm3_model", "CPM3", "cpm3", "nlp"],
     "cpm3-train": ["flagai.model.cpm3_train_model", "CPM3", "cpm3", "nlp"],
+    "galactica-1.3b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "galactica-6.7b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "galactica-30b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "galactica-120b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "vit-base-p16-224":
         ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":
@@ -131,6 +136,7 @@ MODEL_DICT = {
     "altclip-bert-b": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
                        "AltCLIPProcessBert"],
     "eva-clip": ["flagai.model.mm.eva_clip_model", "EVA_CLIP", "evaclip", "mm"],
+
 }
 
 
@@ -170,7 +176,6 @@ class AutoLoader:
 
         """
         raw_model_name = copy.deepcopy(model_name)
-
         model_name = model_name.lower()
 
         if model_name not in MODEL_DICT:
@@ -206,10 +211,14 @@ class AutoLoader:
             self.model.half()
 
         if model_type == "nlp":
-            tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
-                                      "Tokenizer")
-            self.tokenizer = tokenizer_class.from_pretrained(
-                model_name, cache_dir=download_path)
+            if brief_model_name in ["galactica", ]:
+                self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                                    MODEL_DICT[model_name][5])(download_path)
+            else :
+                tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                        "Tokenizer")
+                self.tokenizer = tokenizer_class.from_pretrained(
+                    model_name, cache_dir=download_path)
 
         elif model_type == "mm":
             if model_name.startswith("altdiffusion"):

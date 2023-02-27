@@ -501,7 +501,7 @@ class CPM3SegmentPositionEmbedding(torch.nn.Module):
 
     def _segment_relative_position_bucket(self, query_segment, key_segment):
         """
-            segment1看segment2的所有位置编码相同，看segment3的位置编码也相同（是另一个值）
+            All positional encodings of segment2 are the same in the view of segment1. Same for segment3 and segment1(but is a different value)
         """
         return query_segment * self.num_segments + key_segment
 

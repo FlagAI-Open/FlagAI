@@ -26,6 +26,7 @@ tensorboard*
 datasets
 qqp
 glm_large_qqp_pytorch
+wandb
 examples/AltCLIP/clip_benchmark_datasets
 examples/glm_pretrain/data.lazy
 examples/glm_pretrain/examples/glm_pretrain/data.lazy
