@@ -4,8 +4,9 @@ import torch
 device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="lm",
-                    model_name="galactica-1.3b-en",
-                    model_dir="/share/projset/baaishare/baai-mrnd/xingzhaohu/")
+                    #model_name="galactica-1.3b-en",
+                    model_name="galactica-6.7b-en",
+                    model_dir="/home/ldwang/WorkSpace/state_dict")
 
 model = loader.get_model()
 model.to(device)
