@@ -9,7 +9,7 @@ from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.utils import normal_init_method
 from flagai.model.base_model import BaseModel
 import torch.nn.functional as F
-
+import bminf
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.utils import divide
     from flagai.mpu.random import checkpoint
@@ -94,7 +94,7 @@ class GPT2Config:
     def __setitem__(self, key, value):
         if hasattr(self, key):
             setattr(self, key, value)
-
+import bminf
 class GPT2Stack(nn.Module):
 
     def __init__(self, config):
@@ -112,10 +112,15 @@ class GPT2Stack(nn.Module):
         self.drop = nn.Dropout(config.embd_pdrop)
         self.project_in = None
         self.project_out = None
-        self.h = nn.ModuleList([
+        self.h = bminf.TransformerBlockList([
             GPT2Block(config.n_ctx, config, scale=True)
             for _ in range(config.n_layer)
-        ])
+        ],[0])
+        # self.h = nn.ModuleList([
+        #     GPT2Block(config.n_ctx, config, scale=True)
+        #     for _ in range(config.n_layer)
+        # ])
+
         self.ln_f = nn.LayerNorm(config.n_embd,
                                  eps=config.layer_norm_epsilon)
         self.device_map = None
@@ -274,9 +279,9 @@ class GPT2Model(BaseModel):
         self.parallel_output = True
 
         self.transformer = GPT2Stack(config_gpt)
-        self.lm_head = nn.Linear(config_gpt.n_embd,
+        self.lm_head = bminf.QuantizedLinear(nn.Linear(config_gpt.n_embd,
                                  config_gpt.vocab_size,
-                                 bias=False)
+                                 bias=False))
 
     def _make_causal_mask(self, input_ids):
         device = input_ids.device

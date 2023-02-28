@@ -59,8 +59,8 @@ class Tokenizer(BaseTokenizer):
             if self.tokenizer_model_name.lower().startswith('clip-cn'):
                 self.text_tokenizer = FullTokenizer(self.vocab_file)             
             else:
-                self.text_tokenizer = WordpieceTokenizer(self.vocab_file, 
-                                        is_ch=self.tokenizer_model_name.lower().endswith("ch"))
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file, is_ch=False)
+                                        # is_ch=self.tokenizer_model_name.lower().endswith("ch"))
         elif self.tokenizer_class == "bpe":
             if self.tokenizer_model_name.lower().startswith('clip'):
                 self.text_tokenizer = MMBPETokenizer(self.vocab_file,
@@ -91,6 +91,7 @@ class Tokenizer(BaseTokenizer):
         except FileNotFoundError:
             dct = None
             sp_tokens = []
+        
         self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
 
         if self.tokenizer_model_name.lower().startswith("glm"):
@@ -166,7 +167,6 @@ class Tokenizer(BaseTokenizer):
         # import pdb;pdb.set_trace()
         print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
         # logger.info("All special tokens: %s", str([(k,v.Id) for k,v in self.command_name_map.items()]))
-        
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()
 

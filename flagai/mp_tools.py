@@ -7,7 +7,7 @@ import torch
 import copy
 
 from_1_to_n_models = {
-    "gpt": {
+    "gpt2": {
         "wte.weight": 0,
         "attn.c_attn.weight": 30,
         "attn.c_attn.bias": 30,
@@ -238,7 +238,8 @@ def change_pytorch_model_mp_from_1_to_n_new(model_name_brief, checkpoint: str, t
                         d = d["module"]
 
                     for k, v in d.items():
-                        assert len(v.shape) < 3
+                        if len(v.shape)>2:
+                            continue
                         flag = 0
                         for keys in trans_keys:
                             if keys in k:

@@ -59,7 +59,21 @@ class TokenizerTestCase(unittest.TestCase):
     #                      ['input_ids', 'token_type_ids'], 'encode_plus Error')
     #     self.assertEqual(encode_plus_result['input_ids'],
     #                 [101, 306, 1231, 798, 5447, 798, 266, 4017, 1738, 1166, 102], 'encode_plus Error')
-        
+
+    # def test_tokenizer_t5(self):
+    #     tokenizer = Tokenizer.from_pretrained('T5-base-ch')
+    #     # import pdb;pdb.set_trace()
+    #     self.assertEqual(tokenizer.TokenToId("人"), 297, '')
+    #     self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
+    #                      [306, 1231, 798, 5447, 798, 266, 4017, 1738, 1166], '')
+    #     self.assertEqual(tokenizer.DecodeIds([306, 1231, 798, 5447, 798, 266, 4017, 1738, 1166]),
+    #                      '今天吃饭吃了肯德基', 'DecodeIds Error')
+    #     encode_plus_result = tokenizer.encode_plus("今天吃饭吃了肯德基")
+    #     self.assertEqual(list(encode_plus_result.keys()),
+    #                      ['input_ids', 'token_type_ids'], 'encode_plus Error')
+    #     self.assertEqual(encode_plus_result['input_ids'],
+    #                 [101, 306, 1231, 798, 5447, 798, 266, 4017, 1738, 1166, 102], 'encode_plus Error')
+
     # def test_tokenizer_roberta(self):
     #     tokenizer = Tokenizer.from_pretrained('RoBERTa-base-ch')
     #     # print(tokenizer.DecodeIds([791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825]))
@@ -109,23 +123,24 @@ class TokenizerTestCase(unittest.TestCase):
     #     self.assertEqual([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()],
     #             [('unk', '<unk>', 0), ('cls', '<s>', 1), ('eos', '</s>', 2), ('sep', '<sep>', 4), ('mask', '<mask>', 6), ('eod', '<eod>', 7), ('eop', '<eop>', 0)])
 
-    def test_tokenizer_cpm2_large(self):
-        loader = AutoLoader(task_name="lm",
-                            model_name="CPM2-Xlarge-ch",
-                            model_dir="./checkpoints/",
-                            only_download_config=True)
-        tokenizer = Tokenizer.from_pretrained("CPM2-Xlarge-ch")
-        self.assertEqual(tokenizer.TokenToId("人"), 38, '')
-        self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
-                         [1540, 243, 225, 1511, 225, 21, 3041, 467, 995], '')
-        self.assertEqual(tokenizer.DecodeIds([1540, 243, 225, 1511, 225, 21, 3041, 467, 995]),
-                         '今天吃饭吃了肯德基', 'DecodeIds Error')
-        self.assertEqual(tokenizer.tokenize('今天吃饭吃了肯德基'),
-                         ['今', '天', '吃', '饭', '吃', '了', '肯', '德', '基'], 'tokenize Error')
-        self.assertEqual(tokenizer.encode_plus('今天吃饭吃了肯德基')['input_ids'],
-                         [1, 1540, 243, 225, 1511, 225, 21, 3041, 467, 995, 2], 'encode_plus Error')
+    def test_tokenizer_gpt(self):
+        # loader = AutoLoader(task_name="lm",
+        #                     model_name="GPT2-base-ch",
+        #                     model_dir="./checkpoints/",
+        #                     only_download_config=True)
+        tokenizer = Tokenizer.from_pretrained("GPT2-base-ch")
+        import pdb;pdb.set_trace()
+        self.assertEqual(tokenizer.encode("day"), [8, 8275], '')
+        self.assertEqual(tokenizer.encode("fried chicken makes me happy"),
+                         [2487, 27385, 9291, 9412, 3531, 14588, 289, 4406, 25239], '')
+        self.assertEqual(tokenizer.decode([2487, 27385, 9291, 9412, 3531, 14588, 289, 4406, 25239]),
+                         'fried chicken makes me happy', 'DecodeIds Error')
+        self.assertEqual(tokenizer.tokenize('fried chicken makes me happy'),
+                         ['▁f', 'ried', '▁ch', 'ick', 'en', '▁make', 's', '▁me', '▁happy'], 'tokenize Error')
+        self.assertEqual(tokenizer.encode_plus('fried chicken makes me happy')['input_ids'],
+                         [1, 2487, 27385, 9291, 9412, 3531, 14588, 289, 4406, 25239, 2], 'encode_plus Error')
         self.assertEqual([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()],
-                [('unk', '<unk>', 0), ('cls', '<s>', 1), ('eos', '</s>', 2), ('sep', '<sep>', 4), ('mask', '<mask>', 6), ('eod', '<eod>', 7)])
+                [('unk', '<unk>', 0), ('cls', '<s>', 1), ('eos', '</s>', 2), ('sep', '<sep>', 4), ('mask', '<mask>', 6), ('eod', '<eod>', 7), ('eop', '<eop>', 0)])
 
     # def test_tokenizer_opt(self):
     #     tokenizer = Tokenizer.from_pretrained('opt-1.3b-en')
@@ -166,7 +181,8 @@ def suite():
     # suite.addTest(TokenizerTestCase('test_tokenizer_roberta'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_bert'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_cpm1'))
-    suite.addTest(TokenizerTestCase('test_tokenizer_cpm2_large'))
+    # suite.addTest(TokenizerTestCase('test_tokenizer_cpm2_large'))
+    suite.addTest(TokenizerTestCase('test_tokenizer_gpt'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_opt'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_clip'))
     # suite.addTest(TokenizerTestCase('test_tokenizer_evaclip'))

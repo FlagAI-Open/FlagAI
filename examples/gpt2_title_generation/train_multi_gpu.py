@@ -2,6 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import sys
+sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 import os
 import torch
 from torch.utils.data import Dataset
@@ -12,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
 # single gpu
 trainer = Trainer(
-    env_type="pytorchDDP",
+    env_type="deepspeed+mpu",
     experiment_name="roberta_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
@@ -31,7 +32,7 @@ trainer = Trainer(
     num_nodes=1,
     num_gpus=2,
     checkpoint_activations=False,
-    model_parallel_size=1,
+    model_parallel_size=2,
     hostfile='./hostfile',
     deepspeed_config='./deepspeed.json',
     training_script=__file__,
@@ -39,7 +40,7 @@ trainer = Trainer(
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/train.src'
 tgt_dir = cur_dir + '/data/train.tgt'
-model_dir = "./state_dict/"
+model_dir = "./checkpoints/"
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 256
 
