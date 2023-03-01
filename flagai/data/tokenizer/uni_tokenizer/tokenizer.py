@@ -167,6 +167,9 @@ class Tokenizer(BaseTokenizer):
         # import pdb;pdb.set_trace()
         print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
         # logger.info("All special tokens: %s", str([(k,v.Id) for k,v in self.command_name_map.items()]))
+        import pdb;pbb.set_trace()
+
+
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()
 
