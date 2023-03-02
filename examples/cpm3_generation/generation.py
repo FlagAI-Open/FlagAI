@@ -103,7 +103,7 @@ def calc_banned_ngram_tokens(
 
     return banned_tokens
 
-# min_length_constriant
+# min_length_constraint
 def min_length_constraint(logits, cur_len, min_len, tokenizer):
     # This enforcing a min-length by setting EOS probability to 0.
     if cur_len <= min_len:

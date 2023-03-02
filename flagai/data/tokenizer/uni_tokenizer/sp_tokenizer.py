@@ -29,8 +29,6 @@ class SentencePieceTokenizer(object):
         self.sp_model = spm.SentencePieceProcessor()
         self.sp_model.Load(model_path)
         # vocab = self.get_vocab()
-        # print(vocab["<|endoftext|>"])
-        # print(vocab["<|endofpiece|>"])
 
     @property
     def vocab_size(self):

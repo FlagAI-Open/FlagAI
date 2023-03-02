@@ -28,7 +28,7 @@ from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer, MMBPETokenizer
 from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
-from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer import FullTokenizer
+from flagai.data.tokenizer.uni_tokenizer.diffusion_bert_tokenizer import FullTokenizer
 from typing import List, Union, Optional
 import unicodedata
 
@@ -38,7 +38,6 @@ def is_control(ch):
     https://en.wikipedia.org/wiki/Control_character
     https://www.fileformat.info/info/unicode/category/Cc/index.htm
     https://www.fileformat.info/info/unicode/category/Cf/index.htm
-
     """
     return unicodedata.category(ch) in ('Cc', 'Cf')
 
@@ -709,14 +708,12 @@ class Tokenizer(BaseTokenizer):
     def tokenize_as_tensor(self, texts):
         """
         Returns the tokenized representation of given input string(s)
-
         Parameters
         ----------
         texts : Union[str, List[str]]
             An input string or a list of input strings to tokenize
         context_length : int
             The context length to use; all CLIP models use 77 as the context length
-
         Returns
         -------
         A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]

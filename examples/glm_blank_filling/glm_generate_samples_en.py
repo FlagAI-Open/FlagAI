@@ -1,7 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-
 import torch
 from flagai.model.glm_model import GLMModel
 from flagai.data.tokenizer import Tokenizer
@@ -13,7 +12,7 @@ if __name__ == "__main__":
     print('Generate Samples')
 
     loader = AutoLoader(task_name='lm',
-                            model_name='GLM-large-en-generation',
+                            model_name='GLM-large-en',
                             only_download_config=False)
     model = loader.get_model()
     tokenizer = loader.get_tokenizer()

@@ -1117,7 +1117,6 @@ def alm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=
     context_length = context_length_tensor[0].item()
     context_tokens_tensor = torch.LongTensor(context_tokens)
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
-
     start_time = time.time()
     mems = []
     tokens = context_tokens_tensor
@@ -1418,7 +1417,7 @@ def glm_generate_sample(
     context_length = context_length_tensor[0].item()
     context_tokens_tensor = torch.LongTensor(context_tokens)
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
-
+    
     start_time = time.time()
     mems = []
     tokens = context_tokens_tensor

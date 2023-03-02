@@ -25,7 +25,7 @@ All supported models now support the three most common model types [encoder, dec
 
 ### load model from modelhub
 
-By calling `ClassName.from_pretrian()` to load following [supported models](#all-supported-models), it will automatically download the model configuration file `config.json`, model weights `pytorch_model.bin`, and dictionary files `vocab .txt`.
+By calling `ClassName.from_pretrain()` to load following [supported models](#all-supported-models), it will automatically download the model configuration file `config.json`, model weights `pytorch_model.bin`, and dictionary files `vocab .txt`.
 
 ```python
 >>> # Downloading GLM-large-ch from modelhub

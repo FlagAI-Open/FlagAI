@@ -7,11 +7,13 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+
 task_name = "ner"
-model_dir = "./state_dict/"
+model_dir = "./checkpoints"
 
 # Note "./checkpoints_ner/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_ner.
-model_save_path = "./checkpoints_ner/3913/mp_rank_00_model_states.pt"
+# model_save_path = "./checkpoints_ner/3913/mp_rank_00_model_states.pt"
 
 target = ["O", "B-LOC", "I-LOC", "B-ORG", "I-ORG", "B-PER", "I-PER"]
 
@@ -25,8 +27,8 @@ model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
 predictor = Predictor(model, tokenizer)
-model.load_state_dict(
-    torch.load(model_save_path, map_location=device)["module"])
+# model.load_state_dict(
+#     torch.load(model_save_path, map_location=device)["module"])
 
 model.to(device)
 model.eval()
