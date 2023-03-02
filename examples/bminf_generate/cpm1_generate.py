@@ -1,5 +1,3 @@
-import sys 
-sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
