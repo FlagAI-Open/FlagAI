@@ -153,7 +153,6 @@ class Tokenizer(BaseTokenizer):
         }
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
-        # import pdb;pdb.set_trace()
         vocab =  self.text_tokenizer.get_vocab()
         self.token_start_id = vocab.get('<s>', None)
         if not self.token_start_id:
@@ -164,10 +163,8 @@ class Tokenizer(BaseTokenizer):
             self.token_end_id = vocab.get('<|endoftext|>', None)
         if not self.token_end_id:
             self.token_end_id = vocab.get('[SEP]', None)
-        # import pdb;pdb.set_trace()
         print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
         # logger.info("All special tokens: %s", str([(k,v.Id) for k,v in self.command_name_map.items()]))
-        import pdb;pbb.set_trace()
 
 
     def get_vocab(self):
@@ -229,7 +226,6 @@ class Tokenizer(BaseTokenizer):
         return ids
 
     def convert_tokens_to_ids(self, tokens):
-        import pdb;pdb.set_trace()
         res = []
         for token in tokens:
             if token in self.command_token_map:
@@ -239,8 +235,6 @@ class Tokenizer(BaseTokenizer):
         return res
 
     def convert_ids_to_tokens(self, ids):
-        # if torch.is_tensor(ids):
-        #     ids = ids.tolist()
         res = []
         for id in ids:
             if id in self.command_id_map:
