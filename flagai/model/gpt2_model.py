@@ -9,7 +9,6 @@ from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.utils import normal_init_method
 from flagai.model.base_model import BaseModel
 import torch.nn.functional as F
-# import bminf
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.utils import divide
     from flagai.mpu.random import checkpoint
@@ -112,10 +111,6 @@ class GPT2Stack(nn.Module):
         self.drop = nn.Dropout(config.embd_pdrop)
         self.project_in = None
         self.project_out = None
-        # self.h = bminf.TransformerBlockList([
-        #     GPT2Block(config.n_ctx, config, scale=True)
-        #     for _ in range(config.n_layer)
-        # ],[0])
         self.h = nn.ModuleList([
             GPT2Block(config.n_ctx, config, scale=True)
             for _ in range(config.n_layer)
@@ -279,9 +274,6 @@ class GPT2Model(BaseModel):
         self.parallel_output = True
 
         self.transformer = GPT2Stack(config_gpt)
-        # self.lm_head = bminf.QuantizedLinear(nn.Linear(config_gpt.n_embd,
-        #                          config_gpt.vocab_size,
-        #                          bias=False))
         self.lm_head = nn.Linear(config_gpt.n_embd,
                                  config_gpt.vocab_size,
                                  bias=False)

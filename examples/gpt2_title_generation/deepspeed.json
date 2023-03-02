@@ -4,7 +4,7 @@
   "steps_per_print": 50,
   "gradient_clipping": 1.0,
   "zero_optimization": {
-    "stage": 2,
+    "stage": 1,
     "contiguous_gradients": false,
     "overlap_comm": true,
     "reduce_scatter": true,

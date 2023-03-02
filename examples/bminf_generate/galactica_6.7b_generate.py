@@ -9,7 +9,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="lm",
                     model_name="galactica-6.7b-en",
-                    model_dir="/share/projset/baaishare/baai-mrnd/xingzhaohu/")
+                    model_dir="./checkpoints/")
 
 model = loader.get_model()
 with torch.cuda.device(0):
