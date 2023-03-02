@@ -36,7 +36,7 @@ class OPTTokenizer(Tokenizer):
             CommandToken('pad', '[PAD]', self.get_specialid_from_text_tokenizer('pad')),
             CommandToken('cls', '[CLS]', self.get_specialid_from_text_tokenizer('cls')),
             CommandToken('MASK', '[MASK]',
-                         self.get_specialid_from_text_tokenizer('MASK')),
+                         self.get_specialid_from_text_tokenizer('mask')),
             CommandToken('unk', '[UNK]', self.get_specialid_from_text_tokenizer('unk')),
             CommandToken('sep', '[SEP]', self.get_specialid_from_text_tokenizer('sep')),
             CommandToken('eos', '[PAD]', self.get_specialid_from_text_tokenizer('pad')),

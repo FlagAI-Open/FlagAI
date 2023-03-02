@@ -1,3 +1,4 @@
+
 from flagai.model.predictor.predictor import Predictor
 from flagai.auto_model.auto_loader import AutoLoader
 import torch

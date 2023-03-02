@@ -112,14 +112,14 @@ class GPT2Stack(nn.Module):
         self.drop = nn.Dropout(config.embd_pdrop)
         self.project_in = None
         self.project_out = None
-        self.h = bminf.TransformerBlockList([
-            GPT2Block(config.n_ctx, config, scale=True)
-            for _ in range(config.n_layer)
-        ],[0])
-        # self.h = nn.ModuleList([
+        # self.h = bminf.TransformerBlockList([
         #     GPT2Block(config.n_ctx, config, scale=True)
         #     for _ in range(config.n_layer)
-        # ])
+        # ],[0])
+        self.h = nn.ModuleList([
+            GPT2Block(config.n_ctx, config, scale=True)
+            for _ in range(config.n_layer)
+        ])
 
         self.ln_f = nn.LayerNorm(config.n_embd,
                                  eps=config.layer_norm_epsilon)
