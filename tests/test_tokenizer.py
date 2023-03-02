@@ -4,8 +4,6 @@
 import unittest
 from flagai.data.tokenizer import Tokenizer
 from flagai.auto_model.auto_loader import AutoLoader
-import sys 
-sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 
 class TokenizerTestCase(unittest.TestCase):
 
