@@ -9,7 +9,7 @@ from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.utils import normal_init_method
 from flagai.model.base_model import BaseModel
 import torch.nn.functional as F
-import bminf
+# import bminf
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.utils import divide
     from flagai.mpu.random import checkpoint

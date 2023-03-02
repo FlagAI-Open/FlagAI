@@ -22,7 +22,7 @@ from torch import nn
 from torch.nn import CrossEntropyLoss
 from flagai.model.layers.activations import ACT2FN
 from flagai.model.gpt2_model import GPT2Model, GPT2Stack, GPT2Config
-import bminf
+# import bminf
 
 
 class OPTLearnedPositionalEmbedding(nn.Embedding):
