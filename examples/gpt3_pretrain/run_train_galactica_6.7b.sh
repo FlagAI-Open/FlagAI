@@ -19,6 +19,9 @@ export NCCL_IB_HCA=mlx5_2,mlx5_5
 export NCCL_DEBUG=info
 export OMP_NUM_THREADS=4
 
+## wandb
+export WANDB_MODE=offline
+
 SCRIPT_FILE=train_env_xl_bmtrain_galactica_6.7b.py
 SAVE_DIR=/share/project/ldwang/checkpoints_${EXP_NAME}
 
