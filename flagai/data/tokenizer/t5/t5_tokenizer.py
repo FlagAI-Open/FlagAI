@@ -268,7 +268,7 @@ class T5JiebaTokenizer(T5BPETokenizer):
         self._token_dict = token_dict
 
         self._token_dict_inv = {v: k for k, v in token_dict.items()}
-        for token in ['pad', 'cls', 'sep', 'unk', 'mask']:
+        for token in ['pad', 'cls', 'sep', 'unk', 'MASK']:
             try:
                 _token_id = token_dict[getattr(self, "_token_" + str(token))]
                 # print(_token_id)

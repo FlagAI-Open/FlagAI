@@ -106,7 +106,7 @@ class Tokenizer(BaseTokenizer):
                     CommandToken('eos', '<|endoftext|>', self.num_tokens),
                     CommandToken('sep', '[SEP]', self.num_tokens + 1),
                     CommandToken('cls', '[CLS]', self.num_tokens + 2),
-                    CommandToken('mask', '[MASK]', self.num_tokens + 3, lstrip=True),
+                    CommandToken('MASK', '[MASK]', self.num_tokens + 3, lstrip=True),
                     CommandToken('unk', '[UNK]', self.num_tokens + 4)
                 ]
                 self.num_tokens += 6
@@ -121,7 +121,7 @@ class Tokenizer(BaseTokenizer):
                     CommandToken('sop', '<|startofpiece|>', self.num_tokens),
                     CommandToken('eop', '<|endofpiece|>', self.num_tokens + 1),
                     CommandToken('cls', '[CLS]', self.num_tokens + 2),
-                    CommandToken('mask',
+                    CommandToken('MASK',
                                 '[MASK]',
                                 self.num_tokens + 3,
                                 lstrip=True),

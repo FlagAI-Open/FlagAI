@@ -134,7 +134,7 @@ def build_input_from_ids(text_a_ids,
 
     # Prepare ids for special tokens
     if mask_id is None:
-        mask_id = tokenizer.get_command_id('mask')
+        mask_id = tokenizer.get_command_id('MASK')
     eos_id = tokenizer.get_command_id('eos')  # end of sentence token
     cls_id = tokenizer.get_command_id('cls')  # start of sentence token
     sep_id = tokenizer.get_command_id('sep')  # seperator of two texts token
@@ -235,7 +235,7 @@ def build_input_from_ids(text_a_ids,
 #
 def build_decoder_input(enc_ids, answer_ids, max_seq_length,
                         max_dec_seq_length, tokenizer):
-    mask_id = tokenizer.get_command_id('mask')
+    mask_id = tokenizer.get_command_id('MASK')
     eos_id = tokenizer.get_command_id('eos')
     sop_id = tokenizer.get_command_id('sop')
     masks = []

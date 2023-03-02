@@ -97,12 +97,12 @@ class PVP(ABC):
     @property
     def mask(self) -> str:
         """Return the underlying LM's mask token"""
-        return self.tokenizer.get_command_id('mask')
+        return self.tokenizer.get_command_id('MASK')
 
     @property
     def mask_id(self) -> int:
         """Return the underlying LM's mask id"""
-        return self.tokenizer.get_command_id('mask')
+        return self.tokenizer.get_command_id('MASK')
 
     @property
     def max_num_verbalizers(self) -> int:

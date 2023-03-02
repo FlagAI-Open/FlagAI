@@ -14,7 +14,7 @@ def build_input_from_ids(text_a_ids=None,
                          mask_id=None,
                          masked_lm=False):
     if mask_id is None:
-        mask_id = tokenizer.get_command_id('mask')
+        mask_id = tokenizer.get_command_id('MASK')
     eos_id = tokenizer.get_command_id('eos')
     cls_id = tokenizer.get_command_id('cls')
     sep_id = tokenizer.get_command_id('sep')

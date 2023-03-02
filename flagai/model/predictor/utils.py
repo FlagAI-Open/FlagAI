@@ -928,9 +928,8 @@ def t5_random_sample(model, tokenizer, text, input_max_length, out_max_length,
         TopPLogitsProcessor(top_p=top_p),
     ]
     list_processor = ListProcessor(lp)
-    from tqdm import trange
     with torch.no_grad():
-        for step in trange(out_max_length):
+        for step in range(out_max_length):
             scores = model(**{
                 "input_ids": token_ids,
                 "decoder_input_ids": input_decoder_ids
@@ -1436,7 +1435,7 @@ def glm_generate_sample(
                                      dtype=torch.long)
     position_ids = torch.stack((position_ids, block_position_ids), dim=0)
     position_ids = position_ids.unsqueeze(0)
-    mask_tokens = ['mask', 'sMASK', 'gMASK']
+    mask_tokens = ['MASK', 'sMASK', 'gMASK']
     mask_tokens = [tokenizer.get_command_id(token) for token in mask_tokens]
     end_tokens = [tokenizer.get_command_id('eop'), eod_token]
     mask_positions = []
@@ -1446,7 +1445,6 @@ def glm_generate_sample(
     mask_positions.sort()
     output_ = model(tokens, position_ids, attention_mask, return_memory=True)
     mems = output_['hidden_states']
-    import pdb;pdb.set_trace()
     for mask_position in mask_positions:
         position = mask_position
         tokens, mems = glm_sample_sequence(model,
