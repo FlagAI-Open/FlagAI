@@ -121,7 +121,6 @@ class EnvTrainer():
 
         # wandb
         self.wandb = env_args.wandb
-        self.wandb = False
 
         # if model already_fp16, OPT 1.3B
         self.already_fp16 = env_args.already_fp16
@@ -357,15 +356,25 @@ class EnvTrainer():
         self.optimizer = optimizer
         if self.optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
-                                                    weight_decay=self.weight_decay,
-                                                    betas=(self.adam_beta1, self.adam_beta2),
-                                                    lr=self.lr)
-                '''
-                self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
-                                                           weight_decay=self.weight_decay,
-                                                           lr=self.lr)
-                '''
+                if self.fp16:
+                    self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                                                             weight_decay=self.weight_decay,
+                                                             betas=(self.adam_beta1, self.adam_beta2),
+                                                             lr=self.lr)
+                    '''
+                    self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                                                                    weight_decay=self.weight_decay,
+                                                                    lr=self.lr)
+                    '''
+                else:
+                    self.optimizer = get_optimizer(
+                        param_groups=param_groups,
+                        lr=self.lr,
+                        weight_decay=self.weight_decay,
+                        cpu_optimizer=False,
+                        cpu_torch_adam=False,
+                        fp16=self.fp16,
+                        optimizer='adam')  # if not self.fp16 else 'adafactor')
             else:
                 self.optimizer = get_optimizer(
                     param_groups=param_groups,
