@@ -496,6 +496,8 @@ class Trainer():
                         param_groups=param_groups,
                         lr=self.lr,
                         weight_decay=self.weight_decay,
+                        adam_beta1=self.adam_beta1,
+                        adam_beta2=self.adam_beta2,
                         cpu_optimizer=False,
                         cpu_torch_adam=False,
                         fp16=self.fp16,
@@ -504,6 +506,8 @@ class Trainer():
                 self.optimizer = get_optimizer(
                     param_groups=param_groups,
                     lr=self.lr,
+                    adam_beta1=self.adam_beta1,
+                    adam_beta2=self.adam_beta2,
                     weight_decay=self.weight_decay,
                     cpu_optimizer=False,
                     cpu_torch_adam=False,
@@ -543,7 +547,8 @@ class Trainer():
 
             if self.env_type == 'bmtrain':
                 ## lr_scheduler.step with optim_manager.step
-                lr_scheduler = bmt.lr_scheduler.Noam(
+                ## lr_scheduler = bmt.lr_scheduler.Noam(
+                lr_scheduler = bmt.lr_scheduler.Cosine(
                     self.optimizer,
                     start_lr=self.lr, 
                     warmup_iter=warmup_iter,
