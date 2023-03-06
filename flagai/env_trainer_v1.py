@@ -81,6 +81,7 @@ class EnvTrainer():
         self.seed = env_args.seed
         self.fp16 = env_args.fp16
         self.warm_up = env_args.warm_up
+        self.warm_up_iters = env_args.warm_up_iters
         self.adam_beta1 = env_args.adam_beta1
         self.adam_beta2 = env_args.adam_beta2
 
@@ -120,7 +121,6 @@ class EnvTrainer():
 
         # wandb
         self.wandb = env_args.wandb
-        self.wandb = False
 
         # if model already_fp16, OPT 1.3B
         self.already_fp16 = env_args.already_fp16
@@ -356,19 +356,33 @@ class EnvTrainer():
         self.optimizer = optimizer
         if self.optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
-                                                    weight_decay=self.weight_decay,
-                                                    betas=(self.adam_beta1, self.adam_beta2),
-                                                    lr=self.lr)
-                '''
-                self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
-                                                           weight_decay=self.weight_decay,
-                                                           lr=self.lr)
-                '''
+                if self.fp16:
+                    self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                                                             weight_decay=self.weight_decay,
+                                                             betas=(self.adam_beta1, self.adam_beta2),
+                                                             lr=self.lr)
+                    '''
+                    self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                                                                    weight_decay=self.weight_decay,
+                                                                    lr=self.lr)
+                    '''
+                else:
+                    self.optimizer = get_optimizer(
+                        param_groups=param_groups,
+                        lr=self.lr,
+                        weight_decay=self.weight_decay,
+                        adam_beta1=self.adam_beta1,
+                        adam_beta2=self.adam_beta2,
+                        cpu_optimizer=False,
+                        cpu_torch_adam=False,
+                        fp16=self.fp16,
+                        optimizer='adam')  # if not self.fp16 else 'adafactor')
             else:
                 self.optimizer = get_optimizer(
                     param_groups=param_groups,
                     lr=self.lr,
+                    adam_beta1=self.adam_beta1,
+                    adam_beta2=self.adam_beta2,
                     weight_decay=self.weight_decay,
                     cpu_optimizer=False,
                     cpu_torch_adam=False,
@@ -399,14 +413,21 @@ class EnvTrainer():
             load_rng(sd)
 
         self.total_iter = int(self.epochs * len(train_dataloader))
-        if lr_scheduler == None and self.optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
+        if lr_scheduler == None and self.optimizer != None and (self.warm_up > 0 or self.warm_up_iters > 0) and 'deepspeed' not in self.env_type and self.epochs > 0:
+            num_iters = int(self.total_iter / self.gradient_accumulation_steps)
+            if self.warm_up_iters > 0:
+                warmup_iter = self.warm_up_iters
+            else:
+                warmup_iter = int(self.warm_up * self.total_iter / self.gradient_accumulation_steps)
+
             if self.env_type == 'bmtrain':
                 ## lr_scheduler.step with optim_manager.step
-                lr_scheduler = bmt.lr_scheduler.Noam(
+                ## lr_scheduler = bmt.lr_scheduler.Noam(
+                lr_scheduler = bmt.lr_scheduler.Cosine(
                     self.optimizer,
                     start_lr=self.lr, 
-                    warmup_iter=int(self.warm_up * self.total_iter / self.gradient_accumulation_steps),
-                    end_iter=int(self.total_iter / self.gradient_accumulation_steps))
+                    warmup_iter=warmup_iter,
+                    end_iter=num_iters)
             else:
                 lr_scheduler = AnnealingLR(
                     self.optimizer,
@@ -418,7 +439,11 @@ class EnvTrainer():
 
         ## Needed global optim_manager
         if self.env_type == 'bmtrain':
-            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            if self.fp16:
+                loss_scale = 1024*1024
+            else:
+                loss_scale = None
+            optim_manager = bmt.optim.OptimManager(loss_scale=None)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.
@@ -450,7 +475,7 @@ class EnvTrainer():
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
                 if 'input_ids' in batch:
-                    log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
+                    log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [self.local_rank])
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
@@ -799,7 +824,7 @@ class EnvTrainer():
             # Calculate gradients, reduce across processes, and clip.
             self.timers('backward').start()
             optim_manager.backward(loss)
-            grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=1.0)
+            grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=self.clip_grad)
             self.timers('backward').stop()
 
             # Update parameters.
@@ -1067,7 +1092,7 @@ class EnvTrainer():
         log_string += ' loss scale {:.1f} |'.format(loss_scale)
         # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
 
-        log_dist(log_string, [0])
+        log_dist(log_string, [self.rank])
 
         # wandb
         if self.wandb and wandb is not None and self.rank == 0:
@@ -1087,10 +1112,10 @@ class EnvTrainer():
         string += ' | LM loss: {:.6E}'.format(loss)
         string += ' | LM PPL: {:.6E}'.format(ppl)
         length = len(string) + 1
-        log_dist('-' * 100, [0])
-        log_dist('-' * length, [0])
-        log_dist(string, [0])
-        log_dist('-' * length, [0])
+        log_dist('-' * 100, [self.rank])
+        log_dist('-' * length, [self.rank])
+        log_dist(string, [self.rank])
+        log_dist('-' * length, [self.rank])
 
     def evaluate_and_print_results(
         self,
@@ -1122,8 +1147,8 @@ class EnvTrainer():
         # string = ' validation loss at {} | {:.4f},  Acc {:.2f}'.format(
         #     prefix, eval_dict["loss"], eval_dict["metrics"])
         length = len(string) + 1
-        log_dist('-' * length, [0])
-        log_dist(string, [0])
-        log_dist('-' * length, [0])
+        log_dist('-' * length, [self.rank])
+        log_dist(string, [self.rank])
+        log_dist('-' * length, [self.rank])
         return eval_dict
 

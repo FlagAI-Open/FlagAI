@@ -22,7 +22,7 @@ export OMP_NUM_THREADS=4
 ## wandb
 export WANDB_MODE=offline
 
-SCRIPT_FILE=train_env_xl_bmtrain_gpt2_base.py
+SCRIPT_FILE=train_env_xl_bmtrain_galactica_6.7b.py
 SAVE_DIR=/share/project/ldwang/checkpoints_${EXP_NAME}
 
 OPTS=" --lr 6.0e-5 \

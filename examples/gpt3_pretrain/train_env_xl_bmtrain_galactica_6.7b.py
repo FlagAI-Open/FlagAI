@@ -2,7 +2,6 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
-import math
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
@@ -18,25 +17,24 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # For example: python train_env_trainer.py --epochs=300 --batch_size=4 --env_type=pytorch
 env_args = EnvArgs(
     env_type="bmtrain",
-    experiment_name="gpt2_base",
-    batch_size=1,
+    experiment_name="galactica_6.7b",
+    batch_size=16,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
     epochs=1,
-    log_interval=10,
+    log_interval=50,
     eval_interval=10000,
-    num_gpus=4,
+    num_gpus=1,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_gpt2_base",
+    save_dir="checkpoints_galactica_6.7b",
     checkpoint_activations=False,
     save_interval=10000,
-    fp16=False,
+    fp16=True,
     training_script=__file__,
 )
 env_args = env_args.parse_args()
-env_args.wandb = False
 
 trainer = EnvTrainer(env_args)
 
@@ -45,15 +43,13 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
+## TODO
+### 需要根据配置情况填写路径
 model_dir = "./"
+model_name = "galactica-6.7b"
 auto_loader = AutoLoader(
-    "seq2seq",
-    model_name="gpt2-base-en",
-    model_dir=model_dir,
-)
-auto_loader = AutoLoader(
-    "seq2seq",
-    model_name="gpm-13b",
+    "lm",
+    model_name=model_name,
     model_dir=model_dir,
 )
 model = auto_loader.get_model()
@@ -61,21 +57,12 @@ tokenizer = auto_loader.get_tokenizer()
 
 trainer.pre_train(model)
 
-### wikitext
-data_prefix = '/home/ldwang/Downloads/pile/wikitext_text_document'
+# TODO
+### 需要根据数据集情况填写路径前缀
+data_prefix = '/share/project/ldwang/data/indexed_dataset/gpm/merged_text_document'
 data_impl = 'mmap'
-splits_string = '10000,0,0'
-train_valid_test_num_samples = [2891, 0, 0]
-seq_length = 1024
-seed = 2023
-skip_warmup = True
-
-### lambada
-data_prefix = '/home/ldwang/Downloads/pile/lambada_text_document'
-data_impl = 'mmap'
-splits_string = '10000,0,0'
-train_valid_test_num_samples = [5153, 0, 0]
-seq_length = 1024
+splits_string = '9999,1,0'
+train_valid_test_num_samples = [344379254, 34441, 0]
 seq_length = 2048
 seed = 2023
 skip_warmup = True
@@ -102,43 +89,10 @@ def collate_fn(batch):
     }
     return data
 
-sampler = torch.utils.data.distributed.DistributedSampler(
-    train_dataset,
-    num_replicas=trainer.world_size,
-    rank=trainer.rank,
-    shuffle=False)
-
-train_dataloader = torch.utils.data.DataLoader(
-    train_dataset,
-    batch_size=env_args.batch_size,
-    sampler=sampler,
+trainer.do_train(
+    train_dataset=train_dataset,
+    valid_dataset=val_dataset,
     collate_fn=collate_fn,
-    num_workers=4,
-    prefetch_factor=4,
-    pin_memory=True,
-    drop_last=False,
-    shuffle=False)
-
-model.eval()
-
-ppls = 0
-lens = 0
-for iteration, batch in enumerate(train_dataloader):
-    device = next(model.parameters()).device
-    data = {
-        x: batch[x].to(torch.device(device))
-        for x in batch if x not in ['uid', 'meta', 'mode']}
-    print(f"rank={trainer.rank}, iteration={iteration}")
-    with torch.no_grad():
-        step_output = trainer.forward_step(data, model, mems=None)
-        lm_loss = step_output['loss']
-        reduced_loss = lm_loss.detach().clone().view(1)
-        ppl = math.exp(reduced_loss)
-        trg_len = data['labels'].shape[-1]
-        ppls += ppl * trg_len
-        lens += trg_len
-
-avg_ppl = ppls / lens
-print(f"rank={trainer.rank}, ppls={ppls}, lens={lens}, ppl={avg_ppl}")
-
+    optimizer=None,
+    rank_split=False)
 
