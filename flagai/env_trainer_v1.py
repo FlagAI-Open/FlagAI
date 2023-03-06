@@ -824,7 +824,7 @@ class EnvTrainer():
             # Calculate gradients, reduce across processes, and clip.
             self.timers('backward').start()
             optim_manager.backward(loss)
-            grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=1.0)
+            grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=self.clip_grad)
             self.timers('backward').stop()
 
             # Update parameters.
