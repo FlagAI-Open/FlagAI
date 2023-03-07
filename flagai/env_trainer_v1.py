@@ -607,7 +607,7 @@ class EnvTrainer():
                                     lr_scheduler,
                                     save_optim=self.save_optim,
                                     save_dir=self.save_dir,
-                                    save_rng=self.save_rng
+                                    save_rng=self.save_rng,
                                     iteration_in_epoch=iteration_)
                 self.iteration += 1
 

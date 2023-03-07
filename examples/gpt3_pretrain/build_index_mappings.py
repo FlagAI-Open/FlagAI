@@ -22,9 +22,8 @@ import numpy as np
 import torch
 
 from megatron import mpu, print_rank_0
-from megatron.data.blendable_dataset import BlendableDataset
-from megatron.data.dataset_utils import get_datasets_weights_and_num_samples
 from megatron.data.dataset_utils import get_train_valid_test_split_
+from megatron.data.dataset_utils import get_datasets_weights_and_num_samples
 from megatron.data.indexed_dataset import make_dataset as make_indexed_dataset
 from megatron.data.gpt_dataset import _build_shuffle_idx, _build_doc_idx, _num_epochs, _num_tokens, get_indexed_dataset_, _build_sample_idx
 
@@ -203,6 +202,51 @@ def _build_index_mappings(name, data_prefix, documents, sizes,
     print_rank_0('    total number of epochs: {}'.format(num_epochs))
 
     return doc_idx, sample_idx, shuffle_idx
+
+class BlendableDataset(torch.utils.data.Dataset):
+
+    def __init__(self, datasets, weights):
+
+        self.datasets = datasets
+        num_datasets = len(datasets)
+        print('weights', weights)
+        print('weights', len(weights))
+        print('train_datasets', len(datasets))
+        assert num_datasets == len(weights)
+
+        self.size = 0
+        for dataset in self.datasets:
+            self.size += len(dataset)
+
+        # Normalize weights.
+        weights = np.array(weights, dtype=np.float64)
+        sum_weights = np.sum(weights)
+        assert sum_weights > 0.0
+        weights /= sum_weights
+
+        # Build indecies.
+        start_time = time.time()
+        assert num_datasets < 255
+        self.dataset_index = np.zeros(self.size, dtype=np.uint8)
+        self.dataset_sample_index = np.zeros(self.size, dtype=np.int64)
+
+        from megatron.data import helpers
+        helpers.build_blending_indices(self.dataset_index,
+                                       self.dataset_sample_index,
+                                       weights, num_datasets, self.size,
+                                       True)
+        print_rank_0('> elapsed time for building blendable dataset indices: '
+                     '{:.2f} (sec)'.format(time.time() - start_time))
+
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        dataset_idx = self.dataset_index[idx]
+        sample_idx = self.dataset_sample_index[idx]
+        return self.datasets[dataset_idx][sample_idx]
+
 def _build_train_valid_test_datasets(data_prefix, data_impl, splits_string,
                                      train_valid_test_num_samples,
                                      seq_length, seed, skip_warmup):
@@ -244,6 +288,49 @@ def _build_train_valid_test_datasets(data_prefix, data_impl, splits_string,
     test_dataset = build_dataset(2, 'test')
 
     return (train_dataset, valid_dataset, test_dataset)
+
+def _build_train_valid_test_weighted_datasets(
+    data_prefix, data_impl, splits_string,
+    train_valid_test_num_samples,
+    seq_length, seed, skip_warmup):
+    """Build train, valid, and test datasets."""
+
+    # Blending dataset.
+    # Parse the values.
+    output = get_datasets_weights_and_num_samples(data_prefix,
+                                                  train_valid_test_num_samples)
+    prefixes, weights, datasets_train_valid_test_num_samples = output
+    print('prefixes', prefixes)
+
+    # Build individual datasets.
+    train_datasets = []
+    valid_datasets = []
+    test_datasets = []
+    for i in range(len(prefixes)):
+        train_ds, valid_ds, test_ds = _build_train_valid_test_datasets(
+            prefixes[i], data_impl, splits_string,
+            datasets_train_valid_test_num_samples[i],
+            seq_length, seed, skip_warmup)
+        if train_ds:
+            train_datasets.append(train_ds)
+        if valid_ds:
+            valid_datasets.append(valid_ds)
+        if test_ds:
+            test_datasets.append(test_ds)
+
+    # Blend.
+    blending_train_dataset = None
+    if train_datasets:
+        blending_train_dataset = BlendableDataset(train_datasets, weights)
+    blending_valid_dataset = None
+    if valid_datasets:
+        blending_valid_dataset = BlendableDataset(valid_datasets, weights)
+    blending_test_dataset = None
+    if test_datasets:
+        blending_test_dataset = BlendableDataset(test_datasets, weights)
+
+    return (blending_train_dataset, blending_valid_dataset,
+            blending_test_dataset)
 
 if __name__ == '__main__':
     ### 需要根据数据集情况填写
@@ -340,7 +427,78 @@ if __name__ == '__main__':
     seed = 2023
     skip_warmup = True
 
+    ### wikitext
+    data_prefix = '/home/ldwang/Downloads/pile/wikitext_text_document'
+    data_impl = 'mmap'
+    splits_string = '10000,0,0'
+    train_valid_test_num_samples = [2891, 0, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = True
+
+    ### lambada
+    data_prefix = '/home/ldwang/Downloads/pile/lambada_text_document'
+    data_impl = 'mmap'
+    splits_string = '10000,0,0'
+    train_valid_test_num_samples = [5153, 0, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = True
+
+    ### webtext
+    data_prefix = '/home/ldwang/Downloads/pile/webtext_text_document'
+    data_impl = 'mmap'
+    splits_string = '10000,0,0'
+    train_valid_test_num_samples = [250000, 0, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = True
+
+    ### OpenWebText2
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/merged/OpenWebText2_merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [26944801, 2695, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = True
+
+    ### dedup_wudao_5pct
+    data_prefix = '/share/project/ldwang/data/indexed_dataset/merged/dedup_wudao_5pct_merged_text_document'
+    data_impl = 'mmap'
+    splits_string = '9999,1,0'
+    train_valid_test_num_samples = [10500000, 1050, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+
+    '''
     train_dataset, valid_dataset, test_dataset = _build_train_valid_test_datasets(
+        data_prefix, data_impl, splits_string,
+        train_valid_test_num_samples,
+        seq_length, seed, skip_warmup)
+    print(len(train_dataset))
+    print(type(train_dataset))
+    print(train_dataset[0])
+    '''
+
+    ## weight01, prefix01, weight02, prefix02
+    data_prefix = [
+        200,
+        '/share/project/ldwang/data/indexed_dataset/merged/OpenWebText2_merged_text_document',
+        100,
+        '/share/project/ldwang/data/indexed_dataset/merged/dedup_wudao_5pct_merged_text_document',
+    ]
+    data_impl = 'mmap'
+    ## splits_string len should same as train_valid_test_num_samples len
+    splits_string = '9999,1'
+    ## rebuilding if no npy files for train_valid_test_num_samples config
+    train_valid_test_num_samples = [26944801, 2695]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+
+    train_dataset, valid_dataset, test_dataset = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
         seq_length, seed, skip_warmup)
