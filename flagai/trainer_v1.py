@@ -410,9 +410,9 @@ class Trainer():
 
         if self.load_dir:
             log_dist("loading checkpoints form {}".format(self.load_dir))
-            sd = load_checkpoint(self.model,
-                                 load_dir=self.load_dir,
-                                 load_type=self.load_type)
+            self.sd = load_checkpoint(self.model,
+                                      load_dir=self.load_dir,
+                                      load_type=self.load_type)
         # Turn on training mode which enables dropout.
         self.model.train()
 
@@ -532,11 +532,6 @@ class Trainer():
                 dist_init_required=True)
             self.model = model
 
-        if self.load_optim:
-            load_optim(self.optimizer, lr_scheduler, sd)
-        if self.load_rng:
-            load_rng(sd)
-
         self.total_iter = int(self.epochs * len(train_dataloader))
         if lr_scheduler == None and self.optimizer != None and (self.warm_up > 0 or self.warm_up_iters > 0) and 'deepspeed' not in self.env_type and self.epochs > 0:
             num_iters = int(self.total_iter / self.gradient_accumulation_steps)
@@ -562,13 +557,18 @@ class Trainer():
                     decay_style='linear',
                     num_iters=self.epochs * len(train_dataloader))
 
+        if self.load_optim:
+            load_optim(self.optimizer, lr_scheduler, self.sd)
+        if self.load_rng:
+            load_rng(self.sd)
+
         ## Needed global optim_manager
         if self.env_type == 'bmtrain':
             if self.fp16:
                 loss_scale = 1024*1024
             else:
                 loss_scale = None
-            optim_manager = bmt.optim.OptimManager(loss_scale=None)
+            optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.

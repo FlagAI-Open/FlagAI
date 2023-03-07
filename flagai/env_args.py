@@ -85,7 +85,7 @@ class EnvArgs:
         self.parser.add_argument('--load_dir', default=load_dir, help='start training from saved checkpoint')
         self.parser.add_argument('--save_optim', default=save_optim, type=str2bool, help='start training from saved checkpoint')
         self.parser.add_argument('--save_rng', default=save_rng, type=str2bool,help='start training from saved checkpoint')
-        self.parser.add_argument('--load_type', default=load_type, type=str2bool,help='start training from saved checkpoint')
+        self.parser.add_argument('--load_type', default=load_type, type=str,help='start training from saved checkpoint')
         self.parser.add_argument('--load_optim', default=load_optim, type=str2bool,help='start training from saved checkpoint')
         self.parser.add_argument('--load_rng', default=load_rng, type=str2bool, help='start training from saved checkpoint')
         self.parser.add_argument('--tensorboard', default=tensorboard, type=str2bool, help='start training from saved checkpoint')
