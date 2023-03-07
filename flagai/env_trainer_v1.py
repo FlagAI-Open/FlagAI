@@ -125,6 +125,8 @@ class EnvTrainer():
         # if model already_fp16, OPT 1.3B
         self.already_fp16 = env_args.already_fp16
 
+        self.resume_dataset = env_args.resume_dataset
+
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
             self.rank = int(os.environ.get('RANK', 0))
@@ -474,6 +476,14 @@ class EnvTrainer():
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
+
+                # skip batches when resume_dataset=True
+                iteration_in_epoch = 0
+                if self.resume_dataset and 'iteration_in_epoch' in self.sd:
+                    iteration_in_epoch = self.sd['iteration_in_epoch']
+                    if iteration_ < iteration_in_epoch:
+                        continue
+
                 if 'input_ids' in batch:
                     log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [self.local_rank])
                 # Train for one step.
@@ -586,7 +596,8 @@ class EnvTrainer():
                                             lr_scheduler,
                                             save_optim=self.save_optim,
                                             save_dir=self.save_dir,
-                                            save_rng=self.save_rng)
+                                            save_rng=self.save_rng,
+                                            iteration_in_epoch=iteration_)
                 if self.save_dir and (self.iteration + 1) % self.save_interval == 0 and \
                         self.iteration != best_iteration:
                     save_checkpoint(self.iteration+1,
@@ -596,7 +607,8 @@ class EnvTrainer():
                                     lr_scheduler,
                                     save_optim=self.save_optim,
                                     save_dir=self.save_dir,
-                                    save_rng=self.save_rng)
+                                    save_rng=self.save_rng
+                                    iteration_in_epoch=iteration_)
                 self.iteration += 1
 
                 # Checkpointing at the end of each epoch.
