@@ -51,24 +51,17 @@ auto_loader = AutoLoader(
     model_name="gpt2-base-en",
     model_dir=model_dir,
 )
+'''
 auto_loader = AutoLoader(
     "seq2seq",
     model_name="gpm-13b",
     model_dir=model_dir,
 )
+'''
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 
 trainer.pre_train(model)
-
-### wikitext
-data_prefix = '/home/ldwang/Downloads/pile/wikitext_text_document'
-data_impl = 'mmap'
-splits_string = '10000,0,0'
-train_valid_test_num_samples = [2891, 0, 0]
-seq_length = 1024
-seed = 2023
-skip_warmup = True
 
 ### lambada
 data_prefix = '/home/ldwang/Downloads/pile/lambada_text_document'
@@ -77,6 +70,24 @@ splits_string = '10000,0,0'
 train_valid_test_num_samples = [5153, 0, 0]
 seq_length = 1024
 seq_length = 2048
+seed = 2023
+skip_warmup = True
+
+### wikitext gpm_13b
+data_prefix = '/home/ldwang/Downloads/pile/wikitext_text_document'
+data_impl = 'mmap'
+splits_string = '10000,0,0'
+train_valid_test_num_samples = [2891, 0, 0]
+seq_length = 2048
+seed = 2023
+skip_warmup = True
+
+### wikitext gpt2_base
+data_prefix = '/home/ldwang/Downloads/pile/wikitext_text_document'
+data_impl = 'mmap'
+splits_string = '10000,0,0'
+train_valid_test_num_samples = [2891, 0, 0]
+seq_length = 1024
 seed = 2023
 skip_warmup = True
 
@@ -122,23 +133,41 @@ train_dataloader = torch.utils.data.DataLoader(
 model.eval()
 
 ppls = 0
+accs = 0
 lens = 0
+losses = 0
 for iteration, batch in enumerate(train_dataloader):
     device = next(model.parameters()).device
     data = {
         x: batch[x].to(torch.device(device))
         for x in batch if x not in ['uid', 'meta', 'mode']}
     print(f"rank={trainer.rank}, iteration={iteration}")
+
     with torch.no_grad():
         step_output = trainer.forward_step(data, model, mems=None)
+        trg_len = data['labels'].shape[-1]
+        trg_len_minus_one = trg_len - 1
+
+        labels = data['labels']
+        logits = step_output['logits']
+        shift_logits = logits[..., :-1, :].contiguous()
+        shift_labels = labels[..., 1:].contiguous()
+
+        predicted = torch.argmax(shift_logits, -1)
+        acc = (predicted==shift_labels).float().sum()/trg_len_minus_one
+
         lm_loss = step_output['loss']
         reduced_loss = lm_loss.detach().clone().view(1)
         ppl = math.exp(reduced_loss)
-        trg_len = data['labels'].shape[-1]
-        ppls += ppl * trg_len
-        lens += trg_len
+
+        losses += reduced_loss.item() * trg_len_minus_one
+        ppls += ppl * trg_len_minus_one
+        accs += acc * trg_len_minus_one
+        lens += trg_len_minus_one
 
 avg_ppl = ppls / lens
-print(f"rank={trainer.rank}, ppls={ppls}, lens={lens}, ppl={avg_ppl}")
-
-
+print(f"rank={trainer.rank}, ppls={ppls}, lens={lens}, avg={avg_ppl}")
+avg_acc = accs / lens
+print(f"rank={trainer.rank}, accs={accs}, lens={lens}, avg={avg_acc}")
+avg_loss = losses / lens
+print(f"rank={trainer.rank}, losses={losses}, lens={lens}, avg={avg_loss}")
