@@ -194,6 +194,9 @@ def save_checkpoint(iteration,
     # Optimizer stuff.
     if save_optim:
         if optimizer is not None:
+            # delete fp16 temporary states
+            if 'state' in sd['optimizer'] and '_param_fp32' in sd['optimizer']['state']:
+                del sd['optimizer']['state']['_param_fp32']
             sd['optimizer'] = optimizer.state_dict()
         if lr_scheduler is not None:
             sd['lr_scheduler'] = lr_scheduler.state_dict()
