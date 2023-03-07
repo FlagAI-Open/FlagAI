@@ -69,7 +69,7 @@ class Tokenizer(BaseTokenizer):
                 self.text_tokenizer = BPETokenizer(self.vocab_file,
                                                    self.merges_file)
         elif self.tokenizer_class == "sp":
-            if self.tokenizer_model_name.lower().startswith('cpm1'):
+            if self.tokenizer_model_name.lower().startswith('cpm'):
                 from flagai.data.tokenizer.cpm_1.cpm1_tokenizer import CPMTokenizer
                 self.text_tokenizer = CPMTokenizer(self.tokenizer_json_file, self.sp_model_file)
             elif self.tokenizer_model_name.lower().startswith('cpm3'):
@@ -226,7 +226,6 @@ class Tokenizer(BaseTokenizer):
         return ids
 
     def convert_tokens_to_ids(self, tokens):
-        import pdb;pdb.set_trace()
         res = []
         for token in tokens:
             if token in self.command_token_map:

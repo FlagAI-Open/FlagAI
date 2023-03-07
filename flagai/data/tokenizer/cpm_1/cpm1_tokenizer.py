@@ -35,6 +35,7 @@ class CPMTokenizer(object):
     def __init__(self, vocab_file, model_file, max_length=None):
         self.max_len = max_length if max_length is not None else int(1e12)
         self.encoder = json.load(open(vocab_file))
+        import pdb;pdb.set_trace()
         self.decoder = {v: k for k, v in self.encoder.items()}
 
         self.sp = spm.SentencePieceProcessor(model_file=model_file)
