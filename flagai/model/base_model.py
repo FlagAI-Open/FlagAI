@@ -222,7 +222,7 @@ class BaseModel(Module):
             model_files = eval(_get_model_files(model_name))
             print("model files:" + str(model_files))
             for file_name in model_files:
-                if not file_name.endswith("bin"):
+                if not file_name.endswith("bin") and not file_name.endswith("pth"):
                     _get_vocab_path(os.path.join(download_path, model_name), file_name, model_id)
                 else :
                     _get_checkpoint_path(os.path.join(download_path, model_name), file_name, model_id)
