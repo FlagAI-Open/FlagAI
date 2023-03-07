@@ -2,12 +2,12 @@ from flagai.model.predictor.predictor import Predictor
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.llama import setup_model_parallel
 
-# torchrun --nproc_per_node 2 llama_generate.py
+# torchrun --nproc_per_node 8 llama_65b_generate.py
 
 local_rank, world_size = setup_model_parallel()
 
 loader = AutoLoader(task_name="lm",
-                    model_name="llama-13b-en",
+                    model_name="llama-65b-en",
                     )
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
