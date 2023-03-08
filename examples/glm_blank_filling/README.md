@@ -43,17 +43,14 @@ filling task
 ```python
 import torch
 from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples') 
-    tokenizer = GLMLargeChTokenizer(vocab_path='./checkpoints/glm-large-ch/cog-pretrain.model',
-                                    add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=False)
-    model = GLMModel.from_pretrain(model_name='glm-large-ch', only_download_config=False)
+    tokenizer = Tokenizer.from_pretrained(model_name)
+    model = GLMModel.from_pretrain(model_name=model_name,
+                                   download_path="./checkpoints")
     model.cuda(torch.cuda.current_device())
     predictor = Predictor(model, tokenizer)
     # question-answering
@@ -67,17 +64,14 @@ Similar to BERT, GLM can predict masked tokens as
 ```python
 import torch
 from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples') 
-    tokenizer = GLMLargeChTokenizer(vocab_path='./checkpoints/glm-large-ch/cog-pretrain.model',
-                                    add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=False)
-    model = GLMModel.from_pretrain(model_name='glm-large-ch', only_download_config=False)
+    tokenizer = Tokenizer.from_pretrained(model_name)
+    model = GLMModel.from_pretrain(model_name=model_name,
+                                   download_path="./checkpoints")
     model.cuda(torch.cuda.current_device())
     predictor = Predictor(model, tokenizer)
     # question-answering
@@ -90,17 +84,14 @@ and predict masked sentences as
 ```python
 import torch
 from flagai.model.glm_model import GLMModel
-from flagai.data.tokenizer import GLMLargeChTokenizer
+from flagai.data.tokenizer import Tokenizer
 from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples') 
-    tokenizer = GLMLargeChTokenizer(vocab_path='./checkpoints/glm-large-ch/cog-pretrain.model',
-                                    add_block_symbols=True,
-                                    add_task_mask=True,
-                                    add_decoder_mask=False,
-                                    fix_command_token=False)
-    model = GLMModel.from_pretrain(model_name='glm-large-ch', only_download_config=False)
+    tokenizer = Tokenizer.from_pretrained(model_name)
+    model = GLMModel.from_pretrain(model_name=model_name,
+                                   download_path="./checkpoints")
     model.cuda(torch.cuda.current_device())
     predictor = Predictor(model, tokenizer)
     # question-answering
