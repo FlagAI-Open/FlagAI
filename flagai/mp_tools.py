@@ -7,39 +7,16 @@ import torch
 import copy
 
 from_1_to_n_models = {
-    "gpt2": {
+    "gpt": {
         "wte.weight": 0,
         "attn.c_attn.weight": 30,
         "attn.c_attn.bias": 30,
-        "attn.c_proj.weight": 0,
-        "mlp.c_fc.weight": 1,
+        "attn.c_proj.weight": 1,
+        "mlp.c_fc.weight": 0,
         "mlp.c_fc.bias": 0,
-        "mlp.c_proj.weight": 0,
+        "mlp.c_proj.weight": 1,
     },
-    # "gpt2": {
-    #     "wte.weight": 0,
-    #     "attn.c_attn.weight": 30,
-    #     "attn.c_attn.bias": 30,
-    #     "attn.c_proj.weight": 1,
-    #     "mlp.c_fc.weight": 0,
-    #     "mlp.c_fc.bias": 0,
-    #     "mlp.c_proj.weight": 1,
-    # },
     "opt": {
-        "decoder.embed_tokens.weight": 0,
-        "self_attn.k_proj.weight": 0,
-        "self_attn.k_proj.bias": 0,
-        "self_attn.q_proj.weight": 0,
-        "self_attn.q_proj.bias": 0,
-        "self_attn.v_proj.weight": 0,
-        "self_attn.v_proj.bias": 0,
-
-        "self_attn.out_proj.weight": 1,
-        "fc1.weight": 0,
-        "fc1.bias": 0,
-        "fc2.weight": 1,
-    },
-    "galactica": {
         "decoder.embed_tokens.weight": 0,
         "self_attn.k_proj.weight": 0,
         "self_attn.k_proj.bias": 0,
@@ -261,8 +238,7 @@ def change_pytorch_model_mp_from_1_to_n_new(model_name_brief, checkpoint: str, t
                         d = d["module"]
 
                     for k, v in d.items():
-                        if len(v.shape) > 2:
-                            continue
+                        assert len(v.shape) < 3
                         flag = 0
                         for keys in trans_keys:
                             if keys in k:
@@ -284,21 +260,6 @@ def change_pytorch_model_mp_from_1_to_n_new(model_name_brief, checkpoint: str, t
                                                    part, :].clone()
                                         ], 0)
                                         break
-
-                                    elif dim == 31:
-                                        v = v.permute(1, 0)
-                                        part = v.shape[0] // ratio // 3
-                                        v = torch.cat([
-                                            v[shift * part:(shift + 1) *
-                                                           part, :].clone(),
-                                            v[(shift + ratio) *
-                                              part:(shift + 1 + ratio) *
-                                                   part, :].clone(),
-                                            v[(shift + 2 * ratio) *
-                                              part:(shift + 1 + 2 * ratio) *
-                                                   part, :].clone()
-                                        ], 0)
-                                        v = v.permute(1, 0)
 
                                     elif dim == 0:
                                         part = v.shape[dim] // ratio
