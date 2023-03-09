@@ -44,6 +44,8 @@ class EnvArgs:
                  tensorboard_dir="tensorboard_summary",
                  tensorboard=False,
                  wandb=True,
+                 wandb_dir=None,
+                 wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
                  already_fp16=False,
                  resume_dataset=False,
 
@@ -106,6 +108,9 @@ class EnvArgs:
         self.parser.add_argument('--local_rank', default=0, type=int, help='start training from saved checkpoint')
 
         self.parser.add_argument('--wandb', default=wandb, type=str2bool, help='whether to use wandb')
+        self.parser.add_argument('--wandb_dir', default=wandb_dir, type=str, help='wandb directory')
+        self.parser.add_argument('--wandb_key', default=wandb_key, type=str, help='wandb key')
+
         self.parser.add_argument('--already_fp16', default=already_fp16, type=str2bool, help='whether already_fp16')
 
         self.parser.add_argument('--resume_dataset', default=resume_dataset, type=str2bool, help='whether to resume dataset')

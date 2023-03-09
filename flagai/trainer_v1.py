@@ -168,6 +168,8 @@ class Trainer():
         model_parallel_size=1,
         training_script="train.py",
         wandb=True,
+        wandb_dir=None,
+        wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
         already_fp16=False,
         resume_dataset=False
     ):
@@ -228,7 +230,9 @@ class Trainer():
         self.training_script = training_script
 
         # wandb
-        self.wandb = env_args.wandb
+        self.wandb = wandb
+        self.wandb_dir = wandb_dir
+        self.wandb_key = wandb_key
 
         # if model already_fp16, OPT 1.3B
         self.already_fp16 = already_fp16
@@ -340,8 +344,8 @@ class Trainer():
 
         # wandb
         if self.wandb and wandb is not None and self.rank == 0:
-            wandb.login(key='3e614eb678063929b16c9b9aec557e2949d5a814')
-            wandb.init(project=self.experiment_name)
+            wandb.login(key=self.wandb_key)
+            wandb.init(project=self.experiment_name, dir=self.wandb_dir)
 
     def get_dataloader(self, dataset, collate_fn, shuffle=False, rank_split=False):
         """ initilize the dataloader"""
