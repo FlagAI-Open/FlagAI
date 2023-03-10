@@ -108,7 +108,10 @@ class GPT2Attention(nn.Module):
                 self.c_attn.bias.zero_()
                 self.c_proj.bias.zero_()
             init_method(self.c_attn.weight)
-            init_method(self.c_proj.weight)
+
+            # 20230310
+            # init_method(self.c_proj.weight)
+            output_layer_init_method(self.c_proj.weight)
 
         self.attn_dropout = nn.Dropout(config.attn_pdrop)
         self.resid_dropout = nn.Dropout(config.resid_pdrop)
