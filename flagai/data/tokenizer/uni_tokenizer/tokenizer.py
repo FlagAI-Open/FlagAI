@@ -71,7 +71,7 @@ class Tokenizer(BaseTokenizer):
         elif self.tokenizer_class == "sp":
             if self.tokenizer_model_name.lower().startswith('cpm'):
                 from flagai.data.tokenizer.cpm_1.cpm1_tokenizer import CPMTokenizer
-                self.text_tokenizer = CPMTokenizer(self.tokenizer_json_file, self.sp_model_file)
+                self.text_tokenizer = CPMTokenizer(self.vocab_file, self.sp_model_file)
             elif self.tokenizer_model_name.lower().startswith('cpm3'):
                 from flagai.data.tokenizer.cpm_3.cpm3_tokenizer import CPMTokenizer
                 self.text_tokenizer = CPMTokenizer(self.tokenizer_json_file, self.sp_model_file)                
@@ -85,6 +85,7 @@ class Tokenizer(BaseTokenizer):
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
 
         self.num_tokens = self.text_tokenizer.vocab_size
+        # import pdb;pdb.set_trace()
         try:
             with open(self.special_tokens_map, encoding='utf8') as file: dct=json.load(file)
             sp_tokens = [(k.replace("_token",""),v['content']) for k,v in dct.items()]
@@ -273,7 +274,7 @@ class Tokenizer(BaseTokenizer):
 
     def DecodeIds(self, ids):
         """converts ids to wordpiece tokens and joins them as a text string"""
-        tokens = []
+        tokens = []     
         for id in ids:
             if id in self.command_id_map:
                 tokens.append(self.command_id_map[id].token)
@@ -287,10 +288,14 @@ class Tokenizer(BaseTokenizer):
             tokens, self.command_token_map)
 
     def encode(self, text):
+        if hasattr(self.text_tokenizer, "encode"):
+            return self.text_tokenizer.encode(text)
         return self.convert_tokens_to_ids(
             self.text_tokenizer.tokenize(text))
 
     def decode(self, ids):
+        if hasattr(self.text_tokenizer, "decode"):
+            return self.text_tokenizer.decode(ids)
         return self.DecodeIds(ids)
 
     def DecodeTokens(self, tokens):
@@ -451,12 +456,16 @@ class Tokenizer(BaseTokenizer):
             max_length=None,
             padding=True,
     ):
-        if not self.tokenizer_model_name.lower().startswith("glm") and not self.tokenizer_model_name.lower().startswith(
+        if hasattr(self.text_tokenizer, "encode_plus"):
+            return self.text_tokenizer.encode_plus(source_text)
+        elif not self.tokenizer_model_name.lower().startswith("glm") and not self.tokenizer_model_name.lower().startswith(
                 "alm"):
             return self.encode_plus_non_glm(source_text, second_text,
                                             truncation, max_length)
-        elif self.tokenizer_model_name.lower().startswith("opt"):
-            return None 
+
+        
+        # elif self.tokenizer_model_name.lower().startswith("opt"):
+        #     return None 
         sop_id = self.get_command_id('sop')  # start of piece
         eop_id = self.get_command_id('eop')  # end of piece
         sep_id = self.get_command_id('sep')  # seperation
@@ -573,3 +582,30 @@ class Tokenizer(BaseTokenizer):
             index = int(self.get_command_id('sep') is not None) + 1
             self.truncate_sequence(maxlen, tokens, pop_index=-index)
         return tokens
+
+    # def search_special(self, name):
+    #     if name == "cls":
+    #         if self.check_special('<s>'): return '<s>'
+    #         elif self.check_special('[CLS]'): return '<s>'
+    #     elif name == "pad":
+    #         if self.check_special('<pad>'): return '<pad>'
+    #         elif self.check_special('<pad>'): return '[PAD]'
+    #         elif self.check_special('<pad>'): return '<|endoftext|>'
+    #     elif name == "eos":
+    #         if self.check_special('</s>'): return '</s>'
+    #         elif self.check_special('|endoftext|'): return '|endoftext|'
+    #     elif name == "sep":
+    #         if self.check_special('<sep>'): return '<sep>'
+    #         elif self.check_special('[SEP]'): return '[SEP]'
+    #     elif name == "unk":
+    #         if self.check_special('<unk>'): return '<unk>'
+    #         elif self.check_special('[UNK]'): return '[UNK]'
+    #     elif name == "bos":
+    #         if self.check_special('</s>'): return '</s>'           
+
+    # def check_special(self, tk):
+    #     try:
+    #         self.text_tokenizer.convert_token_to_id(tk)
+    #         return True 
+    #     except KeyError:
+    #         return False

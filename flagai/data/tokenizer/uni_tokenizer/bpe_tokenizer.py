@@ -152,7 +152,7 @@ class BPETokenizer(object):
 
     def convert_token_to_id(self, token):
         """ Converts a sequence of tokens into ids using the vocab. """
-        return self.encoder.get(token, 0)
+        return self.encoder[token]
 
     def convert_tokens_to_ids(self, tokens):
         """ Converts a sequence of tokens into ids using the vocab. """

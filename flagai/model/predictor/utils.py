@@ -1446,7 +1446,6 @@ def glm_generate_sample(
     mask_positions.sort()
     output_ = model(tokens, position_ids, attention_mask, return_memory=True)
     mems = output_['hidden_states']
-    import pdb;pdb.set_trace()
     for mask_position in mask_positions:
         position = mask_position
         tokens, mems = glm_sample_sequence(model,
