@@ -53,6 +53,7 @@ class Tokenizer(BaseTokenizer):
                  add_decoder_mask=False,
                  fix_command_token=False,
                  pre_tokenizer=None,
+                 special_tokens=['cls','pad','unk','eos','bos','sep'],
                  **kwargs):
         super().__init__(**kwargs)
         if self.tokenizer_class == "wp":
@@ -92,6 +93,10 @@ class Tokenizer(BaseTokenizer):
         except FileNotFoundError:
             dct = None
             sp_tokens = []
+            for tk in special_tokens:
+                res = self.search_special(tk)
+                if res:
+                    sp_tokens += [(tk, res)]
         self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
 
         if self.tokenizer_model_name.lower().startswith("glm"):
@@ -583,29 +588,31 @@ class Tokenizer(BaseTokenizer):
             self.truncate_sequence(maxlen, tokens, pop_index=-index)
         return tokens
 
-    # def search_special(self, name):
-    #     if name == "cls":
-    #         if self.check_special('<s>'): return '<s>'
-    #         elif self.check_special('[CLS]'): return '<s>'
-    #     elif name == "pad":
-    #         if self.check_special('<pad>'): return '<pad>'
-    #         elif self.check_special('<pad>'): return '[PAD]'
-    #         elif self.check_special('<pad>'): return '<|endoftext|>'
-    #     elif name == "eos":
-    #         if self.check_special('</s>'): return '</s>'
-    #         elif self.check_special('|endoftext|'): return '|endoftext|'
-    #     elif name == "sep":
-    #         if self.check_special('<sep>'): return '<sep>'
-    #         elif self.check_special('[SEP]'): return '[SEP]'
-    #     elif name == "unk":
-    #         if self.check_special('<unk>'): return '<unk>'
-    #         elif self.check_special('[UNK]'): return '[UNK]'
-    #     elif name == "bos":
-    #         if self.check_special('</s>'): return '</s>'           
+    def search_special(self, name):
+        if name == "cls":
+            if self.check_special('<s>'): return '<s>'
+            elif self.check_special('[CLS]'): return '[CLS]'
+        elif name == "pad":
+            if self.check_special('<pad>'): return '<pad>'
+            elif self.check_special('[PAD]'): return '[PAD]'
+            elif self.check_special('<|endoftext|>'): return '<|endoftext|>'
+        elif name == "eos":
+            if self.check_special('</s>'): return '</s>'
+            elif self.check_special('|endoftext|'): return '|endoftext|'
+            elif self.check_special('[PAD]'): return '[PAD]'
+        elif name == "sep":
+            if self.check_special('<sep>'): return '<sep>'
+            elif self.check_special('[SEP]'): return '[SEP]'
+        elif name == "unk":
+            if self.check_special('<unk>'): return '<unk>'
+            elif self.check_special('[UNK]'): return '[UNK]'
+        elif name == "bos":
+            if self.check_special('</s>'): return '</s>'    
+        return None       
 
-    # def check_special(self, tk):
-    #     try:
-    #         self.text_tokenizer.convert_token_to_id(tk)
-    #         return True 
-    #     except KeyError:
-    #         return False
+    def check_special(self, tk):
+        try:
+            self.text_tokenizer.convert_token_to_id(tk)
+            return True 
+        except KeyError:
+            return False
