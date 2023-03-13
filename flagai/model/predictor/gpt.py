@@ -8,7 +8,10 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
     token_ids = tokenizer_out["input_ids"]
     token_end_id = tokenizer.get_command_id('sep')
-    if token_ids[-1] == token_end_id:
+    token_eos_id = tokenizer.get_command_id('eos')
+    removed_tokens = [token_end_id, token_eos_id]
+
+    while len(token_ids)>0 and token_ids[-1] in removed_tokens:
         token_ids = token_ids[:-1]
 
     lp = [
