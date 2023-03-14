@@ -1009,7 +1009,6 @@ class Trainer():
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
-                loss_mask = data_iterator['loss_mask']
                 if len(self.metric_methods) != 0:
                     if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
                         batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()
