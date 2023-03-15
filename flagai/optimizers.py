@@ -104,6 +104,7 @@ def get_optimizer(param_groups,
                                   relative_step=False,
                                   warmup_init=False)
         elif optimizer == 'adamw':
+            from torch.optim import AdamW
             optimizer = AdamW(param_groups,
                              lr=lr,
                              weight_decay=weight_decay,
