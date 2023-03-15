@@ -103,6 +103,33 @@ def get_optimizer(param_groups,
                                   lr=lr,
                                   relative_step=False,
                                   warmup_init=False)
+        elif optimizer == 'AdamW':
+            optimizer = AdamW(param_groups,
+                             lr=lr,
+                             weight_decay=weight_decay,
+                             betas=(adam_beta1, adam_beta2),
+                             eps=adam_eps)
+        elif optimizer == 'Lion':
+            from lion_pytorch import Lion
+            optimizer = Lion(param_groups,
+                             lr=lr,
+                             weight_decay=weight_decay,
+                             betas=(adam_beta1, adam_beta2)
+                             )
+        elif optimizer == 'Adan':
+            from adan import Adan
+            optimizer = Adan(param_groups,
+                             lr=lr,
+                             weight_decay=weight_decay,
+                             betas=(adam_beta1, adam_beta2, 0.99),
+                             eps=adam_eps)
+        elif optimizer == 'LAMB':
+            from torch_optimizer import Lamb
+            optimizer = Lamb(param_groups,
+                             lr=lr,
+                             weight_decay=weight_decay,
+                             betas=(adam_beta1, adam_beta2),
+                             eps=adam_eps) 
         else:
             raise NotImplementedError
 
