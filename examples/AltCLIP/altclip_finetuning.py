@@ -32,7 +32,6 @@ transform = auto_loader.get_transform()
 trainer = Trainer(env_type="pytorch",
                 pytorch_device=device,
                 experiment_name="clip_finetuning",
-                eval_interval=10,
                 batch_size=4,
                 lr=1e-4,
                 epochs=10,
@@ -63,4 +62,4 @@ def cifar10_collate_fn(batch):
     }
     
 if __name__ == "__main__":
-    trainer.train(model=model, train_dataset=dataset, collate_fn=cifar10_collate_fn, metric_methods=["accuracy"])
+    trainer.train(model=model, train_dataset=dataset, collate_fn=cifar10_collate_fn)

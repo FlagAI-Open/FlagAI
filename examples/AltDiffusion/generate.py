@@ -17,9 +17,6 @@ model = loader.get_model()
 model.eval()
 model.to(device)
 predictor = Predictor(model)
-# predictor.predict_generate_images(
-#     "Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation"
-# )
 predictor.predict_generate_images(
-    "Anime portrait of a crouching smiling baby inside a glass bottle, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation"
+    "Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation"
 )

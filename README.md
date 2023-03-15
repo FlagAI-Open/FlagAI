@@ -260,6 +260,6 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 ### &#8627; Star History
 <div align="center">
 
-[![Star History Chart](https://api.star-history.com/svg?repos=FlagAI-Open/FlagAI&type=Date)]
+![Star History Chart](https://api.star-history.com/svg?repos=FlagAI-Open/FlagAI&type=Date)]
 
 </div>

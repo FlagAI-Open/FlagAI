@@ -97,12 +97,12 @@ class PVP(ABC):
     @property
     def mask(self) -> str:
         """Return the underlying LM's mask token"""
-        return self.tokenizer.get_command_id('MASK')
+        return self.tokenizer.get_command_id('mask')
 
     @property
     def mask_id(self) -> int:
         """Return the underlying LM's mask id"""
-        return self.tokenizer.get_command_id('MASK')
+        return self.tokenizer.get_command_id('mask')
 
     @property
     def max_num_verbalizers(self) -> int:
@@ -574,13 +574,13 @@ class CopaPVP(PVP):
     @property
     def mask(self) -> str:
         """Return the underlying LM's mask token"""
-        mask_token = 'MASK'
+        mask_token = 'mask'
         return self.tokenizer.get_command_id(mask_token)
 
     @property
     def mask_id(self) -> int:
         """Return the underlying LM's mask id"""
-        mask_token = 'MASK'
+        mask_token = 'mask'
         return self.tokenizer.get_command_id(mask_token)
 
     def get_answers(self, example: InputExample):
