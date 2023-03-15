@@ -397,8 +397,8 @@ class Tokenizer(BaseTokenizer):
     ):
 
         def get_input_ids(text):
-            tokens = self.text_tokenizer.tokenize(text)
-            return self.text_tokenizer.convert_tokens_to_ids(tokens)
+            tokens = self.tokenize(text)
+            return self.convert_tokens_to_ids(tokens)
 
         first_ids = get_input_ids(text)
         second_ids = get_input_ids(
