@@ -1,26 +1,26 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-
 import torch
-from flagai.model.predictor.predictor import Predictor
+from flagai.model.glm_model import GLMModel
+from flagai.data.tokenizer import Tokenizer
+from flagai.data.tokenizer.glm_large_en.glm_large_en_tokenizer import GLMLargeEnWordPieceTokenizer
 from flagai.auto_model.auto_loader import AutoLoader
+from flagai.model.predictor.predictor import Predictor
 if __name__ == "__main__":
     """Main training program."""
     print('Generate Samples')
-    # Random seeds for reproducibility.
-    # Model,
+
     loader = AutoLoader(task_name='lm',
-                                model_name='GLM-large-en',
-                                only_download_config=False)
+                            model_name='GLM-large-en',
+                            only_download_config=False)
     model = loader.get_model()
     tokenizer = loader.get_tokenizer()
-    model.cuda(torch.cuda.current_device())
 
+    model.cuda(torch.cuda.current_device())
     predictor = Predictor(model, tokenizer)
-    # generate samples
     text = [
-        'Question: Is drinking beer bad for your health? Answer: [gMASK]',
+        'Is drinking beer bad for your health?',
     ]
     for t in text:
         output = predictor.predict_generate_randomsample(

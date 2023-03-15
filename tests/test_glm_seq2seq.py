@@ -48,8 +48,8 @@ class TrainerTestCase(unittest.TestCase):
                                               tokenizer,
                                               task_name=task_name)
 
-        train_dataset.example_list = train_dataset.example_list[:1]
-        valid_dataset.example_list = valid_dataset.example_list[:1]
+        train_dataset.example_list = train_dataset.example_list[:10]
+        valid_dataset.example_list = valid_dataset.example_list[:10]
 
         model = GLMForSeq2Seq.from_pretrain(model_name=model_name,
                                             only_download_config=True)

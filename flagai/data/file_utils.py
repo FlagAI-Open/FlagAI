@@ -20,7 +20,6 @@ from functools import wraps
 from hashlib import sha256
 import sys
 from io import open
-
 import boto3
 import requests
 from botocore.exceptions import ClientError

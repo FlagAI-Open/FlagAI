@@ -457,8 +457,12 @@ class Tokenizer(object):
         """A list of tokens => recovered text string"""
         return self.text_tokenizer.convert_tokens_to_string(tokens)
 
+    def convert_tokens_to_ids(self, tokens):
+        return self.text_tokenizer.convert_tokens_to_ids(tokens)
 
-# class BaseTokenizer(object):
+    def convert_ids_to_tokens(self, ids):
+        return self.text_tokenizer.convert_ids_to_tokens(ids)
+
 
 class TextTokenizer(object):
     """

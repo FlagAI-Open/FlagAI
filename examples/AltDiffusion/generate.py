@@ -10,7 +10,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="text2img", #contrastive learning
                     model_name="AltDiffusion-m9",
-                    model_dir="./checkpoints")
+                    model_dir="./checkpoints",
+                    use_fp16=False)
 
 model = loader.get_model()
 model.eval()

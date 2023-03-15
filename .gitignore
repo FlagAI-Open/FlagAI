@@ -26,3 +26,5 @@ tensorboard*
 datasets
 qqp
 glm_large_qqp_pytorch
+wandb
+clip_benchmark_datasets/

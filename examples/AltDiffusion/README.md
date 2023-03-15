@@ -66,9 +66,10 @@ prompt = "Anime portrait of natalie portman as an anime girl by stanley artgerm 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-loader = AutoLoader(task_name="text2img", #contrastive learning
+loader = AutoLoader(task_name="text2img", 
                     model_name="AltDiffusion-m9",
-                    model_dir="./checkpoints")
+                    model_dir="./checkpoints",
+                    use_fp16=False)  # Fp16 mode
 
 model = loader.get_model()
 model.eval()
@@ -97,9 +98,9 @@ More parameters of predict_generate_images for you to adjust for `predict_genera
 | C | int   | 图片的channel数; Numeber of channels of generated images                    |
 | seed | int   | 随机种子; Random seed number                     |
 
-注意：模型推理要求一张至少10G以上的GPU。
+注意：模型推理要求一张至少14G以上的GPU, FP16模式下则至少11G。
 
-Note that the model inference requires a GPU of at least 10G above.
+Note that the model inference requires a GPU of at least 14G, and at least 11G for FP16 mode.
 
 
 # 更多生成结果/More Results

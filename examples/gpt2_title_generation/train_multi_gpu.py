@@ -1,7 +1,6 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import sys
 import os
 import torch
 from torch.utils.data import Dataset
@@ -39,7 +38,7 @@ trainer = Trainer(
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/train.src'
 tgt_dir = cur_dir + '/data/train.tgt'
-model_dir = "./state_dict/"
+model_dir = "./checkpoints/"
 os.makedirs(model_dir, exist_ok=True)
 maxlen = 256
 

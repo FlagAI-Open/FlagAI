@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="flagai",
-    version="v1.5.1",
+    version="v1.6.1",
     description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP/CV/VL tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
@@ -34,5 +34,7 @@ setup(
         'diffusers == 0.7.2',
         'pytorch-lightning == 1.6.5',
         'taming-transformers-rom1504 == 0.0.6',
+        'rouge-score == 0.1.2',
+        'sacrebleu == 2.3.1',
     ]
 )

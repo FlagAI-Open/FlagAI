@@ -16,7 +16,7 @@ from flagai.model.mm.utils import (
     timestep_embedding,
 )
 from flagai.model.mm.attentions.attention import SpatialTransformer
-
+from torch.cuda.amp import autocast as autocast
 
 # dummy replace
 def convert_module_to_f16(x):
@@ -78,11 +78,12 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     def forward(self, x, emb, context=None):
         for layer in self:
             if isinstance(layer, TimestepBlock):
-                x = layer(x, emb)
+                with autocast():
+                    x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
                 x = layer(x, context)
             else:
-                x = layer(x)
+                x = layer(x.half())
         return x
 
 
@@ -465,12 +466,13 @@ class UNetModel(nn.Module):
         n_embed=None,                     # custom support for prediction of discrete ids into codebook of first stage vq model
         legacy=True,
     ):
+
         super().__init__()
         if use_spatial_transformer:
-            assert context_dim is not None, 'Fool!! You forgot to include the dimension of your cross-attention conditioning...'
+            assert context_dim is not None, 'You forgot to include the dimension of your cross-attention conditioning...'
 
         if context_dim is not None:
-            assert use_spatial_transformer, 'Fool!! You forgot to use the spatial transformer for your cross-attention conditioning...'
+            assert use_spatial_transformer, 'You forgot to use the spatial transformer for your cross-attention conditioning...'
             from omegaconf.listconfig import ListConfig
             if type(context_dim) == ListConfig:
                 context_dim = list(context_dim)
@@ -500,6 +502,7 @@ class UNetModel(nn.Module):
         self.num_head_channels = num_head_channels
         self.num_heads_upsample = num_heads_upsample
         self.predict_codebook_ids = n_embed is not None
+        self.use_fp16 = use_fp16
 
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
@@ -719,7 +722,10 @@ class UNetModel(nn.Module):
         ), "must specify y if and only if the model is class-conditional"
         hs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-        emb = self.time_embed(t_emb)
+        if self.use_fp16:
+            emb = self.time_embed(t_emb.half())
+        else:
+            emb = self.time_embed(t_emb)
 
         if self.num_classes is not None:
             assert y.shape == (x.shape[0],)

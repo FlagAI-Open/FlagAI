@@ -17,6 +17,14 @@ import collections
 import socket
 from flagai.logger import log_dist
 
+import signal
+
+def launch_cmd(run_cmd):
+    p = subprocess.Popen(run_cmd, shell=True, preexec_fn=os.setsid)
+    def signal_handler(signal, frame):
+        os.killpg(os.getpgid(p.pid), 9)
+    signal.signal(signal.SIGINT, signal_handler)
+    p.wait()
 
 def fetch_hostfile(hostfile_path):
     if not os.path.isfile(hostfile_path):
@@ -128,7 +136,12 @@ def launch_dist(launcher='distributed_deepspeed',
             cmd_launch.append('"')
             run_cmd = ' '.join(cmd_launch)
             log_dist(run_cmd)
-            subprocess.Popen(run_cmd, shell=True)
+            p = subprocess.Popen(run_cmd, shell=True, preexec_fn=os.setsid)
+            def signal_handler(signal, frame):
+                os.killpg(os.getpgid(p.pid), 9)
+            signal.signal(signal.SIGINT, signal_handler)
+            p.wait()
+            # subprocess.Popen(run_cmd, shell=True)
             node_rank += 1
 
     elif num_nodes == 1 and launcher == 'distributed_torch':
@@ -158,7 +171,9 @@ def launch_dist(launcher='distributed_deepspeed',
         cmd_launch.append('--not_call_launch')
         run_cmd = ' '.join(cmd_launch)
         log_dist(run_cmd)
-        subprocess.Popen(run_cmd, shell=True)
+        # subprocess.Popen(run_cmd, shell=True)
+
+        launch_cmd(run_cmd)
 
     elif launcher == 'distributed_deepspeed':
         if hostfile is None:
@@ -206,7 +221,9 @@ def launch_dist(launcher='distributed_deepspeed',
         cmd_launch.append('--not_call_launch')
         run_cmd = ' '.join(cmd_launch)
         log_dist(run_cmd)
-        subprocess.Popen(run_cmd, shell=True)
+        # subprocess.Popen(run_cmd, shell=True)
+        launch_cmd(run_cmd)
+
 
     elif num_nodes == 1 and launcher == 'simple_torch':
         # This launcher
@@ -238,6 +255,7 @@ def launch_dist(launcher='distributed_deepspeed',
 
             run_cmd = ' '.join(cmd_launch)
             log_dist(run_cmd)
-            subprocess.Popen(run_cmd, shell=True)
+            # subprocess.Popen(run_cmd, shell=True)
+            launch_cmd(run_cmd)
     else:
         raise Exception('No aviable launcher')

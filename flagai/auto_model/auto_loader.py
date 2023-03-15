@@ -46,6 +46,7 @@ ALL_TASK = {
     "cpm_lm": ("flagai.model.gpt2_model", "GPT2Model"),
     "t5_seq2seq": ["flagai.model.t5_model", "T5Model"],
     "t5_lm": ["flagai.model.t5_model", "T5Model"],
+    "t5_title-generation": ["flagai.model.t5_model", "T5Model"],
     "alm_lm": ["flagai.model.alm_model", "ALMModel"],
     "glm_lm": ["flagai.model.glm_model", "GLMModel"],
     "glm_seq2seq": ["flagai.model.glm_model", "GLMForSeq2Seq"],
@@ -55,13 +56,14 @@ ALL_TASK = {
     "glm_title-generation": ["flagai.model.glm_model", "GLMForSeq2Seq"],
     "opt_seq2seq": ("flagai.model.opt_model", "OPTModel"),
     "opt_lm": ("flagai.model.opt_model", "OPTModel"),
+    "galactica_lm": ("flagai.model.galactica_model", "GalacticaModel"),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
     "swinv2_classification": ("flagai.model.vision.swinv2",
                               "SwinTransformerV2"),
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
-    "cpm3_trian": ("flagai.model.cpm3_trian_model", "CPM3"),
+    "cpm3_train": ("flagai.model.cpm3_train_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.AltDiffusion", "LatentDiffusion"),
     "altclip_txt_img_matching": ("flagai.model.mm.AltCLIP", "AltCLIP"),
     "evaclip_txt_img_matching": ("flagai.model.mm.eva_clip_model", "EVA_CLIP"),
@@ -76,6 +78,7 @@ MODEL_DICT = {
     "glm-large-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "alm-1.0": ["flagai.model.alm_model", "ALMModel", "alm", "nlp"],
     "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
+    "glm-large-en-generation": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
     "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm", "nlp"],
     "opt-125m-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
@@ -89,6 +92,10 @@ MODEL_DICT = {
     "glm-10b-ch": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "cpm3": ["flagai.model.cpm3_model", "CPM3", "cpm3", "nlp"],
     "cpm3-train": ["flagai.model.cpm3_train_model", "CPM3", "cpm3", "nlp"],
+    "galactica-1.3b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "galactica-6.7b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "galactica-30b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "galactica-120b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "vit-base-p16-224":
         ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":
@@ -130,6 +137,7 @@ MODEL_DICT = {
     "altclip-bert-b": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
                        "AltCLIPProcessBert"],
     "eva-clip": ["flagai.model.mm.eva_clip_model", "EVA_CLIP", "evaclip", "mm"],
+
 }
 
 
@@ -168,9 +176,7 @@ class AutoLoader:
                                          class_num=2)
 
         """
-
         raw_model_name = copy.deepcopy(model_name)
-
         model_name = model_name.lower()
 
         if model_name not in MODEL_DICT:
@@ -194,7 +200,6 @@ class AutoLoader:
 
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
-
         model_name_ = self.is_exist_finetuned_model(raw_model_name, task_name)
         self.model = getattr(LazyImport(self.model_name[0]),
                              self.model_name[1]).from_pretrain(
@@ -203,12 +208,18 @@ class AutoLoader:
             only_download_config=only_download_config,
             device=device,
             **kwargs)
+        if kwargs.get("use_fp16", None):
+            self.model.half()
 
         if model_type == "nlp":
-            tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
-                                      "Tokenizer")
-            self.tokenizer = tokenizer_class.from_pretrained(
-                model_name, cache_dir=download_path)
+            if brief_model_name in ["galactica", ]:
+                self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                                    MODEL_DICT[model_name][5])(download_path)
+            else :
+                tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                        "Tokenizer")
+                self.tokenizer = tokenizer_class.from_pretrained(
+                    model_name, cache_dir=download_path)
 
         elif model_type == "mm":
             if model_name.startswith("altdiffusion"):

@@ -20,7 +20,7 @@
 ## From_pretrain
 
 `From_pretrain` 函数用于加载模型。同一个模型结构的模型可以用同一个class进行加载，比如`BERT-base-ch` 和`Roberta-base-ch`模型都能用`BertModel`这个`Class`进行加载。`From_pretrain`为了数据/模型并行的模型加载进行了特定优化，避免重复下载导致的资源浪费。
-通过调用`ClassName.from_pretrian()`来进行加载.
+通过调用`ClassName.from_pretrain()`来进行加载.
 ### 从modelhub加载
 现在我们支持从modelhub中下载[常用模型](#所有支持模型)，可以直接通过`from_pretrain`下载模型配置文件`config.json`，模型权重`pytorch_model.bin`，以及字典文件`vocab.txt`。例子：
 ```python

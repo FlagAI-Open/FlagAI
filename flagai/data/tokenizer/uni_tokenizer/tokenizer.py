@@ -28,7 +28,7 @@ from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.bpe_tokenizer import BPETokenizer, MMBPETokenizer
 from flagai.data.tokenizer.uni_tokenizer.sp_tokenizer import SentencePieceTokenizer
 from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
-from flagai.data.tokenizer.uni_tokenizer.difffusion_bert_tokenizer import FullTokenizer
+from flagai.data.tokenizer.uni_tokenizer.diffusion_bert_tokenizer import FullTokenizer
 from typing import List, Union, Optional
 import unicodedata
 
@@ -38,7 +38,6 @@ def is_control(ch):
     https://en.wikipedia.org/wiki/Control_character
     https://www.fileformat.info/info/unicode/category/Cc/index.htm
     https://www.fileformat.info/info/unicode/category/Cf/index.htm
-
     """
     return unicodedata.category(ch) in ('Cc', 'Cf')
 
@@ -298,13 +297,9 @@ class Tokenizer(BaseTokenizer):
             self.num_command_tokens += 6
             self.token_end_id = self.text_tokenizer.convert_token_to_id(
                 '</s>')
-
-
             if add_block_symbols:
                 sop_id = self.text_tokenizer.convert_token_to_id('<|startofpiece|>')
                 eop_id = self.text_tokenizer.convert_token_to_id('<|endofpiece|>')
-
-                
                 self._command_tokens.extend([
                     CommandToken('sop', '<|startofpiece|>',
                                  self.num_tokens + 1),
@@ -352,7 +347,7 @@ class Tokenizer(BaseTokenizer):
         }
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
-        
+        logger.info("All special tokens: %s", str([(k,v.Id) for k,v in self.command_name_map.items()]))
 
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()
@@ -713,14 +708,12 @@ class Tokenizer(BaseTokenizer):
     def tokenize_as_tensor(self, texts):
         """
         Returns the tokenized representation of given input string(s)
-
         Parameters
         ----------
         texts : Union[str, List[str]]
             An input string or a list of input strings to tokenize
         context_length : int
             The context length to use; all CLIP models use 77 as the context length
-
         Returns
         -------
         A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]

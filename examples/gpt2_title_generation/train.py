@@ -10,22 +10,20 @@ from flagai.trainer import Trainer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # single gpu
 trainer = Trainer(
-    env_type="bmtrain",
+    env_type="pytorch",
     experiment_name="gpt2_title-generation",
     batch_size=8,
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
     epochs=10,
-    log_interval=10,
-    eval_interval=10,
+    log_interval=100,
+    eval_interval=10000,
     load_dir=None,
-    num_gpus = 2,
     pytorch_device=device,
     save_dir="checkpoints_gpt2_title-generation",
     checkpoint_activations=True,
-    save_interval=10000,
-    hostfile='./hostfile'
+    save_interval=1,
 )
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))

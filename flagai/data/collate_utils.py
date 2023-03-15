@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 
 def padding(indice, max_length, pad_idx=0):
@@ -74,6 +75,15 @@ def seq2seq_collate_fn(batch):
         "segment_ids": token_type_ids_padded,
         "labels": target_ids_padded
     }
+
+    # TODO
+    flash_atten = all([data["flash_atten"] for data in batch])
+    if flash_atten:
+        attention_mask = token_ids_padded > 0
+        seqlens_in_batch = attention_mask.sum(dim=-1, dtype=torch.int32)
+        max_seqlen_in_batch = seqlens_in_batch.max().item()
+        cu_seqlens = F.pad(torch.cumsum(seqlens_in_batch, dim=0, dtype=torch.torch.int32), (1, 0))
+        data['cu_seqlens'] = cu_seqlens
 
     return data
 

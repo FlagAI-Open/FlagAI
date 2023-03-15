@@ -115,7 +115,7 @@ class BaseModel(Module):
                     model.load_weights(checkpoint_path)
             return model
 
-        def load_diffusion_local(yaml_path, only_download_config=False):
+        def load_diffusion_local(yaml_path, only_download_config=False, **kwargs):
             """
             Now only diffusion models requires yaml
             """
@@ -126,8 +126,8 @@ class BaseModel(Module):
             config = OmegaConf.load(f"{yaml_path}")
             model_config = config.model
             model_config.params.cond_stage_config.params.download_path = raw_download_path
-
-            model = cls(**model_config.get("params", dict()))
+            kwargs.update(model_config.get("params", dict()))
+            model = cls(**kwargs)
             if not only_download_config:
                 model = cls._load_state_dict_into_model(
                     model,
@@ -140,7 +140,7 @@ class BaseModel(Module):
             """
             Now only diffusion models requires yaml
             """
-            return load_diffusion_local(yaml_path, only_download_config=only_download_config)
+            return load_diffusion_local(yaml_path, only_download_config=only_download_config, **kwargs)
         elif os.path.exists(config_path):
             """
             It is fine when checkpoint_path does not exist, for the case that only_download_config=True

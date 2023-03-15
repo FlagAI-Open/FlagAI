@@ -38,9 +38,8 @@ def download_from_url(url, size=0, rank=0, to_path=None, file_pname=None):
     else:
         file_path = os.path.join(to_path, file_pname)
 
-
-    if (is_bmt == 1 and bmt.init.is_initialized() and bmt.rank == 0) or (torch.distributed.is_initialized() or 
-        torch.distributed.get_rank == 0) or ((is_bmt == 1 and not bmt.init.is_initialized())and not torch.distributed.is_initialized()):
+    if (is_bmt == 1 and bmt.init.is_initialized() and bmt.rank() == 0) or (torch.distributed.is_initialized() and 
+        torch.distributed.get_rank() == 0) or (((is_bmt == 1 and not bmt.init.is_initialized()) or is_bmt == 0 ) and not torch.distributed.is_initialized()):
         if not os.path.exists(to_path):
             os.makedirs(to_path)
         if os.path.exists(file_path):

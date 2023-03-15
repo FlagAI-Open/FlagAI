@@ -133,6 +133,7 @@ class Trainer():
         fp16=False,
         clip_grad=1.0,
         checkpoint_activations=False,
+        tokenizer=None,
 
         # model checkpointing
         save_dir='checkpoints',  # 'Output directory to save checkpoints to.')
@@ -182,6 +183,7 @@ class Trainer():
 
         self.log_interval = log_interval
         self.eval_interval = eval_interval
+        self.tokenizer = tokenizer
 
         # model checkpointing
         self.save_dir = save_dir
@@ -251,8 +253,6 @@ class Trainer():
         self.not_call_launch = ds_args.not_call_launch
         self.rank = int(os.environ.get('RANK', 0))
         self.world_size = int(os.environ.get('WORLD_SIZE', 1))
-        self.master_addr = os.environ.get('MASTER_ADDR', '127.0.0.1')
-        self.master_port = os.environ.get('MASTER_PORT', '17500')
         log_dist("not_call_launch: {}".format(ds_args.not_call_launch))
         return []
 
@@ -459,18 +459,19 @@ class Trainer():
             param_groups = param_groups[0]['params']
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
-            if self.env_type == 'bmtrain':
-                optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
-                                               weight_decay=self.weight_decay,)
-            else:
-                optimizer = get_optimizer(
-                    param_groups=param_groups,
-                    lr=self.lr,
-                    weight_decay=self.weight_decay,
-                    cpu_optimizer=False,
-                    cpu_torch_adam=False,
-                    fp16=self.fp16,
-                    optimizer='adam')  # if not self.fp16 else 'adafactor')
+            # if self.env_type == 'bmtrain':
+            #     optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
+            #                                    weight_decay=self.weight_decay, lr=5e-6)
+            #     # optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
+            # else:
+            optimizer = get_optimizer(
+                param_groups=param_groups,
+                lr=self.lr,
+                weight_decay=self.weight_decay,
+                cpu_optimizer=False,
+                cpu_torch_adam=False,
+                fp16=self.fp16,
+                optimizer='adam')  # if not self.fp16 else 'adafactor')
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
@@ -523,11 +524,7 @@ class Trainer():
         if len(self.metric_methods) > 0:
             best_score = -best_score
         for epoch in range(self.epochs):
-            # log_dist('working on epoch {} ...'.format(epoch), [0])
-            # Set the data loader epoch to shuffle the index iterator.
-            # if self.env_type == 'deepspeed+mpu':
-            #     if mpu.get_model_parallel_rank() == 0:
-            #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
+            print("epoch "+str(epoch))
             if self.env_type != 'pytorch':
                 train_dataloader.sampler.set_epoch(epoch + self.world_size)
 
@@ -639,7 +636,6 @@ class Trainer():
                                     save_dir=self.save_dir,
                                     save_rng=self.save_rng)
                 self.iteration += 1
-
                 # Checkpointing at the end of each epoch.
 
         # Evaluation #todo add train_args
@@ -841,7 +837,7 @@ class Trainer():
                              optimizer,
                              lr_scheduler,
                              mems=None,
-                             single_step=False): #bmt 自带loss scale 需要查看是否有重复
+                             single_step=False): #bmt has loss scale, which need to be checked repetition
         """Single training step."""
         optim_manager = bmt.optim.OptimManager(loss_scale=1024)
         optim_manager.add_optimizer(optimizer, lr_scheduler)
@@ -854,7 +850,7 @@ class Trainer():
         lm_loss = bmt.sum_loss(loss).item()
         self.timers('backward').start()
         try:
-            optim_manager.backward()
+            optim_manager.backward(loss)
         except:
             loss.backward()
         self.timers('backward').stop()
@@ -891,7 +887,7 @@ class Trainer():
         if 'deepspeed' in self.env_type:
             model.backward(loss)
         else:
-            # optimizer.zero_grad()
+            optimizer.zero_grad()
             if hasattr(optimizer, 'backward'):
                 optimizer.backward(loss, update_master_grads=False)
             else:
@@ -960,7 +956,6 @@ class Trainer():
                  forward_step_func=None,
                  verbose=False):
         """Evaluation."""
-
         # Turn off checkpoint_activations
         tmp_checkpoint_activations = None
         tmp_model = model
@@ -976,7 +971,6 @@ class Trainer():
 
         mems = None
         metrics = [0. for _ in range(len(self.metric_methods))]
-
         with torch.no_grad():
             assert data_loader is not None, "val loader is not None."
             all_logits = []
@@ -1010,7 +1004,7 @@ class Trainer():
                     deepspeed.checkpointing.reset()
                 logits = step_output['logits']
                 lm_loss = step_output['loss']
-
+                
                 if 'labels' in data_iterator:
                     labels = data_iterator['labels']
                 else:
@@ -1022,10 +1016,16 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
+                        if logits.size(0) != 1:
+                            logits = torch.argmax(logits, dim=1).unsqueeze(0)
                         all_logits.append(logits)
                         all_labels.append(labels)
+                        pass
                 all_losses.append(lm_loss.view(1))
-
+            # size of all_logits: (1, n)
+            if len(self.metric_methods) != 0 and all_logits[0].size() != all_logits[-1].size():
+                pd = (all_logits[0].size(0)-all_logits[-1].size(0), all_logits[0].size(1)-all_logits[-1].size(1))
+                all_logits[-1] = torch.nn.functional.pad(all_logits[-1], pd ,"constant",0)
             all_losses = torch.cat(all_losses, dim=0)
             if len(self.metric_methods) != 0:
                 all_logits = torch.cat(all_logits, dim=0)
@@ -1048,11 +1048,10 @@ class Trainer():
 
             for i in range(len(self.metric_methods)):
                 eval_method = self.metric_methods[i][1]
-                metrics[i] += eval_method(all_logits, all_labels, meta=meta)
+                metrics[i] += eval_method(all_logits, all_labels, meta=meta, tokenizer=self.tokenizer)
 
         # Move model back to the train mode.
 
-        # model.train()
         tmp_model.train()
         # recover the settings for checkpoint_activations
         if hasattr(tmp_model,
@@ -1100,6 +1099,7 @@ class Trainer():
         verbose=False,
     ):
         """Helper function to evaluate and dump results on screen."""
+        
         eval_dict = self.evaluate(forward_step_func=forward_step_func,
                                   data_loader=data_loader,
                                   model=model,

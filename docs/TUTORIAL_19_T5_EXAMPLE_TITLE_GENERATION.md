@@ -27,34 +27,34 @@ The sample data is in `/examples/bert_title_generation/data/`
 
 You need to define the data loading process in train.py. For example:
 ```python
-def read_file():
-    src = []
-    tgt = []
+>>> def read_file():
+>>>     src = []
+>>>     tgt = []
 
-    ## read data file to load src and tgt, for example:
-    ## src = ["article_1", "article_2", "article_3" ......]
-    ## tgt = ["title_1", "title_2", "title_3" ......]
-    ## no matter what data you use, you need to construct the right src and tgt.
-    with open(src_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            src.append(line.strip('\n').lower())
+>>>     ## read data file to load src and tgt, for example:
+>>>     ## src = ["article_1", "article_2", "article_3" ......]
+>>>     ## tgt = ["title_1", "title_2", "title_3" ......]
+>>>     ## no matter what data you use, you need to construct the right src and tgt.
+>>>     with open(src_dir, 'r', encoding='utf-8') as f:
+>>>         lines = f.readlines()
+>>>         for line in lines:
+>>>             src.append(line.strip('\n').lower())
 
-    with open(tgt_dir, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        for line in lines:
-            tgt.append(line.strip('\n').lower())
-    return src,tgt
+>>>     with open(tgt_dir, 'r', encoding='utf-8') as f:
+>>>         lines = f.readlines()
+>>>         for line in lines:
+>>>             tgt.append(line.strip('\n').lower())
+>>>     return src,tgt
 ```
 
 ### 2.Load model and tokenizer
 
 ```python
-from flagai.auto_model.auto_loader import AutoLoader
+>>> from flagai.auto_model.auto_loader import AutoLoader
 
-loader = AutoLoader("seq2seq", "T5-base-ch", model_dir="./state_dict/")
-model = loader.get_model()
-tokenizer = loader.get_tokenizer()
+>>> loader = AutoLoader("seq2seq", "T5-base-ch", model_dir="./state_dict/")
+>>> model = loader.get_model()
+>>> tokenizer = loader.get_tokenizer()
 ```
 
 ### 3. Train
@@ -65,53 +65,53 @@ python ./train.py
 The configuration support multi-gpus training.
 Modify the training configuration by this code:
 ```python
-from flagai.trainer import Trainer
-trainer = Trainer(
-    env_type="deepspeed",
-    experiment_name="t5_seq2seq",
-    batch_size=1,
-    gradient_accumulation_steps=1,
-    lr=2e-4,
-    weight_decay=1e-3,
-    epochs=10,
-    log_interval=10,
-    eval_interval=10000,
-    load_dir=None,
-    save_dir="checkpoints",
-    save_interval=1,
-    num_checkpoints=1,
-    master_ip='127.0.0.1',
-    master_port=17750,
-    num_nodes=1,
-    num_gpus=2,
-    hostfile='./hostfile',
-    deepspeed_config='./deepspeed.json',
-    training_script=__file__,
-)
+>>> from flagai.trainer import Trainer
+>>> trainer = Trainer(
+>>>     env_type="deepspeed",
+>>>     experiment_name="t5_seq2seq",
+>>>     batch_size=1,
+>>>     gradient_accumulation_steps=1,
+>>>     lr=2e-4,
+>>>     weight_decay=1e-3,
+>>>     epochs=10,
+>>>     log_interval=10,
+>>>     eval_interval=10000,
+>>>     load_dir=None,
+>>>     save_dir="checkpoints",
+>>>     save_interval=1,
+>>>     num_checkpoints=1,
+>>>     master_ip='127.0.0.1',
+>>>     master_port=17750,
+>>>     num_nodes=1,
+>>>     num_gpus=2,
+>>>     hostfile='./hostfile',
+>>>     deepspeed_config='./deepspeed.json',
+>>>     training_script=__file__,
+>>> )
 ```
 Divide the training set validation set and create the dataset:
 ```python
-sents_src, sents_tgt = read_file()
-data_len = len(sents_tgt)
-train_size = int(data_len * 0.8)
-train_src = sents_src[:train_size][:2000]
-train_tgt = sents_tgt[:train_size][:2000]
+>>> sents_src, sents_tgt = read_file()
+>>> data_len = len(sents_tgt)
+>>> train_size = int(data_len * 0.8)
+>>> train_src = sents_src[:train_size][:2000]
+>>> train_tgt = sents_tgt[:train_size][:2000]
 
-val_src = sents_src[train_size:]
-val_tgt = sents_tgt[train_size:]
+>>> val_src = sents_src[train_size:]
+>>> val_tgt = sents_tgt[train_size:]
 
-train_dataset = T5Seq2seqDataset(train_src,
-                                 train_tgt,
-                                 tokenizer=tokenizer,
-                                 max_src_length=300,
-                                 max_tgt_length=200)
-val_dataset = T5Seq2seqDataset(val_src,
-                               val_tgt,
-                               tokenizer=tokenizer,
-                               max_src_length=300,
-                               max_tgt_length=200)
+>>> train_dataset = T5Seq2seqDataset(train_src,
+>>>                                  train_tgt,
+>>>                                  tokenizer=tokenizer,
+>>>                                  max_src_length=300,
+>>>                                  max_tgt_length=200)
+>>> val_dataset = T5Seq2seqDataset(val_src,
+>>>                                val_tgt,
+>>>                                tokenizer=tokenizer,
+>>>                                max_src_length=300,
+>>>                                max_tgt_length=200)
 
-trainer.train(model, train_dataset=train_dataset, valid_dataset=val_dataset)
+>>> trainer.train(model, train_dataset=train_dataset, valid_dataset=val_dataset)
 ```
 
 ### Generation
@@ -119,7 +119,7 @@ If you have already trained a model, in order to see the results more intuitivel
 You can run the generation file.
 First to modify the path of saved model.
 ```python
-model_save_path = "./checkpoints/1001/mp_rank_00_model_states.pt" ## 1001 is example, you need modify the number.
+>>> model_save_path = "./checkpoints/1001/mp_rank_00_model_states.pt" ## 1001 is example, you need modify the number.
 ```
 ```commandline
 python ./generate.py

@@ -55,21 +55,22 @@ class BertStack(torch.nn.Module):
     def __init__(self, config, num_hidden_layers, hidden_size,
                  num_attention_heads, attention_probs_dropout_prob,
                  initializer_range, layernorm_epsilon, hidden_dropout_prob,
-                 intermediate_size, hidden_act):
+                 intermediate_size, hidden_act, enable_flash_atten=False):
         super(BertStack, self).__init__()
         self.config = config
         self.layer = torch.nn.ModuleList([
             BertBlock(hidden_size, num_attention_heads,
                       attention_probs_dropout_prob, initializer_range,
                       layernorm_epsilon, hidden_dropout_prob,
-                      intermediate_size, hidden_act)
+                      intermediate_size, hidden_act, enable_flash_atten)
             for _ in range(num_hidden_layers)
         ])
 
     def forward(self,
                 hidden_states,
                 attention_mask,
-                output_all_encoded_layers=True):
+                output_all_encoded_layers=True,
+                **kwargs):
         all_encoder_layers = []
 
         for i, layer_module in enumerate(self.layer):
@@ -84,9 +85,9 @@ class BertStack(torch.nn.Module):
                     return custom_forward
 
                 hidden_states = checkpoint(create_custom_forward(layer_module),
-                                           hidden_states, attention_mask)
+                                           hidden_states, attention_mask, **kwargs)
             else:
-                hidden_states = layer_module(hidden_states, attention_mask)
+                hidden_states = layer_module(hidden_states, attention_mask, **kwargs)
 
             if output_all_encoded_layers:
                 all_encoder_layers.append(hidden_states)
@@ -116,6 +117,7 @@ class BertModel(BaseModel):
         self.num_attention_heads = config["num_attention_heads"]
         self.attention_probs_dropout_prob = config[
             "attention_probs_dropout_prob"]
+        self.enable_flash_atten = config.get("enable_flash_atten", False)
         self.embeddings = BertEmbeddings(self.vocab_size, self.hidden_size,
                                          self.initializer_range,
                                          self.max_position_embeddings,
@@ -126,7 +128,8 @@ class BertModel(BaseModel):
             config, self.num_hidden_layers, hidden_size,
             self.num_attention_heads, self.attention_probs_dropout_prob,
             self.initializer_range, self.layernorm_epsilon,
-            self.hidden_dropout_prob, intermediate_size, self.hidden_act)
+            self.hidden_dropout_prob, intermediate_size, self.hidden_act,
+            self.enable_flash_atten)
         self.pooler = BertPooler(hidden_size)
 
         self.apply(init_bert_weights)
@@ -180,10 +183,12 @@ class BertModel(BaseModel):
         extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
 
         embedding_output = self.embeddings(input_ids, token_type_ids)
+        kwargs['input_ids'] = input_ids
         encoded_layers = self.encoder(
             embedding_output,
             extended_attention_mask,
-            output_all_encoded_layers=output_all_encoded_layers)
+            output_all_encoded_layers=output_all_encoded_layers,
+            **kwargs)
         sequence_representation = encoded_layers[-1]
         for p in self.pooler.parameters():
             if p is None:
@@ -349,7 +354,7 @@ class BertForSeq2seq(BaseModel):
         label = label.view(-1)
         loss = nn.CrossEntropyLoss(ignore_index=0, reduction="none")
         return (loss(pred, label) * target_mask
-                ).sum() / target_mask.sum()  ## 通过mask 取消 pad 和句子a部分预测的影响
+                ).sum() / target_mask.sum()  ## Deinfluence pad and prediction of sentenceA through mask
 
     def make_unilm_mask(self, token_type_id, seq_len):
         device = token_type_id.device
@@ -364,7 +369,6 @@ class BertForSeq2seq(BaseModel):
         return a_mask
 
     def forward(self, **data):
-
         input_ids = data["input_ids"]
         token_type_ids = data["segment_ids"]
         labels = data.get("labels", None)
@@ -374,11 +378,20 @@ class BertForSeq2seq(BaseModel):
         seq_len = input_shape[1]
         a_mask = self.make_unilm_mask(token_type_ids, seq_len)
         encoder_out, pooler_out = self.model(
+            token_type_ids=token_type_ids,
+            attention_mask=a_mask,
+            output_all_encoded_layers=True,
+            **data,
+        )
+        '''
+        encoder_out, pooler_out = self.model(
             input_ids,
             token_type_ids,
             a_mask,
             True,
+            **data
         )
+        '''
         sequence_out, decoder_out = self.cls(encoder_out[-1])
 
         return_data["logits"] = decoder_out
