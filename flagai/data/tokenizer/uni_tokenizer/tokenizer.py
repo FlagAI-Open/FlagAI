@@ -22,7 +22,6 @@
 import itertools
 import logging
 import torch 
-import json
 logger = logging.getLogger(__name__)
 from flagai.data.tokenizer.tokenizer import CommandToken
 from flagai.data.tokenizer.uni_tokenizer.wp_tokenizer import WordpieceTokenizer
@@ -32,6 +31,7 @@ from flagai.data.tokenizer.uni_tokenizer.base_tokenizer import BaseTokenizer
 from flagai.data.tokenizer.uni_tokenizer.diffusion_bert_tokenizer import FullTokenizer
 from typing import List, Union, Optional
 import unicodedata
+import json
 
 
 def is_control(ch):
@@ -39,7 +39,6 @@ def is_control(ch):
     https://en.wikipedia.org/wiki/Control_character
     https://www.fileformat.info/info/unicode/category/Cc/index.htm
     https://www.fileformat.info/info/unicode/category/Cf/index.htm
-
     """
     return unicodedata.category(ch) in ('Cc', 'Cf')
 
@@ -47,21 +46,24 @@ def is_control(ch):
 class Tokenizer(BaseTokenizer):
 
     def __init__(self,
-                 add_block_symbols=False,
+                 add_block_symbols=True,
                  add_sentinel_token=0,
                  add_task_mask=True,
                  add_decoder_mask=False,
                  fix_command_token=False,
                  pre_tokenizer=None,
-                 special_tokens=['cls','pad','unk','eos','bos','sep'],
+                 special_tokens=['cls','pad','unk','eos','sep','mask'],
                  **kwargs):
         super().__init__(**kwargs)
+
         if self.tokenizer_class == "wp":
-            if self.tokenizer_model_name.lower().startswith('clip-cn'):
-                self.text_tokenizer = FullTokenizer(self.vocab_file)             
+            if self.tokenizer_model_name.lower().endswith("ch"):
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file,
+                                                         is_ch=True)
+            elif self.tokenizer_model_name.lower().startswith('clip-cn'):
+                self.text_tokenizer = FullTokenizer(self.vocab_file)
             else:
-                self.text_tokenizer = WordpieceTokenizer(self.vocab_file, 
-                                        is_ch=self.tokenizer_model_name.lower().endswith("ch"))
+                self.text_tokenizer = WordpieceTokenizer(self.vocab_file)
         elif self.tokenizer_class == "bpe":
             if self.tokenizer_model_name.lower().startswith('clip'):
                 self.text_tokenizer = MMBPETokenizer(self.vocab_file,
@@ -81,12 +83,14 @@ class Tokenizer(BaseTokenizer):
         else:
             raise NotImplementedError("cannot assign a tokenize class")
 
-        if self.tokenizer_model_name.lower().startswith('glm') or self.tokenizer_model_name.lower().startswith('alm'):
-            add_block_symbols=True
+        self.is_glm = self.tokenizer_model_name.lower().startswith('glm')
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
-
         self.num_tokens = self.text_tokenizer.vocab_size
-        # import pdb;pdb.set_trace()
+        if self.tokenizer_model_name.startswith('cpm'):
+            special_tokens.append('eod')
+        if self.tokenizer_model_name.startswith('opt'):
+            special_tokens.append('bos')
+        
         try:
             with open(self.special_tokens_map, encoding='utf8') as file: dct=json.load(file)
             sp_tokens = [(k.replace("_token",""),v['content']) for k,v in dct.items()]
@@ -98,7 +102,6 @@ class Tokenizer(BaseTokenizer):
                 if res:
                     sp_tokens += [(tk, res)]
         self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
-
         if self.tokenizer_model_name.lower().startswith("glm"):
             if self.tokenizer_class == "wp":
                 self.text_tokenizer._token_cls = "[CLS]"
@@ -134,23 +137,23 @@ class Tokenizer(BaseTokenizer):
                     CommandToken('unk', '[UNK]', self.num_tokens + 5)
                 ])
                 self.num_tokens += 6
-        if add_block_symbols:
-            if not self.tokenizer_class == "bpe":
-                self.add_command_token('sop', '<|startofpiece|>')
-                self.add_command_token('eop', '<|endofpiece|>')
-            if add_task_mask:
-                if fix_command_token:
-                    self.add_command_token('sMASK', '[sMASK]')
-                    self.add_command_token('gMASK', '[gMASK]')
-                else:
-                    self.add_command_token('gMASK', '[gMASK]')
-                    self.add_command_token('sMASK', '[sMASK]')
-            if add_decoder_mask:
-                self.add_command_token('dBLOCK', '[dBLOCK]')
-            if add_sentinel_token > 0:
-                for i in range(1, add_sentinel_token):
-                    self.add_command_token(f'MASK{i}', f'[MASK{i}]')
-                    self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>')
+            if add_block_symbols:
+                if not self.tokenizer_class == "bpe":
+                    self.add_command_token('sop', '<|startofpiece|>',self.tokenizer_class)
+                    self.add_command_token('eop', '<|endofpiece|>',self.tokenizer_class)
+                if add_task_mask:
+                    if fix_command_token:
+                        self.add_command_token('sMASK', '[sMASK]',self.tokenizer_class)
+                        self.add_command_token('gMASK', '[gMASK]',self.tokenizer_class)
+                    else:
+                        self.add_command_token('gMASK', '[gMASK]',self.tokenizer_class)
+                        self.add_command_token('sMASK', '[sMASK]',self.tokenizer_class)
+                if add_decoder_mask:
+                    self.add_command_token('dBLOCK', '[dBLOCK]',self.tokenizer_class)
+                if add_sentinel_token > 0:
+                    for i in range(1, add_sentinel_token):
+                        self.add_command_token(f'MASK{i}', f'[MASK{i}]',self.tokenizer_class)
+                        self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>',self.tokenizer_class)
         self.command_name_map = {tok.name: tok for tok in self._command_tokens}
         self.command_token_map = {
             tok.token: tok
@@ -158,7 +161,6 @@ class Tokenizer(BaseTokenizer):
         }
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
-        # import pdb;pdb.set_trace()
         vocab =  self.text_tokenizer.get_vocab()
         self.token_start_id = vocab.get('<s>', None)
         if not self.token_start_id:
@@ -169,10 +171,8 @@ class Tokenizer(BaseTokenizer):
             self.token_end_id = vocab.get('<|endoftext|>', None)
         if not self.token_end_id:
             self.token_end_id = vocab.get('[SEP]', None)
-        # import pdb;pdb.set_trace()
         print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
-        # logger.info("All special tokens: %s", str([(k,v.Id) for k,v in self.command_name_map.items()]))
-        
+
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()
 
@@ -180,11 +180,17 @@ class Tokenizer(BaseTokenizer):
         """get command token corresponding to `name`"""
         return self.command_name_map[name].Id
 
-    def add_command_token(self, name, token):
-        self._command_tokens.append(CommandToken(name, token, self.num_tokens))
-        self.num_tokens += 1
+    def add_command_token(self, name, token, tokenizer_class="wp"):
+        try:
+            if tokenizer_class == "sp":
+                id = self.text_tokenizer.get_vocab()[token]
+            else:
+                id = self.text_tokenizer.convert_token_to_id(token)            
+        except KeyError:
+            id = self.num_tokens
+            self.num_tokens += 1
+        self._command_tokens.append(CommandToken(name, token, id))
         return
-
     def rematch(self, text, tokens):
         """output the mapping relation between raw text and tokenizezd text
         """
@@ -389,8 +395,7 @@ class Tokenizer(BaseTokenizer):
             truncation=True,
             max_length=None,
     ):
-        if self.tokenizer_model_name.lower().startswith('t5'):
-            assert second_text is None, "t5 does not support multi-sentence encoding"
+
         def get_input_ids(text):
             tokens = self.text_tokenizer.tokenize(text)
             return self.text_tokenizer.convert_tokens_to_ids(tokens)
@@ -540,14 +545,12 @@ class Tokenizer(BaseTokenizer):
     def tokenize_as_tensor(self, texts):
         """
         Returns the tokenized representation of given input string(s)
-
         Parameters
         ----------
         texts : Union[str, List[str]]
             An input string or a list of input strings to tokenize
         context_length : int
             The context length to use; all CLIP models use 77 as the context length
-
         Returns
         -------
         A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]
@@ -558,25 +561,7 @@ class Tokenizer(BaseTokenizer):
                                             sot_token=sot_token,
                                             eot_token=eot_token)
 
-    def tokenize_t5(self, text, *arg, **kwargs):
-        split_tokens = []
-        for token in self.pre_tokenizer(text):
-            if token in self.vocab:
-                split_tokens.append(token)
-            else:
-                split_tokens.extend(self.text_tokenizer.tokenize(token))
-        return split_tokens
-
     def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
-        """
-        add_spatial_token: (bool) Add cls at the front and sep at the end
-        max_len: Truncate the length to max_len
-        """
-        if self.tokenizer_model_name.lower().startswith('t5'):
-            import jieba
-            self.pre_tokenizer = lambda x: jieba.cut(x, HMM=False)
-            return self.tokenize_t5(text)
-
         tokens = self.text_tokenizer.tokenize(text)
 
         if add_spatial_tokens:
@@ -608,11 +593,20 @@ class Tokenizer(BaseTokenizer):
             elif self.check_special('[UNK]'): return '[UNK]'
         elif name == "bos":
             if self.check_special('</s>'): return '</s>'    
+        elif name == "mask":
+            if self.check_special('[MASK]'): return '[MASK]'   
+            elif self.check_special('<mask>'): return '<mask>'
+        elif name == "eod":
+            if self.check_special('<eod>'): return '<eod>'   
         return None       
 
     def check_special(self, tk):
+        
         try:
-            self.text_tokenizer.convert_token_to_id(tk)
+            if self.tokenizer_class == 'sp':
+                self.text_tokenizer.get_vocab()[tk]
+            else:
+                self.text_tokenizer.convert_token_to_id(tk)
             return True 
         except KeyError:
             return False

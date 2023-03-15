@@ -322,7 +322,8 @@ class Predictor:
                                     device)
 
         elif "gpt" in self.class_name.lower(
-        ) or "opt" in self.class_name.lower():
+        ) or "opt" in self.class_name.lower() \
+            or "galactica" in self.class_name.lower():
             return gpt_random_sample_use_cache(self.model, self.tokenizer,
                                                text, input_max_length,
                                                out_max_length, top_k, top_p,

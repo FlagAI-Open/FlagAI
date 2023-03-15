@@ -928,9 +928,8 @@ def t5_random_sample(model, tokenizer, text, input_max_length, out_max_length,
         TopPLogitsProcessor(top_p=top_p),
     ]
     list_processor = ListProcessor(lp)
-    from tqdm import trange
     with torch.no_grad():
-        for step in trange(out_max_length):
+        for step in range(out_max_length):
             scores = model(**{
                 "input_ids": token_ids,
                 "decoder_input_ids": input_decoder_ids
@@ -1118,7 +1117,6 @@ def alm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=
     context_length = context_length_tensor[0].item()
     context_tokens_tensor = torch.LongTensor(context_tokens)
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
-
     start_time = time.time()
     mems = []
     tokens = context_tokens_tensor
@@ -1436,7 +1434,7 @@ def glm_generate_sample(
                                      dtype=torch.long)
     position_ids = torch.stack((position_ids, block_position_ids), dim=0)
     position_ids = position_ids.unsqueeze(0)
-    mask_tokens = ['mask', 'sMASK', 'gMASK']
+    mask_tokens = ['MASK', 'sMASK', 'gMASK']
     mask_tokens = [tokenizer.get_command_id(token) for token in mask_tokens]
     end_tokens = [tokenizer.get_command_id('eop'), eod_token]
     mask_positions = []

@@ -44,7 +44,7 @@ class T5BPETokenizer(Tokenizer):
             CommandToken('sep', '[SEP]', self.num_tokens),
 
             CommandToken('pad', '[PAD]', self.num_tokens + 1),
-            CommandToken('ENC', '[CLS]', self.num_tokens + 2),
+            CommandToken('cls', '[CLS]', self.num_tokens + 2),
             CommandToken('MASK', '[MASK]',
                          self.num_tokens + 3),
         ]

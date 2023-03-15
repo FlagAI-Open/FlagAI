@@ -1,7 +1,5 @@
 import torch
 from PIL import Image
-import sys
-sys.path.append("/home/yanzhaodong/anhforth/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -21,7 +19,7 @@ model.to(device)
 tokenizer = loader.get_tokenizer()
 
 def inference():
-    image = Image.open("./examples/AltCLIP/dog.jpeg")
+    image = Image.open("./dog.jpeg")
     image = transform(image)
     image = torch.tensor(image["pixel_values"]).to(device)
     tokenizer_out = tokenizer(["a rat", "a dog", "a cat"], 
