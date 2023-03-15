@@ -67,7 +67,6 @@ class TokenizerTestCase(unittest.TestCase):
         
     def test_tokenizer_roberta(self):
         tokenizer = Tokenizer.from_pretrained('RoBERTa-base-ch')
-        # print(tokenizer.DecodeIds([791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825]))
         self.assertEqual(tokenizer.TokenToId("人"), 782, '')
         self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
                          [791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825], '')
