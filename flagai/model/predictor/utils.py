@@ -1217,6 +1217,14 @@ def gpt_beamsearch(model, tokenizer, text, input_max_length, out_max_length,
                    beam_size):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
     token_ids = tokenizer_out["input_ids"][:-1]
+
+    token_end_id = tokenizer.get_command_id('sep')
+    token_eos_id = tokenizer.get_command_id('eos')
+    removed_tokens = [token_end_id, token_eos_id]
+
+    while len(token_ids)>0 and token_ids[-1] in removed_tokens:
+        token_ids = token_ids[:-1]
+
     token_ids = np.array(token_ids).reshape(1, -1)
     out_puts_ids = gpt_beam_search(model,
                                    token_ids,

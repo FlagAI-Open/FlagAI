@@ -36,6 +36,8 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
     filtered_logits = list_processor(token_ids, logit_score)
     next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
                                    num_samples=1)
+    # ldwang
+    output_ids.append(next_token.item())
     token_ids = torch.cat([token_ids, next_token.long()], dim=1)
 
     with torch.no_grad():
