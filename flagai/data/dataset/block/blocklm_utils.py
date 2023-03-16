@@ -86,10 +86,10 @@ class ConstructBlockStrategy:
         self.encoder_decoder = encoder_decoder
         self.shuffle_blocks = shuffle_blocks
         self.sentinel_token = sentinel_token
-        self.generation_mask = 'gMASK' if task_mask else 'MASK'
+        self.generation_mask = 'gMASK' if task_mask else 'mask'
         self.generation_mask = self.tokenizer.get_command_id(
             self.generation_mask)
-        self.gap_sentence_mask = 'sMASK' if task_mask else 'MASK'
+        self.gap_sentence_mask = 'sMASK' if task_mask else 'mask'
         self.gap_sentence_mask = self.tokenizer.get_command_id(
             self.gap_sentence_mask)
         self.random_position = random_position
@@ -205,7 +205,7 @@ class ConstructBlockStrategy:
         #
         position_ids = np.arange(len(tokens), dtype=np.int64)
         targets = copy.deepcopy(tokens)
-        mask_id = self.tokenizer.get_command_id('MASK')
+        mask_id = self.tokenizer.get_command_id('mask')
         mlm_masks = np.zeros(len(tokens), dtype=np.int64)
         for start, end in block_spans:
             for idx in range(start, end):
@@ -273,7 +273,7 @@ class ConstructBlockStrategy:
             elif task == 'gap_sentence':
                 mask_id = self.gap_sentence_mask
             else:
-                mask_token = 'MASK' if idx == 0 else f'MASK{idx}'
+                mask_token = 'mask' if idx == 0 else f'MASK{idx}'
                 mask_id = self.tokenizer.get_command_id(mask_token)
             local_spans.append((current_length, current_length + start - last))
             source_tokens.append(tokens[last:start])
