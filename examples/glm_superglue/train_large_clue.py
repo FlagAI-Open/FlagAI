@@ -1,7 +1,9 @@
+import sys;sys.path.append("/home/yanzhaodong/FlagAI")
+import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSequenceClassification
 from flagai.data.tokenizer import Tokenizer
-
+from flagai.model.glm_model import GLMForSingleTokenCloze, GLMForMultiTokenCloze
 from flagai.metrics import accuracy_metric
 from flagai.data.dataset import SuperGlueDataset
 from flagai.test_utils import CollateArguments
@@ -11,7 +13,7 @@ from flagai.data.dataset import ConstructSuperglueStrategy
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-task_name = "tnews"
+task_name = "copa"
 
 cl_args = CollateArguments()
 cl_args.multi_token = task_name in MULTI_TOKEN_TASKS
@@ -22,8 +24,12 @@ else:
     model_name = 'GLM-large-en'
 tokenizer = Tokenizer.from_pretrained(model_name)
 
-model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
-                                             model_name=model_name)
+if cl_args.multi_token:
+    model = GLMForMultiTokenCloze.from_pretrain(download_path="./checkpoints",
+                                                model_name=model_name)
+else:
+    model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
+                                                model_name=model_name)
 # model_save_path = "/home/yanzhaodong/anhforth/test/FlagAI/examples/glm_superglue/checkpoints/20000_save/pytorch_model.bin"
 # model.load_state_dict(torch.load(model_save_path, map_location="cuda")["module"])  
 train_dataset = SuperGlueDataset(task_name=task_name,
