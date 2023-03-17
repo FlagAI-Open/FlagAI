@@ -16,7 +16,7 @@
 
 
 
-## 加载 优化器
+## 加载优化器
 ```python
 >>>     trainer = Trainer(env_type='pytorch',
 >>>                   epochs=1,
