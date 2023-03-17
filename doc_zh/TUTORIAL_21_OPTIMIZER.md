@@ -31,7 +31,7 @@ $ pip install lion-pytorch
 ```
 $ pip install torch_optimizer
 ```
-
+#### 例子
 ```python
 >>> # currently FlagAI support adam, adamw, lion, adan, adafactor and lamb, which can be defined by setting optimizer_type when defining Trainer
 >>>     trainer = Trainer(env_type='pytorch',

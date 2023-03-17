@@ -20,6 +20,21 @@ A good optimizer can significantly improve the training speed and accuracy of a 
 
 
 ## Loading optimizer
+
+### dependencies
+#### adan
+```
+python3 -m pip install git+https://github.com/sail-sg/Adan.git
+```
+#### lion
+```
+$ pip install lion-pytorch
+```
+#### lamb
+```
+$ pip install torch_optimizer
+```
+#### example
 ```python
 >>> # currently FlagAI support adam, adamw, lion, adan, adafactor and lamb, which can be defined by setting optimizer_type when defining Trainer
 >>>     trainer = Trainer(env_type='pytorch',
