@@ -28,7 +28,7 @@ trainer = Trainer(env_type='pytorch',
 
 model_name = "GLM-large-en"
 tokenizer = Tokenizer.from_pretrained(model_name)
-model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
+model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
                                              model_name=model_name)
 
 

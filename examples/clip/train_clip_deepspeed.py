@@ -5,8 +5,8 @@ from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # cd examples/clip
-data_path = "./data/pairs.csv"#"/mnt/datasets/multimodal/ConceptualCaptions/Train_GCC-training_output.csv"
-img_dir = "./data/img"#"/mnt/datasets/multimodal/ConceptualCaptions"
+data_path = "./data/pairs.csv"
+img_dir = "./data/img"
 
 trainer = Trainer(
     env_type="deepspeed",
