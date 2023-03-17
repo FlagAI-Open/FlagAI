@@ -159,6 +159,7 @@ class Trainer():
         deepspeed_config=None,
         model_parallel_size=1,
         training_script="train.py",
+        optimizer_type='adam',
     ):
 
         if timers is not None:
@@ -184,6 +185,8 @@ class Trainer():
         self.log_interval = log_interval
         self.eval_interval = eval_interval
         self.tokenizer = tokenizer
+
+        self.optimizer_type = optimizer_type
 
         # model checkpointing
         self.save_dir = save_dir
@@ -471,7 +474,7 @@ class Trainer():
                 cpu_optimizer=False,
                 cpu_torch_adam=False,
                 fp16=self.fp16,
-                optimizer='adam')  # if not self.fp16 else 'adafactor')
+                optimizer=self.optimizer_type)  # if not self.fp16 else 'adafactor')
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
