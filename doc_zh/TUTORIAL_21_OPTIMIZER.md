@@ -17,6 +17,21 @@
 
 
 ## 加载优化器
+
+### 依赖
+#### adan
+```
+python3 -m pip install git+https://github.com/sail-sg/Adan.git
+```
+#### lion
+```
+$ pip install lion-pytorch
+```
+#### lamb
+```
+$ pip install torch_optimizer
+```
+
 ```python
 >>> # currently FlagAI support adam, adamw, lion, adan, adafactor and lamb, which can be defined by setting optimizer_type when defining Trainer
 >>>     trainer = Trainer(env_type='pytorch',
