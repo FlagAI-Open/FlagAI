@@ -18,6 +18,7 @@
 
 ## 加载优化器
 ```python
+>>> # currently FlagAI support adam, adamw, lion, adan, adafactor and lamb, which can be defined by setting optimizer_type when defining Trainer
 >>>     trainer = Trainer(env_type='pytorch',
 >>>                   epochs=1,
 >>>                   batch_size=2,
