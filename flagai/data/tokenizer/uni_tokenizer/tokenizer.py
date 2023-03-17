@@ -55,7 +55,7 @@ class Tokenizer(BaseTokenizer):
                  special_tokens=['cls','pad','unk','eos','sep','mask'],
                  **kwargs):
         super().__init__(**kwargs)
-
+        
         if self.tokenizer_class == "wp":
             if self.tokenizer_model_name.lower().endswith("ch"):
                 self.text_tokenizer = WordpieceTokenizer(self.vocab_file,
@@ -94,6 +94,9 @@ class Tokenizer(BaseTokenizer):
         try:
             with open(self.special_tokens_map, encoding='utf8') as file: dct=json.load(file)
             sp_tokens = [(k.replace("_token",""),v['content']) for k,v in dct.items()]
+            self._command_tokens = []
+            for e in sp_tokens:
+                self.add_command_token(e[0],e[1],self.tokenizer_class)
         except FileNotFoundError:
             dct = None
             sp_tokens = []
@@ -101,7 +104,7 @@ class Tokenizer(BaseTokenizer):
                 res = self.search_special(tk)
                 if res:
                     sp_tokens += [(tk, res)]
-        self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
+            self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
         if self.tokenizer_model_name.lower().startswith("glm"):
             if self.tokenizer_class == "wp":
                 self.text_tokenizer._token_cls = "[CLS]"

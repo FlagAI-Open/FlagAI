@@ -28,7 +28,6 @@ class SentencePieceTokenizer(object):
     def __init__(self, model_path):
         self.sp_model = spm.SentencePieceProcessor()
         self.sp_model.Load(model_path)
-        # vocab = self.get_vocab()
 
     @property
     def vocab_size(self):
@@ -39,7 +38,6 @@ class SentencePieceTokenizer(object):
             self.convert_id_to_token(i): i
             for i in range(self.vocab_size)
         }
-        # vocab.update(self.added_tokens_encoder)
         return vocab
 
     def tokenize(self, text):
