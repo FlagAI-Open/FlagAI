@@ -976,6 +976,7 @@ class Trainer():
             all_logits = []
             all_labels = []
             all_losses = []
+            prev = False
             for data_iterator in data_loader:
                 # Forward evaluation.
                 meta = data_iterator.get('meta', None)
@@ -1009,7 +1010,6 @@ class Trainer():
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
-                loss_mask = data_iterator['loss_mask']
                 if len(self.metric_methods) != 0:
                     if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
                         batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()
@@ -1017,8 +1017,9 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
-                        if logits.size(0) != 1:
-                            logits = torch.argmax(logits, dim=1).unsqueeze(0)
+                        if prev or logits.size(0) != 1:
+                            logits = torch.argmax(logits, dim=1)
+                            prev = True
                         all_logits.append(logits)
                         all_labels.append(labels)
                         pass

@@ -28,9 +28,11 @@ def accuracy_metric(predictions, labels, meta=None, tokenizer=None):
         predictions = torch.argmax(predictions, dim=-1)
         for prediction, label in zip(predictions, labels):
             count += prediction == label
+    elif predictions.ndim == 1:
+        for prediction, label in zip(predictions, labels):
+            count += prediction == label        
     else:
         prediction, label = predictions[0], labels[0]
-        
         if sigmoid(prediction) >= 0.5:
             count += label == 1
         else:
@@ -55,7 +57,7 @@ def bleu_metric(predictions, labels, meta=None, tokenizer=None):
     bleu_score = bleu_results.score
     return bleu_score
 
-def rouge_metric(predictions, labels, meta=None, tokenizer=None, metric="rouge-1", tokenizer=None):
+def rouge_metric(predictions, labels, meta=None, tokenizer=None, metric="rouge-1"):
     metric_dict = {"rouge-1": "rouge1", "rouge-2": "rouge2", "rouge-l": "rougeLsum"}
     ref_list = []
     for i in labels:
@@ -75,15 +77,14 @@ def rouge_metric(predictions, labels, meta=None, tokenizer=None, metric="rouge-1
     return scores
     
 def f1_metric(predictions, labels, meta=None, tokenizer=None):
-    pred = torch.argmax(predictions, dim=-1).cpu()
+    pred = predictions.cpu()
     labels = labels.cpu()
     if torch.equal(pred, labels):
         return 1.0
     return f1_score(labels, pred)
 
-
 def f1_macro_metric(predictions, labels, meta=None, tokenizer=None):
-    pred = torch.argmax(predictions, dim=-1).cpu()
+    pred = predictions.cpu()
     labels = labels.cpu()
     if torch.equal(pred, labels):
         return 1.0
