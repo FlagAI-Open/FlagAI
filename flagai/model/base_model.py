@@ -77,9 +77,11 @@ class BaseModel(Module):
         config_path = os.path.join(download_path, "config.json")
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
 
-        def load_local(checkpoint_path):
+        def load_local(checkpoint_path, only_download_config=False):
             model = cls.init_from_json(config_path, **kwargs)
             model.to(device)
+            if only_download_config:
+                return model
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
                 if os.path.exists(checkpoint_path):
                     model.load_weights(checkpoint_path)
@@ -146,7 +148,7 @@ class BaseModel(Module):
             It is fine when checkpoint_path does not exist, for the case that only_download_config=True
             At that time the model will not be loaded. 
             """
-            return load_local(checkpoint_path)
+            return load_local(checkpoint_path, only_download_config=only_download_config)
 
         try:
             model_id = _get_model_id(model_name)
@@ -205,7 +207,7 @@ class BaseModel(Module):
                         os.path.join(download_path, "pytorch_model.bin"))
         if os.path.exists(yaml_path):
             return load_diffusion_local(yaml_path,only_download_config=only_download_config)
-        return load_local(checkpoint_path)
+        return load_local(checkpoint_path, only_download_config=only_download_config)
 
     @classmethod
     def download(cls,

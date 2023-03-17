@@ -59,7 +59,7 @@ initialize_distributed()
 set_random_seed(123)
 
 print(f"building model...")
-loader = AutoLoader("lm", model_name="llama-13b-en")
+loader = AutoLoader("lm", model_name="llama-7b-en")
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 

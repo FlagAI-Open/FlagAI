@@ -4,7 +4,6 @@
 from typing import Optional, Tuple
 from dataclasses import dataclass
 import math
-
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -14,7 +13,18 @@ from flagai.model.layers.embeddings import ParallelEmbedding
 import os 
 from flagai.model.base_model import BaseModel 
 from flagai.mpu import get_model_parallel_world_size
+if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+    from flagai.mpu.utils import divide
+    from flagai.mpu.random import checkpoint
+    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region, get_model_parallel_world_size, get_cuda_rng_tracker
+    from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
 
+elif os.getenv('ENV_TYPE') == 'deepspeed':
+    from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
+else:
+    from torch.utils.checkpoint import checkpoint
+from flagai.model.utils import normal_init_method as n_init
+normal_init_method = n_init(0,0.0001)
 @dataclass
 class ModelArgs:
     dim: int = 512
@@ -76,38 +86,48 @@ def apply_rotary_emb(
 class Attention(nn.Module):
     def __init__(self, args: ModelArgs):
         super().__init__()
-
-        self.n_local_heads = args.n_heads // get_model_parallel_world_size()
-        self.head_dim = args.dim // args.n_heads
-
-        self.wq = ColumnParallelLinear(
-            args.dim,
-            args.n_heads * self.head_dim,
-            bias=False,
-            gather_output=False,
-            init_method=lambda x: x,
-        )
-        self.wk = ColumnParallelLinear(
-            args.dim,
-            args.n_heads * self.head_dim,
-            bias=False,
-            gather_output=False,
-            init_method=lambda x: x,
-        )
-        self.wv = ColumnParallelLinear(
-            args.dim,
-            args.n_heads * self.head_dim,
-            bias=False,
-            gather_output=False,
-            init_method=lambda x: x,
-        )
-        self.wo = RowParallelLinear(
-            args.n_heads * self.head_dim,
-            args.dim,
-            bias=False,
-            input_is_parallel=True,
-            init_method=lambda x: x,
-        )
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            self.n_local_heads = args.n_heads // get_model_parallel_world_size()
+            self.head_dim = args.dim // args.n_heads
+        else:
+            self.n_local_heads = args.n_heads 
+            self.head_dim = args.dim // args.n_heads
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu': 
+            self.wq = ColumnParallelLinear(
+                args.dim,
+                args.n_heads * self.head_dim,
+                bias=False,
+                gather_output=False,
+                init_method=normal_init_method,
+            )
+            self.wk = ColumnParallelLinear(
+                args.dim,
+                args.n_heads * self.head_dim,
+                bias=False,
+                gather_output=False,
+                init_method=normal_init_method,
+            )
+            self.wv = ColumnParallelLinear(
+                args.dim,
+                args.n_heads * self.head_dim,
+                bias=False,
+                gather_output=False,
+                init_method=normal_init_method,
+            )
+            self.wo = RowParallelLinear(
+                args.n_heads * self.head_dim,
+                args.dim,
+                bias=False,
+                input_is_parallel=True,
+                init_method=normal_init_method,
+            )
+        else:
+            self.wq = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
+            self.wk = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
+            self.wv = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
+            self.wo = nn.Linear(args.n_heads * self.head_dim, args.dim, bias=False)
+            
+            
         if args.use_cache:
             self.cache_k = torch.zeros(
                 (args.max_batch_size, args.max_seq_len, self.n_local_heads, self.head_dim)
@@ -164,16 +184,20 @@ class FeedForward(nn.Module):
         super().__init__()
         hidden_dim = int(2 * hidden_dim / 3)
         hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
-
-        self.w1 = ColumnParallelLinear(
-            dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
-        )
-        self.w2 = RowParallelLinear(
-            hidden_dim, dim, bias=False, input_is_parallel=True, init_method=lambda x: x
-        )
-        self.w3 = ColumnParallelLinear(
-            dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
-        )
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            self.w1 = ColumnParallelLinear(
+                dim, hidden_dim, bias=False, gather_output=False,init_method=normal_init_method
+            )
+            self.w2 = RowParallelLinear(
+                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=normal_init_method
+            )
+            self.w3 = ColumnParallelLinear(
+                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method
+            )
+        else:
+            self.w1 = nn.Linear(dim, hidden_dim, bias=False)
+            self.w2 = nn.Linear(hidden_dim, dim, bias=False)
+            self.w3 = nn.Linear(dim, hidden_dim, bias=False)
 
     def forward(self, x):
         return self.w2(F.silu(self.w1(x)) * self.w3(x))
@@ -192,9 +216,10 @@ class TransformerBlock(nn.Module):
         self.layer_id = layer_id
         self.attention_norm = RMSNorm(args.dim, eps=args.norm_eps)
         self.ffn_norm = RMSNorm(args.dim, eps=args.norm_eps)
+        self.start_pos = 0
 
-    def forward(self, x: torch.Tensor, start_pos: int, freqs_cis: torch.Tensor, mask: Optional[torch.Tensor]):
-        h = x + self.attention.forward(self.attention_norm(x), start_pos, freqs_cis, mask)
+    def forward(self, x: torch.Tensor, freqs_cis: torch.Tensor, mask: Optional[torch.Tensor]):
+        h = x + self.attention.forward(self.attention_norm(x), self.start_pos, freqs_cis, mask)
         out = h + self.feed_forward.forward(self.ffn_norm(h))
         return out
 
@@ -208,8 +233,8 @@ class LLAMA(BaseModel):
         
         else :
             use_cache = True
-        
-        params: ModelArgs = ModelArgs(max_seq_len=1024, max_batch_size=32,
+        print("+"*20,kwargs)
+        params: ModelArgs = ModelArgs(max_seq_len=2048, max_batch_size=32,
                                         multiple_of=config["multiple_of"],
                                         dim=config["dim"],
                                         n_heads=config["n_heads"],
@@ -219,62 +244,96 @@ class LLAMA(BaseModel):
                                         use_cache=use_cache)
 
         self.params = params
+        if "checkpoint_activations" in kwargs:
+            print("*"*20, 'init checkpointing!!!')
+            self.params.checkpoint_activations = kwargs['checkpoint_activations']
+        else:
+            self.params.checkpoint_activations = False
         self.vocab_size = params.vocab_size
         self.n_layers = params.n_layers
 
         self.tok_embeddings = ParallelEmbedding(
-            params.vocab_size, params.dim, init_method=lambda x: x
+            params.vocab_size, params.dim 
         )
-
+        from flagai.logger import log_dist
+        log_dist(f"self.tok_embeddings, {self.tok_embeddings.weight}")
+    
         self.layers = torch.nn.ModuleList()
         for layer_id in range(params.n_layers):
             self.layers.append(TransformerBlock(layer_id, params))
 
         self.norm = RMSNorm(params.dim, eps=params.norm_eps)
-        self.output = ColumnParallelLinear(
-            params.dim, params.vocab_size, bias=False, init_method=lambda x: x
-        )
-
+        
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            self.output = ColumnParallelLinear(
+                params.dim, params.vocab_size, bias=False,init_method=normal_init_method
+            )
+        else:
+            self.output = nn.Linear(params.dim, params.vocab_size, bias = False)
         self.freqs_cis = precompute_freqs_cis(
             self.params.dim // self.params.n_heads, self.params.max_seq_len * 2
         )
 
         self.loss_func = nn.CrossEntropyLoss()
 
+
     def forward(self, input_ids: torch.Tensor, start_pos=0, labels=None, **kwargs):
         _bsz, seqlen = input_ids.shape
-        h = self.tok_embeddings(input_ids)
+        def create_custom_forward(module):
+            def custom_forward(*inputs):
+                return module(*inputs)
+            return custom_forward
+        if self.params.checkpoint_activations:
+            h = checkpoint(
+                create_custom_forward(self.tok_embeddings),
+                input_ids
+            )
+        else:
+            h = self.tok_embeddings(input_ids)
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
-        
         mask = None
         if seqlen > 1:
             mask = torch.full((1, 1, seqlen, seqlen), float("-inf"), device=input_ids.device)
             mask = torch.triu(mask, diagonal=start_pos + 1).type_as(h)
 
         for layer in self.layers:
-            h = layer(h, start_pos, freqs_cis, mask)
-        h = self.norm(h)
-        if labels is not None:
-            output = self.output(h)
-            shift_logits = output[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
+            layer.start_pos = start_pos 
+            if self.params.checkpoint_activations:
+                # print("*"*20, 'apply checkpointing!!!')
+                h = checkpoint(create_custom_forward(layer), 
+                               h,
+                               freqs_cis, 
+                               mask)
 
+            else:
+                h = layer(h, freqs_cis, mask)
+        h = self.norm(h)
+        # print(f"h size -> {h.shape}") 
+        if labels is not None:
+            if self.params.checkpoint_activations:
+                h = checkpoint(
+                    create_custom_forward(self.output),
+                    h
+                )
+            else:
+                h = self.output(h)
+            # print(f"output size -> {h.shape}")
+            # print(f"lables size -> {labels.shape}")
             loss = self.loss_func(
-                shift_logits.view(-1, self.params.vocab_size).contiguous().float(), shift_labels.view(-1).contiguous().long()).mean()
-            
+                h[..., :-1, :].reshape(-1, self.params.vocab_size).contiguous().float(), labels[..., 1:].reshape(-1).contiguous().long()).mean()
+           
             return {
-                'logits': output,
-                'loss': loss,
-                'hidden_states': output,
+                'logits': h,
+                'loss': loss
             }
         else :
-
-            output = self.output(h[:, -1, :])  # only compute last logits
+            h = self.output(h[:, -1, :])  # only compute last logits
             # return output.float()
             return {
-                "logits": output.float()
+                "logits": h.float()
             }
+        
 
     def load_weights(self, checkpoint_path):
         self.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
@@ -287,22 +346,27 @@ class LLAMA(BaseModel):
                       only_download_config=False,
                       device="cpu",
                       **kwargs):
-        super().download(download_path, model_name)
-        pretrained_model_name_or_path = os.path.join(download_path, model_name)
-        local_rank = int(os.environ.get("LOCAL_RANK", -1))
-        world_size = int(os.environ.get("WORLD_SIZE", -1))
+        if only_download_config:
+            pretrained_model_name_or_path = os.path.join(download_path, model_name)
+            torch.set_default_tensor_type(torch.cuda.HalfTensor)
+            model = LLAMA.init_from_json(os.path.join(pretrained_model_name_or_path, "config.json"), **kwargs)
+            torch.set_default_tensor_type(torch.FloatTensor)
+        else:
+            super().download(download_path, model_name)
+            pretrained_model_name_or_path = os.path.join(download_path, model_name)
+            local_rank = int(os.environ.get("LOCAL_RANK", -1))
+            world_size = int(os.environ.get("WORLD_SIZE", -1))
 
-        checkpoints = sorted(Path(pretrained_model_name_or_path).glob("*.pth"))
-        assert (
-            world_size == len(checkpoints)
-        ), f"Loading a checkpoint for MP={len(checkpoints)} but world size is {world_size}"
-        ckpt_path = checkpoints[local_rank]
-        print("Loading")
-        checkpoint = torch.load(ckpt_path, map_location="cpu")
-        torch.set_default_tensor_type(torch.cuda.HalfTensor)
-        model = LLAMA.init_from_json(os.path.join(pretrained_model_name_or_path, "config.json"), **kwargs)
-        torch.set_default_tensor_type(torch.FloatTensor)
-        
-        model.load_state_dict(checkpoint, strict=False)
-
+            checkpoints = sorted(Path(pretrained_model_name_or_path).glob("*.pth"))
+            assert (
+                world_size == len(checkpoints)
+            ), f"Loading a checkpoint for MP={len(checkpoints)} but world size is {world_size}"
+            ckpt_path = checkpoints[local_rank]
+            print("Loading")
+            checkpoint = torch.load(ckpt_path, map_location="cpu")
+            torch.set_default_tensor_type(torch.cuda.HalfTensor)
+            model = LLAMA.init_from_json(os.path.join(pretrained_model_name_or_path, "config.json"), **kwargs)
+            torch.set_default_tensor_type(torch.FloatTensor)
+            
+            model.load_state_dict(checkpoint, strict=False)
         return model 

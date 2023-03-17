@@ -42,6 +42,7 @@ def _initialize_affine_weight(weight,
         world_size = 1
     if world_size == 1:
         init_method(weight)
+        print(f"init weight {weight}")
         if return_master_weight:
             return weight
         return None

@@ -336,18 +336,19 @@ class Trainer():
         else:
             if self.env_type == 'deepspeed+mpu':
                 rank = mpu.get_model_parallel_src_rank()
-                print("*"*80)
-                print("local rank",self.rank, "model rank", rank)
-                print("*"*80)
+                data_rank = mpu.get_data_parallel_rank()
+                log_dist("*"*80)
+                log_dist(f"local rank {self.rank} src rank  {rank} data rank {data_rank}")
+                log_dist("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
                     # num_replicas=num_replicas,
-                    rank=rank,
+                    rank=data_rank,
                     shuffle=shuffle)
             elif self.env_type == 'bmtrain':
-                print("*"*80)
-                print("local rank", self.rank, "world_size", self.world_size, "bmt rank", bmt.rank())
-                print("*"*80)
+                log_dist("*"*80)
+                log_dist(f"local rank {self.rank}  world_size  {self.world_size} bmt rank {bmt.rank()}")
+                log_dist("*"*80)
                 num_replicas = self.world_size
                 rank = self.rank
                 sampler = torch.utils.data.distributed.DistributedSampler(
@@ -423,11 +424,7 @@ class Trainer():
         else:
             valid_dataloader = valid_dataset
 
-        if self.load_dir:
-            log_dist("loading checkpoints form {}".format(self.load_dir))
-            sd = load_checkpoint(model,
-                                 load_dir=self.load_dir,
-                                 load_type=self.load_type)
+ 
         """Train the model."""
         # Turn on training mode which enables dropout.
         if self.fp16 and self.env_type == 'pytorchDDP':
@@ -512,6 +509,11 @@ class Trainer():
             load_optim(optimizer, lr_scheduler, sd)
         if self.load_rng:
             load_rng(sd)
+        if self.load_dir is not None:
+            log_dist("loading checkpoints form {}".format(self.load_dir))
+            sd = load_checkpoint(model,
+                                 load_dir=self.load_dir,
+                                 load_type=self.load_type)
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
@@ -527,7 +529,7 @@ class Trainer():
         if len(self.metric_methods) > 0:
             best_score = -best_score
         for epoch in range(self.epochs):
-            print("epoch "+str(epoch))
+            log_dist("epoch "+str(epoch))
             if self.env_type != 'pytorch':
                 train_dataloader.sampler.set_epoch(epoch + self.world_size)
 
@@ -579,7 +581,7 @@ class Trainer():
                     if self.env_type == 'bmtrain':
                         avg_lm_loss = total_lm_loss / self.log_interval
                     else:
-                        avg_lm_loss = total_lm_loss.item() / self.log_interval
+                        avg_lm_loss = total_lm_loss.item() / self.log_interval if hasattr(total_lm_loss,'item') else total_lm_loss / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
                     self.report_iteration_metrics(
                         optimizer, learning_rate, avg_lm_loss,
@@ -621,7 +623,6 @@ class Trainer():
                             best_iteration = self.iteration
                             save_checkpoint(self.iteration+1,
                                             best_iteration+1,
-
                                             model,
                                             optimizer,
                                             lr_scheduler,
@@ -674,7 +675,7 @@ class Trainer():
             self.timers('backward').start()
             if self.fp16 and hasattr(optimizer, 'backward'):
                 optimizer.backward(lm_loss,
-                                   update_master_grads=False,
+                                   update_master_grads=True,
                                    retain_graph=True)
             else:
                 lm_loss.backward()
@@ -790,7 +791,6 @@ class Trainer():
                              mems=None,
                              single_step=False):
         """Single training step."""
-
         # Forward model for one step.
         if (self.accumulate_count + 1) % self.gradient_accumulation_steps == 0:
             model.set_gradient_accumulation_boundary(True)
@@ -810,6 +810,7 @@ class Trainer():
         if 'deepspeed' in self.env_type:
             reduced_loss.data = reduced_loss.data / \
                 (self.world_size / self.model_parallel_size)
+
         if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
             # Calculate gradients, reduce across processes, and clip.
             self.timers('backward').start()
@@ -817,13 +818,12 @@ class Trainer():
             self.timers('backward').stop()
             # Update parameters.
             self.timers('optimizer').start()
-            model.step()
             if lr_scheduler:
                 lr_scheduler.step()
             self.timers('optimizer').stop()
-            if (self.accumulate_count +
-                    1) % self.gradient_accumulation_steps == 0:
+            if (self.accumulate_count + 1) % self.gradient_accumulation_steps == 0:
                 self.accumulate_count = 0
+                model.step()
             else:
                 self.accumulate_count += 1
             dist.barrier()
