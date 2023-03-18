@@ -32,7 +32,7 @@ class AnnealingLR(_LRScheduler):
                  num_iters,
                  decay_style=None,
                  last_iter=-1,
-                 decay_ratio=0.5):
+                 decay_ratio=0.1):
         assert warmup_iter <= num_iters
         self.optimizer = optimizer
         self.start_lr = start_lr

@@ -433,6 +433,12 @@ class Trainer():
             )
         if self.fp16:
             model.half()
+        def count_parameters(model): 
+            return sum(p.numel() for p in model.parameters() if p.requires_grad)
+        params_count = count_parameters(model)
+        log_dist("===="*80)
+        log_dist(f"==== Parameters: {params_count}")
+        log_dist("===="*80)
         if self.checkpoint_activations:
             model.config[
                 'checkpoint_activations'] = self.checkpoint_activations
@@ -468,7 +474,7 @@ class Trainer():
                 param_groups=param_groups,
                 lr=self.lr,
                 weight_decay=self.weight_decay,
-                cpu_optimizer=False,
+                cpu_optimizer=True,
                 cpu_torch_adam=False,
                 fp16=self.fp16,
                 optimizer=self.optimizer_type)  # if not self.fp16 else 'adafactor')
@@ -486,7 +492,7 @@ class Trainer():
                     start_lr=self.lr,
                     warmup_iter=int(self.warm_up * self.epochs *
                                     len(train_dataloader)),
-                    decay_style='linear',
+                    decay_style='cosine',
                     num_iters=self.epochs * len(train_dataloader))
 
         if  self.env_type == 'bmtrain':
