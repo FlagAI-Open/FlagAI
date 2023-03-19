@@ -26,7 +26,7 @@ env_args = EnvArgs(
     epochs=1,
     log_interval=1,
     eval_interval=10000,
-    num_gpus=2,
+    num_gpus=1,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints_gpt2_base",
@@ -36,6 +36,7 @@ env_args = EnvArgs(
     training_script=__file__,
 )
 env_args = env_args.parse_args()
+env_args.wandb = False
 
 '''
 env_args.save_rng = True
@@ -83,7 +84,7 @@ data_impl = 'mmap'
 splits_string = '9999,1'
 ## rebuilding if no npy files for train_valid_test_num_samples config
 ## suggested than preprocess before run
-train_valid_test_num_samples = [26944801, 2695]
+train_valid_test_num_samples = [50225910, 4300]
 seq_length = 1024
 seed = 2023
 skip_warmup = True
@@ -92,6 +93,11 @@ train_dataset, val_dataset, test_dataset = _build_train_valid_test_weighted_data
     data_prefix, data_impl, splits_string,
     train_valid_test_num_samples,
     seq_length, seed, skip_warmup)
+print("train_dataset", len(train_dataset))
+print("val_dataset", len(val_dataset))
+print(train_dataset[len(train_dataset)-1])
+import sys
+sys.exit(0)
 
 def collate_fn(batch):
     def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
