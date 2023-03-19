@@ -84,6 +84,7 @@ data_impl = 'mmap'
 splits_string = '9999,1'
 ## rebuilding if no npy files for train_valid_test_num_samples config
 ## suggested than preprocess before run
+## TODO: each split num of samples should be equal to the sum of all datasets of corresponding split
 train_valid_test_num_samples = [50225910, 4300]
 seq_length = 1024
 seed = 2023
