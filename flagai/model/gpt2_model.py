@@ -374,9 +374,12 @@ class GPT2Model(BaseModel):
             # ddp
             checkpoint = checkpoint["module"]
 
-        checkpoint = self.transpose_weight(checkpoint)
-
-        self.load_state_dict(checkpoint, strict=False)
+        # checkpoint = self.transpose_weight(checkpoint)
+        try:
+            self.load_state_dict(checkpoint, strict=False)
+        except RuntimeError:
+            checkpoint = self.transpose_weight(checkpoint)
+            self.load_state_dict(checkpoint, strict=False)
         return checkpoint
 
     def transpose_weight(self, checkponts):

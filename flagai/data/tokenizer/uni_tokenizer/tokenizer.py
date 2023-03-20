@@ -157,6 +157,19 @@ class Tokenizer(BaseTokenizer):
                     for i in range(1, add_sentinel_token):
                         self.add_command_token(f'MASK{i}', f'[MASK{i}]',self.tokenizer_class)
                         self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>',self.tokenizer_class)
+        if self.tokenizer_model_name.lower()=='gpt2-base-en':
+            self._command_tokens = [
+                CommandToken(
+                    'unk', '<|endoftext|>',
+                    self.text_tokenizer.convert_token_to_id('<|endoftext|>')),
+                CommandToken(
+                    'bos', '<|endoftext|>',
+                    self.text_tokenizer.convert_token_to_id('<|endoftext|>')),
+                CommandToken(
+                    'eos', '<|endoftext|>',
+                    self.text_tokenizer.convert_token_to_id('<|endoftext|>'))]
+            self.token_end_id = self.text_tokenizer.convert_token_to_id(
+                '<|endoftext|>')
         self.command_name_map = {tok.name: tok for tok in self._command_tokens}
         self.command_token_map = {
             tok.token: tok
@@ -439,6 +452,10 @@ class Tokenizer(BaseTokenizer):
                 pair_ids,
                 pop_index=-1,
             )
+        try:
+            self.get_command_id("cls")
+        except KeyError:
+            add_special_tokens = False
 
         if add_special_tokens:
             if pair_ids is not None:

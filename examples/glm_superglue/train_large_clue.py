@@ -1,4 +1,3 @@
-import sys;sys.path.append("/home/yanzhaodong/FlagAI")
 import torch
 from flagai.trainer import Trainer
 from flagai.model.glm_model import GLMForSequenceClassification

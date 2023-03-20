@@ -28,7 +28,10 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
     past_key_values = outputs["hidden_states"]
 
     logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-    logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+    try:
+        logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+    except KeyError:
+        pass
 
     filtered_logits = list_processor(token_ids, logit_score)
     next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
@@ -42,7 +45,10 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
             past_key_values = outputs["hidden_states"]
 
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+            try:
+                logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+            except KeyError:
+                pass
 
             filtered_logits = list_processor(token_ids, logit_score)
             next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
