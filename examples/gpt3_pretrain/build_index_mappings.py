@@ -51,6 +51,8 @@ class GPTDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         # Get the shuffled index.
+        print('GPTDataset name', self.name)
+        idx = idx % len(self)
         idx = self.shuffle_idx[idx]
         # Start and end documents and offsets.
         doc_index_f = self.sample_idx[idx][0]
@@ -209,9 +211,6 @@ class BlendableDataset(torch.utils.data.Dataset):
 
         self.datasets = datasets
         num_datasets = len(datasets)
-        print('weights', weights)
-        print('weights', len(weights))
-        print('train_datasets', len(datasets))
         assert num_datasets == len(weights)
 
         self.size = 0
@@ -300,7 +299,8 @@ def _build_train_valid_test_weighted_datasets(
     output = get_datasets_weights_and_num_samples(data_prefix,
                                                   train_valid_test_num_samples)
     prefixes, weights, datasets_train_valid_test_num_samples = output
-    print('prefixes', prefixes)
+    #print('prefixes', prefixes)
+    #print('datasets_train_valid_test_num_samples', datasets_train_valid_test_num_samples)
 
     # Build individual datasets.
     train_datasets = []
@@ -502,7 +502,81 @@ if __name__ == '__main__':
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
         seq_length, seed, skip_warmup)
-    print(len(train_dataset))
-    print(type(train_dataset))
-    print(train_dataset[0])
+    #print(len(train_dataset))
+    #print(len(valid_dataset))
+    #print(train_dataset[37735074])
+    #print(type(train_dataset))
+    #print(train_dataset[0])
+    '''
+    '''
+
+    '''
+    ### debug
+    data_prefix = '/home/ldwang/Downloads/pile/debug_text_document'
+    data_impl = 'mmap'
+    splits_string = '100,0'
+    train_valid_test_num_samples = [3, 0]
+    seq_length = 1024
+    seq_length = 256
+    seq_length = 380
+    seed = 2023
+    skip_warmup = True
+
+    ### wikitext_concat
+    data_prefix = '/home/ldwang/Downloads/pile/wikitext_concat_text_document'
+    data_impl = 'mmap'
+    splits_string = '10000,0'
+    train_valid_test_num_samples = [1, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = True
+
+    ### lambada_concat
+    data_prefix = '/home/ldwang/Downloads/pile/lambada_concat_text_document'
+    data_impl = 'mmap'
+    splits_string = '10000,0'
+    train_valid_test_num_samples = [1, 0]
+    seq_length = 1024
+    seed = 2023
+    skip_warmup = True
+
+    train_dataset, valid_dataset, _ = _build_train_valid_test_datasets(
+        data_prefix, data_impl, splits_string,
+        train_valid_test_num_samples,
+        seq_length, seed, skip_warmup)
+    print('len(train_dataset)', len(train_dataset))
+    for batch in train_dataset:
+        print('len batch', len(batch['input_ids']))
+        print('batch', batch['input_ids'])
+
+    '''
+
+    '''
+    import sys
+    assert len(sys.argv)>1
+
+    data_prefix = sys.argv[1]
+    data_impl = 'mmap'
+    # Indexed dataset.
+    dataset = get_indexed_dataset_(
+        data_prefix,
+        data_impl=data_impl,
+        skip_warmup=True)
+    total_num_of_documents = dataset.sizes.shape[0]
+
+    splits_string = '9999,1,0'
+    train_num_samples = int(total_num_of_documents*0.9999)
+    valid_num_samples = total_num_of_documents-train_num_samples
+    train_valid_test_num_samples = [train_num_samples, valid_num_samples, 0]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+
+    train_dataset, valid_dataset, _ = _build_train_valid_test_datasets(
+        data_prefix, data_impl, splits_string,
+        train_valid_test_num_samples,
+        seq_length, seed, skip_warmup)
+    print('len(train_dataset)', len(train_dataset))
+    print('last(train_dataset)', train_dataset[len(train_dataset)-1].keys())
+    '''
 
