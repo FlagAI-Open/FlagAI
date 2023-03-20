@@ -96,9 +96,9 @@ train_dataset, val_dataset, test_dataset = _build_train_valid_test_weighted_data
     seq_length, seed, skip_warmup)
 print("train_dataset", len(train_dataset))
 print("val_dataset", len(val_dataset))
-print(train_dataset[len(train_dataset)-1])
-import sys
-sys.exit(0)
+#print(train_dataset[len(train_dataset)-1])
+#print("train_dataset type", type(train_dataset))
+print(train_dataset[24981666])
 
 def collate_fn(batch):
     def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
@@ -116,6 +116,22 @@ def collate_fn(batch):
         "labels": input_ids
     }
     return data
+
+'''
+loader = torch.utils.data.DataLoader(
+    train_dataset,
+    batch_size=1,
+    sampler=None,
+    num_workers=4,
+    drop_last=False,
+    pin_memory=False,
+    prefetch_factor=4,
+    collate_fn=collate_fn)
+
+for iteration_, batch in enumerate(loader, 24981666):
+    print(f"step={iteration_}", flush=True)
+print("Ended loader")
+'''
 
 trainer.do_train(
     train_dataset=train_dataset,
