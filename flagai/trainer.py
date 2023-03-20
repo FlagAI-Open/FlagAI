@@ -335,9 +335,9 @@ class Trainer():
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
-                rank = mpu.get_model_parallel_src_rank()
+                rank = mpu.get_data_parallel_rank()
                 print("*"*80)
-                print("local rank",self.rank, "model rank", rank)
+                print("local rank",self.rank, "data parallel rank", rank)
                 print("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
