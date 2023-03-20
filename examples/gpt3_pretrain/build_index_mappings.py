@@ -51,7 +51,6 @@ class GPTDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         # Get the shuffled index.
-        print('GPTDataset name', self.name)
         idx = idx % len(self)
         idx = self.shuffle_idx[idx]
         # Start and end documents and offsets.
