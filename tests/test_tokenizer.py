@@ -4,11 +4,13 @@
 import unittest
 from flagai.data.tokenizer import Tokenizer
 from flagai.auto_model.auto_loader import AutoLoader
+import sys;sys.path.append("/home/yanzhaodong/FlagAI")
 
 class TokenizerTestCase(unittest.TestCase):
 
     def test_tokenizer_GLM_large_ch(self):
         tokenizer = Tokenizer.from_pretrained("GLM-large-ch")
+        import pdb;pdb.set_trace()
         self.assertEqual(tokenizer.TokenToId("人"), 43371, 'Token id "人" error')
         self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
                          [3378, 1567, 2613, 20282], 'EncodeAsIds Error')
@@ -19,12 +21,13 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.encode_plus('今天吃饭吃了肯德基')['input_ids'],
                          [50006, 3378, 1567, 2613, 20282, 50001], 'encode_plus Error')
         self.assertEqual(set([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()]),
-               {('pad', '<|endoftext|>', 50000), ('eos', '<|endoftext|>', 50000), ('sep', '[SEP]', 50001), 
-               ('cls', '[CLS]', 50002), ('mask', '[MASK]', 50003), ('unk', '[UNK]', 50004), ('sop', '<|startofpiece|>', 50006),
-                ('eop', '<|endofpiece|>', 50007), ('sMASK', '[sMASK]', 50008), ('gMASK', '[gMASK]', 50009)}, 'SpecialTokens error')
+               {('sop', '<|startofpiece|>', 50006), ('gMASK', '[gMASK]', 50007), ('pad', '<|endoftext|>', 50000), 
+               ('sep', '[SEP]', 50001), ('eos', '<|endoftext|>', 50000), ('unk', '[UNK]', 50004), ('sMASK', '[sMASK]', 50008), 
+               ('mask', '[MASK]', 50003), ('cls', '[CLS]', 50002), ('eop', '<|endofpiece|>', 50007)}, 'SpecialTokens error')
 
     def test_tokenizer_GLM_large_en(self):
         tokenizer = Tokenizer.from_pretrained("GLM-large-en")
+        import pdb;pdb.set_trace()
         self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
         self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
                          [13017, 7975, 3084, 2033, 3407], '')
@@ -50,6 +53,7 @@ class TokenizerTestCase(unittest.TestCase):
     
     def test_tokenizer_t5(self):
         tokenizer = Tokenizer.from_pretrained('T5-base-ch')
+        import pdb;pdb.set_trace()
         self.assertEqual(tokenizer.TokenToId("人"), 297, '')
         self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
                          [306, 1231, 798, 5447, 798, 266, 4017, 1738, 1166], '')
@@ -67,6 +71,7 @@ class TokenizerTestCase(unittest.TestCase):
         
     def test_tokenizer_roberta(self):
         tokenizer = Tokenizer.from_pretrained('RoBERTa-base-ch')
+        import pdb;pdb.set_trace()
         self.assertEqual(tokenizer.TokenToId("人"), 782, '')
         self.assertEqual(tokenizer.EncodeAsIds("今天吃饭吃了肯德基"),
                          [791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825], '')
@@ -82,6 +87,7 @@ class TokenizerTestCase(unittest.TestCase):
 
     def test_tokenizer_bert(self):
         tokenizer = Tokenizer.from_pretrained('BERT-base-en')
+        import pdb;pdb.set_trace()
         self.assertEqual(tokenizer.TokenToId("day"), 2154, '')
         self.assertEqual(tokenizer.EncodeAsIds("fried chicken makes me happy"),
                          [13017, 7975, 3084, 2033, 3407], '')
@@ -117,6 +123,7 @@ class TokenizerTestCase(unittest.TestCase):
 
     def test_tokenizer_opt(self):
         tokenizer = Tokenizer.from_pretrained('opt-1.3b-en')
+        import pdb;pdb.set_trace()
         self.assertEqual(tokenizer.encode("day"), [1208], '')
         self.assertEqual(tokenizer.encode_plus("fried chicken makes me happy")["input_ids"],
                          [0, 21209, 5884, 817, 162, 1372, 2], '')
