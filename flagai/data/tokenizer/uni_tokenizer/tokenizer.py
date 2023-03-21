@@ -55,7 +55,7 @@ class Tokenizer(BaseTokenizer):
                  special_tokens=['cls','pad','unk','eos','sep','mask'],
                  **kwargs):
         super().__init__(**kwargs)
-        
+
         if self.tokenizer_class == "wp":
             if self.tokenizer_model_name.lower().endswith("ch"):
                 self.text_tokenizer = WordpieceTokenizer(self.vocab_file,
@@ -94,9 +94,6 @@ class Tokenizer(BaseTokenizer):
         try:
             with open(self.special_tokens_map, encoding='utf8') as file: dct=json.load(file)
             sp_tokens = [(k.replace("_token",""),v['content']) for k,v in dct.items()]
-            self._command_tokens = []
-            for e in sp_tokens:
-                self.add_command_token(e[0],e[1],self.tokenizer_class)
         except FileNotFoundError:
             dct = None
             sp_tokens = []
@@ -104,7 +101,7 @@ class Tokenizer(BaseTokenizer):
                 res = self.search_special(tk)
                 if res:
                     sp_tokens += [(tk, res)]
-            self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
+        self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
         if self.tokenizer_model_name.lower().startswith("glm"):
             if self.tokenizer_class == "wp":
                 self.text_tokenizer._token_cls = "[CLS]"
@@ -157,19 +154,6 @@ class Tokenizer(BaseTokenizer):
                     for i in range(1, add_sentinel_token):
                         self.add_command_token(f'MASK{i}', f'[MASK{i}]',self.tokenizer_class)
                         self.add_command_token(f'sop{i}', f'<|startofpiece{i}|>',self.tokenizer_class)
-        if self.tokenizer_model_name.lower()=='gpt2-base-en':
-            self._command_tokens = [
-                CommandToken(
-                    'unk', '<|endoftext|>',
-                    self.text_tokenizer.convert_token_to_id('<|endoftext|>')),
-                CommandToken(
-                    'bos', '<|endoftext|>',
-                    self.text_tokenizer.convert_token_to_id('<|endoftext|>')),
-                CommandToken(
-                    'eos', '<|endoftext|>',
-                    self.text_tokenizer.convert_token_to_id('<|endoftext|>'))]
-            self.token_end_id = self.text_tokenizer.convert_token_to_id(
-                '<|endoftext|>')
         self.command_name_map = {tok.name: tok for tok in self._command_tokens}
         self.command_token_map = {
             tok.token: tok
@@ -452,10 +436,6 @@ class Tokenizer(BaseTokenizer):
                 pair_ids,
                 pop_index=-1,
             )
-        try:
-            self.get_command_id("cls")
-        except KeyError:
-            add_special_tokens = False
 
         if add_special_tokens:
             if pair_ids is not None:

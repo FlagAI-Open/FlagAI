@@ -30,7 +30,7 @@ trainer = Trainer(env_type='pytorchDDP',
                   training_script=__file__)
 
 model_name = "GLM-large-en"
-model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
+model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
                                              model_name=model_name)
 
 tokenizer = Tokenizer.from_pretrained(model_name)
