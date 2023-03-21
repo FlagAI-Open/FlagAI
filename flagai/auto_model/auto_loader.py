@@ -80,7 +80,6 @@ MODEL_DICT = {
     "glm-large-en": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "glm-large-en-generation": ["flagai.model.glm_model", "GLMModel", "glm", "nlp"],
     "gpt2-base-ch": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
-    "gpt2-base-en": ["flagai.model.gpt2_model", "GPT2Model", "gpt2", "nlp"],
     "cpm-large-ch": ["flagai.model.gpt2_model", "GPT2Model", "cpm", "nlp"],
     "opt-125m-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
     "opt-350m-en": ["flagai.model.opt_model", "OPTModel", "opt", "nlp"],
