@@ -23,5 +23,3 @@ out = predictor.predict_generate_randomsample(text,
                                               temperature=0.7
                                               )
 print(out)
-
-

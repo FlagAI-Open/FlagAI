@@ -38,7 +38,7 @@ class LMDataset(torch.utils.data.Dataset):
         self.left_weights = [0] + self.weights[:-1]
         self.unidirectional = args.unidirectional
         self.block_lm = args.block_lm
-        mask_token = "gMASK" if args.task_mask else 'MASK'
+        mask_token = "gMASK" if args.task_mask else 'mask'
         self.mask_id = self.tokenizer.get_command_id(mask_token)
 
     def __len__(self):
@@ -115,7 +115,7 @@ class LambadaDataset(torch.utils.data.Dataset):
         self.strict = strict
         self.block_lm = args.block_lm
         self.unidirectional = args.unidirectional
-        mask_token = "gMASK" if args.task_mask else 'MASK'
+        mask_token = "gMASK" if args.task_mask else 'mask'
         self.mask_id = self.tokenizer.get_command_id(mask_token)
 
         self.tokens = []

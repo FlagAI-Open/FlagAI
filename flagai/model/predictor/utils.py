@@ -1117,7 +1117,6 @@ def alm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=
     context_length = context_length_tensor[0].item()
     context_tokens_tensor = torch.LongTensor(context_tokens)
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
-
     start_time = time.time()
     mems = []
     tokens = context_tokens_tensor
@@ -1134,7 +1133,7 @@ def alm_beamsearch(model, tokenizer, text, out_max_length, beam_size, eod_token=
                                      dtype=torch.long)
     position_ids = torch.stack((position_ids, block_position_ids), dim=0)
     position_ids = position_ids.unsqueeze(0)
-    mask_tokens = ['MASK', 'sMASK', 'gMASK']
+    mask_tokens = ['mask', 'sMASK', 'gMASK']
     mask_tokens = [tokenizer.get_command_id(token) for token in mask_tokens]
     end_tokens = [tokenizer.get_command_id('eop'), eod_token]
     mask_positions = []
@@ -1426,7 +1425,7 @@ def glm_generate_sample(
     context_length = context_length_tensor[0].item()
     context_tokens_tensor = torch.LongTensor(context_tokens)
     text = tokenizer.DecodeIds(context_tokens_tensor.tolist())
-
+    
     start_time = time.time()
     mems = []
     tokens = context_tokens_tensor
@@ -1443,7 +1442,7 @@ def glm_generate_sample(
                                      dtype=torch.long)
     position_ids = torch.stack((position_ids, block_position_ids), dim=0)
     position_ids = position_ids.unsqueeze(0)
-    mask_tokens = ['MASK', 'sMASK', 'gMASK']
+    mask_tokens = ['mask', 'sMASK', 'gMASK']
     mask_tokens = [tokenizer.get_command_id(token) for token in mask_tokens]
     end_tokens = [tokenizer.get_command_id('eop'), eod_token]
     mask_positions = []

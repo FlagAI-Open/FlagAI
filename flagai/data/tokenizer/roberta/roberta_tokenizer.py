@@ -37,8 +37,8 @@ class ROBERTATokenizer(Tokenizer):
 
         self._command_tokens = [
             CommandToken('pad', '[PAD]', self.get_specialid_from_text_tokenizer('pad')),
-            CommandToken('ENC', '[CLS]', self.get_specialid_from_text_tokenizer('cls')),
-            CommandToken('MASK', '[MASK]',
+            CommandToken('cls', '[CLS]', self.get_specialid_from_text_tokenizer('cls')),
+            CommandToken('mask', '[MASK]',
                          self.get_specialid_from_text_tokenizer('mask')),
             CommandToken('unk', '[UNK]', self.get_specialid_from_text_tokenizer('unk')),
             CommandToken('sep', '[SEP]', self.get_specialid_from_text_tokenizer('sep')),

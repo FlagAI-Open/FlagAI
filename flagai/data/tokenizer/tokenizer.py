@@ -54,7 +54,7 @@ DEFAULT_COMMAND_TOKENS = [
     ('sep', 4),
     ('L2R', 5),
     ('cls', 6),
-    ('MASK', 7),
+    ('mask', 7),
 ]
 DEFAULT_COMMAND_TOKENS = prep_command_tokens(DEFAULT_COMMAND_TOKENS)
 """define some default type tokens for bert training"""
@@ -457,8 +457,12 @@ class Tokenizer(object):
         """A list of tokens => recovered text string"""
         return self.text_tokenizer.convert_tokens_to_string(tokens)
 
+    def convert_tokens_to_ids(self, tokens):
+        return self.text_tokenizer.convert_tokens_to_ids(tokens)
 
-# class BaseTokenizer(object):
+    def convert_ids_to_tokens(self, ids):
+        return self.text_tokenizer.convert_ids_to_tokens(ids)
+
 
 class TextTokenizer(object):
     """

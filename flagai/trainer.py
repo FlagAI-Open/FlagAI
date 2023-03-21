@@ -162,6 +162,7 @@ class Trainer():
         deepspeed_config=None,
         model_parallel_size=1,
         training_script="train.py",
+        optimizer_type='adam',
     ):
 
         if timers is not None:
@@ -187,6 +188,8 @@ class Trainer():
         self.log_interval = log_interval
         self.eval_interval = eval_interval
         self.tokenizer = tokenizer
+
+        self.optimizer_type = optimizer_type
 
         # model checkpointing
         self.save_dir = save_dir
@@ -340,13 +343,14 @@ class Trainer():
                 # rank = self.rank // mpu.get_model_parallel_world_size()
                 # rank = mpu.get_model_parallel_rank()
                 rank = mpu.get_model_parallel_src_rank()
-                print("*"*80)
-                print("local rank",self.rank, "model rank", rank)
-                print("*"*80)
+                data_rank = mpu.get_data_parallel_rank()
+                log_dist("*"*80)
+                log_dist(f"local rank {self.rank} src rank  {rank} data rank {data_rank}")
+                log_dist("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
-                    # num_replicas=num_replicas,
-                    rank=rank,
+                    num_replicas=self.world_size//self.model_parallel_size,
+                    rank=data_rank,
                     shuffle=shuffle)
             elif self.env_type == 'bmtrain':
                 print("*"*80)
@@ -491,6 +495,7 @@ class Trainer():
                     optimizer='adam')  # if not self.fp16 else 'adafactor')
 
         self.total_iter = int(self.epochs * len(train_dataloader))
+
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
                 ## lr_scheduler.step with optim_manager.step
@@ -1067,7 +1072,6 @@ class Trainer():
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
-                loss_mask = data_iterator['loss_mask']
                 if len(self.metric_methods) != 0:
                     if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
                         batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()

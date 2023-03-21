@@ -7,7 +7,7 @@ from flagai.model.predictor.predictor import Predictor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_dir = "./state_dict"
+model_dir = "./checkpoints"
 
 # Note "./checkpoints_seq2seq/{}/mp_rank_00_model_states.pt", {} is a directory in the checkpoints_seq2seq.
 model_save_path = "./checkpoints_seq2seq/10/mp_rank_00_model_states.pt"

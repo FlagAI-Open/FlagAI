@@ -69,7 +69,7 @@ train_data = load_data(train_path)
 val_data = load_data(valid_path)
 test_data = load_data(test_path)
 
-print(f"trian_data is {len(train_data)}")
+print(f"train_data is {len(train_data)}")
 print(f"val_data is {len(val_data)}")
 print(f"test_data is {len(test_data)}")
 print(f"target is {target}")

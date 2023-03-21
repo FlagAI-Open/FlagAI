@@ -10,7 +10,6 @@ from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.utils import normal_init_method
 from flagai.model.base_model import BaseModel
 import torch.nn.functional as F
-
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.utils import divide
     from flagai.mpu.random import checkpoint
@@ -124,6 +123,7 @@ class GPT2Stack(nn.Module):
             GPT2Block(config.n_ctx, config, scale=True)
             for _ in range(config.n_layer)
         ])
+
         self.ln_f = nn.LayerNorm(config.n_embd,
                                  eps=config.layer_norm_epsilon)
         self.device_map = None
@@ -300,6 +300,7 @@ class GPT2Model(BaseModel):
                                  config_gpt.vocab_size,
                                  bias=False)
         init_method(self.lm_head.weight)
+
 
     def _make_causal_mask(self, input_ids):
         device = input_ids.device
