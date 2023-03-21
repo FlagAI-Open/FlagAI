@@ -980,6 +980,7 @@ class Trainer():
             all_logits = []
             all_labels = []
             all_losses = []
+            prev = False
             for data_iterator in data_loader:
                 # Forward evaluation.
                 meta = data_iterator.get('meta', None)
@@ -1020,8 +1021,9 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
-                        if logits.size(0) != 1:
-                            logits = torch.argmax(logits, dim=1).unsqueeze(0)
+                        if prev or logits.size(0) != 1:
+                            logits = torch.argmax(logits, dim=1)
+                            prev = True
                         all_logits.append(logits)
                         all_labels.append(labels)
                         pass

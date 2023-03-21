@@ -21,6 +21,7 @@
 本项目的部分代码基于[GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 ## 动态
+- [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266); 
 - [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
 - [12 Jan 2023] 发布v1.6.0版本, 新增支持并行训练库 [**BMTrain**](https://github.com/OpenBMB/BMTrain) 以及集成 [**Flash Attention**](https://github.com/HazyResearch/flash-attention) 到 Bert 和 Vit 模型提速端到端训练, 示例见 [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py)和 [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). 同时增加了基于对比搜索的文本生成方法 [**SimCTG**](https://github.com/yxuansu/SimCTG) 以及基于 AltDiffusion 进行 DreamBooth 个性化微调, 示例见 [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
 - [28 Nov 2022] 发布v1.5.0版本, 支持1.1B参数的 [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) 以及[ALM: 基于GLM的阿拉伯语大模型], 示例见[**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
