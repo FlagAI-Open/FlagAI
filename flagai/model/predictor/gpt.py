@@ -7,11 +7,8 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
                       top_k, top_p, repetition_penalty, temperature, device):
     tokenizer_out = tokenizer.encode_plus(text, max_length=input_max_length)
     token_ids = tokenizer_out["input_ids"]
-
-    token_end_id = tokenizer.get_command_id('sep')
-    token_eos_id = tokenizer.get_command_id('eos')
-    removed_tokens = [token_end_id, token_eos_id]
-    while len(token_ids)>0 and token_ids[-1] in removed_tokens:
+    token_end_id = tokenizer.token_end_id
+    if token_ids[-1] == token_end_id:
         token_ids = token_ids[:-1]
 
     lp = [
@@ -31,13 +28,14 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
     past_key_values = outputs["hidden_states"]
 
     logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-    logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+    try:
+        logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+    except KeyError:
+        pass
 
     filtered_logits = list_processor(token_ids, logit_score)
     next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
                                    num_samples=1)
-    # ldwang
-    output_ids.append(next_token.item())
     token_ids = torch.cat([token_ids, next_token.long()], dim=1)
 
     with torch.no_grad():
@@ -47,7 +45,10 @@ def gpt_random_sample_use_cache(model, tokenizer, text, input_max_length, out_ma
             past_key_values = outputs["hidden_states"]
 
             logit_score = torch.log_softmax(scores[:, -1], dim=-1)
-            logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+            try:
+                logit_score[:, tokenizer.get_command_id('unk')] = -float('Inf')
+            except KeyError:
+                pass
 
             filtered_logits = list_processor(token_ids, logit_score)
             next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1),
