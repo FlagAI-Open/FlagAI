@@ -1,5 +1,5 @@
 {
-  "bos_token": "<|endoftext|>",
-  "eos_token": "<|endoftext|>",
-  "unk_token": "<|endoftext|>"
+	"cls_token": {"content": "[CLS]", "single_word": false, "lstrip": false, "rstrip": false, "normalized": true},
+	"sep_token": {"content": "</s>", "single_word": false, "lstrip": false, "rstrip": false, "normalized": true}
+
 }
