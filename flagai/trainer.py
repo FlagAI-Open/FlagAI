@@ -35,6 +35,9 @@ from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from flagai.fp16 import DynamicLossScaler
 
+# TODO
+# torch.autograd.set_detect_anomaly(True)
+
 """
 The Trainer class, to easily train a pytorh model on a new task.
 """
@@ -226,7 +229,7 @@ class Trainer():
             # Otherwise, the lanch_dist() is called to launch 'train.py' with `--not_call_launch`
             if not self.not_call_launch:
                 launch_dist(launcher='distributed_deepspeed' if 'deepspeed'
-                            in env_type else 'distributed_torch',
+                            in self.env_type else 'distributed_torch',
                             num_nodes=self.num_nodes,
                             gpus_per_node=self.num_gpus,
                             master_addr=self.master_ip,
@@ -335,6 +338,10 @@ class Trainer():
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
+                # num_replicas = self.world_size // mpu.get_model_parallel_world_size(
+                # )
+                # rank = self.rank // mpu.get_model_parallel_world_size()
+                # rank = mpu.get_model_parallel_rank()
                 rank = mpu.get_model_parallel_src_rank()
                 data_rank = mpu.get_data_parallel_rank()
                 log_dist("*"*80)
@@ -431,6 +438,7 @@ class Trainer():
                                  load_type=self.load_type)
         """Train the model."""
         # Turn on training mode which enables dropout.
+        model.train()
         if self.fp16 and self.env_type == 'pytorchDDP':
             log_dist(
                 "Warning: The pytorchDDP plus FP16 may not working togather!!!"
@@ -450,10 +458,14 @@ class Trainer():
         elif self.env_type == 'pytorch':
             model.to(self.pytorch_device)
         elif self.env_type == 'bmtrain':
+            print('*'*20, 'model', model, __file__)
             model = bmt.BMTrainModelWrapper(model)
+            print('*'*20, 'BMTrainModelWrapper model', model, __file__)
         else:
             model.cuda(torch.device('cuda', self.local_rank))
-        if self.fp16:
+        
+        # TODO
+        if self.fp16 and self.env_type != 'bmtrain':
             model = FP16_Module(model)
 
         param_groups = get_optimizer_param_groups(model)
@@ -463,35 +475,42 @@ class Trainer():
             param_groups = param_groups[0]['params']
 
         if optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
-            # if self.env_type == 'bmtrain':
-            #     optimizer = bmt.optim.AdamOptimizer(model.parameters(), 
-            #                                    weight_decay=self.weight_decay, lr=5e-6)
-            #     # optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
-            # else:
-            optimizer = get_optimizer(
-                param_groups=param_groups,
-                lr=self.lr,
-                weight_decay=self.weight_decay,
-                cpu_optimizer=False,
-                cpu_torch_adam=False,
-                fp16=self.fp16,
-                optimizer=self.optimizer_type)  # if not self.fp16 else 'adafactor')
+            if self.env_type == 'bmtrain':
+                optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                                                    weight_decay=self.weight_decay,
+                                                    lr=self.lr)
+                '''
+                optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                                                           weight_decay=self.weight_decay,
+                                                           lr=self.lr)
+                '''
+            else:
+                optimizer = get_optimizer(
+                    param_groups=param_groups,
+                    lr=self.lr,
+                    weight_decay=self.weight_decay,
+                    cpu_optimizer=False,
+                    cpu_torch_adam=False,
+                    fp16=self.fp16,
+                    optimizer='adam')  # if not self.fp16 else 'adafactor')
+
+        self.total_iter = int(self.epochs * len(train_dataloader))
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
-                lr_scheduler = bmt.lr_scheduler.Noam(optimizer,
-                                                    start_lr =self.lr, 
-                                                    warmup_iter =int(self.warm_up * self.epochs * len(train_dataloader)),
-                                                    end_iter = self.epochs * len(train_dataloader)
-                                                )
+                ## lr_scheduler.step with optim_manager.step
+                lr_scheduler = bmt.lr_scheduler.Noam(
+                    optimizer,
+                    start_lr=self.lr, 
+                    warmup_iter=int(self.warm_up * self.total_iter / self.gradient_accumulation_steps),
+                    end_iter=int(self.total_iter / self.gradient_accumulation_steps))
             else:
                 lr_scheduler = AnnealingLR(
                     optimizer,
                     start_lr=self.lr,
-                    warmup_iter=int(self.warm_up * self.epochs *
-                                    len(train_dataloader)),
+                    warmup_iter=int(self.warm_up * self.total_iter),
                     decay_style='linear',
-                    num_iters=self.epochs * len(train_dataloader))
+                    num_iters=self.total_iter)
 
         if  self.env_type == 'bmtrain':
             bmt.synchronize()
@@ -513,6 +532,12 @@ class Trainer():
             load_optim(optimizer, lr_scheduler, sd)
         if self.load_rng:
             load_rng(sd)
+
+        ## Needed global optim_manager
+        if self.env_type == 'bmtrain':
+            optim_manager = bmt.optim.OptimManager(loss_scale=1024*1024)
+            optim_manager.add_optimizer(self.optimizer, lr_scheduler)
+
         # Tracking loss.
         total_lm_loss = 0.0
         self.iteration = 0
@@ -527,6 +552,7 @@ class Trainer():
         best_score = float('inf')
         if len(self.metric_methods) > 0:
             best_score = -best_score
+
         for epoch in range(self.epochs):
             print("epoch "+str(epoch))
             if self.env_type != 'pytorch':
@@ -534,6 +560,10 @@ class Trainer():
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
+                # print('*'*20, 'batch keys', batch.keys())
+                if 'input_ids' in batch:
+                    print('*'*20, 'batch input_ids', batch['input_ids'].size())
+                # print('*'*20, 'batch labels', batch['labels'].size())
                 # Train for one step.
                 if 'pytorch' != self.env_type:
                     batch = {
@@ -556,7 +586,7 @@ class Trainer():
                 
                 elif self.env_type == 'bmtrain':
                     lm_loss, _ = self.train_step_bmtrain(
-                        batch, model, optimizer, lr_scheduler)
+                        batch, model, optim_manager)
 
                 else:
                     lm_loss, _ = self.train_step_deepspeed(batch,
@@ -582,11 +612,15 @@ class Trainer():
                     else:
                         avg_lm_loss = total_lm_loss.item() / self.log_interval
                     elapsed_time = self.timers('interval time').elapsed()
+
+                    # TODO
+                    avg_lm_loss *= self.gradient_accumulation_steps
                     self.report_iteration_metrics(
                         optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,
                         self.iteration + 1,
-                        self.epochs * len(train_dataloader))
+                        self.total_iter,
+                        optimizer_manager=optim_manager if self.env_type == 'bmtrain' else None)
                     self.tb_writer.add_scalar('train/loss', avg_lm_loss,
                                               self.iteration + 1)
                     self.tb_writer.add_scalar('lr', learning_rate,
@@ -734,6 +768,7 @@ class Trainer():
             # accumulate gradients
             lm_loss = step_output['loss']
             lm_loss /= self.gradient_accumulation_steps
+            lm_loss = lm_loss / self.gradient_accumulation_steps
             # reduce sum of losses
             reduced_loss = lm_loss.detach().clone().view(1)
             # dist.all_reduce(reduced_loss.data)
@@ -836,31 +871,54 @@ class Trainer():
         return reduced_loss, mems
     
     def train_step_bmtrain(self,
-                             data,
-                             model,
-                             optimizer,
-                             lr_scheduler,
-                             mems=None,
-                             single_step=False): #bmt has loss scale, which need to be checked repetition
+                           data,
+                           model,
+                           optim_manager,
+                           mems=None,
+                           single_step=False):
         """Single training step."""
-        optim_manager = bmt.optim.OptimManager(loss_scale=1024)
-        optim_manager.add_optimizer(optimizer, lr_scheduler)
-        optim_manager.zero_grad()
+
+        # Forward model for one step.
         self.timers('forward').start()
-        model_output = model(**data)
+        model_output = self.forward_step(data, model, mems)
         self.timers('forward').stop()
+
+        # accumulate gradients
         logits = model_output['logits']
         loss = model_output['loss']
-        lm_loss = bmt.sum_loss(loss).item()
-        self.timers('backward').start()
-        try:
+
+        lm_loss = bmt.sum_loss(loss)
+        lm_loss /= self.gradient_accumulation_steps
+        reduced_loss = lm_loss.detach().clone().view(1)
+
+        # skip the iter while loss has NAN
+        if not DynamicLossScaler._has_inf_or_nan(reduced_loss):
+            # Calculate gradients, reduce across processes, and clip.
+            self.timers('backward').start()
             optim_manager.backward(loss)
-        except:
-            loss.backward()
-        self.timers('backward').stop()
-        self.timers('optimizer').start()
-        optim_manager.step()
-        self.timers('optimizer').stop()
+            
+            grad_norm = optim_manager.clip_grad_norm(optim_manager.optimizers[0].param_groups, max_norm=1.0)
+            self.timers('backward').stop()
+
+            # Update parameters.
+            self.timers('optimizer').start()
+            if (self.accumulate_count +
+                    1) % self.gradient_accumulation_steps == 0:
+                optim_manager.step()
+                optim_manager.zero_grad()
+                self.accumulate_count = 0
+            else:
+                self.accumulate_count += 1
+
+            self.timers('optimizer').stop()
+
+        else:
+            log_dist("Found NaN loss, skip backward", [0])
+            del lm_loss, reduced_loss
+            mems = None
+            reduced_loss = None
+            lm_loss = None
+
         return lm_loss, mems
 
     def forward_step(self, data, model, mems=None):
@@ -982,6 +1040,7 @@ class Trainer():
             all_losses = []
             for data_iterator in data_loader:
                 # Forward evaluation.
+
                 meta = data_iterator.get('meta', None)
 
                 if 'deepspeed' in self.env_type or 'DDP' in self.env_type:
@@ -1070,17 +1129,23 @@ class Trainer():
         return metric_dct
 
     def report_iteration_metrics(self, optimizer, lr, loss, elapsed_time, step,
-                                 total_step):
+                                 total_step, optimizer_manager=None):
         log_string = ' iteration {:8d}/{:8d} |'.format(step, total_step)
         log_string += ' elapsed time per iteration (ms): {:.1f} |'.format(
             elapsed_time)
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
-        if self.fp16:
+
+        # when bmtrain, optimizer is optimizer_manager
+        if self.fp16 and 'bmtrain' in self.env_type:
+            log_string += ' loss scale {:.1f} |'.format(
+                optimizer_manager.loss_scale)
+        elif self.fp16:
             log_string += ' loss scale {:.1f} |'.format(
                 optimizer.cur_scale if 'deepspeed' in self.env_type else
                 hasattr(optimizer, 'loss_scale') and optimizer.loss_scale)
         # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
+
         log_dist(log_string, [0])
 
     def report_evaluate_metrics(self, prefix, loss, ppl, gpt_loss, bert_loss,

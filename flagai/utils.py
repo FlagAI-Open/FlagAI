@@ -166,7 +166,8 @@ def save_checkpoint(iteration,
                     save_dir='checkpoints',
                     only_changed_parameters=False,
                     save_optim=True,
-                    save_rng=True):
+                    save_rng=True,
+                    iteration_in_epoch=0):
     """Save a model checkpoint."""
     env_type = os.getenv('ENV_TYPE')
     # Only rank zer0 of the data parallel writes to the disk.
@@ -175,6 +176,7 @@ def save_checkpoint(iteration,
         'global rank {} is saving checkpoint at iteration {:7d} to {}'.format(
             0, iteration, checkpoint_name))
     sd = {'iteration': iteration}
+    sd = {'iteration_in_epoch': iteration_in_epoch}
 
     # model state_dict
     while hasattr(model, 'module'): 
@@ -194,6 +196,9 @@ def save_checkpoint(iteration,
     # Optimizer stuff.
     if save_optim:
         if optimizer is not None:
+            # delete fp16 temporary states
+            if 'state' in sd['optimizer'] and '_param_fp32' in sd['optimizer']['state']:
+                del sd['optimizer']['state']['_param_fp32']
             sd['optimizer'] = optimizer.state_dict()
         if lr_scheduler is not None:
             sd['lr_scheduler'] = lr_scheduler.state_dict()
