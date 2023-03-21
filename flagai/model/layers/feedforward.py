@@ -46,12 +46,12 @@ def _initialize_affine_weight(weight,
         if return_master_weight:
             return weight
         return None
-
+    device = weight.device
     # Initialize master weight
     master_weight = torch.empty(output_size,
                                 input_size,
                                 dtype=weight.dtype,
-                                requires_grad=False)
+                                requires_grad=False,device=device)
     init_method(master_weight)
 
     # Split and copy
@@ -61,7 +61,6 @@ def _initialize_affine_weight(weight,
                               dim=partition_dim)
     rank = get_model_parallel_rank()
     my_weight_list = weight_list[rank::world_size]
-
     with torch.no_grad():
         torch.cat(my_weight_list, dim=partition_dim, out=weight)
     if return_master_weight:

@@ -12,6 +12,7 @@ from flagai.model.layers.feedforward import RowParallelLinear, ColumnParallelLin
 from flagai.model.layers.embeddings import ParallelEmbedding
 import os 
 from flagai.model.base_model import BaseModel 
+from flagai.logger import log_dist
 from flagai.mpu import get_model_parallel_world_size
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.utils import divide
@@ -186,13 +187,13 @@ class FeedForward(nn.Module):
         hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             self.w1 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False,init_method=normal_init_method
+                dim, hidden_dim, bias=False, gather_output=False,init_method=lambda x: x
             )
             self.w2 = RowParallelLinear(
-                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=normal_init_method
+                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=lambda x: x
             )
             self.w3 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method
+                dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
             )
         else:
             self.w1 = nn.Linear(dim, hidden_dim, bias=False)
@@ -255,7 +256,6 @@ class LLAMA(BaseModel):
         self.tok_embeddings = ParallelEmbedding(
             params.vocab_size, params.dim 
         )
-        from flagai.logger import log_dist
         log_dist(f"self.tok_embeddings, {self.tok_embeddings.weight}")
     
         self.layers = torch.nn.ModuleList()

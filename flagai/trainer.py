@@ -342,7 +342,7 @@ class Trainer():
                 log_dist("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
-                    # num_replicas=num_replicas,
+                    num_replicas=self.world_size//self.model_parallel_size,
                     rank=data_rank,
                     shuffle=shuffle)
             elif self.env_type == 'bmtrain':
