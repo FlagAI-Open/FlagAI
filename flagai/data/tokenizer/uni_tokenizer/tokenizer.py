@@ -55,7 +55,7 @@ class Tokenizer(BaseTokenizer):
                  special_tokens=['cls','pad','unk','eos','sep','mask'],
                  **kwargs):
         super().__init__(**kwargs)
-        
+
         if self.tokenizer_class == "wp":
             if self.tokenizer_model_name.lower().endswith("ch"):
                 self.text_tokenizer = WordpieceTokenizer(self.vocab_file,
@@ -86,7 +86,6 @@ class Tokenizer(BaseTokenizer):
         self.is_glm = self.tokenizer_model_name.lower().startswith('glm')
         # self.is_clip = self.tokenizer_model_name.startswith('clip')
         self.num_tokens = self.text_tokenizer.vocab_size
-
                     
             # self._command_tokens = [CommandToken(e[0], e[1], self.text_tokenizer.convert_token_to_id(e[1])) for e in sp_tokens]
         if self.tokenizer_class == "wp":
@@ -124,6 +123,7 @@ class Tokenizer(BaseTokenizer):
                 #     '[SEP]')
                 self.token_pad_id = self.text_tokenizer.convert_token_to_id(
                     '[PAD]')
+
                 self.text_tokenizer._token_cls = "[CLS]"
                 self.text_tokenizer._token_sep = "[SEP]"
 
@@ -372,8 +372,6 @@ class Tokenizer(BaseTokenizer):
                 if tk not in self.command_name_map:
                     res = self.search_special(tk)
                     self.add_command_token(tk, res,self.tokenizer_class)
-
-
 
         self.command_name_map = {tok.name: tok for tok in self._command_tokens}
         self.command_token_map = {
@@ -661,10 +659,6 @@ class Tokenizer(BaseTokenizer):
                 pair_ids,
                 pop_index=-1,
             )
-        try:
-            self.get_command_id("cls")
-        except KeyError:
-            add_special_tokens = False
 
         if add_special_tokens:
             if pair_ids is not None:

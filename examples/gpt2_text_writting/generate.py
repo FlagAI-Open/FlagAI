@@ -6,13 +6,18 @@ from flagai.model.predictor.predictor import Predictor
 
 if __name__ == '__main__':
     loader = AutoLoader("seq2seq",
-                        "GPT2-base-ch",
-                        model_dir="./checkpoints/")
+                        "gpm-xl",
+                        model_dir="./")
     model = loader.get_model()
+    model.cuda()
     tokenizer = loader.get_tokenizer()
     predictor = Predictor(model, tokenizer)
 
-    text = "今天天气不错"
+    text = "Hollym Gate railway station"
+    text = "Molly Henderson Molly Henderson (born September 14, 1953) is a former Commissioner of Lancaster County, Pennsylvania. The Commissioners are"
+    text = "Major League Baseball All-Century Team In 1999, the Major League Baseball"
+
+    print(f"inp is {text}")
 
     out_1 = predictor.predict_generate_beamsearch(text,
                                                   beam_size=5,

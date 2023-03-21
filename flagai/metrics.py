@@ -17,7 +17,7 @@ def sigmoid(x):
     return sig
 
 
-def accuracy_metric(predictions, labels, meta=None, tokenizer=None):
+def accuracy_metric(predictions, labels, meta=None):
     '''
     predictions: torch.size(n, class_num)
     labels: torch.size(n)
@@ -28,11 +28,9 @@ def accuracy_metric(predictions, labels, meta=None, tokenizer=None):
         predictions = torch.argmax(predictions, dim=-1)
         for prediction, label in zip(predictions, labels):
             count += prediction == label
-    elif predictions.ndim == 1:
-        for prediction, label in zip(predictions, labels):
-            count += prediction == label        
     else:
         prediction, label = predictions[0], labels[0]
+        
         if sigmoid(prediction) >= 0.5:
             count += label == 1
         else:
@@ -76,15 +74,16 @@ def rouge_metric(predictions, labels, meta=None, tokenizer=None, metric="rouge-1
     scores = sum(scores) / len(scores)
     return scores
     
-def f1_metric(predictions, labels, meta=None, tokenizer=None):
-    pred = predictions.cpu()
+def f1_metric(predictions, labels, meta=None):
+    pred = torch.argmax(predictions, dim=-1).cpu()
     labels = labels.cpu()
     if torch.equal(pred, labels):
         return 1.0
     return f1_score(labels, pred)
 
-def f1_macro_metric(predictions, labels, meta=None, tokenizer=None):
-    pred = predictions.cpu()
+
+def f1_macro_metric(predictions, labels, meta=None):
+    pred = torch.argmax(predictions, dim=-1).cpu()
     labels = labels.cpu()
     if torch.equal(pred, labels):
         return 1.0

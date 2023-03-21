@@ -42,6 +42,11 @@ class BlockDataset(Dataset):
         self.filter_english = filter_english
         self.weighting, self.total_len = None, None
         self.is_lazy = False
+        # if self.filter_english:
+        #     import fasttext
+        #     self.model = fasttext.load_model('/mnt/lid.176.bin')
+        #     if torch.cuda.is_available():
+        #         print_rank_0("Load language detection model")
         if hasattr(self.ds, 'is_lazy') and self.ds.is_lazy:
             self.is_lazy = True
         self.init_weighting()
