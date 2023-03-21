@@ -324,8 +324,9 @@ class CheckpointFunction(torch.autograd.Function):
             ]
             inputs.append(args[-1])
 
-        #just in case something funky is happening such as reuse of inputs
-        inputs_cuda = [item.to(cuda_device) for item in args]
+        #just in case something funky is happening such as reuse of inputs        
+        inputs_cuda = [item.to(cuda_device) for item in args ]
+    
 
         # Copy the rng states.
         ctx.fwd_cpu_rng_state = torch.get_rng_state()

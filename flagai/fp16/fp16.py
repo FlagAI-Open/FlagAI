@@ -187,7 +187,7 @@ class FP16_Optimizer(object):
     def __init__(self,
                  init_optimizer,
                  static_loss_scale=1.0,
-                 dynamic_loss_scale=False,
+                 dynamic_loss_scale=True,
                  dynamic_loss_args=None,
                  verbose=False):
         if not torch.cuda.is_available:

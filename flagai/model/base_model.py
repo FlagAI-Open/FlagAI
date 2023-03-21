@@ -207,7 +207,7 @@ class BaseModel(Module):
                         os.path.join(download_path, "pytorch_model.bin"))
         if os.path.exists(yaml_path):
             return load_diffusion_local(yaml_path,only_download_config=only_download_config)
-        return load_local(checkpoint_path)
+        return load_local(checkpoint_path, only_download_config=only_download_config)
 
     @classmethod
     def download(cls,
@@ -224,7 +224,7 @@ class BaseModel(Module):
             model_files = eval(_get_model_files(model_name))
             print("model files:" + str(model_files))
             for file_name in model_files:
-                if not file_name.endswith("bin"):
+                if not file_name.endswith("bin") and not file_name.endswith("pth"):
                     _get_vocab_path(os.path.join(download_path, model_name), file_name, model_id)
                 else :
                     _get_checkpoint_path(os.path.join(download_path, model_name), file_name, model_id)
