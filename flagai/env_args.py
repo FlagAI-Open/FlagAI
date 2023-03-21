@@ -25,10 +25,8 @@ class EnvArgs:
                  clip_grad=1.0,
                  checkpoint_activations=False,
                  gradient_accumulation_steps=1,
-
                  weight_decay=1e-5,
                  warm_up=0.1,
-                 warm_up_iters=0,
 
                  log_interval=100,
                  eval_interval=1000,
@@ -42,12 +40,6 @@ class EnvArgs:
                  load_optim=False,  # not load optimizer when loading checkpoint.')
                  load_rng=False,
                  tensorboard_dir="tensorboard_summary",
-                 tensorboard=False,
-                 wandb=True,
-                 wandb_dir=None,
-                 wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
-                 already_fp16=False,
-                 resume_dataset=False,
 
                  # distribute settings
                  deepspeed_activation_checkpointing=False,
@@ -60,10 +52,6 @@ class EnvArgs:
                  deepspeed_config="./deepspeed.json",
                  model_parallel_size=1,
                  training_script="train.py",
-
-                 ## TODO optim
-                 adam_beta1=0.9,
-                 adam_beta2=0.999,
                  ):
 
         self.parser = argparse.ArgumentParser(description='Env args parser')
@@ -80,7 +68,6 @@ class EnvArgs:
         self.parser.add_argument('--gradient_accumulation_steps', default=gradient_accumulation_steps, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--weight_decay', default=weight_decay, type=float, help='start training from saved checkpoint')
         self.parser.add_argument('--warm_up', default=warm_up, type=float, help='start training from saved checkpoint')
-        self.parser.add_argument('--warm_up_iters', default=warm_up_iters, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--log_interval', default=log_interval, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--eval_interval', default=eval_interval, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--save_interval', default=save_interval, type=int, help='start training from saved checkpoint')
@@ -88,10 +75,9 @@ class EnvArgs:
         self.parser.add_argument('--load_dir', default=load_dir, help='start training from saved checkpoint')
         self.parser.add_argument('--save_optim', default=save_optim, type=str2bool, help='start training from saved checkpoint')
         self.parser.add_argument('--save_rng', default=save_rng, type=str2bool,help='start training from saved checkpoint')
-        self.parser.add_argument('--load_type', default=load_type, type=str,help='start training from saved checkpoint')
+        self.parser.add_argument('--load_type', default=load_type, type=str2bool,help='start training from saved checkpoint')
         self.parser.add_argument('--load_optim', default=load_optim, type=str2bool,help='start training from saved checkpoint')
         self.parser.add_argument('--load_rng', default=load_rng, type=str2bool, help='start training from saved checkpoint')
-        self.parser.add_argument('--tensorboard', default=tensorboard, type=str2bool, help='start training from saved checkpoint')
         self.parser.add_argument('--tensorboard_dir', default=tensorboard_dir, help='start training from saved checkpoint')
         self.parser.add_argument('--deepspeed_activation_checkpointing', default=deepspeed_activation_checkpointing, help='start training from saved checkpoint')
         self.parser.add_argument('--num_checkpoints', default=num_checkpoints, help='start training from saved checkpoint')
@@ -106,17 +92,6 @@ class EnvArgs:
         self.parser.add_argument('--num_gpus', default=num_gpus, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--not_call_launch', action="store_true", help='start training from saved checkpoint')
         self.parser.add_argument('--local_rank', default=0, type=int, help='start training from saved checkpoint')
-
-        self.parser.add_argument('--wandb', default=wandb, type=str2bool, help='whether to use wandb')
-        self.parser.add_argument('--wandb_dir', default=wandb_dir, type=str, help='wandb directory')
-        self.parser.add_argument('--wandb_key', default=wandb_key, type=str, help='wandb key')
-
-        self.parser.add_argument('--already_fp16', default=already_fp16, type=str2bool, help='whether already_fp16')
-
-        self.parser.add_argument('--resume_dataset', default=resume_dataset, type=str2bool, help='whether to resume dataset')
-
-        self.parser.add_argument('--adam_beta1', default=adam_beta1, type=float, help='adam beta1')
-        self.parser.add_argument('--adam_beta2', default=adam_beta2, type=float, help='adam beta2')
 
     def add_arg(self, arg_name, default=None, type=str, help="", store_true=False):
         if store_true:
