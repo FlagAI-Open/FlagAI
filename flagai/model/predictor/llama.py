@@ -11,22 +11,22 @@ def llama_generate(
         top_p: float = 0.95,
     ) -> List[str]:
         bsz = len(prompts)
-
-        prompt_tokens = [tokenizer.encode(x, bos=True, eos=False) for x in prompts]
+        prompt_tokens = [torch.LongTensor(tokenizer.encode(x)) for x in prompts]
 
         min_prompt_size = min([len(t) for t in prompt_tokens])
         max_prompt_size = max([len(t) for t in prompt_tokens])
 
         total_len = min(2048, max_gen_len + max_prompt_size)
 
-        tokens = torch.full((bsz, total_len), tokenizer.pad_id).cuda().long()
+        tokens = torch.full((bsz, total_len), 0).cuda().long()
         for k, t in enumerate(prompt_tokens):
             tokens[k, : len(t)] = torch.tensor(t).long()
-        input_text_mask = tokens != tokenizer.pad_id
+        input_text_mask = tokens != 0
         start_pos = min_prompt_size
         prev_pos = 0
         for cur_pos in range(start_pos, total_len):
             logits = model.forward(tokens[:, prev_pos:cur_pos], prev_pos)["logits"]
+            print(logits.shape)
             if temperature > 0:
                 probs = torch.softmax(logits / temperature, dim=-1)
                 next_token = sample_top_p(probs, top_p)
@@ -45,10 +45,10 @@ def llama_generate(
             # cut to max gen len
             t = t[: len(prompt_tokens[i]) + max_gen_len]
             # cut to eos tok if any
-            try:
-                t = t[: t.index(tokenizer.eos_id)]
-            except ValueError:
-                pass
+            # try:
+            #     t = t[: t.index(tokenizer.eos_id)]
+            # except ValueError:
+            #     pass
             decoded.append(tokenizer.decode(t))
         return decoded[0]
 

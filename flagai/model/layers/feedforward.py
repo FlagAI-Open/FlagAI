@@ -68,6 +68,35 @@ def _initialize_affine_weight(weight,
     return None
 
 
+class LLAMAForward(nn.Module):
+    def __init__(
+        self,
+        dim,
+        hidden_dim,
+        multiple_of
+    ):
+        super().__init__()
+        hidden_dim = int(2 * hidden_dim / 3)
+        hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
+        if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+            self.w1 = ColumnParallelLinear(
+                dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
+            )
+            self.w2 = RowParallelLinear(
+                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=lambda x: x
+            )
+            self.w3 = ColumnParallelLinear(
+                dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
+            )
+        else:
+            self.w1 = nn.Linear(dim, hidden_dim, bias=False)
+            self.w2 = nn.Linear(hidden_dim, dim, bias=False)
+            self.w3 = nn.Linear(dim, hidden_dim, bias=False)
+
+    def forward(self, x):
+        return self.w2(F.silu(self.w1(x)) * self.w3(x))
+
+
 class GPT2MLP(nn.Module):
 
     def __init__(self,

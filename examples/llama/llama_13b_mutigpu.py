@@ -1,6 +1,7 @@
-
 import torch
 import os
+import sys
+sys.path.append('/share/project/liuguang/flagai-internal')
 import argparse
 from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
@@ -10,8 +11,8 @@ from flagai.model.predictor.predictor import Predictor
 from pathlib import Path 
 
 os.environ["ENV_TYPE"] = "deepspeed+mpu"
-model_parallel_size = 2
-world_size = 2
+model_parallel_size = 4
+world_size = 4
 
 os.environ["MODEL_PARALLEL_SIZE"] = str(model_parallel_size)
 os.environ["WORLD_SIZE"] = str(world_size)
@@ -59,10 +60,11 @@ initialize_distributed()
 set_random_seed(123)
 
 print(f"building model...")
-loader = AutoLoader("lm", model_name="llama-7b-en")
+loader = AutoLoader("lm", model_dir = '/share/project/liuguang/LMContinualPretrain/current_training_v1/checkpoints', model_name="llama-30b-en",max_seq_len=200, use_cache=True, max_batch_size=4, fp16=True)
 model = loader.get_model()
-tokenizer = loader.get_tokenizer()
-
+# tokenizer = loader.get_tokenizer()
+from flagai.data.tokenizer import Tokenizer
+tokenizer = Tokenizer.from_pretrained("llama-30b-en",cache_dir="/share/project/liuguang/llama/gpt2_new_1w") 
 model.eval()
 model.to(device)
 
@@ -71,7 +73,7 @@ torch.distributed.barrier(group=mpu.get_model_parallel_group())
 text = """The capital of Germany is the city of """
 
 predictor = Predictor(model, tokenizer)
-out = predictor.predict_generate_randomsample(text, out_max_length=200)
+out = predictor.predict_generate_randomsample(text, out_max_length=200,top_p=0.95)
 if mpu.get_model_parallel_rank() == 0:
     print(f"pred is {out}")
 

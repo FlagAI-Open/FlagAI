@@ -55,7 +55,7 @@ class Tokenizer(BaseTokenizer):
                  special_tokens=['cls','pad','unk','eos','sep','mask'],
                  **kwargs):
         super().__init__(**kwargs)
-
+        
         if self.tokenizer_class == "wp":
             if self.tokenizer_model_name.lower().endswith("ch"):
                 self.text_tokenizer = WordpieceTokenizer(self.vocab_file,
@@ -504,7 +504,6 @@ class Tokenizer(BaseTokenizer):
                 return self.text_tokenizer.convert_token_to_id(token)
             except KeyError:
                 return self.text_tokenizer.convert_token_to_id(token.strip())
-            
 
     def DecodeIds(self, ids):
         """converts ids to wordpiece tokens and joins them as a text string"""
@@ -659,6 +658,10 @@ class Tokenizer(BaseTokenizer):
                 pair_ids,
                 pop_index=-1,
             )
+        try:
+            self.get_command_id("cls")
+        except KeyError:
+            add_special_tokens = False
 
         if add_special_tokens:
             if pair_ids is not None:
@@ -668,9 +671,13 @@ class Tokenizer(BaseTokenizer):
                 token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) +
                                                                1)
             else:
-                sequence = [self.get_command_id("cls")
-                            ] + ids + [self.token_end_id]
-                token_type_ids = [0] * (len(ids) + 2)
+                if self.tokenizer_model_name.startswith("opt"):
+                    sequence = [self.get_command_id("bos")
+                                ] + ids
+                else:                  
+                    sequence = [self.get_command_id("cls")
+                                ] + ids + [self.token_end_id]
+                token_type_ids = [0] * (len(sequence))
         else:
             sequence = ids + pair_ids if pair else ids
             token_type_ids = [0] * len(ids) + ([0] *
