@@ -57,7 +57,7 @@ ALL_TASK = {
     "opt_seq2seq": ("flagai.model.opt_model", "OPTModel"),
     "opt_lm": ("flagai.model.opt_model", "OPTModel"),
     "galactica_lm": ("flagai.model.galactica_model", "GalacticaModel"),
-    "llama_lm": ("flagai.model.llama_model", "LLAMA",),
+    "llama_lm": ("flagai.model.llama_model", "LLAMAModel",),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
@@ -97,10 +97,10 @@ MODEL_DICT = {
     "galactica-6.7b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-30b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-120b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
-    "llama-7b-en": ["flagai.model.llama_model", "LLAMA", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
-    "llama-13b-en": ["flagai.model.llama_model", "LLAMA", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
-    "llama-30b-en": ["flagai.model.llama_model", "LLAMA", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
-    "llama-65b-en": ["flagai.model.llama_model", "LLAMA", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
+    "llama-7b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
+    "llama-13b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
+    "llama-30b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
+    "llama-65b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
     "vit-base-p16-224":
         ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":

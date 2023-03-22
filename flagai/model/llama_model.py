@@ -1,372 +1,181 @@
-
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# This software may be used and distributed according to the terms of the GNU General Public License version 3.
-from typing import Optional, Tuple
-from dataclasses import dataclass
-import math
 import torch
 from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from flagai.model.layers.feedforward import RowParallelLinear, ColumnParallelLinear
+import os
+from flagai.model.layers.feedforward import ColumnParallelLinear
 from flagai.model.layers.embeddings import ParallelEmbedding
-import os 
-from flagai.model.base_model import BaseModel 
-from flagai.logger import log_dist
-from flagai.mpu import get_model_parallel_world_size
+from flagai.model.blocks.llama_block import LLAMABlock, RMSNorm
+from flagai.model.layers.attentions import precompute_freqs_cis
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu.utils import divide
     from flagai.mpu.random import checkpoint
-    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region, get_model_parallel_world_size, get_cuda_rng_tracker
-    from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
-
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:
     from torch.utils.checkpoint import checkpoint
-from flagai.model.utils import normal_init_method as n_init
-normal_init_method = n_init(0,0.0001)
-@dataclass
-class ModelArgs:
-    dim: int = 512
-    n_layers: int = 8
-    n_heads: int = 8
-    vocab_size: int = -1  # defined later by tokenizer
-    multiple_of: int = 256  # make SwiGLU hidden layer size multiple of large power of 2
-    norm_eps: float = 1e-5
+import os 
+from flagai.model.base_model import BaseModel 
 
-    max_batch_size: int = 32
-    max_seq_len: int = 2048 
+class LLAMAConfig():
+    r"""
+    This is the configuration class to store the configuration of a [`~LLaMAModel`]. It is used to instantiate an LLaMA
+    model according to the specified arguments, defining the model architecture. Instantiating a configuration with the
+    defaults will yield a similar configuration to that of the LLaMA-7B.
+    Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the
+    documentation from [`PretrainedConfig`] for more information.
+    Args:
+        vocab_size (`int`, *optional*, defaults to 32000):
+            Vocabulary size of the LLaMA model. Defines the number of different tokens that can be represented by the
+            `inputs_ids` passed when calling [`~LLaMAModel`] or [`~TFLLaMAModel`].
+        hidden_size (`int`, *optional*, defaults to 4096):
+            Dimension of the hidden representations.
+        intermediate_size (`int`, *optional*, defaults to 11008):
+            Dimension of the MLP representations.
+        num_hidden_layers (`int`, *optional*, defaults to 32):
+            Number of hidden layers in the Transformer encoder.
+        num_attention_heads (`int`, *optional*, defaults to 32):
+            Number of attention heads for each attention layer in the Transformer encoder.
+        hidden_act (`str` or `function`, *optional*, defaults to `"silu"`):
+            The non-linear activation function (function or string) in the decoder.
+        initializer_range (`float`, *optional*, defaults to 0.02):
+            The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
+        rms_norm_eps (`float`, *optional*, defaults to 1e-12):
+            The epsilon used by the rms normalization layers.
+        use_cache (`bool`, *optional*, defaults to `True`):
+            Whether or not the model should return the last key/values attentions (not used by all models). Only
+            relevant if `config.is_decoder=True`.
+        tie_word_embeddings(`bool`, *optional*, defaults to `False`):
+            Whether to tie weight embeddings
+        Example:
+    ```python
+    >>> from transformers import LLaMAModel, LLaMAConfig
+    >>> # Initializing a LLaMA llama-7b style configuration
+    >>> configuration = LLaMAConfig()
+    >>> # Initializing a model from the llama-7b style configuration
+    >>> model = LLaMAModel(configuration)
+    >>> # Accessing the model configuration
+    >>> configuration = model.config
+    ```"""
+    model_type = "llama"
 
-    use_cache: bool = False
-
-
-class RMSNorm(torch.nn.Module):
-    def __init__(self, dim: int, eps: float = 1e-6):
-        super().__init__()
-        self.eps = eps
-        self.weight = nn.Parameter(torch.ones(dim))
-
-    def _norm(self, x):
-        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
-
-    def forward(self, x):
-        output = self._norm(x.float()).type_as(x)
-        return output * self.weight
-
-
-def precompute_freqs_cis(dim: int, end: int, theta: float = 10000.0):
-    freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim))
-    t = torch.arange(end, device=freqs.device)  # type: ignore
-    freqs = torch.outer(t, freqs).float()  # type: ignore
-    freqs_cis = torch.polar(torch.ones_like(freqs), freqs)  # complex64
-    return freqs_cis
-
-
-def reshape_for_broadcast(freqs_cis: torch.Tensor, x: torch.Tensor):
-    ndim = x.ndim
-    assert 0 <= 1 < ndim
-    assert freqs_cis.shape == (x.shape[1], x.shape[-1])
-    shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
-    return freqs_cis.view(*shape)
-
-
-def apply_rotary_emb(
-    xq: torch.Tensor,
-    xk: torch.Tensor,
-    freqs_cis: torch.Tensor,
-) -> Tuple[torch.Tensor, torch.Tensor]:
-    xq_ = torch.view_as_complex(xq.float().reshape(*xq.shape[:-1], -1, 2))
-    xk_ = torch.view_as_complex(xk.float().reshape(*xk.shape[:-1], -1, 2))
-    freqs_cis = reshape_for_broadcast(freqs_cis, xq_)
-    xq_out = torch.view_as_real(xq_ * freqs_cis).flatten(3)
-    xk_out = torch.view_as_real(xk_ * freqs_cis).flatten(3)
-    return xq_out.type_as(xq), xk_out.type_as(xk)
-
-
-class Attention(nn.Module):
-    def __init__(self, args: ModelArgs):
-        super().__init__()
-        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
-            self.n_local_heads = args.n_heads // get_model_parallel_world_size()
-            self.head_dim = args.dim // args.n_heads
-        else:
-            self.n_local_heads = args.n_heads 
-            self.head_dim = args.dim // args.n_heads
-        if os.getenv("ENV_TYPE") == 'deepspeed+mpu': 
-            self.wq = ColumnParallelLinear(
-                args.dim,
-                args.n_heads * self.head_dim,
-                bias=False,
-                gather_output=False,
-                init_method=normal_init_method,
-            )
-            self.wk = ColumnParallelLinear(
-                args.dim,
-                args.n_heads * self.head_dim,
-                bias=False,
-                gather_output=False,
-                init_method=normal_init_method,
-            )
-            self.wv = ColumnParallelLinear(
-                args.dim,
-                args.n_heads * self.head_dim,
-                bias=False,
-                gather_output=False,
-                init_method=normal_init_method,
-            )
-            self.wo = RowParallelLinear(
-                args.n_heads * self.head_dim,
-                args.dim,
-                bias=False,
-                input_is_parallel=True,
-                init_method=normal_init_method,
-            )
-        else:
-            self.wq = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
-            self.wk = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
-            self.wv = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
-            self.wo = nn.Linear(args.n_heads * self.head_dim, args.dim, bias=False)
-            
-            
-        if args.use_cache:
-            self.cache_k = torch.zeros(
-                (args.max_batch_size, args.max_seq_len, self.n_local_heads, self.head_dim)
-            )
-            self.cache_v = torch.zeros(
-                (args.max_batch_size, args.max_seq_len, self.n_local_heads, self.head_dim)
-            )
-        self.args = args
-
-    def forward(self, x: torch.Tensor, start_pos: int, freqs_cis: torch.Tensor, mask: Optional[torch.Tensor]):
-        bsz, seqlen, _ = x.shape
-        xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
-
-        xq = xq.view(bsz, seqlen, self.n_local_heads, self.head_dim)
-        xk = xk.view(bsz, seqlen, self.n_local_heads, self.head_dim)
-        xv = xv.view(bsz, seqlen, self.n_local_heads, self.head_dim)
-
-        xq, xk = apply_rotary_emb(xq, xk, freqs_cis=freqs_cis)
-
-        if self.args.use_cache:
-            self.cache_k = self.cache_k.to(xq)
-            self.cache_v = self.cache_v.to(xq)
-
-            self.cache_k[:bsz, start_pos : start_pos + seqlen] = xk
-            self.cache_v[:bsz, start_pos : start_pos + seqlen] = xv
-
-            keys = self.cache_k[:bsz, : start_pos + seqlen]
-            values = self.cache_v[:bsz, : start_pos + seqlen]
-        else :
-            keys = xk
-            values = xv 
-        xq = xq.transpose(1, 2)
-        keys = keys.transpose(1, 2)
-        values = values.transpose(1, 2)
-        scores = torch.matmul(xq, keys.transpose(2, 3)) / math.sqrt(self.head_dim)
-        if mask is not None:
-            scores = scores + mask  # (bs, n_local_heads, slen, cache_len + slen)
-        scores = F.softmax(scores.float(), dim=-1).type_as(xq)
-        output = torch.matmul(scores, values)  # (bs, n_local_heads, slen, head_dim)
-        output = output.transpose(
-            1, 2
-        ).contiguous().view(bsz, seqlen, -1)
-
-        return self.wo(output)
-
-
-class FeedForward(nn.Module):
     def __init__(
         self,
-        dim: int,
-        hidden_dim: int,
-        multiple_of: int,
+        vocab_size=32000,
+        dim=4096,
+        max_seq_len=1024,
+        max_batch_size=32,
+        multiple_of=None,
+        # intermediate_size=11008,
+        n_layers=32,
+        n_heads=32,
+        #hidden_act="silu",
+        #initializer_range=0.02,
+        norm_eps=1e-6,
+        use_cache=False,
+        # pad_token_id=-1,
+        # bos_token_id=0,
+        # eos_token_id=1,
+        # tie_word_embeddings=False,
+        **kwargs,
     ):
-        super().__init__()
-        hidden_dim = int(2 * hidden_dim / 3)
-        hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
-        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
-            self.w1 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False,init_method=lambda x: x
-            )
-            self.w2 = RowParallelLinear(
-                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=lambda x: x
-            )
-            self.w3 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
-            )
-        else:
-            self.w1 = nn.Linear(dim, hidden_dim, bias=False)
-            self.w2 = nn.Linear(hidden_dim, dim, bias=False)
-            self.w3 = nn.Linear(dim, hidden_dim, bias=False)
-
-    def forward(self, x):
-        return self.w2(F.silu(self.w1(x)) * self.w3(x))
-
-
-class TransformerBlock(nn.Module):
-    def __init__(self, layer_id: int, args: ModelArgs):
-        super().__init__()
-        self.n_heads = args.n_heads
-        self.dim = args.dim
-        self.head_dim = args.dim // args.n_heads
-        self.attention = Attention(args)
-        self.feed_forward = FeedForward(
-            dim=args.dim, hidden_dim=4 * args.dim, multiple_of=args.multiple_of
-        )
-        self.layer_id = layer_id
-        self.attention_norm = RMSNorm(args.dim, eps=args.norm_eps)
-        self.ffn_norm = RMSNorm(args.dim, eps=args.norm_eps)
-        self.start_pos = 0
-
-    def forward(self, x: torch.Tensor, freqs_cis: torch.Tensor, mask: Optional[torch.Tensor]):
-        h = x + self.attention.forward(self.attention_norm(x), self.start_pos, freqs_cis, mask)
-        out = h + self.feed_forward.forward(self.ffn_norm(h))
-        return out
-
-
-class LLAMA(BaseModel):
+        self.vocab_size = vocab_size
+        self.dim = dim
+        self.max_batch_size = max_batch_size
+        self.multiple_of = multiple_of
+        
+        # self.intermediate_size = intermediate_size
+        self.max_seq_len = max_seq_len
+        self.n_layers = n_layers
+        self.n_heads = n_heads
+        # self.hidden_act = hidden_act
+        # self.initializer_range = initializer_range
+        self.norm_eps = norm_eps
+        self.use_cache = use_cache
+        # super().__init__(
+        #     pad_token_id=pad_token_id,
+        #     bos_token_id=bos_token_id,
+        #     eos_token_id=eos_token_id,
+        #     tie_word_embeddings=tie_word_embeddings,
+        #     **kwargs,
+        # )
+      
+        
+class LLAMAModel(BaseModel):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
-        
-        if "use_cache" in kwargs:
-            use_cache = kwargs["use_cache"]
-        
-        else :
-            use_cache = True
-        print("+"*20,kwargs)
-        params: ModelArgs = ModelArgs(max_seq_len=2048, max_batch_size=32,
-                                        multiple_of=config["multiple_of"],
-                                        dim=config["dim"],
-                                        n_heads=config["n_heads"],
-                                        vocab_size=config["vocab_size"],
-                                        norm_eps=config["norm_eps"],
-                                        n_layers=config["n_layers"],
-                                        use_cache=use_cache)
-
-        self.params = params
-        if "checkpoint_activations" in kwargs:
-            print("*"*20, 'init checkpointing!!!')
-            self.params.checkpoint_activations = kwargs['checkpoint_activations']
-        else:
-            self.params.checkpoint_activations = False
-        self.vocab_size = params.vocab_size
-        self.n_layers = params.n_layers
-
+        self.config = config
+        self.use_cache = config.use_cache
+        self.config =config 
+        self.vocab_size = config.vocab_size
+        self.n_layers = config.n_layers
         self.tok_embeddings = ParallelEmbedding(
-            params.vocab_size, params.dim 
-        )
-        log_dist(f"self.tok_embeddings, {self.tok_embeddings.weight}")
-    
+            config.vocab_size,
+            config.dim,
+            init_method=lambda x: x)
+       
         self.layers = torch.nn.ModuleList()
-        for layer_id in range(params.n_layers):
-            self.layers.append(TransformerBlock(layer_id, params))
+        for layer_id in range(config.n_layers):
+            self.layers.append(LLAMABlock(layer_id, config))
 
-        self.norm = RMSNorm(params.dim, eps=params.norm_eps)
-        
-        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+        self.norm = RMSNorm(config.dim, eps=config.norm_eps)
+        if os.getenv("ENV_TYPE") == "deepspeed+mpu":
             self.output = ColumnParallelLinear(
-                params.dim, params.vocab_size, bias=False,init_method=normal_init_method
+            config.dim, config.vocab_size, bias=False, init_method=lambda x: x
             )
         else:
-            self.output = nn.Linear(params.dim, params.vocab_size, bias = False)
+            self.output = nn.Linear(config.dim, config.vocab_size, bias=False)
+
         self.freqs_cis = precompute_freqs_cis(
-            self.params.dim // self.params.n_heads, self.params.max_seq_len * 2
+            self.config.dim // self.config.n_heads, self.config.max_seq_len * 2
         )
 
         self.loss_func = nn.CrossEntropyLoss()
 
-
     def forward(self, input_ids: torch.Tensor, start_pos=0, labels=None, **kwargs):
         _bsz, seqlen = input_ids.shape
-        def create_custom_forward(module):
-            def custom_forward(*inputs):
-                return module(*inputs)
-            return custom_forward
-        if self.params.checkpoint_activations:
-            h = checkpoint(
-                create_custom_forward(self.tok_embeddings),
-                input_ids
-            )
-        else:
-            h = self.tok_embeddings(input_ids)
+        h = self.tok_embeddings(input_ids)
+       
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
+        
         mask = None
         if seqlen > 1:
             mask = torch.full((1, 1, seqlen, seqlen), float("-inf"), device=input_ids.device)
             mask = torch.triu(mask, diagonal=start_pos + 1).type_as(h)
-
-        for layer in self.layers:
-            layer.start_pos = start_pos 
-            if self.params.checkpoint_activations:
-                # print("*"*20, 'apply checkpointing!!!')
-                h = checkpoint(create_custom_forward(layer), 
-                               h,
-                               freqs_cis, 
-                               mask)
-
-            else:
-                h = layer(h, freqs_cis, mask)
+        if self.config.checkpoint_activations:
+            def create_custom_forward(module):
+                def custom_forward(*inputs):
+                    return module(*inputs)
+                return custom_forward
+            for layer in self.layers:
+                h = checkpoint(create_custom_forward(layer),
+                                h, start_pos, freqs_cis, mask, self.use_cache)
+        else:
+             for layer in self.layers:
+                h = layer(h, start_pos, freqs_cis, mask, self.use_cache)
+      
         h = self.norm(h)
-        # print(f"h size -> {h.shape}") 
         if labels is not None:
-            if self.params.checkpoint_activations:
-                h = checkpoint(
-                    create_custom_forward(self.output),
-                    h
-                )
-            else:
-                h = self.output(h)
-            # print(f"output size -> {h.shape}")
-            # print(f"lables size -> {labels.shape}")
+            output = self.output(h)
+            shift_logits = output[..., :-1, :].contiguous()
+            shift_labels = labels[..., 1:].contiguous()
+
             loss = self.loss_func(
-                h[..., :-1, :].reshape(-1, self.params.vocab_size).contiguous().float(), labels[..., 1:].reshape(-1).contiguous().long()).mean()
-           
+                shift_logits.view(-1, self.config.vocab_size).contiguous(), shift_labels.view(-1).contiguous().long()).mean()
+            
             return {
-                'logits': h,
-                'loss': loss
+                'logits': output,
+                'loss': loss,
+                'hidden_states': output,
             }
         else :
-            h = self.output(h[:, -1, :])  # only compute last logits
-            # return output.float()
+
+            output = self.output(h[:, -1, :])  # only compute last logits
             return {
-                "logits": h.float()
+                "logits": output.float()
             }
-        
 
     def load_weights(self, checkpoint_path):
-        self.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
-        print(f"model params are loaded successfully...")
-
-    @classmethod
-    def from_pretrain(cls,
-                      download_path='./checkpoints/',
-                      model_name='RoBERTa-base-ch',
-                      only_download_config=False,
-                      device="cpu",
-                      **kwargs):
-        if only_download_config:
-            pretrained_model_name_or_path = os.path.join(download_path, model_name)
-            torch.set_default_tensor_type(torch.cuda.HalfTensor)
-            model = LLAMA.init_from_json(os.path.join(pretrained_model_name_or_path, "config.json"), **kwargs)
-            torch.set_default_tensor_type(torch.FloatTensor)
-        else:
-            super().download(download_path, model_name)
-            pretrained_model_name_or_path = os.path.join(download_path, model_name)
-            local_rank = int(os.environ.get("LOCAL_RANK", -1))
-            world_size = int(os.environ.get("WORLD_SIZE", -1))
-
-            checkpoints = sorted(Path(pretrained_model_name_or_path).glob("*.pth"))
-            assert (
-                world_size == len(checkpoints)
-            ), f"Loading a checkpoint for MP={len(checkpoints)} but world size is {world_size}"
-            ckpt_path = checkpoints[local_rank]
-            print("Loading")
-            checkpoint = torch.load(ckpt_path, map_location="cpu")
-            torch.set_default_tensor_type(torch.cuda.HalfTensor)
-            model = LLAMA.init_from_json(os.path.join(pretrained_model_name_or_path, "config.json"), **kwargs)
-            torch.set_default_tensor_type(torch.FloatTensor)
-            
-            model.load_state_dict(checkpoint, strict=False)
-        return model 
+        sd = torch.load(checkpoint_path, map_location="cpu")
+        if "module" in sd:
+            sd = sd["module"]
+        self.load_state_dict(sd, strict=False)
+        print(f"model config are loaded successfully...")
