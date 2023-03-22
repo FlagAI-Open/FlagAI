@@ -44,7 +44,7 @@ class EnvArgs:
                  tensorboard_dir="tensorboard_summary",
                  tensorboard=False,
                  wandb=True,
-                 wandb_dir=None,
+                 wandb_dir='./wandb',
                  wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
                  already_fp16=False,
                  resume_dataset=False,

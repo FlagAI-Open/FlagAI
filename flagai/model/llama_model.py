@@ -25,7 +25,7 @@ elif os.getenv('ENV_TYPE') == 'deepspeed':
 else:
     from torch.utils.checkpoint import checkpoint
 from flagai.model.utils import normal_init_method as n_init
-normal_init_method = n_init(0,0.0001)
+
 @dataclass
 class ModelArgs:
     dim: int = 512
@@ -40,6 +40,7 @@ class ModelArgs:
 
     use_cache: bool = False
 
+    initializer_range: float = 0.0001
 
 class RMSNorm(torch.nn.Module):
     def __init__(self, dim: int, eps: float = 1e-6):
@@ -87,6 +88,10 @@ def apply_rotary_emb(
 class Attention(nn.Module):
     def __init__(self, args: ModelArgs):
         super().__init__()
+
+        self.args = args
+        normal_init_method = n_init(0, self.args.initializer_range)
+
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             self.n_local_heads = args.n_heads // get_model_parallel_world_size()
             self.head_dim = args.dim // args.n_heads
@@ -128,6 +133,10 @@ class Attention(nn.Module):
             self.wk = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
             self.wv = nn.Linear(args.dim, args.n_heads * self.head_dim, bias=False)
             self.wo = nn.Linear(args.n_heads * self.head_dim, args.dim, bias=False)
+            normal_init_method(self.wq.weight)
+            normal_init_method(self.wk.weight)
+            normal_init_method(self.wv.weight)
+            normal_init_method(self.wo.weight)
             
             
         if args.use_cache:
@@ -137,7 +146,6 @@ class Attention(nn.Module):
             self.cache_v = torch.zeros(
                 (args.max_batch_size, args.max_seq_len, self.n_local_heads, self.head_dim)
             )
-        self.args = args
 
     def forward(self, x: torch.Tensor, start_pos: int, freqs_cis: torch.Tensor, mask: Optional[torch.Tensor]):
         bsz, seqlen, _ = x.shape
@@ -231,12 +239,13 @@ class LLAMA(BaseModel):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
         
+        print("*"*20, kwargs)
         if "use_cache" in kwargs:
             use_cache = kwargs["use_cache"]
-        
         else :
             use_cache = False
-        print("+"*20,kwargs)
+
+        initializer_range = config.get('initializer_range', 0.0001)
         params: ModelArgs = ModelArgs(max_seq_len=2048, max_batch_size=32,
                                         multiple_of=config["multiple_of"],
                                         dim=config["dim"],
@@ -244,7 +253,8 @@ class LLAMA(BaseModel):
                                         vocab_size=config["vocab_size"],
                                         norm_eps=config["norm_eps"],
                                         n_layers=config["n_layers"],
-                                        use_cache=use_cache)
+                                        use_cache=use_cache,
+                                        initializer_range=initializer_range)
 
         self.params = params
         if "checkpoint_activations" in kwargs:
@@ -254,6 +264,7 @@ class LLAMA(BaseModel):
             self.params.checkpoint_activations = False
         self.vocab_size = params.vocab_size
         self.n_layers = params.n_layers
+        normal_init_method = n_init(0, self.params.initializer_range)
 
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             self.tok_embeddings = ParallelEmbedding(
@@ -277,6 +288,7 @@ class LLAMA(BaseModel):
             )
         else:
             self.output = nn.Linear(params.dim, params.vocab_size, bias = False)
+            normal_init_method(self.output.weight)
 
         self.freqs_cis = precompute_freqs_cis(
             self.params.dim // self.params.n_heads, self.params.max_seq_len * 2
