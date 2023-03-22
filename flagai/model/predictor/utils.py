@@ -2039,8 +2039,7 @@ def cpm_beam_search(model,
         BeamHypotheses(beam_size,
                        span_length,
                        length_penalty=1,
-                       early_stopping=False,
-                       tokenizer=tokenizer) for _ in range(batch_size)
+                       early_stopping=False) for _ in range(batch_size)
     ]
 
     with torch.inference_mode():
