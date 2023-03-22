@@ -93,6 +93,7 @@ class Attention(nn.Module):
         else:
             self.n_local_heads = args.n_heads 
             self.head_dim = args.dim // args.n_heads
+
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu': 
             self.wq = ColumnParallelLinear(
                 args.dim,
@@ -160,6 +161,7 @@ class Attention(nn.Module):
         else :
             keys = xk
             values = xv 
+
         xq = xq.transpose(1, 2)
         keys = keys.transpose(1, 2)
         values = values.transpose(1, 2)
@@ -233,7 +235,7 @@ class LLAMA(BaseModel):
             use_cache = kwargs["use_cache"]
         
         else :
-            use_cache = True
+            use_cache = False
         print("+"*20,kwargs)
         params: ModelArgs = ModelArgs(max_seq_len=2048, max_batch_size=32,
                                         multiple_of=config["multiple_of"],
@@ -253,9 +255,14 @@ class LLAMA(BaseModel):
         self.vocab_size = params.vocab_size
         self.n_layers = params.n_layers
 
-        self.tok_embeddings = ParallelEmbedding(
-            params.vocab_size, params.dim 
-        )
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            self.tok_embeddings = ParallelEmbedding(
+                params.vocab_size, params.dim 
+            )
+        else:
+            self.tok_embeddings = nn.Embedding(
+                params.vocab_size, params.dim 
+            )
         log_dist(f"self.tok_embeddings, {self.tok_embeddings.weight}")
     
         self.layers = torch.nn.ModuleList()
@@ -270,6 +277,7 @@ class LLAMA(BaseModel):
             )
         else:
             self.output = nn.Linear(params.dim, params.vocab_size, bias = False)
+
         self.freqs_cis = precompute_freqs_cis(
             self.params.dim // self.params.n_heads, self.params.max_seq_len * 2
         )
