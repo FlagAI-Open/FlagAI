@@ -41,13 +41,12 @@ class LLAMABlock(nn.Module):
         self.layer_id = layer_id
         self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
         self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)
-
+        self.start_pos = 0
     def forward(self, x, 
-                start_pos, 
                 freqs_cis,
                 mask ,
                 use_cache=False):
-        h = x + self.attention.forward(self.attention_norm(x), start_pos, freqs_cis, mask, use_cache)
+        h = x + self.attention.forward(self.attention_norm(x), self.start_pos, freqs_cis, mask, use_cache)
         out = h + self.feed_forward.forward(self.ffn_norm(h))
         return out
 

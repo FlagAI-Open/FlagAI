@@ -114,7 +114,7 @@ class LLAMAModel(BaseModel):
             config.vocab_size,
             config.dim,
             init_method=lambda x: x)
-       
+        self.start_pos = 0
         self.layers = torch.nn.ModuleList()
         for layer_id in range(config.n_layers):
             self.layers.append(LLAMABlock(layer_id, config))
@@ -147,14 +147,15 @@ class LLAMAModel(BaseModel):
         if seqlen > 1:
             mask = torch.full((1, 1, seqlen, seqlen), float("-inf"), device=input_ids.device)
             mask = torch.triu(mask, diagonal=start_pos + 1).type_as(h)
+        self.start_pos = start_pos
         if self.config.checkpoint_activations:
 
             for layer in self.layers:
                 h = checkpoint(create_custom_forward(layer),
-                                h, start_pos, freqs_cis, mask, self.use_cache)
+                                h, freqs_cis, mask, self.use_cache)
         else:
              for layer in self.layers:
-                h = layer(h, start_pos, freqs_cis, mask, self.use_cache)
+                h = layer(h, freqs_cis, mask, self.use_cache)
       
         h = self.norm(h)
         if labels is not None:
