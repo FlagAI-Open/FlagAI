@@ -60,7 +60,7 @@ class LLAMAConfig():
         self,
         vocab_size=32000,
         dim=4096,
-        max_seq_len=1024,
+        max_seq_len=2048,
         max_batch_size=32,
         multiple_of=None,
         # intermediate_size=11008,
@@ -68,6 +68,7 @@ class LLAMAConfig():
         n_heads=32,
         #hidden_act="silu",
         #initializer_range=0.02,
+ 
         norm_eps=1e-6,
         use_cache=False,
         # pad_token_id=-1,
@@ -96,7 +97,10 @@ class LLAMAConfig():
         #     tie_word_embeddings=tie_word_embeddings,
         #     **kwargs,
         # )
-      
+def create_custom_forward(module):
+    def custom_forward(*inputs):
+        return module(*inputs)
+    return custom_forward      
         
 class LLAMAModel(BaseModel):
     def __init__(self, config, **kwargs):
@@ -131,8 +135,11 @@ class LLAMAModel(BaseModel):
 
     def forward(self, input_ids: torch.Tensor, start_pos=0, labels=None, **kwargs):
         _bsz, seqlen = input_ids.shape
-        h = self.tok_embeddings(input_ids)
-       
+        if self.config.checkpoint_activations:
+            h = checkpoint(create_custom_forward(self.tok_embeddings),input_ids)
+        else:
+            h = self.tok_embeddings(input_ids)
+            
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
         
@@ -141,10 +148,7 @@ class LLAMAModel(BaseModel):
             mask = torch.full((1, 1, seqlen, seqlen), float("-inf"), device=input_ids.device)
             mask = torch.triu(mask, diagonal=start_pos + 1).type_as(h)
         if self.config.checkpoint_activations:
-            def create_custom_forward(module):
-                def custom_forward(*inputs):
-                    return module(*inputs)
-                return custom_forward
+
             for layer in self.layers:
                 h = checkpoint(create_custom_forward(layer),
                                 h, start_pos, freqs_cis, mask, self.use_cache)
@@ -162,7 +166,7 @@ class LLAMAModel(BaseModel):
                 shift_logits.view(-1, self.config.vocab_size).contiguous(), shift_labels.view(-1).contiguous().long()).mean()
             
             return {
-                'logits': output,
+                'logits': self.output(h[:, -1, :]).float(), 
                 'loss': loss,
                 'hidden_states': output,
             }
