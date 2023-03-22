@@ -174,9 +174,9 @@ class LLAMAModel(BaseModel):
                 h[..., :-1, :].view(-1, self.config.vocab_size).contiguous(), labels[..., 1:].view(-1).contiguous().long()).mean()
             
             return {
-                'logits': output, 
+                'logits': h, 
                 'loss': loss,
-                'hidden_states': output,
+                'hidden_states': h,
             }
         else :
 
