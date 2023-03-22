@@ -431,7 +431,7 @@ class Trainer():
         else:
             valid_dataloader = valid_dataset
 
- 
+        self.total_iter = int(self.epochs*len(train_dataloader))
         """Train the model."""
         # Turn on training mode which enables dropout.
         model.train()
