@@ -32,7 +32,6 @@ from flagai.model.layers.layer_norm import T5LayerNorm
 from flagai.model.layers.feedforward import ColumnParallelLinear, RowParallelLinear
 from flagai.model.utils import normal_init_method
 from flagai.model.utils import divide
-from flagai.model.utils import ensure_divisibility
 from flagai.model.utils import split_tensor_along_last_dim
 from flagai.model.layers.layer_norm import CPM3LayerNorm
 
@@ -92,21 +91,21 @@ class LLAMAAttention(nn.Module):
                 config.n_heads * self.head_dim,
                 bias=False,
                 gather_output=False,
-                init_method=lambda x: x,
+                init_method=normal_init_method(0,0.001),
             )
             self.wk = ColumnParallelLinear(
                 config.dim,
                 config.n_heads * self.head_dim,
                 bias=False,
                 gather_output=False,
-                init_method=lambda x: x,
+                init_method=normal_init_method(0,0.001),
             )
             self.wv = ColumnParallelLinear(
                 config.dim,
                 config.n_heads * self.head_dim,
                 bias=False,
                 gather_output=False,
-                init_method=lambda x: x,
+                init_method=normal_init_method(0,0.001),
             )
             self.wo = RowParallelLinear(
                 config.n_heads * self.head_dim,

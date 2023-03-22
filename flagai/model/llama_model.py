@@ -5,6 +5,7 @@ from flagai.model.layers.feedforward import ColumnParallelLinear
 from flagai.model.layers.embeddings import ParallelEmbedding
 from flagai.model.blocks.llama_block import LLAMABlock, RMSNorm
 from flagai.model.layers.attentions import precompute_freqs_cis
+from flagai.model.utils import normal_init_method
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
     from flagai.mpu.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
@@ -113,7 +114,7 @@ class LLAMAModel(BaseModel):
         self.tok_embeddings = ParallelEmbedding(
             config.vocab_size,
             config.dim,
-            init_method=lambda x: x)
+            init_method=normal_init_method(0,0.001))
         self.start_pos = 0
         self.layers = torch.nn.ModuleList()
         for layer_id in range(config.n_layers):
@@ -122,7 +123,7 @@ class LLAMAModel(BaseModel):
         self.norm = RMSNorm(config.dim, eps=config.norm_eps)
         if os.getenv("ENV_TYPE") == "deepspeed+mpu":
             self.output = ColumnParallelLinear(
-            config.dim, config.vocab_size, bias=False, init_method=lambda x: x
+            config.dim, config.vocab_size, bias=False, init_method= normal_init_method(0,0.001)
             )
         else:
             self.output = nn.Linear(config.dim, config.vocab_size, bias=False)
@@ -157,17 +158,21 @@ class LLAMAModel(BaseModel):
              for layer in self.layers:
                 h = layer(h, freqs_cis, mask, self.use_cache)
       
-        h = self.norm(h)
+        
         if labels is not None:
-            output = self.output(h)
-            shift_logits = output[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
+            h = self.norm(h)
+            if self.config.checkpoint_activations:
+                h = checkpoint(create_custom_forward(self.output),h)
+            else:
+                h = self.output(h)
+            # shift_logits = h[..., :-1, :].contiguous()
+            # shift_labels = labels[..., 1:].contiguous()
 
             loss = self.loss_func(
-                shift_logits.view(-1, self.config.vocab_size).contiguous(), shift_labels.view(-1).contiguous().long()).mean()
+                h[..., :-1, :].view(-1, self.config.vocab_size).contiguous(), labels[..., 1:].view(-1).contiguous().long()).mean()
             
             return {
-                'logits': self.output(h[:, -1, :]).float(), 
+                'logits': output, 
                 'loss': loss,
                 'hidden_states': output,
             }

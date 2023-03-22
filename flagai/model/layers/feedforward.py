@@ -17,7 +17,7 @@ from flagai.mpu.mappings import gather_from_model_parallel_region
 from flagai.mpu.mappings import reduce_from_model_parallel_region
 from flagai.mpu.mappings import scatter_to_model_parallel_region
 from flagai.mpu.utils import divide
-
+from flagai.model.utils import normal_init_method
 from flagai.model.layers.linear import CPM3Linear
 
 from .layer_norm import CPM3LayerNorm
@@ -80,13 +80,13 @@ class LLAMAForward(nn.Module):
         hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
             self.w1 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
+                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0,0.001)
             )
             self.w2 = RowParallelLinear(
-                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=lambda x: x
+                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=normal_init_method(0,0.001)
             )
             self.w3 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False, init_method=lambda x: x
+                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0,0.001)
             )
         else:
             self.w1 = nn.Linear(dim, hidden_dim, bias=False)
