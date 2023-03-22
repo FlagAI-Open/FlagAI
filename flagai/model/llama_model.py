@@ -152,11 +152,13 @@ class LLAMAModel(BaseModel):
         if self.config.checkpoint_activations:
 
             for layer in self.layers:
+                layer.use_cache = self.use_cache
                 h = checkpoint(create_custom_forward(layer),
-                                h, freqs_cis, mask, self.use_cache)
+                                h, freqs_cis, mask)
         else:
-             for layer in self.layers:
-                h = layer(h, freqs_cis, mask, self.use_cache)
+            for layer in self.layers:
+                layer.use_cache = self.use_cache
+                h = layer(h, freqs_cis, mask)
       
         
         if labels is not None:
