@@ -73,25 +73,34 @@ class LLAMAForward(nn.Module):
         self,
         dim,
         hidden_dim,
-        multiple_of
+        multiple_of,
+        config
     ):
         super().__init__()
+
+        self.config = config
+
         hidden_dim = int(2 * hidden_dim / 3)
         hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
             self.w1 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0,0.001)
+                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0, self.config.initializer_range)
             )
             self.w2 = RowParallelLinear(
-                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=normal_init_method(0,0.001)
+                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=normal_init_method(0, self.config.initializer_range)
             )
             self.w3 = ColumnParallelLinear(
-                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0,0.001)
+                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0, self.config.initializer_range)
             )
         else:
             self.w1 = nn.Linear(dim, hidden_dim, bias=False)
             self.w2 = nn.Linear(hidden_dim, dim, bias=False)
             self.w3 = nn.Linear(dim, hidden_dim, bias=False)
+
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.w1.weight)
+            init_method(self.w2.weight)
+            init_method(self.w3.weight)
 
     def forward(self, x):
         return self.w2(F.silu(self.w1(x)) * self.w3(x))

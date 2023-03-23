@@ -83,6 +83,8 @@ def apply_rotary_emb(
 class LLAMAAttention(nn.Module):
     def __init__(self, config):
         super().__init__()
+
+        self.config = config 
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             self.n_local_heads = config.n_heads // get_model_parallel_world_size()
             self.head_dim = config.dim // config.n_heads
@@ -91,28 +93,28 @@ class LLAMAAttention(nn.Module):
                 config.n_heads * self.head_dim,
                 bias=False,
                 gather_output=False,
-                init_method=normal_init_method(0,0.001),
+                init_method=normal_init_method(0, self.config.initializer_range),
             )
             self.wk = ColumnParallelLinear(
                 config.dim,
                 config.n_heads * self.head_dim,
                 bias=False,
                 gather_output=False,
-                init_method=normal_init_method(0,0.001),
+                init_method=normal_init_method(0, self.config.initializer_range),
             )
             self.wv = ColumnParallelLinear(
                 config.dim,
                 config.n_heads * self.head_dim,
                 bias=False,
                 gather_output=False,
-                init_method=normal_init_method(0,0.001),
+                init_method=normal_init_method(0, self.config.initializer_range),
             )
             self.wo = RowParallelLinear(
                 config.n_heads * self.head_dim,
                 config.dim,
                 bias=False,
                 input_is_parallel=True,
-                init_method=lambda x: x,
+                init_method=normal_init_method(0, self.config.initializer_range),
             )
         else:
             self.n_local_heads = config.n_heads 
@@ -121,6 +123,12 @@ class LLAMAAttention(nn.Module):
             self.wk = nn.Linear(config.dim, config.dim, bias=False)
             self.wv = nn.Linear(config.dim, config.dim, bias=False)
             self.wo = nn.Linear(config.dim, config.dim, bias=False)
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.wq.weight)
+            init_method(self.wk.weight)
+            init_method(self.wv.weight)
+            init_method(self.wo.weight)
+
         if config.use_cache:
             self.cache_k = torch.zeros(
                 (config.max_batch_size, config.max_seq_len, self.n_local_heads, self.head_dim)
@@ -128,7 +136,6 @@ class LLAMAAttention(nn.Module):
             self.cache_v = torch.zeros(
                 (config.max_batch_size, config.max_seq_len, self.n_local_heads, self.head_dim)
             )
-        self.config = config 
 
     def forward(
                 self, 

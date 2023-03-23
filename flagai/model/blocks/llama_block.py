@@ -35,7 +35,7 @@ class LLAMABlock(nn.Module):
         self.attention = LLAMAAttention(config)
 
         self.feed_forward = LLAMAForward(
-            dim=config.dim, hidden_dim=4 * config.dim, multiple_of=config.multiple_of
+            dim=config.dim, hidden_dim=4 * config.dim, multiple_of=config.multiple_of, config=config
         )
 
         self.layer_id = layer_id

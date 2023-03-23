@@ -14,8 +14,9 @@ else:
     from torch.utils.checkpoint import checkpoint
 import os 
 from flagai.model.base_model import BaseModel 
+from flagai.model.base_model import ConfigObj
 
-class LLAMAConfig():
+class LLAMAConfig(ConfigObj):
     r"""
     This is the configuration class to store the configuration of a [`~LLaMAModel`]. It is used to instantiate an LLaMA
     model according to the specified arguments, defining the model architecture. Instantiating a configuration with the
@@ -68,7 +69,8 @@ class LLAMAConfig():
         n_layers=32,
         n_heads=32,
         #hidden_act="silu",
-        #initializer_range=0.02,
+        initializer_range=0.02,
+        checkpoint_activations=False,
  
         norm_eps=1e-6,
         use_cache=False,
@@ -88,7 +90,10 @@ class LLAMAConfig():
         self.n_layers = n_layers
         self.n_heads = n_heads
         # self.hidden_act = hidden_act
-        # self.initializer_range = initializer_range
+
+        self.initializer_range = initializer_range
+        self.checkpoint_activations = checkpoint_activations
+
         self.norm_eps = norm_eps
         self.use_cache = use_cache
         # super().__init__(
@@ -106,9 +111,14 @@ def create_custom_forward(module):
 class LLAMAModel(BaseModel):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
-        self.config = config
+
+        self.config = LLAMAConfig()
+        for key in config.json_config:
+            if hasattr(self.config, key):
+                setattr(self.config, key, config.json_config[key])
+        config = self.config
+
         self.use_cache = config.use_cache
-        self.config =config 
         self.vocab_size = config.vocab_size
         self.n_layers = config.n_layers
 
@@ -116,12 +126,14 @@ class LLAMAModel(BaseModel):
             self.tok_embeddings = ParallelEmbedding(
                 config.vocab_size,
                 config.dim,
-                init_method=normal_init_method(0,0.001))
+                init_method=normal_init_method(0, self.config.initializer_range))
         else:
             self.tok_embeddings = nn.Embedding(
                 config.vocab_size,
                 config.dim,
             )
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.tok_embeddings.weight)
 
         self.start_pos = 0
         self.layers = torch.nn.ModuleList()
@@ -131,10 +143,13 @@ class LLAMAModel(BaseModel):
         self.norm = RMSNorm(config.dim, eps=config.norm_eps)
         if os.getenv("ENV_TYPE") == "deepspeed+mpu":
             self.output = ColumnParallelLinear(
-            config.dim, config.vocab_size, bias=False, init_method= normal_init_method(0,0.001)
+                config.dim, config.vocab_size, bias=False,
+                init_method=normal_init_method(0, self.config.initializer_range)
             )
         else:
             self.output = nn.Linear(config.dim, config.vocab_size, bias=False)
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.output.weight)
 
         self.freqs_cis = precompute_freqs_cis(
             self.config.dim // self.config.n_heads, self.config.max_seq_len * 2
