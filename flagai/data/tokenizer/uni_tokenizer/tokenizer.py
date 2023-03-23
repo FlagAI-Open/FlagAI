@@ -93,9 +93,6 @@ class Tokenizer(BaseTokenizer):
             self.num_command_tokens = 6
             self.num_text_tokens = self.num_tokens - 5
             self.num_type_tokens = 2
-            self.token_start_id = None
-            self.token_end_id = None
-            self.token_pad_id = None
             try:
                 self._command_tokens = [
                     CommandToken(
@@ -117,12 +114,6 @@ class Tokenizer(BaseTokenizer):
                         'eos', '[PAD]',
                         self.text_tokenizer.convert_token_to_id('[PAD]')),
                 ]
-                self.token_start_id = self.text_tokenizer.convert_token_to_id(
-                    '[CLS]')
-                # self.token_end_id = self.text_tokenizer.convert_token_to_id(
-                #     '[SEP]')
-                self.token_pad_id = self.text_tokenizer.convert_token_to_id(
-                    '[PAD]')
 
                 self.text_tokenizer._token_cls = "[CLS]"
                 self.text_tokenizer._token_sep = "[SEP]"
@@ -148,12 +139,6 @@ class Tokenizer(BaseTokenizer):
                         'eos', '[PAD]',
                         self.text_tokenizer.convert_token_to_id('</s>')),
                 ]
-                self.token_start_id = self.text_tokenizer.convert_token_to_id(
-                    '<s>')
-                # self.token_end_id = self.text_tokenizer.convert_token_to_id(
-                #     '</s>')
-                self.token_pad_id = self.text_tokenizer.convert_token_to_id(
-                    '<pad>')
                 self.text_tokenizer._token_cls = "<s>"
                 self.text_tokenizer._token_sep = "</s>"
             if add_block_symbols:
@@ -279,20 +264,15 @@ class Tokenizer(BaseTokenizer):
                         [CommandToken('dBLOCK', '[dBLOCK]', self.num_tokens)])
                     self.num_tokens += 1
                     self.num_command_tokens += 1
+            if self.tokenizer_model_name.lower().startswith('opt'):
+                self._command_tokens = []
+                special_tokens = ['cls', 'pad', 'bos','eos', 'unk', 'mask']
 
         elif self.tokenizer_class == "sp":
+            fix_command_token = True
             self.num_command_tokens = 0
             self.num_text_tokens = self.text_tokenizer.vocab_size
             self.num_tokens = self.num_text_tokens
-
-            if self.tokenizer_model_name.lower().startswith('glm'):
-                pad_token_id = self.num_tokens
-                eos_token_id = self.num_tokens
-                unk_token_id = self.num_tokens + 4
-            else:
-                pad_token_id = self.text_tokenizer.convert_token_to_id('<pad>')
-                eos_token_id = self.text_tokenizer.convert_token_to_id('</s>')
-                unk_token_id = self.text_tokenizer.convert_token_to_id('<unk>')
 
             self._command_tokens = [
                 CommandToken('pad', '<|endoftext|>', self.num_text_tokens),
@@ -371,7 +351,8 @@ class Tokenizer(BaseTokenizer):
             for tk in special_tokens:
                 if tk not in self.command_name_map:
                     res = self.search_special(tk)
-                    self.add_command_token(tk, res,self.tokenizer_class)
+                    if res:
+                        self.add_command_token(tk, res,self.tokenizer_class)
 
         self.command_name_map = {tok.name: tok for tok in self._command_tokens}
         self.command_token_map = {
@@ -381,18 +362,27 @@ class Tokenizer(BaseTokenizer):
         self.command_id_map = {tok.Id: tok for tok in self._command_tokens}
         self._command_token_tokens = list(self.command_token_map.keys())
         vocab =  self.text_tokenizer.get_vocab()
-        try:
-            self.token_start_id = self.TokenToId('<s>')
-        except KeyError:
-            self.token_start_id = self.TokenToId('[CLS]')
 
-        try:
-            self.token_end_id = self.TokenToId("</s>")
-        except KeyError:
-            self.token_end_id = self.TokenToId("<|endoftext|>")
-        except KeyError:
-            self.token_end_id = self.TokenToId("[SEP]")
+        for potential_start in ['<s>', '[CLS]']:
+            try: 
+                self.token_start_id = self.TokenToId(potential_start)
+                break 
+            except KeyError:
+                pass
 
+        for potential_end in ["</s>", "<|endoftext|>", "[SEP]"]:
+            try: 
+                self.token_end_id = self.TokenToId(potential_end)
+                break 
+            except KeyError:
+                pass
+
+        for potential_pad in ['[PAD]', '<pad>']:
+            try: 
+                self.token_pad_id = self.TokenToId(potential_pad)
+                break 
+            except KeyError:
+                pass
         print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
 
     def get_vocab(self):
@@ -662,7 +652,7 @@ class Tokenizer(BaseTokenizer):
             self.get_command_id("cls")
         except KeyError:
             add_special_tokens = False
-
+        
         if add_special_tokens:
             if pair_ids is not None:
                 sequence = [self.get_command_id("cls")] + ids + [

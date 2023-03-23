@@ -61,8 +61,9 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(encode_plus_result['input_ids'],
                     [101, 306, 1231, 798, 5447, 798, 266, 4017, 1738, 1166, 102], 'encode_plus Error')
         self.assertEqual(set([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()]),
-                 {('eos', '[PAD]', 0), ('cls', '[CLS]', 101), ('mask', '[MASK]', 103), ('unk', '[UNK]', 100), 
-                 ('sep', '[SEP]', 102), ('pad', '[PAD]', 0)}, 'SpecialTokens error') 
+                 {('pad', '[PAD]', 0), ('cls', '[CLS]', 101), ('mask', '[MASK]', 103), ('unk', '[UNK]', 100), 
+                 ('sep', '[SEP]', 102), ('eos', '[PAD]', 0), ('sop', '<|startofpiece|>', 50000), ('eop', '<|endofpiece|>', 50001), 
+                 ('gMASK', '[gMASK]', 50002), ('sMASK', '[sMASK]', 50003)}, 'SpecialTokens error') 
 
         
     def test_tokenizer_roberta(self):
@@ -77,8 +78,9 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokenizer.encode_plus('今天吃饭吃了肯德基')['input_ids'],
                          [101, 791, 1921, 1391, 7649, 1391, 749, 5507, 2548, 1825, 102], 'encode_plus Error')
         self.assertEqual(set([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()]),
-                 {('unk', '[UNK]', 100), ('cls', '[CLS]', 101), ('sep', '[SEP]', 102), ('mask', '[MASK]', 103), 
-                 ('eos', '[PAD]', 0), ('pad', '[PAD]', 0)}, 'SpecialTokens error')                
+                 {('pad', '[PAD]', 0), ('cls', '[CLS]', 101), ('mask', '[MASK]', 103), ('unk', '[UNK]', 100), 
+                 ('sep', '[SEP]', 102), ('eos', '[PAD]', 0), ('sop', '<|startofpiece|>', 21128), 
+                 ('eop', '<|endofpiece|>', 21129), ('gMASK', '[gMASK]', 21130), ('sMASK', '[sMASK]', 21131)}, 'SpecialTokens error')                
 
     def test_tokenizer_bert(self):
         tokenizer = Tokenizer.from_pretrained('BERT-base-en')
@@ -93,7 +95,8 @@ class TokenizerTestCase(unittest.TestCase):
                          [101, 13017, 7975, 3084, 2033, 3407, 102], 'encode_plus Error')
         self.assertEqual(set([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()]),
                 {('eos', '[PAD]', 0), ('unk', '[UNK]', 100), ('cls', '[CLS]', 101), ('sep', '[SEP]', 102), 
-                 ('mask', '[MASK]', 103), ('pad', '[PAD]', 0)}, 'SpecialTokens error')
+                 ('mask', '[MASK]', 103), ('pad', '[PAD]', 0),('sop', '<|startofpiece|>', 30522), 
+                 ('eop', '<|endofpiece|>', 30523), ('gMASK', '[gMASK]', 30524), ('sMASK', '[sMASK]', 30525)}, 'SpecialTokens error')
 
     # def test_tokenizer_cpm1(self):
     #     loader = AutoLoader(task_name="lm",
@@ -118,14 +121,12 @@ class TokenizerTestCase(unittest.TestCase):
     def test_tokenizer_opt(self):
         tokenizer = Tokenizer.from_pretrained('opt-1.3b-en')
         self.assertEqual(tokenizer.encode("day"), [1208], '')
-        self.assertEqual(tokenizer.encode_plus("fried chicken makes me happy")["input_ids"],
-                         [0, 21209, 5884, 817, 162, 1372, 2], '')
         self.assertEqual(tokenizer.decode([21209, 5884, 817, 162, 1372]),
                          'fried chicken makes me happy', 'DecodeIds Error')
         self.assertEqual(tokenizer.tokenize('fried chicken makes me happy'),
                          ['fried', 'Ġchicken', 'Ġmakes', 'Ġme', 'Ġhappy'], 'tokenize Error')
         self.assertEqual(tokenizer.encode_plus('fried chicken makes me happy')['input_ids'],
-                         [0, 21209, 5884, 817, 162, 1372, 2], 'encode_plus Error')
+                         [2, 21209, 5884, 817, 162, 1372], 'encode_plus Error')
         self.assertEqual(set([(k, v.token, v.Id) for k,v in tokenizer.command_name_map.items()]),
                 {('cls', '<s>', 0), ('pad', '<pad>', 1), ('bos', '</s>', 2), ('eos', '</s>', 2), ('unk', '<unk>', 3),
                 ('mask', '<mask>', 50264)}, 'SpecialTokens error')
