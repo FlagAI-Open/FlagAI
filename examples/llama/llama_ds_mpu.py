@@ -32,9 +32,6 @@ parser.add_argument("--world_size", default=16*8, type=int)
 parser.add_argument("--local_rank", default=-1, type=int)
 
 args = parser.parse_args()
-args.hostfile = './hostfile'
-args.per_gpu_batch_size = 1
-args.log_every_n_step = 1
 
 def main():
 
@@ -53,8 +50,8 @@ def main():
         tensorboard_dir = 'current_training/tboard',
         master_ip=os.getenv("MASTER_IP"),
         master_port=int(os.getenv("MASTER_PORT")),
-        num_gpus=1,
-        num_nodes=1,
+        num_gpus=2,
+        num_nodes=2,
         fp16=True,
         save_optim=True,
         save_rng = True,
@@ -63,7 +60,7 @@ def main():
         hostfile=args.host_file,
         training_script=__file__,
         deepspeed_config='deepspeed.json',
-        model_parallel_size=1,
+        model_parallel_size=2,
         )
     
     # tokenizer = Tokenizer.from_pretrained('./state_dict/llama-30b-en/tokenizer.model')
