@@ -29,10 +29,10 @@ env_args = EnvArgs(
     gradient_accumulation_steps=1,
     lr=2e-4,
     weight_decay=1e-3,
-    epochs=10,
+    epochs=100,
     log_interval=1,
     eval_interval=10000,
-    num_gpus=2,
+    num_gpus=1,
     load_dir=None,
     pytorch_device=device,
     save_dir="checkpoints_llama",
@@ -55,9 +55,7 @@ if not env_args.not_call_launch:
 checkpoints = "/share/project/ldwang/checkpoints/"
 model_name = "llama-30b-en"
 model_name = "llama-7b-en"
-model_name = "llama-7b-en-diy"
 
-'''
 auto_loader = AutoLoader(
     "lm",
     model_name=model_name,
@@ -65,8 +63,12 @@ auto_loader = AutoLoader(
     only_download_config=True,
 )
 model = auto_loader.get_model()
-'''
+tokenizer = auto_loader.get_tokenizer()
+print('*'*20, "model", model)
+trainer.pre_train(model)
+print('*'*20, "model", model)
 
+'''
 cache_dir = checkpoints + model_name
 print('*'*20, "cache_dir", cache_dir)
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
@@ -78,6 +80,7 @@ model = LLAMA.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
 trainer.pre_train(model)
 print('*'*20, "model", model)
+'''
 
 '''
 data_prefix = [
@@ -198,7 +201,7 @@ class GPT2Seq2seqDataset(Dataset):
         tgt = self.sents_tgt[i]
         in_text = f"{src}。对以上文字提取重点:{tgt}"
         
-        data = self.tokenizer.encode(in_text)
+        data = self.tokenizer.encode(in_text, True, True)
 
         output = {
             "input_ids": data,

@@ -35,6 +35,7 @@ env_args = EnvArgs(
     training_script=__file__,
 )
 env_args = env_args.parse_args()
+env_args.wandb = False
 
 trainer = EnvTrainer(env_args)
 
@@ -78,7 +79,7 @@ train_valid_test_num_samples = [41313, 4132, 0] # debug
 train_valid_test_num_samples = [41313229, 4132, 0]
 seq_length = 1024
 seed = 2023
-skip_warmup = False
+skip_warmup = True
 
 train_dataset, val_dataset, test_dataset = _build_train_valid_test_datasets(
     data_prefix, data_impl, splits_string,
