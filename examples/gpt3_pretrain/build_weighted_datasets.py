@@ -78,6 +78,41 @@ if __name__ == '__main__':
         1.46,
         '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-wikipedia_en_text_document',
     ]
+
+    ## update Tokenizer add CLS & SEP tokens
+    data_prefix = [
+        2.7,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/cn_baike_text_document',
+        2.91,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/cn_ebook_merge_maxlen_text_document',
+        1.89,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/cn_zhihu_text_document',
+        1.46,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/cn_wudao_base_merged_text_document',
+        1.01,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/cn_wudao_dedup_merged_text_document',
+        0.9,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-arxiv_text_document',
+        2.5,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-bookcorpus2_text_document',
+        1.1,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-books3_text_document',
+        1.38,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-gutenberg_pg-19_text_document',
+        2.82,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-openwebtext2_text_document',
+        1.01,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pile-cc_text_document',
+        0.95,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_abstracts_text_document',
+        0.95,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_central_text_document',
+        2.08,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
+        1.46,
+        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
+    ]
+
     data_impl = 'mmap'
     ## splits_string len should same as train_valid_test_num_samples len
     splits_string = '9999,1'
