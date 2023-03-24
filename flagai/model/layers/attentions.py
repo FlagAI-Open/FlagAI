@@ -119,10 +119,10 @@ class LLAMAAttention(nn.Module):
         else:
             self.n_local_heads = config.n_heads 
             self.head_dim = config.dim // config.n_heads
-            self.wq = nn.Linear(config.dim, config.dim, bias=False)
-            self.wk = nn.Linear(config.dim, config.dim, bias=False)
-            self.wv = nn.Linear(config.dim, config.dim, bias=False)
-            self.wo = nn.Linear(config.dim, config.dim, bias=False)
+            self.wq = nn.Linear(config.dim, config.n_heads * self.head_dim, bias=False)
+            self.wk = nn.Linear(config.dim, config.n_heads * self.head_dim, bias=False)
+            self.wv = nn.Linear(config.dim, config.n_heads * self.head_dim, bias=False)
+            self.wo = nn.Linear(config.n_heads * self.head_dim, config.dim, bias=False)
             init_method=normal_init_method(0, self.config.initializer_range)
             init_method(self.wq.weight)
             init_method(self.wk.weight)

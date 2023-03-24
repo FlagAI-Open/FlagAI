@@ -60,7 +60,7 @@ def main():
         hostfile=args.host_file,
         training_script=__file__,
         deepspeed_config='deepspeed.json',
-        model_parallel_size=2,
+        model_parallel_size=8,
         )
     
     # tokenizer = Tokenizer.from_pretrained('./state_dict/llama-30b-en/tokenizer.model')
@@ -69,7 +69,8 @@ def main():
     model_dir = "/share/project/ldwang/checkpoints/"
     auto_loader = AutoLoader(
     "lm",
-    model_name="llama-7b-en",
+    #model_name="llama-7b-en",
+    model_name="llama-30b-en",
     model_dir=model_dir,
     only_download_config=True,
     use_cache=False,

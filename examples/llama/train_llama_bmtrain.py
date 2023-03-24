@@ -53,9 +53,10 @@ if not env_args.not_call_launch:
 
 ## TODO
 checkpoints = "/share/project/ldwang/checkpoints/"
-model_name = "llama-30b-en"
 model_name = "llama-7b-en"
+model_name = "llama-30b-en"
 
+'''
 auto_loader = AutoLoader(
     "lm",
     model_name=model_name,
@@ -75,12 +76,16 @@ tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
 print('*'*20, "tokenizer", tokenizer)
 
 config_file = cache_dir + "/config.json"
-from flagai.model.llama_model import LLAMA
-model = LLAMA.init_from_json(config_file=config_file)
+from flagai.model.llama_model import LLAMAModel
+print('*'*20, "start waiting at local_rank=", trainer.local_rank)
+import time
+time.sleep(10*60*(trainer.local_rank%2))
+print('*'*20, "end waiting at local_rank=", trainer.local_rank)
+model = LLAMAModel.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
+
 trainer.pre_train(model)
 print('*'*20, "model", model)
-'''
 
 '''
 data_prefix = [
@@ -201,7 +206,10 @@ class GPT2Seq2seqDataset(Dataset):
         tgt = self.sents_tgt[i]
         in_text = f"{src}。对以上文字提取重点:{tgt}"
         
-        data = self.tokenizer.encode(in_text, True, True)
+        ## Based on differenct tokenizer
+        ## Vocab Size should be checked.
+        #data = self.tokenizer.encode(in_text, True, True)
+        data = self.tokenizer.encode_plus(in_text, None, max_length=None)['input_ids']
 
         output = {
             "input_ids": data,
