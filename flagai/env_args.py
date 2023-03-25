@@ -48,6 +48,7 @@ class EnvArgs:
                  wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
                  already_fp16=False,
                  resume_dataset=False,
+                 shuffle_dataset=True,
 
                  # distribute settings
                  deepspeed_activation_checkpointing=False,
@@ -114,6 +115,7 @@ class EnvArgs:
         self.parser.add_argument('--already_fp16', default=already_fp16, type=str2bool, help='whether already_fp16')
 
         self.parser.add_argument('--resume_dataset', default=resume_dataset, type=str2bool, help='whether to resume dataset')
+        self.parser.add_argument('--shuffle_dataset', default=shuffle_dataset, type=str2bool, help='start training from saved checkpoint')
 
         self.parser.add_argument('--adam_beta1', default=adam_beta1, type=float, help='adam beta1')
         self.parser.add_argument('--adam_beta2', default=adam_beta2, type=float, help='adam beta2')

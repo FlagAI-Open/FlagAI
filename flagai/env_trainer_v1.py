@@ -128,6 +128,7 @@ class EnvTrainer():
         self.already_fp16 = env_args.already_fp16
 
         self.resume_dataset = env_args.resume_dataset
+        self.shuffle_dataset = env_args.shuffle_dataset
 
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
@@ -335,7 +336,7 @@ class EnvTrainer():
 
         if not isinstance(train_dataset, torch.utils.data.DataLoader):
             train_dataloader = self.get_dataloader(train_dataset, collate_fn,
-                                                   True, rank_split=rank_split)
+                                                   self.shuffle_dataset, rank_split=rank_split)
         else:
             train_dataloader = train_dataset
 

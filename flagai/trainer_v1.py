@@ -171,7 +171,8 @@ class Trainer():
         wandb_dir=None,
         wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
         already_fp16=False,
-        resume_dataset=False
+        resume_dataset=False,
+        shuffle_dataset=True
     ):
 
         if timers is not None:
@@ -238,6 +239,7 @@ class Trainer():
         self.already_fp16 = already_fp16
 
         self.resume_dataset = resume_dataset
+        self.shuffle_dataset = shuffle_dataset
 
         if self.env_type != 'pytorch':
             training_paras = self.get_dist_args()
@@ -463,7 +465,7 @@ class Trainer():
 
         if not isinstance(train_dataset, torch.utils.data.DataLoader):
             train_dataloader = self.get_dataloader(train_dataset, collate_fn,
-                                                   True, rank_split=rank_split)
+                                                   self.shuffle_dataset, rank_split=rank_split)
         else:
             train_dataloader = train_dataset
 
