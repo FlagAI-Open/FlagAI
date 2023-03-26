@@ -30,6 +30,8 @@ from megatron.data.gpt_dataset import _build_shuffle_idx, _build_doc_idx, _num_e
 
 import sys
 data_prefix = 'merged_text_document'
+assert len(sys.argv) > 1
+data_prefix = sys.argv[1]
 
 # Indexed dataset.
 dataset = get_indexed_dataset_(
