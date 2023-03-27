@@ -190,11 +190,11 @@ class LLAMAModel(BaseModel):
                 h = checkpoint(create_custom_forward(self.output),h)
             else:
                 h = self.output(h)
-            # shift_logits = h[..., :-1, :].contiguous()
-            # shift_labels = labels[..., 1:].contiguous()
+            shift_logits = h[..., :-1, :].contiguous()
+            shift_labels = labels[..., 1:].contiguous()
 
             loss = self.loss_func(
-                h[..., :-1, :].view(-1, self.config.vocab_size).contiguous(), labels[..., 1:].view(-1).contiguous().long()).mean()
+                shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1).long()).mean()
             
             return {
                 'logits': h, 
