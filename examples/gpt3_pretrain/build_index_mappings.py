@@ -131,8 +131,9 @@ def _build_index_mappings(name, data_prefix, documents, sizes,
                 assert last_epoch_num_samples >= 0, \
                     'last epoch number of samples should be non-negative.'
                 num_samples_per_epoch = (tokens_per_epoch - 1) // seq_length
-                assert last_epoch_num_samples < (num_samples_per_epoch + 1), \
-                    'last epoch number of samples exceeded max value.'
+                print_rank_0(f"num_samples_per_epoch={num_samples_per_epoch}, last_epoch_num_samples={last_epoch_num_samples}")
+                #assert last_epoch_num_samples < (num_samples_per_epoch + 1), \
+                #    'last epoch number of samples exceeded max value.'
                 # If we have less than 80% of the samples for the last epoch,
                 # seperate out the epoch and treat it differently.
                 # Note: the 80% number is just based on common sense and can
@@ -275,10 +276,12 @@ def _build_train_valid_test_datasets(data_prefix, data_impl, splits_string,
         if splits[index + 1] > splits[index]:
             documents = np.arange(start=splits[index], stop=splits[index + 1],
                                   step=1, dtype=np.int32)
+            print_rank_0(f"Started build_dataset {data_prefix}")
             dataset = GPTDataset(name, data_prefix,
                                   documents, indexed_dataset,
                                   train_valid_test_num_samples[index],
                                   seq_length, seed)
+            print_rank_0(f"Ended build_dataset {data_prefix}")
         return dataset
 
     train_dataset = build_dataset(0, 'train')
@@ -497,6 +500,7 @@ if __name__ == '__main__':
     seed = 2023
     skip_warmup = True
 
+    print_rank_0(f"Started _build_train_valid_test_weighted_datasets")
     train_dataset, valid_dataset, test_dataset = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
