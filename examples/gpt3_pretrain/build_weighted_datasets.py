@@ -113,6 +113,7 @@ if __name__ == '__main__':
         '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
     ]
 
+    '''
     ## update Tokenizer add CLS & SEP tokens
     ## add codes & update cn
     data_prefix = [
@@ -171,6 +172,68 @@ if __name__ == '__main__':
     seq_length = 2048
     seed = 2023
     skip_warmup = True
+    '''
+
+    ## update Tokenizer add CLS & SEP tokens
+    ## add codes & update cn
+    ## projset
+    data_prefix = [
+        1.0,
+        '/share/projset/LM_data/batch1_tok100k_sep/cn_9_dedup_wudao_text_document',
+        1.0,
+        '/share/projset/LM_data/batch1_tok100k_sep/cn_9_part_merged_text_document',
+        1.0,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-pile-cc_text_document',
+        1.51,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-openwebtext2_text_document',
+
+        0.6,
+        '/share/projset/LM_data/batch1_tok100k_sep/code_dedup-md5-pile-github_text_document',
+        0.53,
+        '/share/projset/LM_data/batch1_tok100k_sep/code_code_text_document',
+        0.53,
+        '/share/projset/LM_data/batch1_tok100k_sep/code_newcode1_text_document',
+        0.53,
+        '/share/projset/LM_data/batch1_tok100k_sep/code_newcode2_text_document',
+        0.38,
+        '/share/projset/LM_data/batch1_tok100k_sep/code_code-cpp_text_document',
+        0.38,
+        '/share/projset/LM_data/batch1_tok100k_sep/code_code-java_text_document',
+
+        1.06,
+        '/share/projset/LM_data/batch1_tok100k_sep/cn_baike_text_document',
+        2.43,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
+
+        1.0,
+        '/share/projset/LM_data/batch1_tok100k_sep/cn_ebook_merge_maxlen_text_document',
+        1.42,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-gutenberg_pg-19_text_document',
+        1.42,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-bookcorpus2_text_document',
+        1.42,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-books3_text_document',
+        1.14,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-arxiv_text_document',
+        1.14,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_abstracts_text_document',
+
+        1.13,
+        '/share/projset/LM_data/batch1_tok100k_sep/cn_zhihu_text_document',
+        2.08,
+        '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
+    ]
+
+    data_impl = 'mmap'
+    ## splits_string len should same as train_valid_test_num_samples len
+    splits_string = '9999,1'
+    ## rebuilding if no npy files for train_valid_test_num_samples config
+    ## 400B
+    ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+    train_valid_test_num_samples = [195312500, 19531]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
 
     train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
@@ -180,8 +243,8 @@ if __name__ == '__main__':
     print("Total valid_dataset: ", len(valid_dataset))
 
     loader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=4,
+        valid_dataset,
+        batch_size=1,
         sampler=None,
         num_workers=4,
         drop_last=False,
