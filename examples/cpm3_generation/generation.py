@@ -15,7 +15,7 @@ task_ids = {
 
 class BeamHypotheses(object):
 
-    def __init__(self, n_hyp, max_len, length_penalty, early_stopping, tokenizer=None):
+    def __init__(self, n_hyp, max_len, length_penalty, early_stopping):
         """
         Initialize n-best list of hypotheses.
         """
@@ -25,7 +25,6 @@ class BeamHypotheses(object):
         self.n_hyp = n_hyp
         self.hyp = []
         self.worst_score = 1e9
-        self.tokenizer = tokenizer
 
     def __len__(self):
         """
@@ -700,7 +699,7 @@ def generate_beam(model, tokenizer, instance, target_span_len, beam_size = 3,
 
     # generated hypotheses
     generated_hyps = [
-        BeamHypotheses(beam_size, span_length, length_penalty=1 , early_stopping=False, tokenizer=tokenizer)
+        BeamHypotheses(beam_size, span_length, length_penalty=1 , early_stopping=False)
         for _ in range(batch_size)
     ]
 

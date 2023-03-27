@@ -83,7 +83,8 @@ class BaseTokenizer(object):
                        *inputs,
                        **kwargs)
         elif tokenizer_class == "sp":
-            return cls(sp_model_file=resolved_sp_file,
+            return cls(vocab_file=resolved_vocab_json_file,
+                       sp_model_file=resolved_sp_file,
                        tokenizer_class=tokenizer_class,
                        tokenizer_model_name=tokenizer_model_name,
                        tokenizer_json_file=resolved_tokenizer_json_file,

@@ -159,6 +159,7 @@ class Trainer():
         deepspeed_config=None,
         model_parallel_size=1,
         training_script="train.py",
+        optimizer_type='adam',
     ):
 
         if timers is not None:
@@ -184,6 +185,8 @@ class Trainer():
         self.log_interval = log_interval
         self.eval_interval = eval_interval
         self.tokenizer = tokenizer
+
+        self.optimizer_type = optimizer_type
 
         # model checkpointing
         self.save_dir = save_dir
@@ -333,13 +336,14 @@ class Trainer():
         else:
             if self.env_type == 'deepspeed+mpu':
                 rank = mpu.get_model_parallel_src_rank()
-                print("*"*80)
-                print("local rank",self.rank, "model rank", rank)
-                print("*"*80)
+                data_rank = mpu.get_data_parallel_rank()
+                log_dist("*"*80)
+                log_dist(f"local rank {self.rank} src rank  {rank} data rank {data_rank}")
+                log_dist("*"*80)
                 sampler = torch.utils.data.distributed.DistributedSampler(
                     dataset,
-                    # num_replicas=num_replicas,
-                    rank=rank,
+                    num_replicas=self.world_size//self.model_parallel_size,
+                    rank=data_rank,
                     shuffle=shuffle)
             elif self.env_type == 'bmtrain':
                 print("*"*80)
@@ -471,7 +475,7 @@ class Trainer():
                 cpu_optimizer=False,
                 cpu_torch_adam=False,
                 fp16=self.fp16,
-                optimizer='adam')  # if not self.fp16 else 'adafactor')
+                optimizer=self.optimizer_type)  # if not self.fp16 else 'adafactor')
 
         if lr_scheduler == None and optimizer != None and self.warm_up > 0 and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
@@ -976,6 +980,7 @@ class Trainer():
             all_logits = []
             all_labels = []
             all_losses = []
+            prev = False
             for data_iterator in data_loader:
                 # Forward evaluation.
                 meta = data_iterator.get('meta', None)
@@ -1009,7 +1014,6 @@ class Trainer():
                     labels = data_iterator['labels']
                 else:
                     labels = data_iterator['target_ids']
-                loss_mask = data_iterator['loss_mask']
                 if len(self.metric_methods) != 0:
                     if {metric_tuple[0] for metric_tuple in self.metric_methods} & {"rouge", "bleu"}:
                         batch_preds = torch.argmax(logits.detach(), dim=-1).cpu()
@@ -1017,8 +1021,9 @@ class Trainer():
                         all_logits.extend(batch_preds)
                         all_labels.extend(batch_labels)
                     else:
-                        if logits.size(0) != 1:
-                            logits = torch.argmax(logits, dim=1).unsqueeze(0)
+                        if prev or logits.size(0) != 1:
+                            logits = torch.argmax(logits, dim=1)
+                            prev = True
                         all_logits.append(logits)
                         all_labels.append(labels)
                         pass

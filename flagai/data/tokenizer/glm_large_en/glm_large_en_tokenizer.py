@@ -59,7 +59,7 @@ class GLMLargeEnWordPieceTokenizer(GLMTokenizer):
         self._command_tokens = [
             CommandToken('pad', '[PAD]', self.text_tokenizer.vocab['[PAD]']),
             CommandToken('cls', '[CLS]', self.text_tokenizer.vocab['[CLS]']),
-            CommandToken('MASK', '[MASK]',
+            CommandToken('mask', '[MASK]',
                          self.text_tokenizer.vocab['[MASK]']),
             CommandToken('unk', '[UNK]', self.text_tokenizer.vocab['[UNK]']),
             CommandToken('sep', '[SEP]', self.text_tokenizer.vocab['[SEP]']),

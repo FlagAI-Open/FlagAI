@@ -22,7 +22,7 @@ trainer = Trainer(env_type="pytorch",
                   save_interval=1)
 
 model_name = "GLM-large-ch"
-model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
+model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
                                              model_name="GLM-large-ch")
 
 

@@ -55,7 +55,7 @@ class GLMLargeChTokenizer(GLMTokenizer):
             CommandToken('eos', '<|endoftext|>', self.num_text_tokens),
             CommandToken('sep', '[SEP]', self.num_text_tokens + 1),
             CommandToken('cls', '[CLS]', self.num_text_tokens + 2),
-            CommandToken('MASK',
+            CommandToken('mask',
                          '[MASK]',
                          self.num_text_tokens + 3,
                          lstrip=True),
