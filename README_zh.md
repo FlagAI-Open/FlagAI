@@ -16,7 +16,6 @@
 ## 为什么你需要 FlagAI?
 
 
-
 1. **可通过 API 快速下载模型**
       
     提供 API 方便你快速下载模型，并在给定（中/英文）文本上使用这些预训练模型，在从[SuperGLUE](https://super.gluebenchmark.com/)和[CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks收集的广泛使用的数据集上对它们进行微调。
@@ -42,9 +41,9 @@
 > 本项目的部分代码基于 [GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
 
-# 工具包及已支持的模型
+## 工具包及已支持的模型
 
-## 工具
+### 工具
 
 | 工具名称           | 描述         | 样例                |
 |:-------------- |:---------- |:------------------------------------------------------ |
@@ -52,7 +51,7 @@
 | `GLM_ptuning`    | p-tuning 工具 | ——                                                     |
 | `BMInf-generate` | 推理加速    | [README.md](http:///examples/bminf_generate/README.md) |
 
-## 模型
+### 模型
 
 |    模型名称            | 任务      | 训练 | 微调 | 推理 | 样例           |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
@@ -110,9 +109,9 @@
 
 
 
-# Quick Start
+## Quick Start
 
-## 安装环境
+### 安装环境
 
 * Python 版本 >= 3.8
 * PyTorch 版本 >= 1.8.0
@@ -163,7 +162,7 @@ Host 127.0.0.1
 >>> ssh-keygen -t rsa -C "xxx@xxx.com"
 ```
 
-## 加载模型和分词器
+### 加载模型和分词器
 我们提供 `AutoLoad` 类来快速加载模型和分词器，例如：
 
 ```python
@@ -178,7 +177,7 @@ tokenizer = auto_loader.get_tokenizer()
 
 这个例子是针对`title-generation`(文本摘要）任务的，你也可以通过修改`task_name`来为其他任务建模。 然后您可以使用模型和标记器进行微调或测试。
 
-## 使用预测器
+### 使用预测器
 我们提供 `Predictor` 类来预测不同的任务，例如：
 
 ```python
@@ -199,7 +198,7 @@ for text in test_data:
 这个例子是针对 `seq2seq` 任务的，我们可以通过调用`predict_generate_beamsearch`函数得到`beam-search`结果。此外，我们还支持`NER`和`title generate`等任务的预测。
 
 
-## 命名实体识别任务示例
+### 命名实体识别任务示例
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -239,7 +238,7 @@ for t in test_data:
 ```
 
 
-## 语义相似度匹配任务示例
+### 语义相似度匹配任务示例
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -265,7 +264,7 @@ for text_pair in test_data:
 ```
 
 
-# 动态
+## 动态
 
 - [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
 - [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
@@ -277,7 +276,7 @@ for text_pair in test_data:
 - [29 Jun 2022] 支持v1.1.0版本, 支持OPT的加载，微调和推理[#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
 - [17 May 2022] 做出了我们的第一份贡献[#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
 
-# LICENSE 
+## LICENSE 
 
 
 FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注意部分项目代码基于其他协议：
@@ -288,15 +287,15 @@ FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注�
 
 
 
-# Misc
+## Misc
 
-## &#8627; Stargazers, thank you for your support!
+### &#8627; Stargazers, thank you for your support!
 [![Stargazers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/stars/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/stargazers)
 
-## &#8627; Forkers, thank you for your support!
+### &#8627; Forkers, thank you for your support!
 [![Forkers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/forks/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/network/members)
 
-## &#8627; Star History
+### &#8627; Star History
 
 <div align="center">
 
