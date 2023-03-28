@@ -11,6 +11,7 @@ from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
 from flagai.model.predictor.simctg import contrastive_search
 from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
+from flagai.model.mm.dpm_solver import DPMSolverSampler
 import os
 from PIL import Image
 from tqdm import trange, tqdm
@@ -351,6 +352,116 @@ class Predictor:
             import os
             os._exit(0)
 
+    def predict_generate_images_m18(self,
+                                prompt: str,
+                                negative_prompt: str,
+                                outpath: str = "AltDiffusionOutputs",
+                                n_samples: int = 4,
+                                n_rows: int = 0,
+                                skip_grid: bool = False,
+                                skip_save: bool = False,
+                                steps: int = 50,
+                                n_iter: int = 1,
+                                plms: bool = False,
+                                dpm: bool = False,
+                                fixed_code: bool = False,
+                                ddim_eta: float = 0.0,
+                                H: int = 512,
+                                W: int = 512,
+                                C: int = 4,
+                                f: int = 8,
+                                scale: float = 7.5,
+                                from_file: str = None,
+                                seed: int = 34234,
+                                fp16: bool = False):
+        from torchvision.utils import make_grid
+        from pytorch_lightning import seed_everything
+        from flagai.model.predictor.utils import chunk, check_safety, get_safety_checker
+        safety_checker, safety_feature_extractor = get_safety_checker()
+        """
+        Args:
+        prompt: the prompt text
+        out_path: the output path
+        n_samples: how many images to be generated
+        skip_grid: not to grid images
+        skip_save: do not save images
+        ddim_step: number of steps in ddim model
+        n_iter: number of iterations
+        plms: use PLMSSampler
+        fixed_code: sampled from a initial start code
+        seed: Random seed
+        H: height of image
+        W: width of image
+        C: channels of images, 4 for colored images
+        """
+        if plms:
+            sampler = PLMSSampler(self.model)
+        elif dpm:
+            sampler = DPMSolverSampler(self.model)
+        else:
+            sampler = DDIMSampler(self.model)
+
+        seed_everything(seed)
+        assert "diffusion" in self.class_name.lower()
+        batch_size = n_samples
+        device = next(self.model.parameters()).device
+        n_rows = n_rows if n_rows > 0 else batch_size
+
+        precision_scope = autocast if opt.precision == "autocast" else nullcontext
+        sample_path = os.path.join(outpath, "samples")
+        os.makedirs(sample_path, exist_ok=True)
+        base_count = len(os.listdir(sample_path))
+        grid_count = len(os.listdir(outpath)) - 1
+
+        start_code = None
+        if fixed_code:
+            start_code = torch.randn([n_samples, C, H // f, W // f],
+                                     device=device)
+
+
+        with torch.no_grad(), \
+            precision_scope(True), \
+            self.model.ema_scope():
+                all_samples = list()
+                prompts = [batch_size * [prompt]]
+                for prompts in tqdm(prompts, desc="data"):
+                    uc = None
+                    if scale != 1.0:
+                        uc = self.model.get_learned_conditioning(batch_size * [negative_prompt])
+                    if isinstance(prompts, tuple):
+                        prompts = list(prompts)
+                    c = self.model.get_learned_conditioning(prompts)
+                    shape = [C, H // f, W // f]
+                    samples, _ = sampler.sample(S=steps,
+                                                        conditioning=c,
+                                                        batch_size=n_samples,
+                                                        shape=shape,
+                                                        verbose=False,
+                                                        unconditional_guidance_scale=scale,
+                                                        unconditional_conditioning=uc,
+                                                        eta=ddim_eta,
+                                                        x_T=start_code)
+
+                    x_samples = self.model.decode_first_stage(samples)
+                    x_samples = torch.clamp((x_samples + 1.0) / 2.0, min=0.0, max=1.0)
+
+                    for x_sample in x_samples:
+                        x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
+                        img = Image.fromarray(x_sample.astype(np.uint8))
+
+                    all_samples.append(x_samples)
+
+                # additionally, save as grid
+                grid = torch.stack(all_samples, 0)
+                grid = rearrange(grid, 'n b c h w -> (n b) c h w')
+                grid = make_grid(grid, nrow=n_rows)
+
+                # to image
+                grid = 255. * rearrange(grid, 'c h w -> h w c').cpu().numpy()
+                grid = Image.fromarray(grid.astype(np.uint8))
+                grid.show()
+                grid.save('./output.png')
+
     def predict_generate_images(self,
                                 prompt: str,
                                 outpath: str = "AltDiffusionOutputs",
@@ -496,8 +607,6 @@ class Predictor:
                     img.save(
                         os.path.join(outpath, f'grid-{grid_count:04}.png'))
                     grid_count += 1
-
-                toc = time.time()
 
         print(
             f"Your samples are ready and waiting for you here: \n{outpath} \n"

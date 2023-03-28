@@ -10,20 +10,19 @@ from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="text2img", #contrastive learning
-                    model_name="AltDiffusion-m9",
+                    model_name="AltDiffusion-m18",
                     model_dir="./checkpoints",
                     use_fp16=False)
-
-loader2 = AutoLoader(task_name="text2img",  model_name="AltDiffusion-m9")
-
+# loader = AutoLoader(task_name="text2img", #contrastive learning
+#                     model_name="AltDiffusion-m18")
 model = loader.get_model()
+# for name, param in model.named_parameters():
+#     if name.startswith("cond_stage_model"):
+#         print(name)
 import pdb;pdb.set_trace()
-for name, param in model.named_parameters():
-    if name.startswith("cond_stage_model"):
-        print(name)
 # model.eval()
 # model.to(device)
 # predictor = Predictor(model)
-# predictor.predict_generate_images(
+# predictor.predict_generate_images_m18(
 #     "Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation"
 # )

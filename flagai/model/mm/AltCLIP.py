@@ -81,6 +81,7 @@ class AltCLIPConfig(CLIPConfig):
         if text_config_dict is None:
             text_config_dict = {}
         # when reload the config from local, we need name to select which class should be instanced.
+        import pdb;pdb.set_trace()
         self.text_config = STUDENT_CONFIG_DICT[
             kwargs['text_config']['model_type']](**kwargs.pop('text_config'))
         self.num_layers = num_layers
