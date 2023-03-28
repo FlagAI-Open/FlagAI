@@ -135,6 +135,8 @@ MODEL_DICT = {
                        "AltCLIPProcess"],
     "altclip-xlmr-l-m9": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
                           "AltCLIPProcess"],
+    "altclip-xlmr-l-m18": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
+                          "AltCLIPProcess"],
     "altclip-bert-b": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
                        "AltCLIPProcessBert"],
     "eva-clip": ["flagai.model.mm.eva_clip_model", "EVA_CLIP", "evaclip", "mm"],
