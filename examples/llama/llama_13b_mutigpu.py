@@ -1,7 +1,6 @@
+
 import torch
 import os
-import sys
-sys.path.append('/share/project/liuguang/flagai-internal')
 import argparse
 from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
@@ -11,8 +10,8 @@ from flagai.model.predictor.predictor import Predictor
 from pathlib import Path 
 
 os.environ["ENV_TYPE"] = "deepspeed+mpu"
-model_parallel_size = 4
-world_size = 4
+model_parallel_size = 2
+world_size = 2
 
 os.environ["MODEL_PARALLEL_SIZE"] = str(model_parallel_size)
 os.environ["WORLD_SIZE"] = str(world_size)
@@ -60,11 +59,10 @@ initialize_distributed()
 set_random_seed(123)
 
 print(f"building model...")
-loader = AutoLoader("lm", model_dir = '/share/project/liuguang/LMContinualPretrain/current_training_v1/checkpoints', model_name="llama-30b-en",max_seq_len=200, use_cache=True, max_batch_size=4, fp16=True)
+loader = AutoLoader("lm", model_name="llama-7b-en")
 model = loader.get_model()
-# tokenizer = loader.get_tokenizer()
-from flagai.data.tokenizer import Tokenizer
-tokenizer = Tokenizer.from_pretrained("llama-30b-en",cache_dir="/share/project/liuguang/llama/gpt2_new_1w") 
+tokenizer = loader.get_tokenizer()
+
 model.eval()
 model.to(device)
 

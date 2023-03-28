@@ -175,11 +175,13 @@ class LLAMAModel(BaseModel):
 
             for layer in self.layers:
                 layer.use_cache = self.use_cache
+                layer.start_pos = start_pos
                 h = checkpoint(create_custom_forward(layer),
                                 h, freqs_cis, mask)
         else:
             for layer in self.layers:
                 layer.use_cache = self.use_cache
+                layer.start_pos = start_pos
                 h = layer(h, freqs_cis, mask)
       
         
