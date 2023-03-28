@@ -207,7 +207,7 @@ def _build_index_mappings(name, data_prefix, documents, sizes,
 
 class BlendableDataset(torch.utils.data.Dataset):
 
-    def __init__(self, datasets, weights):
+    def __init__(self, datasets, weights, max_num_samples=None):
 
         self.datasets = datasets
         num_datasets = len(datasets)
@@ -216,6 +216,10 @@ class BlendableDataset(torch.utils.data.Dataset):
         self.size = 0
         for dataset in self.datasets:
             self.size += len(dataset)
+        print('BlendableDataset init size', self.size)
+        if max_num_samples is not None:
+            self.size = max_num_samples
+            print('BlendableDataset actual size', self.size)
 
         # Normalize weights.
         weights = np.array(weights, dtype=np.float64)
@@ -293,7 +297,8 @@ def _build_train_valid_test_datasets(data_prefix, data_impl, splits_string,
 def _build_train_valid_test_weighted_datasets(
     data_prefix, data_impl, splits_string,
     train_valid_test_num_samples,
-    seq_length, seed, skip_warmup):
+    seq_length, seed, skip_warmup,
+    train_max_num_samples=None):
     """Build train, valid, and test datasets."""
 
     # Blending dataset.
@@ -302,7 +307,11 @@ def _build_train_valid_test_weighted_datasets(
                                                   train_valid_test_num_samples)
     prefixes, weights, datasets_train_valid_test_num_samples = output
     #print('prefixes', prefixes)
+    #total = 0
+    #for xy in datasets_train_valid_test_num_samples:
+    #    total += xy[0]
     #print('datasets_train_valid_test_num_samples', datasets_train_valid_test_num_samples)
+    #print('datasets_train_valid_test_num_samples total', total)
 
     # Build individual datasets.
     train_datasets = []
@@ -323,7 +332,7 @@ def _build_train_valid_test_weighted_datasets(
     # Blend.
     blending_train_dataset = None
     if train_datasets:
-        blending_train_dataset = BlendableDataset(train_datasets, weights)
+        blending_train_dataset = BlendableDataset(train_datasets, weights, max_num_samples=train_max_num_samples)
     blending_valid_dataset = None
     if valid_datasets:
         blending_valid_dataset = BlendableDataset(valid_datasets, weights)
@@ -504,7 +513,8 @@ if __name__ == '__main__':
     train_dataset, valid_dataset, test_dataset = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
-        seq_length, seed, skip_warmup)
+        seq_length, seed, skip_warmup,
+        train_max_num_samples)
     #print(len(train_dataset))
     #print(len(valid_dataset))
     #print(train_dataset[37735074])

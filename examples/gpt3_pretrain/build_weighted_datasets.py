@@ -114,6 +114,7 @@ if __name__ == '__main__':
     ]
 
     '''
+    '''
     ## update Tokenizer add CLS & SEP tokens
     ## add codes & update cn
     data_prefix = [
@@ -163,17 +164,7 @@ if __name__ == '__main__':
         '/share/project/ldwang/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
     ]
 
-    data_impl = 'mmap'
-    ## splits_string len should same as train_valid_test_num_samples len
-    splits_string = '9999,1'
-    ## rebuilding if no npy files for train_valid_test_num_samples config
-    ## 400B
-    train_valid_test_num_samples = [390585937, 39063]
-    seq_length = 2048
-    seed = 2023
-    skip_warmup = True
     '''
-
     ## update Tokenizer add CLS & SEP tokens
     ## add codes & update cn
     ## projset
@@ -223,22 +214,33 @@ if __name__ == '__main__':
         2.08,
         '/share/projset/LM_data/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
     ]
-
     data_impl = 'mmap'
     ## splits_string len should same as train_valid_test_num_samples len
     splits_string = '9999,1'
     ## rebuilding if no npy files for train_valid_test_num_samples config
     ## 400B
-    ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
-    train_valid_test_num_samples = [195312500, 19531]
+    train_valid_test_num_samples = [390585937, 39063]
     seq_length = 2048
     seed = 2023
     skip_warmup = True
 
+    '''
+
+    data_impl = 'mmap'
+    ## splits_string len should same as train_valid_test_num_samples len
+    splits_string = '9999,1'
+    ## rebuilding if no npy files for train_valid_test_num_samples config
+    train_valid_test_num_samples = [195312500, 19531]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+    ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+    train_max_num_samples = 195312500
+
     train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
-        seq_length, seed, skip_warmup)
+        seq_length, seed, skip_warmup, train_max_num_samples=train_max_num_samples)
     print("Total train_dataset: ", len(train_dataset))
     print("Total valid_dataset: ", len(valid_dataset))
 
