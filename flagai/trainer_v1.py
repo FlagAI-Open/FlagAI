@@ -568,7 +568,7 @@ class Trainer():
         ## Needed global optim_manager
         if self.env_type == 'bmtrain':
             if self.fp16:
-                loss_scale = 1024*1024
+                loss_scale = 1024
             else:
                 loss_scale = None
             optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale)

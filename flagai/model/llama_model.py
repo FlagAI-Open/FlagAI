@@ -14,9 +14,8 @@ else:
     from torch.utils.checkpoint import checkpoint
 import os 
 from flagai.model.base_model import BaseModel 
-from flagai.model.base_model import ConfigObj
 
-class LLAMAConfig(ConfigObj):
+class LLAMAConfig(dict):
     r"""
     This is the configuration class to store the configuration of a [`~LLaMAModel`]. It is used to instantiate an LLaMA
     model according to the specified arguments, defining the model architecture. Instantiating a configuration with the
