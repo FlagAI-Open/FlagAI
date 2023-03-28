@@ -1,5 +1,7 @@
 name: "Bug Report"
 description: Submit a bug report to help us improve FlagAI
+labels: [ "bug" ]
+body:
   - type: textarea
     id: system-info
     attributes:
