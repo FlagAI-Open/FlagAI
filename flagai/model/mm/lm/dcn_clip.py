@@ -32,7 +32,7 @@ class DCNCLIP30M1024(AbstractEncoder):
         super().__init__()
         self.device = device
         self.max_length = max_length
-        
+        import pdb;pdb.set_trace()
         self.ch_clip_model = AltCLIPModel.from_pretrain(ckpt_path)
         print("^_^ Using the right lm model!!!")
         self.ch_clip_model = self.ch_clip_model.eval()
