@@ -76,8 +76,7 @@ class AltCLIPConfig(CLIPConfig):
                  num_layers=3,
                  variant='invert',
                  **kwargs):
-        super().__init__(text_config_dict, vision_config_dict, projection_dim,
-                         logit_scale_init_value, **kwargs)
+        super().__init__(projection_dim=projection_dim, logit_scale_init_value=logit_scale_init_value, **kwargs)
         if text_config_dict is None:
             text_config_dict = {}
         # when reload the config from local, we need name to select which class should be instanced.
