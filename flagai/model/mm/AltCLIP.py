@@ -446,7 +446,7 @@ class AltCLIP(BaseModel):
                       only_download_config=False,
                       device="cpu",
                       **kwargs):
-        # super().download(download_path, model_name, only_download_config=only_download_config)
+        super().download(download_path, model_name, only_download_config=only_download_config)
         pretrained_model_name_or_path = os.path.join(download_path, model_name)
         print(pretrained_model_name_or_path)
         return CLIPHF.from_pretrained(pretrained_model_name_or_path)
