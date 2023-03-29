@@ -65,6 +65,7 @@ ALL_TASK = {
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
     "cpm3_train": ("flagai.model.cpm3_train_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.AltDiffusion", "LatentDiffusion"),
+    "diffusion2_text2img": ("flagai.model.mm.AltDiffusion2", "LatentDiffusion"),
     "altclip_txt_img_matching": ("flagai.model.mm.AltCLIP", "AltCLIP"),
     "evaclip_txt_img_matching": ("flagai.model.mm.eva_clip_model", "EVA_CLIP"),
 }
@@ -121,7 +122,9 @@ MODEL_DICT = {
     "altdiffusion":
     ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altdiffusion-m9":
-    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    ["flagai.model.mm.diffusion2", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    "altdiffusion-m18":
+    ["flagai.model.mm.Altdiffusion2", "LatentDiffusion", "diffusion2", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "swinv1-base-patch4-window7-224":
         ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
     "swinv2-base-patch4-window8-256":
@@ -200,7 +203,6 @@ class AutoLoader:
                 f"For the model_name: {model_name}, these tasks are be supported: {tasks}"
             )
             return
-
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
         model_name_ = self.is_exist_finetuned_model(raw_model_name, task_name)
@@ -213,7 +215,7 @@ class AutoLoader:
             **kwargs)
         if kwargs.get("use_fp16", None):
             self.model.half()
-
+        
         if model_type == "nlp":
             if brief_model_name in ["galactica", ]:
                 self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
