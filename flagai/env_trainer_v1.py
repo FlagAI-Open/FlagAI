@@ -418,7 +418,9 @@ class EnvTrainer():
             if self.env_type == 'bmtrain':
                 ## lr_scheduler.step with optim_manager.step
                 ## lr_scheduler = bmt.lr_scheduler.Noam(
-                lr_scheduler = bmt.lr_scheduler.Cosine(
+                ## lr_scheduler = bmt.lr_scheduler.Cosine(
+                from flagai.schedulers import Cosine10PP
+                lr_scheduler = Cosine10PP(
                     self.optimizer,
                     start_lr=self.lr, 
                     warmup_iter=warmup_iter,
