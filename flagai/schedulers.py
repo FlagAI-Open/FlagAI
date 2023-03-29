@@ -130,3 +130,20 @@ def get_learning_rate_scheduler(optimizer, args):
                                decay_ratio=args.lr_decay_ratio)
 
     return lr_scheduler
+
+## A modified cosine learning rate schedule,
+## such that the final learning rate is equal to 10% of the maximal learning rate,
+## extended from bmtrain
+try:
+    import math
+    from bmtrain.lr_scheduler.warmup import WarmupLRScheduler
+    class Cosine10PP(WarmupLRScheduler):
+        def get_lr_warmup(self, num_iter) -> float:
+            return self.start_lr * num_iter / self.warmup_iter
+    
+        def get_lr_decay(self, num_iter) -> float:
+            min_lr = self.start_lr * 0.1
+            progress = (num_iter - self.warmup_iter) / max(1, (self.end_iter - self.warmup_iter))
+            return max(0.0, min_lr + (self.start_lr - min_lr) * 0.5 * (1.0 + math.cos(progress * math.pi)))
+except:
+    pass
