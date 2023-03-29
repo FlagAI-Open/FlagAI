@@ -2,117 +2,51 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
 [![Python application](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml)
 ![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/FlagAI-Open/FlagAI?include_prereleases&style=social)
-
 [English](README.md)
 
 --------------------------------------------------------------------------------
 
-
-**FlagAI飞智**是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。
+飞智是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。
 <br><br>
 
+* 现在支持多模态模型[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)和文生图模型[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion).现在它支持最高百亿参数的**悟道GLM**(详见[GLM介绍](/doc_zh/GLM.md))。它同时也支持[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**模型和 Huggingface Transformers 的模型。
+
+* 它提供 API 以快速下载并在给定（中/英文）文本上使用这些预训练模型，在从[SuperGLUE](https://super.gluebenchmark.com/)和[CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks收集的广泛使用的数据集上对它们进行微调，然后在我们的模型中心与社区共享它们。 它还提供了提示学习（[prompt-learning](https://github.com/FlagAI-Open/FlagAI/blob/master/docs/TUTORIAL_7_PROMPT_LEARNING.md)）的工具包，用于少样本学习(few-shot learning)任务。
+
+* 这些模型可以应用于文本，用于文本分类、信息提取、问答、摘要、文本生成等任务，尤其是中文。
+
+* 飞智由四个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
 
 
-## 为什么你需要 FlagAI?
+本项目的部分代码基于[GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
 
+## 动态
+- [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
+- [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
+- [12 Jan 2023] 发布v1.6.0版本, 新增支持并行训练库 [**BMTrain**](https://github.com/OpenBMB/BMTrain) 以及集成 [**Flash Attention**](https://github.com/HazyResearch/flash-attention) 到 Bert 和 Vit 模型提速端到端训练, 示例见 [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py)和 [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). 同时增加了基于对比搜索的文本生成方法 [**SimCTG**](https://github.com/yxuansu/SimCTG) 以及基于 AltDiffusion 进行 DreamBooth 个性化微调, 示例见 [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
+- [28 Nov 2022] 发布v1.5.0版本, 支持1.1B参数的 [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) 以及[ALM: 基于GLM的阿拉伯语大模型], 示例见[**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
+- [10 Nov 2022] 发布v1.4.0版本, 支持[AltCLIP: 更改CLIP中的语言编码器以扩展语言功能](https://arxiv.org/abs/2211.06679v1), 示例见[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)以及[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
+- [29 Aug 2022] 支持v1.3.0版本, 增加CLIP模块以及重新设计了tokenizer的API: [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
+- [21 Jul 2022] 支持v1.2.0版本, 支持ViT系列模型: [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
+- [29 Jun 2022] 支持v1.1.0版本, 支持OPT的加载，微调和推理[#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
+- [17 May 2022] 做出了我们的第一份贡献[#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
 
-1. **可通过 API 快速下载模型**
-      
-    提供 API 方便你快速下载模型，并在给定（中/英文）文本上使用这些预训练模型，在从[SuperGLUE](https://super.gluebenchmark.com/)和[CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks收集的广泛使用的数据集上对它们进行微调。
-     
-      FlagAI 现已支持 30+ 主流模型，包括多模态模型 [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 、文生图模型 [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)、最高百亿参数的 **[悟道GLM](/doc_zh/GLM.md)**，[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**[Galactica](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/galactica)**、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**、**Huggingface Transformers** 等。
-      
-2.  **仅用十行代码即可进行并行训练**
+--------------------------------------------------------------------------------
+<!-- toc -->
 
-    飞智由四个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
+- [安装](#安装)
+- [快速上手](#快速上手)
+    - [加载模型和分词器](#加载模型和分词器)
+    - [使用预测器](#使用预测器)
+    - [文生图任务示例](/examples/AltDiffusion/README.md)
+- [预训练模型以及样例](#预训练模型以及样例)
+- [教程](#教程)
+- [贡献代码](#贡献代码)
+- [联系我们](#联系我们)
+- [许可证](#许可证)
 
-
-   
-3.  **提供提示学习工具包**
-
-    FlagAI 提供了提示学习（[prompt-learning](https://github.com/FlagAI-Open/FlagAI/blob/master/docs/TUTORIAL_7_PROMPT_LEARNING.md)）的工具包，用于少样本学习(few-shot learning)任务。
-   
-4.  **尤其擅长中文任务**
-
-    FlagAI 目前支持的模型可以应用于文本分类、信息提取、问答、摘要、文本生成等任务，尤其擅长中文任务。
-
-
-
-> 本项目的部分代码基于 [GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
-
-
-## 工具包及已支持的模型
-
-### 工具
-
-| 工具名称           | 描述         | 样例                |
-|:-------------- |:---------- |:------------------------------------------------------ |
-| 	`GLM_custom_pvp` | 自定义 PET 模板   | [README.md](http:///examples/glm_custom_pvp/README.md) |
-| `GLM_ptuning`    | p-tuning 工具 | ——                                                     |
-| `BMInf-generate` | 推理加速    | [README.md](http:///examples/bminf_generate/README.md) |
-
-### 模型
-
-|    模型名称            | 任务      | 训练 | 微调 | 推理 | 样例           |                                                         
-| :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
-| ALM          | 阿拉伯语文本生成   |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
-| AltCLIP       | 图文匹配    | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |                           
-| AltDiffusion    | 文生图     | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
-| BERT-title-generation-english     | 英文标题生成  | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
-| CLIP           | 图文匹配    | ✅  | ❌  | ✅  | ——   |                                                                 
-| CPM3-finetune       | 文本续写    | ❌  | ✅  | ❌  | ——    |                                                                
-| CPM3-generate    | 文本续写    | ❌  | ❌  | ✅  | ——   |                                                                 
-| CPM3_pretrain    | 文本续写    | ✅  | ❌  | ❌  | ——        |
-| CPM_1     | 文本续写    | ❌  | ❌  | ✅  | [README.md](/examples/cpm_1/README.md)      |
-| EVA-CLIP                          | 图文匹配    | ✅  | ✅  | ✅  | [README.md](/examples/EVA_CLIP/README.md)                             |
-| Galactica       | 文本续写    | ❌  | ❌  | ✅  | ——      |                                                              
-| GLM-large-ch-blank-filling        | 完形填空问答  | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)               |
-| GLM-large-ch-poetry-generation    | 诗歌生成    | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
-| GLM-large-ch-title-generation     | 标题生成    | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)        |
-| GLM-pretrain         | 预训练     | ✅  | ❌  | ❌  | ——   |                                                                 
-| GLM-seq2seq        | 生成任务    | ✅  | ❌  | ✅  | ——     |                                                               
-| GLM-superglue      | 判别任务    | ✅  | ❌  | ❌  | ——     |                                                               
-| GPT-2-text-writting      | 文本续写    | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_18_GPT2_WRITING.md)        |
-| GPT2-text-writting                | 文本续写    | ❌  | ❌  | ✅  | —— |                                                                   
-| GPT2-title-generation             | 标题生成    | ❌  | ❌  | ✅  | ——  |                                                                  
-| OPT                               | 文本续写    | ❌  | ❌  | ✅  | [README.md](/examples/opt/README.md) |                                  
-| RoBERTa-base-ch-ner               | 命名实体识别  | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
-| RoBERTa-base-ch-semantic-matching | 语义相似度匹配 | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
-| RoBERTa-base-ch-title-generation  | 标题生成    | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
-| RoBERTa-faq      | 问答      | ❌  | ❌  | ✅  | [README.md](/examples/roberta_faq/README.md) |         
-| Swinv1                            | 图片分类    | ✅  | ❌  | ✅  | ——  |                                                                  
-| Swinv2                            | 图片分类    | ✅  | ❌  | ✅  | ——     |                                                               
-| T5-huggingface-11b                | 训练      | ✅  | ❌  | ❌  | [TUTORIAL](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)                      |
-| T5-title-generation               | 标题生成    | ❌  | ❌  | ✅  | [TUTORIAL](TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)                |
-| T5-flagai-11b                     | 预训练     | ✅  | ❌  | ❌  | ——    |                                                                
-| ViT-cifar100                      | 预训练     | ✅  | ❌  | ❌  | —— |
-
-
-> 更多样例见 [./examples](https://github.com/FlagAI-Open/FlagAI/tree/master/examples) 目录，更多中文教程见 [./docs_zh](https://github.com/FlagAI-Open/FlagAI/tree/master/doc_zh) 目录。
-
-
-## 贡献代码
-
-感谢您对贡献的兴趣！ 
-
-贡献代码前请先阅读 [贡献者指南](CONTRIBUTING.md)，然后从 [未解决的问题](https://github.com/FlagAI-Open/FlagAI/issues) 寻找你感兴趣的任务开启贡献之旅！
-
-## 联系我们
-
-欢迎在 [GitHub Issues](https://github.com/FlagAI-Open/FlagAI/issues) 中提出你的问题，或在 [Discussions ](https://github.com/FlagAI-Open/FlagAI/discussions) 板块交流使用经验。
-
-* 官方邮箱：open.platform@baai.ac.cn。
-* 知乎：[FlagAI飞智](https://www.zhihu.com/people/95-22-20-18)
-* 扫码添加小助手加入**微信交流群**：
-
-<img src="./wechat-qrcode.jpg" width = "200" height = "200"  align=center />
-
-
-
-## Quick Start
-
-### 安装环境
-
+<!-- tocstop -->
+# 安装
 * Python 版本 >= 3.8
 * PyTorch 版本 >= 1.8.0
 * [可选] 使用GPUs进行训练和测试, 你需要安装CUDA 和 NCCL
@@ -162,9 +96,12 @@ Host 127.0.0.1
 >>> ssh-keygen -t rsa -C "xxx@xxx.com"
 ```
 
-### 加载模型和分词器
-我们提供 `AutoLoad` 类来快速加载模型和分词器，例如：
 
+# 快速上手
+我们提供了精选的中英文预训练模型，以及经过训练可以执行不同任务的模型权重。 您可以通过 `AutoLoader` 类加载这些模型以进行训练和预测。更多样例见 `FlagAI/quickstart`。
+
+## 加载模型和分词器
+我们提供 `AutoLoad` 类来快速加载模型和分词器，例如：
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
 auto_loader = AutoLoader(
@@ -174,12 +111,10 @@ auto_loader = AutoLoader(
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
 ```
-
 这个例子是针对`title-generation`(文本摘要）任务的，你也可以通过修改`task_name`来为其他任务建模。 然后您可以使用模型和标记器进行微调或测试。
 
-### 使用预测器
+## 使用预测器
 我们提供 `Predictor` 类来预测不同的任务，例如：
-
 ```python
 from flagai.model.predictor.predictor import Predictor
 predictor = Predictor(model, tokenizer)
@@ -194,11 +129,10 @@ for text in test_data:
                                               out_max_length=50,
                                               beam_size=3))
 ```
-
 这个例子是针对 `seq2seq` 任务的，我们可以通过调用`predict_generate_beamsearch`函数得到`beam-search`结果。此外，我们还支持`NER`和`title generate`等任务的预测。
 
 
-### 命名实体识别任务示例
+## 命名实体识别任务示例
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -238,7 +172,7 @@ for t in test_data:
 ```
 
 
-### 语义相似度匹配任务示例
+## 语义相似度匹配任务示例
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -263,42 +197,54 @@ for text_pair in test_data:
 
 ```
 
+# 预训练模型以及样例
+* [AltCLIP图文匹配](/examples/AltCLIP/README.md)
+* [AltDiffusion文生图](/examples/AltDiffusion/README.md)
+* [EVA-CLIP评估](/examples/AltDiffusion/README.md)
+* [GLM-large-ch用户完形填空问答](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
+* [GLM-large-ch用于诗歌生成](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
+* [GLM-large-ch用于标题生成](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
+* [对 huggingface t5-11b 模型的支持以及加速的小技巧](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)
+* [RoBERTa-base-ch用于标题生成](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
+* [RoBERTa-base-ch用于语义相似度匹配](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
+* [RoBERTa-base-ch用于命名实体识别](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)
+* [GPT-2用于文本续写](/doc_zh/TUTORIAL_18_GPT2_WRITING.md)
+* [T5用于标题生成](/doc_zh/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
+* [OPT模型示例](/examples/opt/README.md)
 
-## 动态
-
-- [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
-- [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
-- [12 Jan 2023] 发布v1.6.0版本, 新增支持并行训练库 [**BMTrain**](https://github.com/OpenBMB/BMTrain) 以及集成 [**Flash Attention**](https://github.com/HazyResearch/flash-attention) 到 Bert 和 Vit 模型提速端到端训练, 示例见 [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py)和 [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). 同时增加了基于对比搜索的文本生成方法 [**SimCTG**](https://github.com/yxuansu/SimCTG) 以及基于 AltDiffusion 进行 DreamBooth 个性化微调, 示例见 [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
-- [28 Nov 2022] 发布v1.5.0版本, 支持1.1B参数的 [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) 以及[ALM: 基于GLM的阿拉伯语大模型], 示例见[**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
-- [10 Nov 2022] 发布v1.4.0版本, 支持[AltCLIP: 更改CLIP中的语言编码器以扩展语言功能](https://arxiv.org/abs/2211.06679v1), 示例见[**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP)以及[**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
-- [29 Aug 2022] 支持v1.3.0版本, 增加CLIP模块以及重新设计了tokenizer的API: [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
-- [21 Jul 2022] 支持v1.2.0版本, 支持ViT系列模型: [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
-- [29 Jun 2022] 支持v1.1.0版本, 支持OPT的加载，微调和推理[#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
-- [17 May 2022] 做出了我们的第一份贡献[#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
-
-## LICENSE 
+[//]: # (* [用GLM10b模型在TNEWS短文本分类数据集上微调]&#40;doc_zh/TUTORIAL_20_GLM_TNEWS.md&#41;)
 
 
-FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注意部分项目代码基于其他协议：
+本节解释了本项目中基础NLP类是如何工作的，如何加载预先训练的模型来标记您的文本，如何使用不同的词或文档嵌入来得到表示，以及如何训练自己的语言模型、序列标注模型和文本分类模型。更多样例见 `./examples`目录。
 
-* Megatron-LM 是基于协议 [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
-* GLM 是基于协议 [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
+
+# 教程
+我们提供了一组教程来帮助您快速上手使用本库：
+* [Tutorial 1: 如何构建和应用分词器](/doc_zh/TUTORIAL_1_TOKENIZER.md)
+* [Tutorial 2: 数据集预处理流程](/doc_zh/TUTORIAL_2_DATASET.md)
+* [Tutorial 3: 模型的主要功能及相关结构](/doc_zh/TUTORIAL_3_MODEL.md)
+* [Tutorial 4: 为模型和数据并行训练定制训练器](/doc_zh/TUTORIAL_4_TRAINER.md)
+* [Tutorial 5: 使用 Autoloader 简化模型和分词器初始化过程](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
+* [Tutorial 6: 将现成的推理算法与 Predictor 结合使用](/doc_zh/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
+* [Tutorial 7: 使用飞智提示学习工具包来提高在SuperGLUE任务上的表现](/doc_zh/TUTORIAL_7_PROMPT_LEARNING.md)
+* [Tutorial 8: 多机训练模型搭建环境](/doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* [Tutorial 9: 使用encoder/decoder/encoder-decoder模型进行文本生成](/doc_zh/TUTORIAL_9_SEQ2SEQ_METHOD.md)
+* [Turorial 10: 转化一个模型为Megatron-LM的模型并行版本](/doc_zh/TUTORIAL_10_METATRON.md)
+
+
+
+# 贡献代码
+感谢您对贡献的兴趣！ 参与的方式有很多； 从我们的[贡献者指南](CONTRIBUTING.md)开始，然后检查这些[未解决的问题](https://github.com/FlagAI-Open/FlagAI/issues)以执行特定任务。
+
+# 联系我们
+欢迎扫码加入飞智用户群
+
+<img src="./flagai_wechat.png" width = "200" height = "200"  align=center />
+
+
+# [许可证](/LICENSE)
+大部分的飞智项目是基于[Apache 2.0 license](LICENSE), 但是部分的代码是基于其他的协议:
+
+* Megatron-LM 是基于协议[Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
+* GLM 是基于协议[MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
 * AltDiffusion 是基于协议 [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
-
-
-
-## Misc
-
-### &#8627; Stargazers, thank you for your support!
-[![Stargazers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/stars/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/stargazers)
-
-### &#8627; Forkers, thank you for your support!
-[![Forkers repo roster for @FlagAI-Open/FlagAI](https://reporoster.com/forks/FlagAI-Open/FlagAI)](https://github.com/FlagAI-Open/FlagAI/network/members)
-
-### &#8627; Star History
-
-<div align="center">
-
-![Star History Chart](https://api.star-history.com/svg?repos=FlagAI-Open/FlagAI&type=Date)]
-
-</div>
