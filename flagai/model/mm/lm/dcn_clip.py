@@ -1,7 +1,8 @@
 import torch
+import os
 import torch.nn as nn
 from transformers import AltCLIPProcessor
-from flagai.model.mm.AltCLIP import AltCLIP as AltCLIPModel
+from flagai.model.mm.modeling_altclip import AltCLIPModel
 
 class AbstractEncoder(nn.Module):
     def __init__(self):
@@ -28,20 +29,20 @@ class LayerNorm(nn.Module):
     
 
 class DCNCLIP30M1024(AbstractEncoder):
-    def __init__(self, device="cuda", max_length=77, ckpt_path=None, download_path=None):
+    def __init__(self, device="cuda", max_length=77, model_name=None, download_path=None):
         super().__init__()
         self.device = device
         self.max_length = max_length
-        import pdb;pdb.set_trace()
-        self.ch_clip_model = AltCLIPModel.from_pretrain(ckpt_path)
-        print("^_^ Using the right lm model!!!")
+        ckpt_path = os.path.join(download_path, model_name)
+        self.ch_clip_model = AltCLIPModel.from_pretrained(ckpt_path=ckpt_path)
+        # print("^_^ Using the right lm model!!!")
         self.ch_clip_model = self.ch_clip_model.eval()
         print("Language model Loaded!!!^_^")
 
         for param in self.ch_clip_model.parameters():
             param.requires_grad = False
-
-        self.processor = AltCLIPProcessor.from_pretrain(ckpt_path)
+        ckpt_path = os.path.join(download_path, model_name)
+        self.processor = AltCLIPProcessor.from_pretrained(ckpt_path)
         self.tokenizer = self.processor.tokenizer
 
         self.text_encoder = self.ch_clip_model.text_model

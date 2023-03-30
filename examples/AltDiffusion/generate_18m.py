@@ -20,9 +20,9 @@ model = loader.get_model()
 #     if name.startswith("cond_stage_model"):
 #         print(name)
 import pdb;pdb.set_trace()
-# model.eval()
-# model.to(device)
-# predictor = Predictor(model)
-# predictor.predict_generate_images_m18(
-#     "Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation"
-# )
+model.eval()
+model.to(device)
+predictor = Predictor(model)
+predictor.predict_generate_images_m18(
+    "Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation"
+)
