@@ -53,7 +53,7 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 ### Pre-trained Models 
 
 
-|   Model          |  Task    | Train | Finetune | inference/generate | Examples       |                                                         
+|   Model          |  Task    | Train | Finetune | Inference/Generate | Examples       |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
 | ALM          | Arabic Text Generation  |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
 | AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |                           
