@@ -43,9 +43,9 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 | Name       | Description       | Examples            |
 |:-------------- |:---------- |:------------------------------------------------------ |
-| 	`GLM_custom_pvp` | 自定义 PET 模板   | [README.md](http:///examples/glm_custom_pvp/README.md) |
-| `GLM_ptuning`    | p-tuning 工具 | ——                                                     |
-| `BMInf-generate` | 推理加速    | [README.md](http:///examples/bminf_generate/README.md) |
+| 	`GLM_custom_pvp` | Customizing PET templates   | [README.md](http:///examples/glm_custom_pvp/README.md) |
+| `GLM_ptuning`    | p-tuning tool | ——                                                     |
+| `BMInf-generate` | Accelerating generation | [README.md](http:///examples/bminf_generate/README.md) | 
 
 
 ### Pre-trained Models 
@@ -64,24 +64,24 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 | CPM_1     | Text Continuation   | ❌  | ❌  | ✅  | [README.md](/examples/cpm_1/README.md)      |
 | EVA-CLIP                          | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/EVA_CLIP/README.md)                             |
 | Galactica       | Text Continuation    | ❌  | ❌  | ✅  | ——      |                                                              
-| GLM-large-ch-blank-filling        | Blank Filling     | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)               |
-| GLM-large-ch-poetry-generation    | Poetry Generation     | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
-| GLM-large-ch-title-generation     | Title Generation   | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)        |
+| GLM-large-ch-blank-filling        | Blank Filling     | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)               |
+| GLM-large-ch-poetry-generation    | Poetry Generation     | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
+| GLM-large-ch-title-generation     | Title Generation   | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)        |
 | GLM-pretrain         | Pre-Train    | ✅  | ❌  | ❌  | ——   |                                                                 
 | GLM-seq2seq        | Generation    | ✅  | ❌  | ✅  | ——     |                                                               
 | GLM-superglue      | Classification  | ✅  | ❌  | ❌  | ——     |                                                               
-| GPT-2-text-writting      | Text Continuation   | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_18_GPT2_WRITING.md)        |
+| GPT-2-text-writting      | Text Continuation   | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_18_GPT2_WRITING.md)        |
 | GPT2-text-writting                | Text Continuation   | ❌  | ❌  | ✅  | —— |                                                                   
 | GPT2-title-generation             | Title Generation   | ❌  | ❌  | ✅  | ——  |                                                                  
 | OPT                               | Text Continuation   | ❌  | ❌  | ✅  | [README.md](/examples/opt/README.md) |                                  
-| RoBERTa-base-ch-ner               | Named Entity Recognition| ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
-| RoBERTa-base-ch-semantic-matching |Semantic Similarity Matching | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
-| RoBERTa-base-ch-title-generation  | Title Generation     | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
+| RoBERTa-base-ch-ner               | Named Entity Recognition| ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
+| RoBERTa-base-ch-semantic-matching |Semantic Similarity Matching | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
+| RoBERTa-base-ch-title-generation  | Title Generation     | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
 | RoBERTa-faq      |   Question-Answer   | ❌  | ❌  | ✅  | [README.md](/examples/roberta_faq/README.md) |         
 | Swinv1                            | Image Classification | ✅  | ❌  | ✅  | ——  |                                                                  
 | Swinv2                            | Image Classification   | ✅  | ❌  | ✅  | ——     |                                                               
-| T5-huggingface-11b                | Train   | ✅  | ❌  | ❌  | [TUTORIAL](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)                      |
-| T5-title-generation               | Title Generation     | ❌  | ❌  | ✅  | [TUTORIAL](TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)                |
+| T5-huggingface-11b                | Train   | ✅  | ❌  | ❌  | [TUTORIAL](/docs/TUTORIAL_14_HUGGINGFACE_T5.md)                      |
+| T5-title-generation               | Title Generation     | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)                |
 | T5-flagai-11b                     | Pre-Train  | ✅  | ❌  | ❌  | ——    |                                                                
 | ViT-cifar100                      |  Pre-Train  | ✅  | ❌  | ❌  | —— |
 
@@ -178,7 +178,10 @@ tokenizer = auto_loader.get_tokenizer()
 This example is for the `title_generation` task, and you can also model other tasks by modifying the `task_name`.
 Then you can use the model and tokenizer to fine-tune or test.
 
-### Predictor
+### Examples
+
+#### 1. Predictor 
+
 We provide the `Predictor` class to predict for different tasks, for example:
 
 ```python
@@ -197,7 +200,7 @@ for text in test_data:
 This example is for the `seq2seq` task, where we can get `beam-search` results by calling the `predict_generate_beamsearch` function. In addition, we also support prediction for tasks such as `NER` and `title generate`.
 
 
-### NER
+#### 2. NER 
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -236,7 +239,7 @@ for t in test_data:
     print(f"result is {result}")
 ```
 
-### Semantic Matching
+#### 3. Semantic Matching example
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader

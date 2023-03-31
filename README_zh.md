@@ -67,8 +67,8 @@
 | EVA-CLIP                          | 图文匹配    | ✅  | ✅  | ✅  | [README.md](/examples/EVA_CLIP/README.md)                             |
 | Galactica       | 文本续写    | ❌  | ❌  | ✅  | ——      |                                                              
 | GLM-large-ch-blank-filling        | 完形填空问答  | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)               |
-| GLM-large-ch-poetry-generation    | 诗歌生成    | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
-| GLM-large-ch-title-generation     | 标题生成    | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)        |
+| GLM-large-ch-poetry-generation    | 诗歌生成    | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
+| GLM-large-ch-title-generation     | 标题生成    | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)        |
 | GLM-pretrain         | 预训练     | ✅  | ❌  | ❌  | ——   |                                                                 
 | GLM-seq2seq        | 生成任务    | ✅  | ❌  | ✅  | ——     |                                                               
 | GLM-superglue      | 判别任务    | ✅  | ❌  | ❌  | ——     |                                                               
@@ -77,13 +77,13 @@
 | GPT2-title-generation             | 标题生成    | ❌  | ❌  | ✅  | ——  |                                                                  
 | OPT                               | 文本续写    | ❌  | ❌  | ✅  | [README.md](/examples/opt/README.md) |                                  
 | RoBERTa-base-ch-ner               | 命名实体识别  | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
-| RoBERTa-base-ch-semantic-matching | 语义相似度匹配 | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
-| RoBERTa-base-ch-title-generation  | 标题生成    | ✅  | ❌  | ✅  | [TUTORIAL](doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
+| RoBERTa-base-ch-semantic-matching | 语义相似度匹配 | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
+| RoBERTa-base-ch-title-generation  | 标题生成    | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
 | RoBERTa-faq      | 问答      | ❌  | ❌  | ✅  | [README.md](/examples/roberta_faq/README.md) |         
 | Swinv1                            | 图片分类    | ✅  | ❌  | ✅  | ——  |                                                                  
 | Swinv2                            | 图片分类    | ✅  | ❌  | ✅  | ——     |                                                               
-| T5-huggingface-11b                | 训练      | ✅  | ❌  | ❌  | [TUTORIAL](doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)                      |
-| T5-title-generation               | 标题生成    | ❌  | ❌  | ✅  | [TUTORIAL](TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)                |
+| T5-huggingface-11b                | 训练      | ✅  | ❌  | ❌  | [TUTORIAL](/doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)                      |
+| T5-title-generation               | 标题生成    | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)                |
 | T5-flagai-11b                     | 预训练     | ✅  | ❌  | ❌  | ——    |                                                                
 | ViT-cifar100                      | 预训练     | ✅  | ❌  | ❌  | —— |
 
@@ -274,7 +274,7 @@ for text_pair in test_data:
 - [29 Jun 2022] 支持v1.1.0版本, 支持OPT的加载，微调和推理[#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
 - [17 May 2022] 做出了我们的第一份贡献[#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
 
-## LICENSE 
+## 许可 LICENSE 
 
 
 FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注意部分项目代码基于其他协议：
