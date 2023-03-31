@@ -247,13 +247,14 @@ class Trainer():
         """
         parents = [] if self.extra_args is None else [self.extra_args]
         parser = argparse.ArgumentParser(parents=parents)
-        parser.add_argument('--local_rank',
-                            type=int,
-                            default=0,
-                            help="local_rank")
-        parser.add_argument('--not_call_launch',
-                            action='store_true',
-                            help="not call launch!")
+        if len(parents) == 0:
+            parser.add_argument('--local_rank',
+                                type=int,
+                                default=0,
+                                help="local_rank")
+            parser.add_argument('--not_call_launch',
+                                action='store_true',
+                                help="not call launch!")
         ds_args = parser.parse_args()
         self.local_rank = ds_args.local_rank
         self.not_call_launch = ds_args.not_call_launch
