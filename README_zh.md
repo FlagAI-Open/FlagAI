@@ -93,9 +93,7 @@
 
 ## 贡献代码
 
-感谢您对贡献的兴趣！ 
-
-贡献代码前请先阅读 [贡献者指南](CONTRIBUTING.md)，然后从 [未解决的问题](https://github.com/FlagAI-Open/FlagAI/issues) 寻找你感兴趣的任务开启贡献之旅！
+感谢您对贡献的兴趣！请先阅读 [贡献者指南](CONTRIBUTING.md)，然后从 [未解决的问题](https://github.com/FlagAI-Open/FlagAI/issues) 寻找你感兴趣的任务开启贡献之旅！
 
 ## 联系我们
 
