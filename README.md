@@ -21,16 +21,16 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
     FlagAI now supports over 30 mainstream models, including multilingual text and image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP), text-to-image generation model [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion), [**WuDao GLM**](/docs/GLM.md) (with a maximum of 10 billion parameters), [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from **Huggingface Transformers**, etc.
     
 
-2. **Parallel training with fewer than 10 lines of code**
+2. **Parallel train with fewer than 10 lines of code**
 
 	Backed by the four most popular data/model parallel libraries -- [PyTorch](https://pytorch.org/), [Deepspeed](https://www.deepspeed.ai/), [Megatron-LM](https://github.com/NVIDIA/Megatron-LM), [BMTrain](https://github.com/OpenBMB/BMTrain) -- FlagAI allows for seamless integration between them, enabling users to parallel their training/testing process with fewer than ten lines of code.
 
 
-3. **Few-shot learning toolkit provided**
+3. **Conveniently use the few-shot learning toolkits**
    
-    FlagAI also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few-shot tasks.   
+    FlagAI also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few-shot tasks.
 
-4. **Exceptionally suitable for Chinese tasks**
+4. **Particularly good at Chinese tasks**
 
     These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation, with a particular focus on Chinese tasks.
 

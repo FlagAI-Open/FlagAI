@@ -25,8 +25,6 @@
 2.  **仅用十行代码即可进行并行训练**
 
     飞智由四个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
-
-
    
 3.  **提供提示学习工具包**
 
