@@ -37,6 +37,8 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 ## Toolkits and Pre-trained Models 
 
+> The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+
 
 ### Toolkits
 
