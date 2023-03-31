@@ -218,24 +218,58 @@ if __name__ == '__main__':
     ## splits_string len should same as train_valid_test_num_samples len
     splits_string = '9999,1'
     ## rebuilding if no npy files for train_valid_test_num_samples config
-    ## 400B
-    train_valid_test_num_samples = [390585937, 39063]
-    seq_length = 2048
-    seed = 2023
-    skip_warmup = True
-
-    '''
-
-    data_impl = 'mmap'
-    ## splits_string len should same as train_valid_test_num_samples len
-    splits_string = '9999,1'
-    ## rebuilding if no npy files for train_valid_test_num_samples config
     train_valid_test_num_samples = [195312500, 19531]
     seq_length = 2048
     seed = 2023
     skip_warmup = True
     ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
     train_max_num_samples = 195312500
+    '''
+
+    ## update Tokenizer add CLS & SEP tokens
+    ### 宁夏超算
+    data_prefix = [
+        2.7,
+        '/data/indexed_dataset/batch1_tok100k/cn_baike_text_document',
+        2.91,
+        '/data/indexed_dataset/batch1_tok100k/cn_ebook_merge_maxlen_text_document',
+        1.89,
+        '/data/indexed_dataset/batch1_tok100k/cn_zhihu_text_document',
+        1.46,
+        '/data/indexed_dataset/batch1_tok100k/cn_wudao_base_text_document',
+        1.01,
+        '/data/indexed_dataset/batch1_tok100k/cn_wudao_dedup_merged_text_document',
+        0.9,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-arxiv_text_document',
+        2.5,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-bookcorpus2_text_document',
+        1.1,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-books3_text_document',
+        1.38,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-gutenberg_pg-19_text_document',
+        2.82,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-openwebtext2_text_document',
+        1.01,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pile-cc_text_document',
+        0.95,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pubmed_abstracts_text_document',
+        0.95,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pubmed_central_text_document',
+        2.08,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-stackexchange_text_document',
+        1.46,
+        '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-wikipedia_en_text_document',
+    ]
+
+    data_impl = 'mmap'
+    ## splits_string len should same as train_valid_test_num_samples len
+    splits_string = '9999,1'
+    ## rebuilding if no npy files for train_valid_test_num_samples config
+    ## 400B
+    train_valid_test_num_samples = [390585937, 39063]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
 
     train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
