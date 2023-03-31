@@ -158,6 +158,7 @@ class Trainer():
         model_parallel_size=1,
         training_script="train.py",
         optimizer_type='adam',
+        extra_args=None,
     ):
 
         if timers is not None:
@@ -215,6 +216,9 @@ class Trainer():
         self.hostfile = hostfile
         self.training_script = training_script
 
+        # TODO
+        self.extra_args = extra_args
+
         if self.env_type != 'pytorch':
             training_paras = self.get_dist_args()
             # Implement for AutoLaunch
@@ -241,7 +245,8 @@ class Trainer():
         Important: --not_call_launch, default False, will not call launch_dist
         Returns: None
         """
-        parser = argparse.ArgumentParser()
+        parents = [] if self.extra_args is None else [self.extra_args]
+        parser = argparse.ArgumentParser(parents=parents)
         parser.add_argument('--local_rank',
                             type=int,
                             default=0,

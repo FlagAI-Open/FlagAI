@@ -172,7 +172,8 @@ class Trainer():
         wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
         already_fp16=False,
         resume_dataset=False,
-        shuffle_dataset=True
+        shuffle_dataset=True,
+        extra_args=None,
     ):
 
         if timers is not None:
@@ -241,6 +242,8 @@ class Trainer():
         self.resume_dataset = resume_dataset
         self.shuffle_dataset = shuffle_dataset
 
+        self.extra_args = extra_args
+
         if self.env_type != 'pytorch':
             training_paras = self.get_dist_args()
             # Implement for AutoLaunch
@@ -267,7 +270,8 @@ class Trainer():
         Important: --not_call_launch, default False, will not call launch_dist
         Returns: None
         """
-        parser = argparse.ArgumentParser()
+        parents = [] if self.extra_args is None else [self.extra_args]
+        parser = argparse.ArgumentParser(parents=parents)
         parser.add_argument('--local_rank',
                             type=int,
                             default=0,
