@@ -17,7 +17,7 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 * FlagAI is backed by the four most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
 
-The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/).
 
 ## News
 - [17 Mar 2023] release v1.6.2, Support application of new optimizers [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), and added a new gpt model name 'GPT2-base-en' for English; 
@@ -34,16 +34,22 @@ The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformer
 
 <!-- toc -->
 
+- [News](#news)
 - [Requirements and Installation](#requirements-and-installation)
-- [Quick Started](#quick-start)
-    - [Load model and tokenizer](#load-model-and-tokenizer)
-    - [Predictor](#predictor)
-    - [Text-to-image generation task](/examples/AltDiffusion/README.md)
-- [Pre-trained Models and examples](#pretrained-models-and-examples)
+- [Quick Start](#quick-start)
+- [Load model and tokenizer](#load-model-and-tokenizer)
+- [Predictor](#predictor)
+- [NER](#ner)
+- [Semantic Matching](#semantic-matching)
+- [Pre-trained Models and examples](#pre-trained-models-and-examples)
 - [Tutorials](#tutorials)
 - [Contributing](#contributing)
 - [Contact us](#contact-us)
 - [License](#license)
+- [Misc](#misc)
+  - [↳ Stargazers, thank you for your support!](#-stargazers-thank-you-for-your-support)
+  - [↳ Forkers, thank you for your support!](#-forkers-thank-you-for-your-support)
+  - [↳ Star History](#-star-history)
 
 <!-- tocstop -->
 ## Requirements and Installation

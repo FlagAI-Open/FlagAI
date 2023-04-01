@@ -18,7 +18,7 @@
 * 飞智由四个最流行的数据/模型并行库（[PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain)）提供支持，它们之间实现了无缝集成。 你可以用不到十行代码来并行你的训练/测试过程。
 
 
-本项目的部分代码基于[GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+本项目的部分代码基于[GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/).
 
 ## 动态
 - [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
@@ -36,9 +36,10 @@
 
 - [安装](#安装)
 - [快速上手](#快速上手)
-    - [加载模型和分词器](#加载模型和分词器)
-    - [使用预测器](#使用预测器)
-    - [文生图任务示例](/examples/AltDiffusion/README.md)
+  - [加载模型和分词器](#加载模型和分词器)
+  - [使用预测器](#使用预测器)
+  - [命名实体识别任务示例](#命名实体识别任务示例)
+  - [语义相似度匹配任务示例](#语义相似度匹配任务示例)
 - [预训练模型以及样例](#预训练模型以及样例)
 - [教程](#教程)
 - [贡献代码](#贡献代码)
