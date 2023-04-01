@@ -17,7 +17,7 @@ from flagai.trainer import Trainer
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.tokenizer import Tokenizer
 #from flagai.data.tokenizer.llama.tokenizer import Tokenizer
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument("--student_model_path", default="galactica-6.7b-en", type=str, help="path of the pretrained student model")
 parser.add_argument("--save_path", default="current_training/checkpoints", type=str, help="path to save checkpoints")
 #parser.add_argument("--train_file", default="/share/project/lijijie/dataset/pile_merged/pile_1000_text_document", type=str, help="path to train file")
@@ -35,8 +35,9 @@ parser.add_argument("--log_every_n_step", default=16, type=int, help="The steps 
 parser.add_argument("--save_every_n_steps", default=5000, type=int, help="The epochs to save the trained models.")
 parser.add_argument("--max_seq_length", default=2048, type=int, help="The maximum length of input sentences")
 parser.add_argument("--gradient_accumulation_steps", default=16, type=int, help="The gradient_accumulation_steps.")
-parser.add_argument("--not_call_launch", default=False, action="store_true")
 parser.add_argument("--world_size", default=16*8, type=int)
+
+parser.add_argument("--not_call_launch", default=False, action="store_true")
 parser.add_argument("--local_rank", default=-1, type=int)
 
 args = parser.parse_args()
@@ -59,7 +60,7 @@ def main():
         master_ip=os.getenv("MASTER_IP"),
         master_port=int(os.getenv("MASTER_PORT")),
         num_gpus=8,
-        num_nodes=16,
+        num_nodes=1,
         fp16=True,
         save_optim=True,
         save_rng = True,
@@ -68,71 +69,87 @@ def main():
         hostfile=args.host_file,
         training_script=__file__,
         deepspeed_config='deepspeed.json',
-        model_parallel_size = 4,
+        model_parallel_size=8,
+        extra_args=parser,
         )
     
     # tokenizer = Tokenizer.from_pretrained('./state_dict/llama-30b-en/tokenizer.model')
     # tokenizer = AutoTokenizer.from_pretrained('/share/project/liuguang/flagai-internal/examples/gpt2_title_generation/state_dict/llama-7b-en')
-    model_dir = "state_dict"
+    model_dir = "/data/ldwang/state_dict/"
     auto_loader = AutoLoader(
-    "lm",
-    model_name="llama-30b-en",
-    model_dir=model_dir,
-    only_download_config=True,
-    use_cache=False,
-    checkpoint_activations=True,
-    use_fp16 = True
+        "lm",
+        model_name="llama-7b-en",
+        model_dir=model_dir,
+        only_download_config=True,
+        use_cache=False,
+        checkpoint_activations=True,
+        use_fp16 = True
     )
     model = auto_loader.get_model()
 
     # TODO
-    ### 需要根据数据集情况填写路径前缀
     data_prefix = [
-        2.7,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/cn_baike_text_document',
-        2.91,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/cn_ebook_merge_maxlen_text_document',
-        1.89,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/cn_zhihu_text_document',
-        1.46,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/cn_wudao_base_text_document',
-        1.01,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/cn_wudao_dedup_merged_text_document',
-        0.9,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-arxiv_text_document',
-        2.5,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-bookcorpus2_text_document',
-        1.1,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-books3_text_document',
-        1.38,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-gutenberg_pg-19_text_document',
-        2.82,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-openwebtext2_text_document',
-        1.01,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pile-cc_text_document',
-        0.95,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pubmed_abstracts_text_document',
-        0.95,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pubmed_central_text_document',
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_9_dedup_wudao_text_document',
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_9_part_merged_text_document',
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pile-cc_text_document',
+        1.51,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-openwebtext2_text_document',
+
+        0.6,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_dedup-md5-pile-github_text_document',
+        0.53,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code_text_document',
+        0.53,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_newcode1_text_document',
+        0.53,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_newcode2_text_document',
+        0.38,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code-cpp_text_document',
+        0.38,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code-java_text_document',
+
+        1.06,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_baike_text_document',
+        2.43,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
+
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_ebook_merge_maxlen_text_document',
+        1.42,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-gutenberg_pg-19_text_document',
+        1.42,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-bookcorpus2_text_document',
+        1.42,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-books3_text_document',
+        1.14,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-arxiv_text_document',
+        1.14,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_abstracts_text_document',
+
+        1.13,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_zhihu_text_document',
         2.08,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-stackexchange_text_document',
-        1.46,
-        '/share/project/ldwang/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-wikipedia_en_text_document',
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
     ]
     data_impl = 'mmap'
     ## splits_string len should same as train_valid_test_num_samples len
     splits_string = '9999,1'
     ## rebuilding if no npy files for train_valid_test_num_samples config
-    ## 400B
-    train_valid_test_num_samples = [390585937, 39063]
+    train_valid_test_num_samples = [195312500, 19531]
     seq_length = 2048
     seed = 2023
     skip_warmup = True
+    ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+    train_max_num_samples = 195312500
 
     train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
-        seq_length, seed, skip_warmup)
+        seq_length, seed, skip_warmup,
+        train_max_num_samples)
     print(len(train_dataset))
     print(len(valid_dataset)) 
 
