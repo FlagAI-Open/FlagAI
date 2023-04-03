@@ -45,7 +45,7 @@ class T5BPETokenizer(Tokenizer):
 
             CommandToken('pad', '[PAD]', self.num_tokens + 1),
             CommandToken('cls', '[CLS]', self.num_tokens + 2),
-            CommandToken('MASK', '[MASK]',
+            CommandToken('mask', '[MASK]',
                          self.num_tokens + 3),
         ]
         self._command_tokens.extend([

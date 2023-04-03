@@ -126,7 +126,7 @@ class ConstructSeq2seqStrategy:
 
     def encode(self, example):
         cls_id = self.tokenizer.get_command_id('cls')
-        mask_token = 'sMASK' if self.args.task_mask else 'MASK'
+        mask_token = 'sMASK' if self.args.task_mask else 'mask'
         mask_id = self.tokenizer.get_command_id(mask_token)
         pad_id = self.tokenizer.get_command_id('pad')
         sop_id = self.tokenizer.get_command_id('sop')
@@ -175,7 +175,7 @@ class ConstructSeq2seqStrategy:
             source_tokens = [cls_id] + source_tokens + [mask_id
                                                         ] + answer_tokens
         elif self.task_name in ["cmrc"]:
-            mask_id = self.tokenizer.get_command_id('MASK')
+            mask_id = self.tokenizer.get_command_id('mask')
             source_text = example.text_a
             target_text = example.meta["answer"].strip()
             question = example.meta["question"].strip()
@@ -191,7 +191,7 @@ class ConstructSeq2seqStrategy:
                 mask_id
             ] + source_tokens[:max_src_length]
         elif self.task_name in ["wsc"]:
-            mask_id = self.tokenizer.get_command_id('MASK')
+            mask_id = self.tokenizer.get_command_id('mask')
             source_text = example.text_a
             target_text = example.meta["answer"].strip()
             question = example.meta["question"].strip()
@@ -307,10 +307,10 @@ class ConstructBlockStrategy:
         self.encoder_decoder = encoder_decoder
         self.shuffle_blocks = shuffle_blocks
         self.sentinel_token = sentinel_token
-        self.generation_mask = 'gMASK' if task_mask else 'MASK'
+        self.generation_mask = 'gMASK' if task_mask else 'mask'
         self.generation_mask = self.tokenizer.get_command_id(
             self.generation_mask)
-        self.gap_sentence_mask = 'sMASK' if task_mask else 'MASK'
+        self.gap_sentence_mask = 'sMASK' if task_mask else 'mask'
         self.gap_sentence_mask = self.tokenizer.get_command_id(
             self.gap_sentence_mask)
         self.random_position = random_position
@@ -426,7 +426,7 @@ class ConstructBlockStrategy:
 
         position_ids = np.arange(len(tokens), dtype=np.int64)
         targets = copy.deepcopy(tokens)
-        mask_id = self.tokenizer.get_command_id('MASK')
+        mask_id = self.tokenizer.get_command_id('mask')
         mlm_masks = np.zeros(len(tokens), dtype=np.int64)
         for start, end in block_spans:
             for idx in range(start, end):
@@ -494,7 +494,7 @@ class ConstructBlockStrategy:
             elif task == 'gap_sentence':
                 mask_id = self.gap_sentence_mask
             else:
-                mask_token = 'MASK' if idx == 0 else f'MASK{idx}'
+                mask_token = 'mask' if idx == 0 else f'MASK{idx}'
                 mask_id = self.tokenizer.get_command_id(mask_token)
             local_spans.append((current_length, current_length + start - last))
             source_tokens.append(tokens[last:start])

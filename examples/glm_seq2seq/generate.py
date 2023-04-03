@@ -40,8 +40,7 @@ collate_fn = ConstructSeq2seqStrategy(cl_args,
 train_dataset = train_dataset[:1]
 valid_dataset = valid_dataset[:1]
 model = GLMForSeq2Seq.from_pretrain(model_name=model_name)
-model.load_state_dict(torch.load("/home/yanzhaodong/anhforth/FlagAI/examples/glm_seq2seq/checkpoints/310000/pytorch_model.bin")["module"])
-# model.load_state_dict(torch.load("/home/yanzhaodong/anhforth/FlagAI/examples/glm_seq2seq/checkpoints_lang/135000/pytorch_model.bin")["module"])
+# model.load_state_dict(torch.load("/home/yanzhaodong/anhforth/FlagAI/examples/glm_seq2seq/checkpoints/310000/pytorch_model.bin")["module"])
 print("model loaded")
 
 trainer = Trainer(env_type='pytorch',

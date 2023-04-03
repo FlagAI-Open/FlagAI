@@ -27,7 +27,7 @@ trainer = Trainer(env_type="pytorch",
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 train_path = cur_dir + "/data/train.tsv"
-model_dir = "./state_dict/"
+model_dir = "./checkpoints/"
 maxlen = 256
 
 auto_loader = AutoLoader("semantic-matching",

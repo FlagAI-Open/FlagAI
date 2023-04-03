@@ -477,7 +477,7 @@ class ExtractionDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         example = self.example_list[idx]
         source_text, target_text = example.text_a, example.text_b
-        mask_token = 'MASK'
+        mask_token = 'mask'
         mask_id = self.tokenizer.get_command_id(mask_token)
         sop_id = self.tokenizer.get_command_id('sop')
         eop_id = self.tokenizer.get_command_id('eop')
@@ -612,7 +612,7 @@ class BlankLMDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         example = self.example_list[idx]
         source_text = example.text_a
-        mask_token = 'gMASK' if self.args.task_mask else 'MASK'
+        mask_token = 'gMASK' if self.args.task_mask else 'mask'
         mask_id = self.tokenizer.get_command_id(mask_token)
         sop_id = self.tokenizer.get_command_id('sop')
         eop_id = self.tokenizer.get_command_id('eop')

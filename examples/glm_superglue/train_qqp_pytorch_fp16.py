@@ -25,7 +25,7 @@ trainer = Trainer(env_type='pytorch',
                   save_dir="./glm_large_qqp_pytorch_fp16")
 
 model_name = "GLM-large-en"
-model = GLMForSingleTokenCloze.from_pretrain(download_path="/mnt/test_10b_models",
+model = GLMForSingleTokenCloze.from_pretrain(download_path="./checkpoints",
                                              model_name=model_name)
 tokenizer = Tokenizer.from_pretrained(model_name)
 train_dataset = SuperGlueDataset(task_name=task_name,
