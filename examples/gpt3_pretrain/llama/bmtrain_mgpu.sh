@@ -30,7 +30,7 @@ export WANDB_DIR=/data/ldwang/wandb/${EXP_NAME}
 mkdir -p $SAVE_DIR
 mkdir -p $WANDB_DIR
 export EPOCH_NUM=1
-export BATCH_SIZE=8
+export BATCH_SIZE=6
 export GRADIENT_ACCUM_STEPS=1
 
 ## EXTRA OPTS
