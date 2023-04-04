@@ -85,6 +85,7 @@ model = LLAMAModel.init_from_json(config_file=config_file)
 trainer.pre_train(model)
 print('*'*20, "model", model)
 
+'''
 data_prefix = [
     2.7,
     '/data/indexed_dataset/batch1_tok100k/cn_baike_text_document',
@@ -135,6 +136,73 @@ train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
 print("Total train_dataset: ", len(train_dataset))
 print("Total valid_dataset: ", len(valid_dataset))
 
+'''
+
+data_prefix = [
+    1.0,
+    '/data/indexed_dataset/batch1_tok100k_sep/cn_9_dedup_wudao_text_document',
+    1.0,
+    '/data/indexed_dataset/batch1_tok100k_sep/cn_9_part_merged_text_document',
+    1.0,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pile-cc_text_document',
+    1.51,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-openwebtext2_text_document',
+
+    0.6,
+    '/data/indexed_dataset/batch1_tok100k_sep/code_dedup-md5-pile-github_text_document',
+    0.53,
+    '/data/indexed_dataset/batch1_tok100k_sep/code_code_text_document',
+    0.53,
+    '/data/indexed_dataset/batch1_tok100k_sep/code_newcode1_text_document',
+    0.53,
+    '/data/indexed_dataset/batch1_tok100k_sep/code_newcode2_text_document',
+    0.38,
+    '/data/indexed_dataset/batch1_tok100k_sep/code_code-cpp_text_document',
+    0.38,
+    '/data/indexed_dataset/batch1_tok100k_sep/code_code-java_text_document',
+
+    1.06,
+    '/data/indexed_dataset/batch1_tok100k_sep/cn_baike_text_document',
+    2.43,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
+
+    1.0,
+    '/data/indexed_dataset/batch1_tok100k_sep/cn_ebook_merge_maxlen_text_document',
+    1.42,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-gutenberg_pg-19_text_document',
+    1.42,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-bookcorpus2_text_document',
+    1.42,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-books3_text_document',
+    1.14,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-arxiv_text_document',
+    1.14,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_abstracts_text_document',
+
+    1.13,
+    '/data/indexed_dataset/batch1_tok100k_sep/cn_zhihu_text_document',
+    2.08,
+    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
+]
+
+data_impl = 'mmap'
+## splits_string len should same as train_valid_test_num_samples len
+splits_string = '9999,1'
+## rebuilding if no npy files for train_valid_test_num_samples config
+train_valid_test_num_samples = [195312500, 19531]
+seq_length = 2048
+seed = 2023
+skip_warmup = True
+## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+train_max_num_samples = 195312500
+train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
+    data_prefix, data_impl, splits_string,
+    train_valid_test_num_samples,
+    seq_length, seed, skip_warmup,
+    train_max_num_samples)
+print("Total train_dataset: ", len(train_dataset))
+print("Total valid_dataset: ", len(valid_dataset))
+
 def collate_fn(batch):
     def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
         pad_indice = [
@@ -154,7 +222,7 @@ def collate_fn(batch):
 
 trainer.do_train(
     train_dataset=train_dataset,
-    valid_dataset=valid_dataset,
+    valid_dataset=None,
     collate_fn=collate_fn,
     optimizer=None,
     rank_split=False)
