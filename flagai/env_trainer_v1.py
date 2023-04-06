@@ -72,6 +72,7 @@ class EnvTrainer():
             raise Exception("Not supported env_type!!!!")
         os.environ["ENV_TYPE"] = env_args.env_type
         self.experiment_name = env_args.experiment_name
+        self.model_name = env_args.model_name
         self.batch_size = env_args.batch_size
         self.gradient_accumulation_steps = env_args.gradient_accumulation_steps
         self.lr = env_args.lr

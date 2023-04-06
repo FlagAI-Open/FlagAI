@@ -24,6 +24,8 @@ export WANDB_MODE=offline
 
 ## EXP
 export EXP_NAME=llama_7b_1n8g
+export EXP_NAME=llama_7b_1n8g_new_data
+export MODEL_NAME=llama-7b-en
 export SAVE_DIR=/data/ldwang/checkpoints/${EXP_NAME}
 export WANDB_DIR=/data/ldwang/wandb/${EXP_NAME}
 mkdir -p $SAVE_DIR
@@ -41,6 +43,7 @@ OPTS=" --batch_size $BATCH_SIZE \
        --adam_beta2 0.95 \
        --save_dir $SAVE_DIR \
        --experiment_name $EXP_NAME \
+       --model_name $MODEL_NAME \
        --wandb_dir $WANDB_DIR"
 
 ## Trigger job on Each Node when bmt or ddp.

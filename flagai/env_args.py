@@ -15,6 +15,7 @@ class EnvArgs:
     def __init__(self,
                  env_type="pytorch",
                  experiment_name="test_experiment",
+                 model_name="test_model",
                  epochs=1,
                  batch_size=1,
                  lr=1e-5,
@@ -70,6 +71,7 @@ class EnvArgs:
         self.parser = argparse.ArgumentParser(description='Env args parser')
         self.parser.add_argument('--env_type', default=env_type, help='the model will be trained')
         self.parser.add_argument('--experiment_name', default=experiment_name, help='start training from saved checkpoint')
+        self.parser.add_argument('--model_name', default=model_name, help='start training from saved checkpoint')
         self.parser.add_argument('--epochs', default=epochs, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--batch_size', default=batch_size, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--lr', default=lr, type=float, help='start training from saved checkpoint')

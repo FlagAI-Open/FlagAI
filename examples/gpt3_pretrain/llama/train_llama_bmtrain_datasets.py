@@ -25,6 +25,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env_args = EnvArgs(
     env_type="bmtrain",
     experiment_name="llama",
+    model_name="llama-7b-en",
     batch_size=1,
     gradient_accumulation_steps=1,
     lr=2e-4,
@@ -57,6 +58,8 @@ checkpoints = "/data/ldwang/checkpoints/"
 checkpoints = "/data/ldwang/state_dict/"
 model_name = "llama-30b-en"
 model_name = "llama-7b-en"
+model_name = env_args.model_name
+print('*'*20, "model_name", model_name)
 
 '''
 auto_loader = AutoLoader(

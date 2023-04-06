@@ -25,6 +25,8 @@ export WANDB_MODE=offline
 
 ## EXP
 export EXP_NAME=llama_7b_8n8g
+export MODEL_NAME=llama-7b-en
+export MODEL_NAME=llama-7b-en-init
 export SAVE_DIR=/data/ldwang/checkpoints/${EXP_NAME}
 export WANDB_DIR=/data/ldwang/wandb/${EXP_NAME}
 mkdir -p $SAVE_DIR
@@ -32,18 +34,23 @@ mkdir -p $WANDB_DIR
 export EPOCH_NUM=1
 export BATCH_SIZE=6
 export GRADIENT_ACCUM_STEPS=1
+export LR=3.0e-4 #BAD
+export LR=6.0e-5
+export WARMUP_RATE=0.008
+export WARMUP_RATE=0.02
 
 ## EXTRA OPTS
 OPTS=" --batch_size $BATCH_SIZE \
        --epochs $EPOCH_NUM \
        --gradient_accumulation_steps $GRADIENT_ACCUM_STEPS \
-       --lr 3.0e-4 \
-       --warm_up 0.008 \
+       --lr $LR \
+       --warm_up $WARMUP_RATE \
        --weight_decay 0.1 \
        --adam_beta1 0.9 \
        --adam_beta2 0.95 \
        --save_dir $SAVE_DIR \
        --experiment_name $EXP_NAME \
+       --model_name $MODEL_NAME \
        --wandb_dir $WANDB_DIR"
 
 ## Trigger job on Each Node when bmt or ddp.
