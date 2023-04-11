@@ -4,6 +4,7 @@
 import importlib
 import os
 import copy
+import sys;sys.path.append("/home/yanzhaodong/FlagAI")
 from flagai.model.file_utils import _get_model_id
 
 
@@ -256,7 +257,6 @@ class AutoLoader:
                 return model_name_
             else :
                 return raw_model_name
-
         except:
             print("Model hub is not reachable.")
             return raw_model_name

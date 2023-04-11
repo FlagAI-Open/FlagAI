@@ -373,6 +373,7 @@ class Predictor:
                                 scale: float = 7.5,
                                 from_file: str = None,
                                 seed: int = 34234,
+                                precision='autocast',
                                 fp16: bool = False):
         from torchvision.utils import make_grid
         from pytorch_lightning import seed_everything
@@ -407,7 +408,7 @@ class Predictor:
         device = next(self.model.parameters()).device
         n_rows = n_rows if n_rows > 0 else batch_size
 
-        precision_scope = autocast if opt.precision == "autocast" else nullcontext
+        precision_scope = autocast if precision == "autocast" else nullcontext
         sample_path = os.path.join(outpath, "samples")
         os.makedirs(sample_path, exist_ok=True)
         base_count = len(os.listdir(sample_path))

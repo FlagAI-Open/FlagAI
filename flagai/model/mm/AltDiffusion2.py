@@ -566,8 +566,8 @@ class LatentDiffusion(DDPM):
         self.instantiate_first_stage(first_stage_config)
         self.instantiate_cond_stage(cond_stage_config)
         self.cond_stage_forward = cond_stage_forward
-        # if self.cond_stage_forward is None:
-        #     self.set_cond_stage_forward()
+        if self.cond_stage_forward is None:
+            self.set_cond_stage_forward()
         self.clip_denoised = False
         self.bbox_tokenizer = None
 
@@ -672,17 +672,37 @@ class LatentDiffusion(DDPM):
             raise NotImplementedError(f"encoder_posterior of type '{type(encoder_posterior)}' not yet implemented")
         return self.scale_factor * z
 
+    def set_cond_stage_forward(self):
+        def func(c):
+            device = next(self.cond_stage_model.parameters()).device
+            text = self.tokenizer(c,
+                            truncation=True,
+                            max_length=77,
+                            return_length=False,
+                            return_overflowing_tokens=False,
+                            padding="max_length",
+                            return_tensors="pt")
+            text["input_ids"] = text["input_ids"].clone().detach().to(device)
+            text["attention_mask"] = text['attention_mask'].clone().detach().to(device)
+            features = self.cond_stage_model(**text)
+            return features['projection_state']
+        self.cond_stage_forward = func
+
     def get_learned_conditioning(self, c):
+        # C will be directly returned if it is None
+        if c is None:
+            return None
         if self.cond_stage_forward is None:
-            if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
-                c = self.cond_stage_model.encode(c)
+            if hasattr(self.cond_stage_model, 'encode') and callable(
+                    self.cond_stage_model.encode):
+                c = self.cond_stage_model.encode(c, self.tokenizer)
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
                 c = self.cond_stage_model(c)
         else:
-            assert hasattr(self.cond_stage_model, self.cond_stage_forward)
-            c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
+            c = self.cond_stage_forward(c)
+        import pdb;pdb.set_trace()
         return c
 
     def meshgrid(self, h, w):

@@ -31,7 +31,122 @@ from transformers.modeling_outputs import (
 from transformers.modeling_utils import PreTrainedModel
 from transformers.pytorch_utils import apply_chunking_to_forward, find_pruneable_heads_and_indices, prune_linear_layer
 from transformers.utils import ModelOutput, add_start_docstrings_to_model_forward, logging, replace_return_docstrings
-from .configuration_altclip import AltCLIPConfig, AltCLIPTextConfig, AltCLIPVisionConfig
+from transformers import PretrainedConfig
+# from transformers.models.xlm_roberta.configuration_xlm_roberta import XLMRobertaConfig
+# from transformers.models.clip.configuration_clip import CLIPConfig
+
+
+class AltCLIPTextConfig(PretrainedConfig):
+    r"""
+    This is the configuration class to store the configuration of a [`AltCLIPTextModel`] or a [`TFAltCLIPTextModel`].
+    It is used to instantiate a AltCLIP text model according to the specified arguments, defining the model
+    architecture. Instantiating a configuration with the defaults will yield a similar configuration to that of the
+    XLMRoBERTa [xlm-roberta-base](https://huggingface.co/xlm-roberta-base) architecture.
+
+    Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the
+    documentation from [`PretrainedConfig`] for more information.
+
+
+    Args:
+        vocab_size (`int`, *optional*, defaults to 30522):
+            Vocabulary size of the XLM-RoBERTa model. Defines the number of different tokens that can be represented by
+            the `inputs_ids` passed when calling [`AltCLIPTextModel`] or [`TFAltCLIPTextModel`].
+        hidden_size (`int`, *optional*, defaults to 768):
+            Dimensionality of the encoder layers and the pooler layer.
+        num_hidden_layers (`int`, *optional*, defaults to 12):
+            Number of hidden layers in the Transformer encoder.
+        num_attention_heads (`int`, *optional*, defaults to 12):
+            Number of attention heads for each attention layer in the Transformer encoder.
+        intermediate_size (`int`, *optional*, defaults to 3072):
+            Dimensionality of the "intermediate" (often named feed-forward) layer in the Transformer encoder.
+        hidden_act (`str` or `Callable`, *optional*, defaults to `"gelu"`):
+            The non-linear activation function (function or string) in the encoder and pooler. If string, `"gelu"`,
+            `"relu"`, `"silu"` and `"gelu_new"` are supported.
+        hidden_dropout_prob (`float`, *optional*, defaults to 0.1):
+            The dropout probability for all fully connected layers in the embeddings, encoder, and pooler.
+        attention_probs_dropout_prob (`float`, *optional*, defaults to 0.1):
+            The dropout ratio for the attention probabilities.
+        max_position_embeddings (`int`, *optional*, defaults to 512):
+            The maximum sequence length that this model might ever be used with. Typically set this to something large
+            just in case (e.g., 512 or 1024 or 2048).
+        type_vocab_size (`int`, *optional*, defaults to 2):
+            The vocabulary size of the `token_type_ids` passed when calling [`AltCLIPTextModel`] or
+            [`TFAltCLIPTextModel`].
+        initializer_range (`float`, *optional*, defaults to 0.02):
+            The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
+        layer_norm_eps (`float`, *optional*, defaults to 1e-12):
+            The epsilon used by the layer normalization layers.
+        position_embedding_type (`str`, *optional*, defaults to `"absolute"`):
+            Type of position embedding. Choose one of `"absolute"`, `"relative_key"`, `"relative_key_query"`. For
+            positional embeddings use `"absolute"`. For more information on `"relative_key"`, please refer to
+            [Self-Attention with Relative Position Representations (Shaw et al.)](https://arxiv.org/abs/1803.02155).
+            For more information on `"relative_key_query"`, please refer to *Method 4* in [Improve Transformer Models
+            with Better Relative Position Embeddings (Huang et al.)](https://arxiv.org/abs/2009.13658).
+        use_cache (`bool`, *optional*, defaults to `True`):
+            Whether or not the model should return the last key/values attentions (not used by all models). Only
+            relevant if `config.is_decoder=True`.
+        classifier_dropout (`float`, *optional*):
+            The dropout ratio for the classification head.
+
+    Examples:
+
+    ```python
+    >>> from transformers import XLMRobertaConfig, AltCLIPTextModel
+
+    >>> # Initializing a XLM-RoBERTa xlm-roberta-base style configuration
+    >>> configuration = XLMRobertaConfig()
+
+    >>> # Initializing a model (with random weights) from the xlm-roberta-base style configuration
+    >>> model = AltCLIPTextModel(configuration)
+
+    >>> # Accessing the model configuration
+    >>> configuration = model.config
+    ```"""
+    model_type = "altclip_text_model"
+
+    def __init__(
+        self,
+        vocab_size=30522,
+        hidden_size=768,
+        num_hidden_layers=12,
+        num_attention_heads=12,
+        intermediate_size=3072,
+        hidden_act="gelu",
+        hidden_dropout_prob=0.1,
+        attention_probs_dropout_prob=0.1,
+        max_position_embeddings=512,
+        type_vocab_size=2,
+        initializer_range=0.02,
+        layer_norm_eps=1e-12,
+        pad_token_id=1,
+        bos_token_id=0,
+        eos_token_id=2,
+        position_embedding_type="absolute",
+        use_cache=True,
+        classifier_dropout=None,
+        project_dim=512,
+        pooler_fn="cls",
+        **kwargs
+    ):
+        super().__init__(pad_token_id=pad_token_id, bos_token_id=bos_token_id, eos_token_id=eos_token_id, **kwargs)
+
+        self.vocab_size = vocab_size
+        self.hidden_size = hidden_size
+        self.num_hidden_layers = num_hidden_layers
+        self.num_attention_heads = num_attention_heads
+        self.hidden_act = hidden_act
+        self.intermediate_size = intermediate_size
+        self.hidden_dropout_prob = hidden_dropout_prob
+        self.attention_probs_dropout_prob = attention_probs_dropout_prob
+        self.max_position_embeddings = max_position_embeddings
+        self.type_vocab_size = type_vocab_size
+        self.initializer_range = initializer_range
+        self.layer_norm_eps = layer_norm_eps
+        self.position_embedding_type = position_embedding_type
+        self.use_cache = use_cache
+        self.classifier_dropout = classifier_dropout
+        self.project_dim = project_dim
+        self.pooler_fn = pooler_fn
 
 
 @dataclass
@@ -753,496 +868,16 @@ class AltRobertaPooler(nn.Module):
         pooled_output = self.dense(first_token_tensor)
         pooled_output = self.activation(pooled_output)
         return pooled_output
-
-
-# Copied from transformers.models.clip.modeling_clip.CLIPAttention with CLIP->AltCLIP
-class AltCLIPAttention(nn.Module):
-    """Multi-headed attention from 'Attention Is All You Need' paper"""
-
-    def __init__(self, config):
-        super().__init__()
-        self.config = config
-        self.embed_dim = config.hidden_size
-        self.num_heads = config.num_attention_heads
-        self.head_dim = self.embed_dim // self.num_heads
-        if self.head_dim * self.num_heads != self.embed_dim:
-            raise ValueError(
-                f"embed_dim must be divisible by num_heads (got `embed_dim`: {self.embed_dim} and `num_heads`:"
-                f" {self.num_heads})."
-            )
-        self.scale = self.head_dim**-0.5
-        self.dropout = config.attention_dropout
-
-        self.k_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.v_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.q_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.out_proj = nn.Linear(self.embed_dim, self.embed_dim)
-
-    def _shape(self, tensor: torch.Tensor, seq_len: int, bsz: int):
-        return tensor.view(bsz, seq_len, self.num_heads, self.head_dim).transpose(1, 2).contiguous()
-
-    def forward(
-        self,
-        hidden_states: torch.Tensor,
-        attention_mask: Optional[torch.Tensor] = None,
-        causal_attention_mask: Optional[torch.Tensor] = None,
-        output_attentions: Optional[bool] = False,
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
-        """Input shape: Batch x Time x Channel"""
-
-        bsz, tgt_len, embed_dim = hidden_states.size()
-
-        # get query proj
-        query_states = self.q_proj(hidden_states) * self.scale
-        key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
-        value_states = self._shape(self.v_proj(hidden_states), -1, bsz)
-
-        proj_shape = (bsz * self.num_heads, -1, self.head_dim)
-        query_states = self._shape(query_states, tgt_len, bsz).view(*proj_shape)
-        key_states = key_states.view(*proj_shape)
-        value_states = value_states.view(*proj_shape)
-
-        src_len = key_states.size(1)
-        attn_weights = torch.bmm(query_states, key_states.transpose(1, 2))
-
-        if attn_weights.size() != (bsz * self.num_heads, tgt_len, src_len):
-            raise ValueError(
-                f"Attention weights should be of size {(bsz * self.num_heads, tgt_len, src_len)}, but is"
-                f" {attn_weights.size()}"
-            )
-
-        # apply the causal_attention_mask first
-        if causal_attention_mask is not None:
-            if causal_attention_mask.size() != (bsz, 1, tgt_len, src_len):
-                raise ValueError(
-                    f"Attention mask should be of size {(bsz, 1, tgt_len, src_len)}, but is"
-                    f" {causal_attention_mask.size()}"
-                )
-            attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len) + causal_attention_mask
-            attn_weights = attn_weights.view(bsz * self.num_heads, tgt_len, src_len)
-
-        if attention_mask is not None:
-            if attention_mask.size() != (bsz, 1, tgt_len, src_len):
-                raise ValueError(
-                    f"Attention mask should be of size {(bsz, 1, tgt_len, src_len)}, but is {attention_mask.size()}"
-                )
-            attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len) + attention_mask
-            attn_weights = attn_weights.view(bsz * self.num_heads, tgt_len, src_len)
-
-        attn_weights = nn.functional.softmax(attn_weights, dim=-1)
-
-        if output_attentions:
-            # this operation is a bit akward, but it's required to
-            # make sure that attn_weights keeps its gradient.
-            # In order to do so, attn_weights have to reshaped
-            # twice and have to be reused in the following
-            attn_weights_reshaped = attn_weights.view(bsz, self.num_heads, tgt_len, src_len)
-            attn_weights = attn_weights_reshaped.view(bsz * self.num_heads, tgt_len, src_len)
-        else:
-            attn_weights_reshaped = None
-
-        attn_probs = nn.functional.dropout(attn_weights, p=self.dropout, training=self.training)
-
-        attn_output = torch.bmm(attn_probs, value_states)
-
-        if attn_output.size() != (bsz * self.num_heads, tgt_len, self.head_dim):
-            raise ValueError(
-                f"`attn_output` should be of size {(bsz, self.num_heads, tgt_len, self.head_dim)}, but is"
-                f" {attn_output.size()}"
-            )
-
-        attn_output = attn_output.view(bsz, self.num_heads, tgt_len, self.head_dim)
-        attn_output = attn_output.transpose(1, 2)
-        attn_output = attn_output.reshape(bsz, tgt_len, embed_dim)
-
-        attn_output = self.out_proj(attn_output)
-
-        return attn_output, attn_weights_reshaped
-
-
-# Copied from transformers.models.clip.modeling_clip.CLIPMLP with CLIP->AltCLIP
-class AltCLIPMLP(nn.Module):
-    def __init__(self, config):
-        super().__init__()
-        self.config = config
-        self.activation_fn = ACT2FN[config.hidden_act]
-        self.fc1 = nn.Linear(config.hidden_size, config.intermediate_size)
-        self.fc2 = nn.Linear(config.intermediate_size, config.hidden_size)
-
-    def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
-        hidden_states = self.fc1(hidden_states)
-        hidden_states = self.activation_fn(hidden_states)
-        hidden_states = self.fc2(hidden_states)
-        return hidden_states
-
-
-# Copied from transformers.models.clip.modeling_clip.CLIPEncoderLayer with CLIP->AltCLIP
-class AltCLIPEncoderLayer(nn.Module):
-    def __init__(self, config: AltCLIPConfig):
-        super().__init__()
-        self.embed_dim = config.hidden_size
-        self.self_attn = AltCLIPAttention(config)
-        self.layer_norm1 = nn.LayerNorm(self.embed_dim)
-        self.mlp = AltCLIPMLP(config)
-        self.layer_norm2 = nn.LayerNorm(self.embed_dim)
-
-    def forward(
-        self,
-        hidden_states: torch.Tensor,
-        attention_mask: torch.Tensor,
-        causal_attention_mask: torch.Tensor,
-        output_attentions: Optional[bool] = False,
-    ) -> Tuple[torch.FloatTensor]:
-        """
-        Args:
-            hidden_states (`torch.FloatTensor`): input to the layer of shape `(batch, seq_len, embed_dim)`
-            attention_mask (`torch.FloatTensor`): attention mask of size
-                `(batch, 1, tgt_len, src_len)` where padding elements are indicated by very large negative values.
-                `(config.encoder_attention_heads,)`.
-            output_attentions (`bool`, *optional*):
-                Whether or not to return the attentions tensors of all attention layers. See `attentions` under
-                returned tensors for more detail.
-        """
-        residual = hidden_states
-
-        hidden_states = self.layer_norm1(hidden_states)
-        hidden_states, attn_weights = self.self_attn(
-            hidden_states=hidden_states,
-            attention_mask=attention_mask,
-            causal_attention_mask=causal_attention_mask,
-            output_attentions=output_attentions,
-        )
-        hidden_states = residual + hidden_states
-
-        residual = hidden_states
-        hidden_states = self.layer_norm2(hidden_states)
-        hidden_states = self.mlp(hidden_states)
-        hidden_states = residual + hidden_states
-
-        outputs = (hidden_states,)
-
-        if output_attentions:
-            outputs += (attn_weights,)
-
-        return outputs
-
-
-# Copied from transformers.models.clip.modeling_clip.CLIPEncoder with CLIP->AltCLIP
-class AltCLIPEncoder(nn.Module):
-    """
-    Transformer encoder consisting of `config.num_hidden_layers` self attention layers. Each layer is a
-    [`AltCLIPEncoderLayer`].
-
-    Args:
-        config: AltCLIPConfig
-    """
-
-    def __init__(self, config: AltCLIPConfig):
-        super().__init__()
-        self.config = config
-        self.layers = nn.ModuleList([AltCLIPEncoderLayer(config) for _ in range(config.num_hidden_layers)])
-        self.gradient_checkpointing = False
-
-    def forward(
-        self,
-        inputs_embeds,
-        attention_mask: Optional[torch.Tensor] = None,
-        causal_attention_mask: Optional[torch.Tensor] = None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-    ) -> Union[Tuple, BaseModelOutput]:
-        r"""
-        Args:
-            inputs_embeds (`torch.FloatTensor` of shape `(batch_size, sequence_length, hidden_size)`):
-                Optionally, instead of passing `input_ids` you can choose to directly pass an embedded representation.
-                This is useful if you want more control over how to convert `input_ids` indices into associated vectors
-                than the model's internal embedding lookup matrix.
-            attention_mask (`torch.Tensor` of shape `(batch_size, sequence_length)`, *optional*):
-                Mask to avoid performing attention on padding token indices. Mask values selected in `[0, 1]`:
-
-                - 1 for tokens that are **not masked**,
-                - 0 for tokens that are **masked**.
-
-                [What are attention masks?](../glossary#attention-mask)
-            causal_attention_mask (`torch.Tensor` of shape `(batch_size, sequence_length)`, *optional*):
-                Causal mask for the text model. Mask values selected in `[0, 1]`:
-
-                - 1 for tokens that are **not masked**,
-                - 0 for tokens that are **masked**.
-
-                [What are attention masks?](../glossary#attention-mask)
-            output_attentions (`bool`, *optional*):
-                Whether or not to return the attentions tensors of all attention layers. See `attentions` under
-                returned tensors for more detail.
-            output_hidden_states (`bool`, *optional*):
-                Whether or not to return the hidden states of all layers. See `hidden_states` under returned tensors
-                for more detail.
-            return_dict (`bool`, *optional*):
-                Whether or not to return a [`~utils.ModelOutput`] instead of a plain tuple.
-        """
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        encoder_states = () if output_hidden_states else None
-        all_attentions = () if output_attentions else None
-
-        hidden_states = inputs_embeds
-        for idx, encoder_layer in enumerate(self.layers):
-            if output_hidden_states:
-                encoder_states = encoder_states + (hidden_states,)
-            if self.gradient_checkpointing and self.training:
-
-                def create_custom_forward(module):
-                    def custom_forward(*inputs):
-                        return module(*inputs, output_attentions)
-
-                    return custom_forward
-
-                layer_outputs = torch.utils.checkpoint.checkpoint(
-                    create_custom_forward(encoder_layer),
-                    hidden_states,
-                    attention_mask,
-                    causal_attention_mask,
-                )
-            else:
-                layer_outputs = encoder_layer(
-                    hidden_states,
-                    attention_mask,
-                    causal_attention_mask,
-                    output_attentions=output_attentions,
-                )
-
-            hidden_states = layer_outputs[0]
-
-            if output_attentions:
-                all_attentions = all_attentions + (layer_outputs[1],)
-
-        if output_hidden_states:
-            encoder_states = encoder_states + (hidden_states,)
-
-        if not return_dict:
-            return tuple(v for v in [hidden_states, encoder_states, all_attentions] if v is not None)
-        return BaseModelOutput(
-            last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions
-        )
-
-
-# Copied from transformers.models.clip.modeling_clip.CLIPVisionEmbeddings with CLIP->AltCLIP
-class AltCLIPVisionEmbeddings(nn.Module):
-    def __init__(self, config: AltCLIPVisionConfig):
-        super().__init__()
-        self.config = config
-        self.embed_dim = config.hidden_size
-        self.image_size = config.image_size
-        self.patch_size = config.patch_size
-
-        self.class_embedding = nn.Parameter(torch.randn(self.embed_dim))
-
-        self.patch_embedding = nn.Conv2d(
-            in_channels=config.num_channels,
-            out_channels=self.embed_dim,
-            kernel_size=self.patch_size,
-            stride=self.patch_size,
-            bias=False,
-        )
-
-        self.num_patches = (self.image_size // self.patch_size) ** 2
-        self.num_positions = self.num_patches + 1
-        self.position_embedding = nn.Embedding(self.num_positions, self.embed_dim)
-        self.register_buffer("position_ids", torch.arange(self.num_positions).expand((1, -1)))
-
-    def forward(self, pixel_values: torch.FloatTensor) -> torch.Tensor:
-        batch_size = pixel_values.shape[0]
-        patch_embeds = self.patch_embedding(pixel_values)  # shape = [*, width, grid, grid]
-        patch_embeds = patch_embeds.flatten(2).transpose(1, 2)
-
-        class_embeds = self.class_embedding.expand(batch_size, 1, -1)
-        embeddings = torch.cat([class_embeds, patch_embeds], dim=1)
-        embeddings = embeddings + self.position_embedding(self.position_ids)
-        return embeddings
-
-
-class AltCLIPPreTrainedModel(PreTrainedModel):
-    """
-    An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
-    models.
-    """
-
-    config_class = AltCLIPConfig
-    base_model_prefix = "altclip"
-    supports_gradient_checkpointing = True
-    _keys_to_ignore_on_load_missing = [r"position_ids"]
-
-    def _init_weights(self, module):
-        """Initialize the weights"""
-        factor = self.config.initializer_factor
-        if isinstance(module, AltCLIPVisionEmbeddings):
-            factor = self.config.initializer_factor
-            nn.init.normal_(module.class_embedding, mean=0.0, std=module.embed_dim**-0.5 * factor)
-            nn.init.normal_(module.patch_embedding.weight, std=module.config.initializer_range * factor)
-            nn.init.normal_(module.position_embedding.weight, std=module.config.initializer_range * factor)
-        elif isinstance(module, AltCLIPAttention):
-            factor = self.config.initializer_factor
-            in_proj_std = (module.embed_dim**-0.5) * ((2 * module.config.num_hidden_layers) ** -0.5) * factor
-            out_proj_std = (module.embed_dim**-0.5) * factor
-            nn.init.normal_(module.q_proj.weight, std=in_proj_std)
-            nn.init.normal_(module.k_proj.weight, std=in_proj_std)
-            nn.init.normal_(module.v_proj.weight, std=in_proj_std)
-            nn.init.normal_(module.out_proj.weight, std=out_proj_std)
-        elif isinstance(module, AltCLIPMLP):
-            factor = self.config.initializer_factor
-            in_proj_std = (
-                (module.config.hidden_size**-0.5) * ((2 * module.config.num_hidden_layers) ** -0.5) * factor
-            )
-            fc_std = (2 * module.config.hidden_size) ** -0.5 * factor
-            nn.init.normal_(module.fc1.weight, std=fc_std)
-            nn.init.normal_(module.fc2.weight, std=in_proj_std)
-        elif isinstance(module, AltCLIPModel):
-            nn.init.normal_(
-                module.text_projection.weight,
-                std=module.text_embed_dim**-0.5 * self.config.initializer_factor,
-            )
-            nn.init.normal_(
-                module.visual_projection.weight,
-                std=module.vision_embed_dim**-0.5 * self.config.initializer_factor,
-            )
-        elif isinstance(module, nn.LayerNorm):
-            module.bias.data.zero_()
-            module.weight.data.fill_(1.0)
-        elif isinstance(module, nn.Linear):
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_factor)
-            if module.bias is not None:
-                module.bias.data.zero_()
-        elif isinstance(module, nn.Embedding):
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_factor)
-            if module.padding_idx is not None:
-                module.weight.data[module.padding_idx].zero_()
-
-    def _set_gradient_checkpointing(self, module, value=False):
-        if isinstance(module, AltCLIPEncoder):
-            module.gradient_checkpointing = value
-        if isinstance(module, AltRobertaEncoder):
-            module.gradient_checkpointing = value
-
-
-# Copied from transformers.models.clip.modeling_clip.CLIPVisionTransformer with CLIPVisionTransformer->AltCLIPVisionTransformer,CLIPVisionConfig->AltCLIPVisionConfig,CLIPVisionEmbeddings->AltCLIPVisionEmbeddings,CLIPEncoder->AltCLIPEncoder,CLIP_VISION_INPUTS_DOCSTRING->ALTCLIP_VISION_INPUTS_DOCSTRING
-class AltCLIPVisionTransformer(nn.Module):
-    def __init__(self, config: AltCLIPVisionConfig):
-        super().__init__()
-        self.config = config
-        embed_dim = config.hidden_size
-
-        self.embeddings = AltCLIPVisionEmbeddings(config)
-        self.pre_layrnorm = nn.LayerNorm(embed_dim)
-        self.encoder = AltCLIPEncoder(config)
-        self.post_layernorm = nn.LayerNorm(embed_dim)
-
-    @add_start_docstrings_to_model_forward(ALTCLIP_VISION_INPUTS_DOCSTRING)
-    @replace_return_docstrings(output_type=BaseModelOutputWithPooling, config_class=AltCLIPVisionConfig)
-    def forward(
-        self,
-        pixel_values: Optional[torch.FloatTensor] = None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-    ) -> Union[Tuple, BaseModelOutputWithPooling]:
-        r"""
-        Returns:
-
-        """
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        if pixel_values is None:
-            raise ValueError("You have to specify pixel_values")
-
-        hidden_states = self.embeddings(pixel_values)
-        hidden_states = self.pre_layrnorm(hidden_states)
-
-        encoder_outputs = self.encoder(
-            inputs_embeds=hidden_states,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
-
-        last_hidden_state = encoder_outputs[0]
-        pooled_output = last_hidden_state[:, 0, :]
-        pooled_output = self.post_layernorm(pooled_output)
-
-        if not return_dict:
-            return (last_hidden_state, pooled_output) + encoder_outputs[1:]
-
-        return BaseModelOutputWithPooling(
-            last_hidden_state=last_hidden_state,
-            pooler_output=pooled_output,
-            hidden_states=encoder_outputs.hidden_states,
-            attentions=encoder_outputs.attentions,
-        )
-
-
-class AltCLIPVisionModel(AltCLIPPreTrainedModel):
-    config_class = AltCLIPVisionConfig
-    main_input_name = "pixel_values"
-
-    def __init__(self, config: AltCLIPVisionConfig):
-        super().__init__(config)
-        self.vision_model = AltCLIPVisionTransformer(config)
-        # Initialize weights and apply final processing
-        self.post_init()
-
-    def get_input_embeddings(self) -> nn.Module:
-        return self.vision_model.embeddings.patch_embedding
-
-    @add_start_docstrings_to_model_forward(ALTCLIP_VISION_INPUTS_DOCSTRING)
-    @replace_return_docstrings(output_type=BaseModelOutputWithPooling, config_class=AltCLIPVisionConfig)
-    def forward(
-        self,
-        pixel_values: Optional[torch.FloatTensor] = None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-    ) -> Union[Tuple, BaseModelOutputWithPooling]:
-        r"""
-        Returns:
-
-        Examples:
-
-        ```python
-        >>> from PIL import Image
-        >>> import requests
-        >>> from transformers import AltCLIPProcessor, AltCLIPVisionModel
-
-        >>> model = AltCLIPVisionModel.from_pretrained("BAAI/AltCLIP")
-        >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
-
-        >>> url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-        >>> image = Image.open(requests.get(url, stream=True).raw)
-
-        >>> inputs = processor(images=image, return_tensors="pt")
-
-        >>> outputs = model(**inputs)
-        >>> last_hidden_state = outputs.last_hidden_state
-        >>> pooled_output = outputs.pooler_output  # pooled CLS states
-        ```"""
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        return self.vision_model(
-            pixel_values=pixel_values,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
-
-
-class AltRobertaModel(AltCLIPPreTrainedModel):
+from transformers.modeling_utils import PreTrainedModel
+from transformers import BertConfig
+
+class BertSeriesConfig(BertConfig):
+    def __init__(self, vocab_size=30522, hidden_size=1024, num_hidden_layers=12, num_attention_heads=12, intermediate_size=3072, hidden_act="gelu", hidden_dropout_prob=0.1, attention_probs_dropout_prob=0.1, max_position_embeddings=512, type_vocab_size=2, initializer_range=0.02, layer_norm_eps=1e-12, pad_token_id=0, position_embedding_type="absolute", use_cache=True, classifier_dropout=None,project_dim=512, pooler_fn="average",learn_encoder=False,model_type='bert',**kwargs):
+        super().__init__(vocab_size, hidden_size, num_hidden_layers, num_attention_heads, intermediate_size, hidden_act, hidden_dropout_prob, attention_probs_dropout_prob, max_position_embeddings, type_vocab_size, initializer_range, layer_norm_eps, pad_token_id, position_embedding_type, use_cache, classifier_dropout, **kwargs)
+        self.project_dim = project_dim
+        self.pooler_fn = pooler_fn
+        self.learn_encoder = learn_encoder
+class AltRobertaModel(PreTrainedModel):
     """
 
     The model can behave as an encoder (with only self-attention) as well as a decoder, in which case a layer of
@@ -1258,7 +893,7 @@ class AltRobertaModel(AltCLIPPreTrainedModel):
 
     """
 
-    config_class = AltCLIPTextConfig
+    config_class = BertSeriesConfig
 
     # Copied from transformers.models.bert.modeling_bert.BertModel.__init__ with Bert->AltRoberta
     def __init__(self, config, add_pooling_layer=True):
@@ -1418,328 +1053,328 @@ class AltRobertaModel(AltCLIPPreTrainedModel):
         )
 
 
-class AltCLIPTextModel(AltCLIPPreTrainedModel):
-    config_class = AltCLIPTextConfig
+# class AltCLIPTextModel(AltCLIPPreTrainedModel):
+#     config_class = AltCLIPTextConfig
 
-    def __init__(self, config):
-        super().__init__(config)
-        self.roberta = AltRobertaModel(config, add_pooling_layer=False)
-        self.transformation = nn.Linear(config.hidden_size, config.project_dim)
-        self.transformation_pre = nn.Linear(config.hidden_size, config.project_dim)
-        self.pre_LN = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.post_init()
+#     def __init__(self, config):
+#         super().__init__(config)
+#         self.roberta = AltRobertaModel(config, add_pooling_layer=False)
+#         self.transformation = nn.Linear(config.hidden_size, config.project_dim)
+#         self.transformation_pre = nn.Linear(config.hidden_size, config.project_dim)
+#         self.pre_LN = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
+#         self.post_init()
 
-    def get_input_embeddings(self) -> nn.Module:
-        return self.roberta.embeddings.word_embeddings
+#     def get_input_embeddings(self) -> nn.Module:
+#         return self.roberta.embeddings.word_embeddings
 
-    def set_input_embeddings(self, value: nn.Embedding) -> None:
-        self.roberta.embeddings.word_embeddings = value
+#     def set_input_embeddings(self, value: nn.Embedding) -> None:
+#         self.roberta.embeddings.word_embeddings = value
 
-    def resize_token_embeddings(self, new_num_tokens: Optional[int] = None) -> nn.Embedding:
-        return super().resize_token_embeddings(new_num_tokens)
+#     def resize_token_embeddings(self, new_num_tokens: Optional[int] = None) -> nn.Embedding:
+#         return super().resize_token_embeddings(new_num_tokens)
 
-    @add_start_docstrings_to_model_forward(ALTCLIP_TEXT_INPUTS_DOCSTRING)
-    @replace_return_docstrings(output_type=BaseModelOutputWithPoolingAndProjection, config_class=AltCLIPTextConfig)
-    def forward(
-        self,
-        input_ids: Optional[torch.Tensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        token_type_ids: Optional[torch.Tensor] = None,
-        position_ids: Optional[torch.Tensor] = None,
-        head_mask: Optional[torch.Tensor] = None,
-        inputs_embeds: Optional[torch.Tensor] = None,
-        encoder_hidden_states: Optional[torch.Tensor] = None,
-        encoder_attention_mask: Optional[torch.Tensor] = None,
-        output_attentions: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-    ):
-        r"""
-        Returns:
+#     @add_start_docstrings_to_model_forward(ALTCLIP_TEXT_INPUTS_DOCSTRING)
+#     @replace_return_docstrings(output_type=BaseModelOutputWithPoolingAndProjection, config_class=AltCLIPTextConfig)
+#     def forward(
+#         self,
+#         input_ids: Optional[torch.Tensor] = None,
+#         attention_mask: Optional[torch.Tensor] = None,
+#         token_type_ids: Optional[torch.Tensor] = None,
+#         position_ids: Optional[torch.Tensor] = None,
+#         head_mask: Optional[torch.Tensor] = None,
+#         inputs_embeds: Optional[torch.Tensor] = None,
+#         encoder_hidden_states: Optional[torch.Tensor] = None,
+#         encoder_attention_mask: Optional[torch.Tensor] = None,
+#         output_attentions: Optional[bool] = None,
+#         return_dict: Optional[bool] = None,
+#         output_hidden_states: Optional[bool] = None,
+#     ):
+#         r"""
+#         Returns:
 
-        Examples:
+#         Examples:
 
-        ```python
-        >>> from transformers import AltCLIPProcessor, AltCLIPTextModel
+#         ```python
+#         >>> from transformers import AltCLIPProcessor, AltCLIPTextModel
 
-        >>> model = AltCLIPTextModel.from_pretrained("BAAI/AltCLIP")
-        >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
+#         >>> model = AltCLIPTextModel.from_pretrained("BAAI/AltCLIP")
+#         >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
 
-        >>> texts = ["it's a cat", "it's a dog"]
+#         >>> texts = ["it's a cat", "it's a dog"]
 
-        >>> inputs = processor(text=texts, padding=True, return_tensors="pt")
+#         >>> inputs = processor(text=texts, padding=True, return_tensors="pt")
 
-        >>> outputs = model(**inputs)
-        >>> last_hidden_state = outputs.last_hidden_state
-        >>> pooled_output = outputs.pooler_output  # pooled CLS states
-        ```"""
+#         >>> outputs = model(**inputs)
+#         >>> last_hidden_state = outputs.last_hidden_state
+#         >>> pooled_output = outputs.pooler_output  # pooled CLS states
+#         ```"""
 
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+#         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
-        outputs = self.roberta(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            position_ids=position_ids,
-            head_mask=head_mask,
-            inputs_embeds=inputs_embeds,
-            encoder_hidden_states=encoder_hidden_states,
-            encoder_attention_mask=encoder_attention_mask,
-            output_attentions=output_attentions,
-            output_hidden_states=True,
-            return_dict=return_dict,
-        )
+#         outputs = self.roberta(
+#             input_ids=input_ids,
+#             attention_mask=attention_mask,
+#             token_type_ids=token_type_ids,
+#             position_ids=position_ids,
+#             head_mask=head_mask,
+#             inputs_embeds=inputs_embeds,
+#             encoder_hidden_states=encoder_hidden_states,
+#             encoder_attention_mask=encoder_attention_mask,
+#             output_attentions=output_attentions,
+#             output_hidden_states=True,
+#             return_dict=return_dict,
+#         )
 
-        # last module outputs
-        sequence_output = outputs[0]
+#         # last module outputs
+#         sequence_output = outputs[0]
 
-        # project the last outputs 
-        sequence_output = self.pre_LN(sequence_output)
+#         # project the last outputs 
+#         sequence_output = self.pre_LN(sequence_output)
 
-        # pooler
-        projection_state = self.transformation(sequence_output)
-        pooler_output = projection_state[:, 0]
+#         # pooler
+#         projection_state = self.transformation(sequence_output)
+#         pooler_output = projection_state[:, 0]
 
-        sequence_output2 = outputs[1][-2]
+#         sequence_output2 = outputs[1][-2]
 
-        # project every module
-        sequence_output2 = self.pre_LN(sequence_output2)
+#         # project every module
+#         sequence_output2 = self.pre_LN(sequence_output2)
 
-        # pooler
-        projection_state2 = self.transformation_pre(sequence_output2)
-        pooler_output2 = projection_state2[:, 0]
-        if not return_dict:
-            return (projection_state, pooler_output) + outputs[2:4]
+#         # pooler
+#         projection_state2 = self.transformation_pre(sequence_output2)
+#         pooler_output2 = projection_state2[:, 0]
+#         if not return_dict:
+#             return (projection_state, pooler_output) + outputs[2:4]
 
-        return BaseModelOutputWithPoolingAndProjection(
-            last_hidden_state=projection_state,
-            penultimate_hidden_state=projection_state2,
-            pooler_output=pooler_output,
-            pooler_output2 = pooler_output2,
-            hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
-        )
+#         return BaseModelOutputWithPoolingAndProjection(
+#             last_hidden_state=projection_state,
+#             penultimate_hidden_state=projection_state2,
+#             pooler_output=pooler_output,
+#             pooler_output2 = pooler_output2,
+#             hidden_states=outputs.hidden_states,
+#             attentions=outputs.attentions,
+#         )
 
 
-class AltCLIPModel(AltCLIPPreTrainedModel):
-    config_class = AltCLIPConfig
+# class AltCLIPModel(AltCLIPPreTrainedModel):
+#     config_class = AltCLIPConfig
 
-    def __init__(self, config: AltCLIPConfig):
-        super().__init__(config)
+#     def __init__(self, config: AltCLIPConfig):
+#         super().__init__(config)
 
-        if not isinstance(config.vision_config, AltCLIPVisionConfig):
-            raise ValueError(
-                "config.vision_config is expected to be of type AltCLIPVisionConfig but is of type"
-                f" {type(config.vision_config)}."
-            )
-        if not isinstance(config.text_config, AltCLIPTextConfig):
-            raise ValueError(
-                "config.text_config is expected to be of type AltCLIPTextConfig but is of type"
-                f" {type(config.text_config)}."
-            )
+#         if not isinstance(config.vision_config, AltCLIPVisionConfig):
+#             raise ValueError(
+#                 "config.vision_config is expected to be of type AltCLIPVisionConfig but is of type"
+#                 f" {type(config.vision_config)}."
+#             )
+#         if not isinstance(config.text_config, AltCLIPTextConfig):
+#             raise ValueError(
+#                 "config.text_config is expected to be of type AltCLIPTextConfig but is of type"
+#                 f" {type(config.text_config)}."
+#             )
 
-        text_config = config.text_config
-        vision_config = config.vision_config
+#         text_config = config.text_config
+#         vision_config = config.vision_config
 
-        self.projection_dim = config.projection_dim
-        self.text_embed_dim = text_config.project_dim
-        self.vision_embed_dim = vision_config.hidden_size
+#         self.projection_dim = config.projection_dim
+#         self.text_embed_dim = text_config.project_dim
+#         self.vision_embed_dim = vision_config.hidden_size
 
-        self.text_model = AltCLIPTextModel(text_config)
-        self.vision_model = AltCLIPVisionTransformer(vision_config)
+#         self.text_model = AltCLIPTextModel(text_config)
+#         self.vision_model = AltCLIPVisionTransformer(vision_config)
 
-        self.visual_projection = nn.Linear(self.vision_embed_dim, self.projection_dim, bias=False)
-        self.text_projection = nn.Linear(self.text_embed_dim, self.projection_dim, bias=False)
-        self.logit_scale = nn.Parameter(torch.ones([]) * self.config.logit_scale_init_value)
+#         self.visual_projection = nn.Linear(self.vision_embed_dim, self.projection_dim, bias=False)
+#         self.text_projection = nn.Linear(self.text_embed_dim, self.projection_dim, bias=False)
+#         self.logit_scale = nn.Parameter(torch.ones([]) * self.config.logit_scale_init_value)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+#         # Initialize weights and apply final processing
+#         self.post_init()
 
-    @add_start_docstrings_to_model_forward(ALTCLIP_TEXT_INPUTS_DOCSTRING)
-    def get_text_features(
-        self,
-        input_ids: Optional[torch.Tensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        position_ids: Optional[torch.Tensor] = None,
-        token_type_ids=None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-    ) -> torch.FloatTensor:
-        r"""
-        Returns:
-            text_features (`torch.FloatTensor` of shape `(batch_size, output_dim`): The text embeddings obtained by
-            applying the projection layer to the pooled output of [`AltCLIPTextModel`].
+#     @add_start_docstrings_to_model_forward(ALTCLIP_TEXT_INPUTS_DOCSTRING)
+#     def get_text_features(
+#         self,
+#         input_ids: Optional[torch.Tensor] = None,
+#         attention_mask: Optional[torch.Tensor] = None,
+#         position_ids: Optional[torch.Tensor] = None,
+#         token_type_ids=None,
+#         output_attentions: Optional[bool] = None,
+#         output_hidden_states: Optional[bool] = None,
+#         return_dict: Optional[bool] = None,
+#     ) -> torch.FloatTensor:
+#         r"""
+#         Returns:
+#             text_features (`torch.FloatTensor` of shape `(batch_size, output_dim`): The text embeddings obtained by
+#             applying the projection layer to the pooled output of [`AltCLIPTextModel`].
 
-        Examples:
+#         Examples:
 
-        ```python
-        >>> from transformers import AltCLIPProcessor, AltCLIPModel
+#         ```python
+#         >>> from transformers import AltCLIPProcessor, AltCLIPModel
 
-        >>> model = AltCLIPModel.from_pretrained("BAAI/AltCLIP")
-        >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
-        >>> inputs = processor(text=["a photo of a cat", "a photo of a dog"], padding=True, return_tensors="pt")
-        >>> text_features = model.get_text_features(**inputs)
-        ```"""
-        # Use AltCLIP model's config for some fields (if specified) instead of those of vision & text components.
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+#         >>> model = AltCLIPModel.from_pretrained("BAAI/AltCLIP")
+#         >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
+#         >>> inputs = processor(text=["a photo of a cat", "a photo of a dog"], padding=True, return_tensors="pt")
+#         >>> text_features = model.get_text_features(**inputs)
+#         ```"""
+#         # Use AltCLIP model's config for some fields (if specified) instead of those of vision & text components.
+#         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+#         output_hidden_states = (
+#             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+#         )
+#         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
       
-        text_outputs = self.text_model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            position_ids=position_ids,
-            token_type_ids=token_type_ids,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
+#         text_outputs = self.text_model(
+#             input_ids=input_ids,
+#             attention_mask=attention_mask,
+#             position_ids=position_ids,
+#             token_type_ids=token_type_ids,
+#             output_attentions=output_attentions,
+#             output_hidden_states=output_hidden_states,
+#             return_dict=return_dict,
+#         )
         
-        pooled_output = text_outputs[1]
-        text_features = self.text_projection(pooled_output)
+#         pooled_output = text_outputs[1]
+#         text_features = self.text_projection(pooled_output)
 
-        return text_features
+#         return text_features
 
-    @add_start_docstrings_to_model_forward(ALTCLIP_VISION_INPUTS_DOCSTRING)
-    def get_image_features(
-        self,
-        pixel_values: Optional[torch.FloatTensor] = None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-    ) -> torch.FloatTensor:
-        r"""
-        Returns:
-            image_features (`torch.FloatTensor` of shape `(batch_size, output_dim`): The image embeddings obtained by
-            applying the projection layer to the pooled output of [`AltCLIPVisionModel`].
+#     @add_start_docstrings_to_model_forward(ALTCLIP_VISION_INPUTS_DOCSTRING)
+#     def get_image_features(
+#         self,
+#         pixel_values: Optional[torch.FloatTensor] = None,
+#         output_attentions: Optional[bool] = None,
+#         output_hidden_states: Optional[bool] = None,
+#         return_dict: Optional[bool] = None,
+#     ) -> torch.FloatTensor:
+#         r"""
+#         Returns:
+#             image_features (`torch.FloatTensor` of shape `(batch_size, output_dim`): The image embeddings obtained by
+#             applying the projection layer to the pooled output of [`AltCLIPVisionModel`].
 
-        Examples:
+#         Examples:
 
-        ```python
-        >>> from PIL import Image
-        >>> import requests
-        >>> from transformers import AltCLIPProcessor, AltCLIPModel
+#         ```python
+#         >>> from PIL import Image
+#         >>> import requests
+#         >>> from transformers import AltCLIPProcessor, AltCLIPModel
 
-        >>> model = AltCLIPModel.from_pretrained("BAAI/AltCLIP")
-        >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
-        >>> url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-        >>> image = Image.open(requests.get(url, stream=True).raw)
-        >>> inputs = processor(images=image, return_tensors="pt")
-        >>> image_features = model.get_image_features(**inputs)
-        ```"""
-        # Use AltCLIP model's config for some fields (if specified) instead of those of vision & text components.
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+#         >>> model = AltCLIPModel.from_pretrained("BAAI/AltCLIP")
+#         >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
+#         >>> url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+#         >>> image = Image.open(requests.get(url, stream=True).raw)
+#         >>> inputs = processor(images=image, return_tensors="pt")
+#         >>> image_features = model.get_image_features(**inputs)
+#         ```"""
+#         # Use AltCLIP model's config for some fields (if specified) instead of those of vision & text components.
+#         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+#         output_hidden_states = (
+#             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+#         )
+#         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
-        vision_outputs = self.vision_model(
-            pixel_values=pixel_values,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
+#         vision_outputs = self.vision_model(
+#             pixel_values=pixel_values,
+#             output_attentions=output_attentions,
+#             output_hidden_states=output_hidden_states,
+#             return_dict=return_dict,
+#         )
 
-        pooled_output = vision_outputs[1]  # pooled_output
-        image_features = self.visual_projection(pooled_output)
+#         pooled_output = vision_outputs[1]  # pooled_output
+#         image_features = self.visual_projection(pooled_output)
 
-        return image_features
+#         return image_features
 
-    @add_start_docstrings_to_model_forward(ALTCLIP_INPUTS_DOCSTRING)
-    @replace_return_docstrings(output_type=AltCLIPOutput, config_class=AltCLIPConfig)
-    def forward(
-        self,
-        input_ids: Optional[torch.LongTensor] = None,
-        pixel_values: Optional[torch.FloatTensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        position_ids: Optional[torch.LongTensor] = None,
-        token_type_ids=None,
-        return_loss: Optional[bool] = None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-    ) -> Union[Tuple, AltCLIPOutput]:
-        r"""
-        Returns:
+#     @add_start_docstrings_to_model_forward(ALTCLIP_INPUTS_DOCSTRING)
+#     @replace_return_docstrings(output_type=AltCLIPOutput, config_class=AltCLIPConfig)
+#     def forward(
+#         self,
+#         input_ids: Optional[torch.LongTensor] = None,
+#         pixel_values: Optional[torch.FloatTensor] = None,
+#         attention_mask: Optional[torch.Tensor] = None,
+#         position_ids: Optional[torch.LongTensor] = None,
+#         token_type_ids=None,
+#         return_loss: Optional[bool] = None,
+#         output_attentions: Optional[bool] = None,
+#         output_hidden_states: Optional[bool] = None,
+#         return_dict: Optional[bool] = None,
+#     ) -> Union[Tuple, AltCLIPOutput]:
+#         r"""
+#         Returns:
 
-        Examples:
+#         Examples:
 
-        ```python
-        >>> from PIL import Image
-        >>> import requests
-        >>> from transformers import AltCLIPProcessor, AltCLIPModel
+#         ```python
+#         >>> from PIL import Image
+#         >>> import requests
+#         >>> from transformers import AltCLIPProcessor, AltCLIPModel
 
-        >>> model = AltCLIPModel.from_pretrained("BAAI/AltCLIP")
-        >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
-        >>> url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-        >>> image = Image.open(requests.get(url, stream=True).raw)
-        >>> inputs = processor(
-        ...     text=["a photo of a cat", "a photo of a dog"], images=image, return_tensors="pt", padding=True
-        ... )
-        >>> outputs = model(**inputs)
-        >>> logits_per_image = outputs.logits_per_image  # this is the image-text similarity score
-        >>> probs = logits_per_image.softmax(dim=1)  # we can take the softmax to get the label probabilities
-        ```"""
-        # Use AltCLIP model's config for some fields (if specified) instead of those of vision & text components.
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+#         >>> model = AltCLIPModel.from_pretrained("BAAI/AltCLIP")
+#         >>> processor = AltCLIPProcessor.from_pretrained("BAAI/AltCLIP")
+#         >>> url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+#         >>> image = Image.open(requests.get(url, stream=True).raw)
+#         >>> inputs = processor(
+#         ...     text=["a photo of a cat", "a photo of a dog"], images=image, return_tensors="pt", padding=True
+#         ... )
+#         >>> outputs = model(**inputs)
+#         >>> logits_per_image = outputs.logits_per_image  # this is the image-text similarity score
+#         >>> probs = logits_per_image.softmax(dim=1)  # we can take the softmax to get the label probabilities
+#         ```"""
+#         # Use AltCLIP model's config for some fields (if specified) instead of those of vision & text components.
+#         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+#         output_hidden_states = (
+#             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+#         )
+#         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
-        text_outputs = self.text_model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            position_ids=position_ids,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
+#         text_outputs = self.text_model(
+#             input_ids=input_ids,
+#             attention_mask=attention_mask,
+#             token_type_ids=token_type_ids,
+#             position_ids=position_ids,
+#             output_attentions=output_attentions,
+#             output_hidden_states=output_hidden_states,
+#             return_dict=return_dict,
+#         )
 
-        vision_outputs = self.vision_model(
-            pixel_values=pixel_values,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
+#         vision_outputs = self.vision_model(
+#             pixel_values=pixel_values,
+#             output_attentions=output_attentions,
+#             output_hidden_states=output_hidden_states,
+#             return_dict=return_dict,
+#         )
 
-        image_embeds = vision_outputs[1]
-        image_embeds = self.visual_projection(image_embeds)
+#         image_embeds = vision_outputs[1]
+#         image_embeds = self.visual_projection(image_embeds)
 
-        text_embeds = text_outputs[1]
-        text_embeds = self.text_projection(text_embeds)
+#         text_embeds = text_outputs[1]
+#         text_embeds = self.text_projection(text_embeds)
 
-        # normalized features
-        image_embeds = image_embeds / image_embeds.norm(p=2, dim=-1, keepdim=True)
-        text_embeds = text_embeds / text_embeds.norm(p=2, dim=-1, keepdim=True)
+#         # normalized features
+#         image_embeds = image_embeds / image_embeds.norm(p=2, dim=-1, keepdim=True)
+#         text_embeds = text_embeds / text_embeds.norm(p=2, dim=-1, keepdim=True)
 
-        # cosine similarity as logits
-        logit_scale = self.logit_scale.exp()
-        logits_per_text = torch.matmul(text_embeds, image_embeds.t()) * logit_scale
-        logits_per_image = logits_per_text.T
+#         # cosine similarity as logits
+#         logit_scale = self.logit_scale.exp()
+#         logits_per_text = torch.matmul(text_embeds, image_embeds.t()) * logit_scale
+#         logits_per_image = logits_per_text.T
 
-        loss = None
-        if return_loss:
-            loss = clip_loss(logits_per_text)
+#         loss = None
+#         if return_loss:
+#             loss = clip_loss(logits_per_text)
 
-        if not return_dict:
-            output = (logits_per_image, logits_per_text, text_embeds, image_embeds, text_outputs, vision_outputs)
-            return ((loss,) + output) if loss is not None else output
+#         if not return_dict:
+#             output = (logits_per_image, logits_per_text, text_embeds, image_embeds, text_outputs, vision_outputs)
+#             return ((loss,) + output) if loss is not None else output
 
-        return AltCLIPOutput(
-            loss=loss,
-            logits_per_image=logits_per_image,
-            logits_per_text=logits_per_text,
-            text_embeds=text_embeds,
-            image_embeds=image_embeds,
-            text_model_output=text_outputs,
-            vision_model_output=vision_outputs,
-        )
+#         return AltCLIPOutput(
+#             loss=loss,
+#             logits_per_image=logits_per_image,
+#             logits_per_text=logits_per_text,
+#             text_embeds=text_embeds,
+#             image_embeds=image_embeds,
+#             text_model_output=text_outputs,
+#             vision_model_output=vision_outputs,
+        # )
 
 
 # Copied from transformers.models.roberta.modeling_roberta.create_position_ids_from_input_ids
