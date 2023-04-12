@@ -65,7 +65,7 @@ ALL_TASK = {
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
     "cpm3_train": ("flagai.model.cpm3_train_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.AltDiffusion", "LatentDiffusion"),
-    "diffusion2_text2img": ("flagai.model.mm.AltDiffusionM18", "LatentDiffusion"),
+    "diffusion_m18_text2img": ("flagai.model.mm.AltDiffusionM18", "LatentDiffusion"),
     "altclip_txt_img_matching": ("flagai.model.mm.AltCLIP", "AltCLIP"),
     "evaclip_txt_img_matching": ("flagai.model.mm.eva_clip_model", "EVA_CLIP"),
 }
@@ -122,9 +122,9 @@ MODEL_DICT = {
     "altdiffusion":
     ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altdiffusion-m9":
-    ["flagai.model.mm.diffusion2", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    ["flagai.model.mm.diffusionM18", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altdiffusion-m18":
-    ["flagai.model.mm.Altdiffusion2", "LatentDiffusion", "diffusion2", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    ["flagai.model.mm.AltdiffusionM18", "LatentDiffusion", "diffusion_m18", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "swinv1-base-patch4-window7-224":
         ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
     "swinv2-base-patch4-window8-256":

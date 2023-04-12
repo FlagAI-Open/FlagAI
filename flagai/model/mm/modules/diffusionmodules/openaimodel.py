@@ -1,13 +1,14 @@
 from abc import abstractmethod
 import math
 import inspect
+
 import numpy as np
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.init import normal_, xavier_normal_, xavier_uniform_, kaiming_normal_, kaiming_uniform_, zeros_
 
-from ldm.modules.diffusionmodules.util import (
+from flagai.model.mm.modules.diffusionmodules.util import (
     checkpoint,
     conv_nd,
     linear,
@@ -16,8 +17,8 @@ from ldm.modules.diffusionmodules.util import (
     normalization,
     timestep_embedding,
 )
-from ldm.modules.attention import SpatialTransformer
-from ldm.util import exists
+from flagai.model.mm.modules.attention import SpatialTransformer
+from flagai.model.mm.utils import exists
 
 
 # dummy replace
