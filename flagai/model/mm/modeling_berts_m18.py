@@ -4,10 +4,10 @@ import torch
 from transformers.models.xlm_roberta.configuration_xlm_roberta import XLMRobertaConfig
 from transformers import XLMRobertaModel
 from typing import Optional
+from flagai.model.mm.modeling_altclip import AltRobertaModel
 
 class BertSeriesConfig(BertConfig):
-    def __init__(self, vocab_size=30522, hidden_size=768, num_hidden_layers=12, num_attention_heads=12, intermediate_size=3072, hidden_act="gelu", hidden_dropout_prob=0.1, attention_probs_dropout_prob=0.1, max_position_embeddings=512, type_vocab_size=2, initializer_range=0.02, layer_norm_eps=1e-12, pad_token_id=0, position_embedding_type="absolute", use_cache=True, classifier_dropout=None,project_dim=512, pooler_fn="average",learn_encoder=False,model_type='bert',**kwargs):
-    
+    def __init__(self, vocab_size=30522, hidden_size=1024, num_hidden_layers=12, num_attention_heads=12, intermediate_size=3072, hidden_act="gelu", hidden_dropout_prob=0.1, attention_probs_dropout_prob=0.1, max_position_embeddings=512, type_vocab_size=2, initializer_range=0.02, layer_norm_eps=1e-12, pad_token_id=0, position_embedding_type="absolute", use_cache=True, classifier_dropout=None,project_dim=512, pooler_fn="average",learn_encoder=False,model_type='bert',**kwargs):
         super().__init__(vocab_size, hidden_size, num_hidden_layers, num_attention_heads, intermediate_size, hidden_act, hidden_dropout_prob, attention_probs_dropout_prob, max_position_embeddings, type_vocab_size, initializer_range, layer_norm_eps, pad_token_id, position_embedding_type, use_cache, classifier_dropout, **kwargs)
         self.project_dim = project_dim
         self.pooler_fn = pooler_fn
@@ -26,7 +26,7 @@ class BertSeriesModelWithTransformation(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
     _keys_to_ignore_on_load_missing = [r"position_ids", r"predictions.decoder.bias"]
     config_class = BertSeriesConfig
-
+    
     def __init__(self, config=None, **kargs):
         # modify initialization for autoloading 
         if config is None:
@@ -51,14 +51,18 @@ class BertSeriesModelWithTransformation(BertPreTrainedModel):
             config.type_vocab_size= 1
             config.use_cache=True
             config.vocab_size= 250002
-            config.project_dim = 768
+            config.project_dim = 1024  # Changed from 768!!!!!!!
             config.learn_encoder = False
         super().__init__(config)
         if config.model_type == 'bert':
             self.bert = BertModel(config)
         elif config.model_type == 'xlm-roberta':
-            self.roberta = XLMRobertaModel(config)
+            # self.roberta = XLMRobertaModel(config)
+            self.roberta = AltRobertaModel(config, add_pooling_layer=False)
         self.transformation = nn.Linear(config.hidden_size,config.project_dim)
+        self.transformation_pre = nn.Linear(config.hidden_size, config.project_dim)
+        # self.pre_LN = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
+
         self.learn_encoder = config.learn_encoder
         if config.learn_encoder:
             self.encoder_tfm = nn.Linear(config.hidden_size,config.project_dim)
@@ -106,20 +110,29 @@ class BertSeriesModelWithTransformation(BertPreTrainedModel):
         sequence_output = outputs[0]
         
 
-        # project every module
-        sequence_output_ln = self.pre_LN(sequence_output)
-            
+        # project the last outputs 
+        sequence_output = self.pre_LN(sequence_output)
+
         # pooler
-        pooler_output = self.pooler(sequence_output_ln)
-        pooler_output = self.transformation(pooler_output)
-        projection_state = self.transformation(outputs.last_hidden_state)
-        
+        projection_state = self.transformation(sequence_output)
+        pooler_output = projection_state[:, 0]
+
+        sequence_output2 = outputs[1][-2]
+
+        # project every module
+        sequence_output2 = self.pre_LN(sequence_output2)
+        # pooler
+        projection_state2 = self.transformation_pre(sequence_output2)
+        pooler_output2 = projection_state2[:, 0]
+        # if not return_dict:
+        #     return (projection_state, pooler_output) + outputs[2:4]
         return {
             'pooler_output':pooler_output,
-            'last_hidden_state':outputs.last_hidden_state,
+            'pooler_output2':pooler_output2,
+            'last_hidden_state':projection_state,
             'hidden_states':outputs.hidden_states,
             'attentions':outputs.attentions,
-            'projection_state':projection_state,
+            'projection_state':projection_state2,
             'sequence_out': sequence_output
         }
 

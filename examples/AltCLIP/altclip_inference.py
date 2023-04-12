@@ -1,6 +1,5 @@
 import torch
 from PIL import Image
-import sys;sys.path.append("/home/yanzhaodong/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

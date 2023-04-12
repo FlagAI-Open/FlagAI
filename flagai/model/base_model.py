@@ -130,11 +130,11 @@ class BaseModel(Module):
             model_config.params.cond_stage_config.params.download_path = raw_download_path
             kwargs.update(model_config.get("params", dict()))
             model = cls(**kwargs)
-            # if not only_download_config:
-            #     model = cls._load_state_dict_into_model(
-            #         model,
-            #         checkpoint_path,
-            #     )
+            if not only_download_config:
+                model = cls._load_state_dict_into_model(
+                    model,
+                    checkpoint_path,
+                )
             return model
 
         yaml_path = os.path.join(download_path, "config.yaml")

@@ -702,7 +702,6 @@ class LatentDiffusion(DDPM):
                 c = self.cond_stage_model(c)
         else:
             c = self.cond_stage_forward(c)
-        import pdb;pdb.set_trace()
         return c
 
     def meshgrid(self, h, w):

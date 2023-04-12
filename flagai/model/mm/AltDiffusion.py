@@ -663,7 +663,6 @@ class LatentDiffusion(DDPM):
                             return_overflowing_tokens=False,
                             padding="max_length",
                             return_tensors="pt")
-            import pdb;pdb.set_trace()
             text["input_ids"] = text["input_ids"].clone().detach().to(device)
             text["attention_mask"] = text['attention_mask'].clone().detach().to(device)
             features = self.cond_stage_model(**text)

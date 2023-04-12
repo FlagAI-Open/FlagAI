@@ -4,7 +4,6 @@
 import importlib
 import os
 import copy
-import sys;sys.path.append("/home/yanzhaodong/FlagAI")
 from flagai.model.file_utils import _get_model_id
 
 
@@ -66,7 +65,7 @@ ALL_TASK = {
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
     "cpm3_train": ("flagai.model.cpm3_train_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.AltDiffusion", "LatentDiffusion"),
-    "diffusion2_text2img": ("flagai.model.mm.AltDiffusion2", "LatentDiffusion"),
+    "diffusion2_text2img": ("flagai.model.mm.AltDiffusionM18", "LatentDiffusion"),
     "altclip_txt_img_matching": ("flagai.model.mm.AltCLIP", "AltCLIP"),
     "evaclip_txt_img_matching": ("flagai.model.mm.eva_clip_model", "EVA_CLIP"),
 }
