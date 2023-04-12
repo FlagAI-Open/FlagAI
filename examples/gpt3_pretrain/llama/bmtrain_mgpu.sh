@@ -25,8 +25,8 @@ export WANDB_MODE=offline
 
 ## EXP
 export EXP_NAME=llama_7b_8n8g
-export MODEL_NAME=llama-7b-en
 export MODEL_NAME=llama-7b-en-init
+export MODEL_NAME=llama-7b-en
 export SAVE_DIR=/data/ldwang/checkpoints/${EXP_NAME}
 export WANDB_DIR=/data/ldwang/wandb/${EXP_NAME}
 mkdir -p $SAVE_DIR
@@ -34,10 +34,13 @@ mkdir -p $WANDB_DIR
 export EPOCH_NUM=1
 export BATCH_SIZE=6
 export GRADIENT_ACCUM_STEPS=1
-export LR=3.0e-4 #BAD
+export LR=3.0e-4
+export LR=1.0e-5
 export LR=6.0e-5
 export WARMUP_RATE=0.008
 export WARMUP_RATE=0.02
+export WARMUP_RATE=0.1
+export WARMUP_RATE=0.2
 
 ## EXTRA OPTS
 OPTS=" --batch_size $BATCH_SIZE \
