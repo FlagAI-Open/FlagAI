@@ -2,6 +2,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
 [![Python application](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml)
 ![GitHub release (release name instead of tag name)](https://img.shields.io/github/v/release/FlagAI-Open/FlagAI?include_prereleases&style=social)
+
 [简体中文](README_zh.md)
 
 --------------------------------------------------------------------------------
@@ -9,50 +10,112 @@
 
 FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. 
 
-* Now it supports text-image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and text-to-image generation [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion). And it supports **WuDao GLM** with a maximum of 10 billion parameters (see [Introduction to GLM](/docs/GLM.md)). It also supports [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from Huggingface Transformers.
 
-* It provides APIs to quickly download and use those pre-trained models on a given text, fine-tune them on widely-used datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks, and then share them with the community on our model hub. It also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few-shot tasks.   
+## Why should I use FlagAI?
 
-* These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation.
 
-* FlagAI is backed by the four most popular data/model parallel libraries — [PyTorch](https://pytorch.org/)/[Deepspeed](https://www.deepspeed.ai/)/[Megatron-LM](https://github.com/NVIDIA/Megatron-LM)/[BMTrain](https://github.com/OpenBMB/BMTrain) — with seamless integration between them. Users can parallel their training/testing process with less than ten lines of code.
+1. **Quickly Download Models via API**
 
-The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/).
+    FlagAI provides an API that allows you to quickly download pre-trained models and fine-tune them on a wide range of datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks for both Chinese and English text.
 
-## News
-- [17 Mar 2023] release v1.6.2, Support application of new optimizers [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), and added a new gpt model name 'GPT2-base-en' for English; 
-- [2 Mar 2023] release v1.6.1, Support Galactica model [#234](https://github.com/FlagAI-Open/FlagAI/pull/234); BMInf, a low-resource inference package [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), and examples for p-tuning [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
-- [12 Jan 2023] release v1.6.0, support a new parallel lib called [**BMTrain**](https://github.com/OpenBMB/BMTrain) and integate [**Flash Attention**](https://github.com/HazyResearch/flash-attention) to speedup training of Bert and Vit models, examples in [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py) and [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). Also add the contrastive search based text generation method [**SimCTG**](https://github.com/yxuansu/SimCTG) and DreamBooth finetuning based on AltDiffusion, examples in [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
-- [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
-- [10 Nov 2022] release v1.4.0, support [AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities](https://arxiv.org/abs/2211.06679v1), examples in [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
-- [29 Aug 2022] release v1.3.0, Added CLIP module and redesigned tokenizer APIs in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
-- [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
-- [29 Jun 2022] release v1.1.0, support OPTs downloading and inference/fine-tuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
-- [17 May 2022] made our first contribution in [#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
+    FlagAI now supports over 30 mainstream models, including multilingual text and image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP), text-to-image generation model [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion), [**WuDao GLM**](/docs/GLM.md) (with a maximum of 10 billion parameters), [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from **Huggingface Transformers**, etc.
+    
 
---------------------------------------------------------------------------------
+2. **Parallel train with fewer than 10 lines of code**
 
-<!-- toc -->
+	Backed by the four most popular data/model parallel libraries -- [PyTorch](https://pytorch.org/), [Deepspeed](https://www.deepspeed.ai/), [Megatron-LM](https://github.com/NVIDIA/Megatron-LM), [BMTrain](https://github.com/OpenBMB/BMTrain) -- FlagAI allows for seamless integration between them, enabling users to parallel their training/testing process with fewer than ten lines of code.
 
-- [News](#news)
-- [Requirements and Installation](#requirements-and-installation)
-- [Quick Start](#quick-start)
-- [Load model and tokenizer](#load-model-and-tokenizer)
-- [Predictor](#predictor)
-- [NER](#ner)
-- [Semantic Matching](#semantic-matching)
-- [Pre-trained Models and examples](#pre-trained-models-and-examples)
-- [Tutorials](#tutorials)
-- [Contributing](#contributing)
-- [Contact us](#contact-us)
-- [License](#license)
-- [Misc](#misc)
-  - [↳ Stargazers, thank you for your support!](#-stargazers-thank-you-for-your-support)
-  - [↳ Forkers, thank you for your support!](#-forkers-thank-you-for-your-support)
-  - [↳ Star History](#-star-history)
 
-<!-- tocstop -->
-## Requirements and Installation
+3. **Conveniently use the few-shot learning toolkits**
+   
+    FlagAI also provides [prompt-learning](/docs/TUTORIAL_7_PROMPT_LEARNING.md) toolkit for few-shot tasks.
+
+4. **Particularly good at Chinese tasks**
+
+    These models can be applied to (Chinese/English) Text, for tasks like text classification, information extraction, question answering, summarization, and text generation, with a particular focus on Chinese tasks.
+
+
+## Toolkits and Pre-trained Models 
+
+> The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+
+
+### Toolkits
+
+
+| Name       | Description       | Examples            |
+|:-------------- |:---------- |:------------------------------------------------------ |
+| 	`GLM_custom_pvp` | Customizing PET templates   | [README.md](http:///examples/glm_custom_pvp/README.md) |
+| `GLM_ptuning`    | p-tuning tool | ——                                                     |
+| `BMInf-generate` | Accelerating generation | [README.md](http:///examples/bminf_generate/README.md) | 
+
+
+### Pre-trained Models 
+
+
+|   Model          |  Task    | Train | Finetune | Inference/Generate | Examples       |                                                         
+| :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
+| ALM          | Arabic Text Generation  |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
+| AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |                           
+| AltDiffusion    | Text-to-Image Generation    | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
+| BERT-title-generation-english     | English Title Generation | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
+| CLIP           | Image-Text Matching    | ✅  | ❌  | ✅  | ——   |                                                                 
+| CPM3-finetune       | Text Continuation   | ❌  | ✅  | ❌  | ——    |                                                                
+| CPM3-generate    | Text Continuation  | ❌  | ❌  | ✅  | ——   |                                                                 
+| CPM3_pretrain    | Text Continuation  | ✅  | ❌  | ❌  | ——        |
+| CPM_1     | Text Continuation   | ❌  | ❌  | ✅  | [README.md](/examples/cpm_1/README.md)      |
+| EVA-CLIP                          | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/EVA_CLIP/README.md)                             |
+| Galactica       | Text Continuation    | ❌  | ❌  | ✅  | ——      |                                                              
+| GLM-large-ch-blank-filling        | Blank Filling     | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)               |
+| GLM-large-ch-poetry-generation    | Poetry Generation     | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
+| GLM-large-ch-title-generation     | Title Generation   | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)        |
+| GLM-pretrain         | Pre-Train    | ✅  | ❌  | ❌  | ——   |                                                                 
+| GLM-seq2seq        | Generation    | ✅  | ❌  | ✅  | ——     |                                                               
+| GLM-superglue      | Classification  | ✅  | ❌  | ❌  | ——     |                                                               
+| GPT-2-text-writting      | Text Continuation   | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_18_GPT2_WRITING.md)        |
+| GPT2-text-writting                | Text Continuation   | ❌  | ❌  | ✅  | —— |                                                                   
+| GPT2-title-generation             | Title Generation   | ❌  | ❌  | ✅  | ——  |                                                                  
+| OPT                               | Text Continuation   | ❌  | ❌  | ✅  | [README.md](/examples/opt/README.md) |                                  
+| RoBERTa-base-ch-ner               | Named Entity Recognition| ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
+| RoBERTa-base-ch-semantic-matching |Semantic Similarity Matching | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
+| RoBERTa-base-ch-title-generation  | Title Generation     | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
+| RoBERTa-faq      |   Question-Answer   | ❌  | ❌  | ✅  | [README.md](/examples/roberta_faq/README.md) |         
+| Swinv1                            | Image Classification | ✅  | ❌  | ✅  | ——  |                                                                  
+| Swinv2                            | Image Classification   | ✅  | ❌  | ✅  | ——     |                                                               
+| T5-huggingface-11b                | Train   | ✅  | ❌  | ❌  | [TUTORIAL](/docs/TUTORIAL_14_HUGGINGFACE_T5.md)                      |
+| T5-title-generation               | Title Generation     | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)                |
+| T5-flagai-11b                     | Pre-Train  | ✅  | ❌  | ❌  | ——    |                                                                
+| ViT-cifar100                      |  Pre-Train  | ✅  | ❌  | ❌  | —— |
+
+
+> * More excamples in  [./examples](https://github.com/FlagAI-Open/FlagAI/tree/master/examples) 
+> * More tutorials in [./docs](https://github.com/FlagAI-Open/FlagAI/tree/master/doc) 
+
+
+
+
+## Contributing
+
+Thanks for your interest in contributing! There are many ways to get involved;
+start with our [contributor guidelines](CONTRIBUTING.md) and then
+check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
+
+
+## Contact us
+
+Welcome to raise your questions or feature requests on [GitHub Issues](https://github.com/FlagAI-Open/FlagAI/issues) , and share your experience on the  [Discussions](https://github.com/FlagAI-Open/FlagAI/discussions) board.
+
+* Official email: open.platform@baai.ac.cn.
+* Zhihu: [FlagAI](https://www.zhihu.com/people/95-22-20-18)
+* Scan the qrcode to join the WeChat group for communication:
+
+<img src="./wechat-qrcode.jpg" width = "200" height = "200"  align=center />
+
+
+## Quick Start
+We provide many models which are trained to perform different tasks. You can load these models by AutoLoader to make prediction. See more in `FlagAI/quickstart`.
+
+### Requirements and Installation
 * Python version >= 3.8
 * PyTorch version >= 1.8.0
 * [Optional] For training/testing models on GPUs, you'll also need to install CUDA and NCCL
@@ -101,9 +164,8 @@ Host 127.0.0.1
 >>> ssh-keygen -t rsa -C "xxx@xxx.com"
 ```
 
-## Quick Start
-We provide many models which are trained to perform different tasks. You can load these models by AutoLoader to make prediction. See more in `FlagAI/quickstart`.
-## Load model and tokenizer
+
+### Load model and tokenizer
 We provide the AutoLoad class to load the model and tokenizer quickly, for example:
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -118,7 +180,10 @@ tokenizer = auto_loader.get_tokenizer()
 This example is for the `title_generation` task, and you can also model other tasks by modifying the `task_name`.
 Then you can use the model and tokenizer to fine-tune or test.
 
-## Predictor
+### Examples
+
+#### 1. Predictor 
+
 We provide the `Predictor` class to predict for different tasks, for example:
 
 ```python
@@ -137,7 +202,7 @@ for text in test_data:
 This example is for the `seq2seq` task, where we can get `beam-search` results by calling the `predict_generate_beamsearch` function. In addition, we also support prediction for tasks such as `NER` and `title generate`.
 
 
-## NER
+#### 2. NER 
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -176,7 +241,7 @@ for t in test_data:
     print(f"result is {result}")
 ```
 
-## Semantic Matching
+#### 3. Semantic Matching example
 
 ```python
 from flagai.auto_model.auto_loader import AutoLoader
@@ -201,60 +266,31 @@ for text_pair in test_data:
 
 ```
 
-## Pre-trained Models and examples
-
-* [Text_image_matching with AltCLIP](/examples/AltCLIP/README.md)
-* [Text-to-image generation with AltDiffusion](/examples/AltDiffusion/README.md)
-* [Blank_Filling_QA with GLM ](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)
-* [Title Generation with GLM ](/docs/TUTORIAL_12_GLM_EXAMPLE_TITLE_GENERATION.md)
-* [Poetry generation with GLM-large-ch](docs/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)
-* [Using huggingface's t5-11b & tricks ](docs/TUTORIAL_14_HUGGINGFACE_T5.md)
-* [Title Generation with RoBerta-WWM](/docs/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)
-* [Semantic Matching with RoBerta-WWM](/docs/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)
-* [NER with RoBerta-WWM](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)
-* [Writing with GPT-2](/docs/TUTORIAL_18_GPT2_WRITING.md)
-* [Title generation with T5](/docs/TUTORIAL_19_T5_EXAMPLE_TITLE_GENERATION.md)
-* [Example of OPT](/examples/opt/README.md)
-
-[//]: # (* [Supported tasks]&#40;/docs/TUTORIAL_20_SUPPORTED_TASKS.md&#41;)
 
 
-This session explains how the base NLP classes work, how you can load pre-trained models to tag your
-text, how you can embed your text with different word or document embeddings, and how you can train your own
-language models, sequence labeling models, and text classification models. Let us know if anything is unclear. See more in `FlagAI/examples`.
+## LICENSE
 
-
-
-## Tutorials
-We provide a set of quick tutorials to get you started with the library:
-* [Tutorial 1: How to construct and use Tokenizer](/docs/TUTORIAL_1_TOKENIZER.md)
-* [Tutorial 2: Dataset Preprocessing Pipeline](/docs/TUTORIAL_2_DATASET.md)
-* [Tutorial 3: Major Function of Model Module](/docs/TUTORIAL_3_MODEL.md)
-* [Tutorial 4: Customize trainer for model and data-parallel training](/docs/TUTORIAL_4_TRAINER.md)
-* [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](/docs/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)
-* [Tutorial 6: Use off-the-shelf inference Algorithms with Predictor](/docs/TUTORIAL_6_INSTRUCTIONS_FOR_PREDICTOR.md)
-* [Tutorial 7: Use FlagAI prompt-learning tool-kit to improve performance on SuperGLUE](/docs/TUTORIAL_7_PROMPT_LERANING.md)
-* [Tutorial 8: Setup environment for training models with multi-machine](/docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* [Tutorial 9: Text generation with encoder/decoder/encoder-decoder models](/docs/TUTORIAL_9_SEQ2SEQ_METHOD.md)
-* [Tutorial 10: How to transform a customized model into a megatron-LM-style parallel model](/docs/TUTORIAL_10_MEGATRON.md)
-
-## Contributing
-
-Thanks for your interest in contributing! There are many ways to get involved;
-start with our [contributor guidelines](CONTRIBUTING.md) and then
-check these [open issues](https://github.com/FlagAI-Open/FlagAI/issues) for specific tasks.
-
-
-## Contact us
-
-<img src="./flagai_wechat.png" width = "200" height = "200"  align=center />
-
-## [License](/LICENSE)
 The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), however portions of the project are available under separate license terms:
 
 * Megatron-LM is licensed under the [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM is licensed under the [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
 * AltDiffusion is licensed under the [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
+
+
+
+## News
+
+- [17 Mar 2023] release v1.6.2, Support application of new optimizers [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), and added a new gpt model name 'GPT2-base-en' for English; 
+- [2 Mar 2023] release v1.6.1, Support Galactica model [#234](https://github.com/FlagAI-Open/FlagAI/pull/234); BMInf, a low-resource inference package [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), and examples for p-tuning [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
+- [12 Jan 2023] release v1.6.0, support a new parallel lib called [**BMTrain**](https://github.com/OpenBMB/BMTrain) and integate [**Flash Attention**](https://github.com/HazyResearch/flash-attention) to speedup training of BERT and ViT models, examples in [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py) and [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). Also add the contrastive search based text generation method [**SimCTG**](https://github.com/yxuansu/SimCTG) and DreamBooth finetuning based on AltDiffusion, examples in [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
+- [28 Nov 2022] release v1.5.0, support 1.1B [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP) and [ALM: A large Arabic Language Model based on GLM], examples in [**ALM**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/ALM)
+- [10 Nov 2022] release v1.4.0, support [AltCLIP: Altering the Language Encoder in CLIP for Extended Language Capabilities](https://arxiv.org/abs/2211.06679v1), examples in [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion)
+- [29 Aug 2022] release v1.3.0, Added CLIP module and redesigned tokenizer APIs in [#81](https://github.com/FlagAI-Open/FlagAI/pull/81)
+- [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
+- [29 Jun 2022] release v1.1.0, support OPTs downloading and inference/fine-tuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
+- [17 May 2022] made our first contribution in [#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
+
+
 
 ## Misc
 
