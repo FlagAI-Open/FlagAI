@@ -372,7 +372,6 @@ class Predictor:
                                 scale: float = 7.5,
                                 from_file: str = None,
                                 seed: int = 34234,
-                                fp16: bool = False,
                                 negative_prompt=""):
         from torchvision.utils import make_grid
         from pytorch_lightning import seed_everything

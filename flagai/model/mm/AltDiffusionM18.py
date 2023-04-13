@@ -16,6 +16,8 @@ from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
 from torch.cuda.amp import autocast as autocast
 import pytorch_lightning as pl
+from torch.cuda.amp import autocast as autocast
+
 
 __conditioning_keys__ = {
     'concat': 'c_concat',
@@ -889,8 +891,8 @@ class LatentDiffusion(DDPM):
                 cond = [cond]
             key = 'c_concat' if self.model.conditioning_key == 'concat' else 'c_crossattn'
             cond = {key: cond}
-
-        x_recon = self.model(x_noisy, t, **cond)
+        with autocast():
+            x_recon = self.model(x_noisy, t, **cond)
 
         if isinstance(x_recon, tuple) and not return_ids:
             return x_recon[0]

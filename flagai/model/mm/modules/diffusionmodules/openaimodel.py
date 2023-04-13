@@ -7,6 +7,7 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.init import normal_, xavier_normal_, xavier_uniform_, kaiming_normal_, kaiming_uniform_, zeros_
+from torch.cuda.amp import autocast as autocast
 
 from flagai.model.mm.modules.diffusionmodules.util import (
     checkpoint,
@@ -81,7 +82,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     def forward(self, x, emb, context=None, heypernetwork=None):
         for layer in self:
             if isinstance(layer, TimestepBlock):
-                x = layer(x, emb)
+                with autocast():
+                    x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
                 x = layer(x, context)
             else:
@@ -625,6 +627,7 @@ class UNetModel(nn.Module):
         self.num_heads_upsample = num_heads_upsample
         self.predict_codebook_ids = n_embed is not None
         self.use_hypernetwork = use_hypernetwork
+        self.use_fp16 = use_fp16
 
         if self.use_hypernetwork:
             self.hypernetwork_layers = nn.Sequential(*[HypernetworkModule(), HypernetworkModule()])
@@ -876,7 +879,10 @@ class UNetModel(nn.Module):
         ), "must specify y if and only if the model is class-conditional"
         hs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-        emb = self.time_embed(t_emb)
+        if self.use_fp16:
+            emb = self.time_embed(t_emb.half())
+        else:
+            emb = self.time_embed(t_emb)
         
         if self.use_hypernetwork:
             context_k = self.hypernetwork_layers[0](context)
@@ -889,8 +895,6 @@ class UNetModel(nn.Module):
         h = x.type(self.dtype)
         for module in self.input_blocks:
             # h:(4,4,64,64) emb:(4,1280) context:(4,77,1024)
-            # import pdb
-            # pdb.set_trace()
             h = module(h, emb, context)
             hs.append(h)
         h = self.middle_block(h, emb, context)
