@@ -80,8 +80,7 @@ class AltCLIPConfig(CLIPConfig):
         if text_config_dict is None:
             text_config_dict = {}
         # when reload the config from local, we need name to select which class should be instanced.
-        self.text_config = STUDENT_CONFIG_DICT[
-            kwargs['text_config']['model_type']](**kwargs.pop('text_config'))
+        self.text_config = STUDENT_CONFIG_DICT[kwargs['text_config']['model_type']](**kwargs.pop('text_config'))
         self.num_layers = num_layers
         self.text_model_name = text_model_name
         self.vision_model_name = vision_model_name
@@ -98,7 +97,6 @@ class CLIPHF(CLIPPreTrainedModel):
             raise ValueError(
                 "config.vision_config is expected to be of type CLIPVisionConfig but is of type"
                 f" {type(config.vision_config)}.")
-
         text_config = config.text_config
         vision_config = config.vision_config
 
@@ -436,7 +434,7 @@ class CLIPHF(CLIPPreTrainedModel):
 class AltCLIP(BaseModel):
 
     def __init__(self, config, **kwargs):
-        super().__init__(config, **kwargs)
+        super().__init__(config=config, **kwargs)
 
     @classmethod
     def from_pretrain(cls,
@@ -448,4 +446,6 @@ class AltCLIP(BaseModel):
         super().download(download_path, model_name, only_download_config=only_download_config)
         pretrained_model_name_or_path = os.path.join(download_path, model_name)
         print(pretrained_model_name_or_path)
+        print("Downloading AltCLIP")
+        
         return CLIPHF.from_pretrained(pretrained_model_name_or_path)

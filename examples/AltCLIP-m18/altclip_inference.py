@@ -11,6 +11,7 @@ loader = AutoLoader(
 )
 
 model = loader.get_model()
+
 tokenizer = loader.get_tokenizer()
 transform = loader.get_transform()
 
@@ -19,7 +20,7 @@ model.to(device)
 tokenizer = loader.get_tokenizer()
 
 def inference():
-    image = Image.open("./dog.jpeg")
+    image = Image.open("./examples/AltCLIP-m18//dog.jpeg")
     image = transform(image)
     image = torch.tensor(image["pixel_values"]).to(device)
     tokenizer_out = tokenizer(["a rat", "a dog", "a cat"], 

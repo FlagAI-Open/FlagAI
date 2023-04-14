@@ -11,6 +11,7 @@ from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
 from flagai.model.predictor.simctg import contrastive_search
 from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
+from flagai.model.mm.dpm_solver import DPMSolverSampler
 import os
 from PIL import Image
 from tqdm import trange, tqdm
@@ -351,6 +352,7 @@ class Predictor:
             import os
             os._exit(0)
 
+
     def predict_generate_images(self,
                                 prompt: str,
                                 outpath: str = "AltDiffusionOutputs",
@@ -370,7 +372,7 @@ class Predictor:
                                 scale: float = 7.5,
                                 from_file: str = None,
                                 seed: int = 34234,
-                                fp16: bool = False):
+                                negative_prompt=""):
         from torchvision.utils import make_grid
         from pytorch_lightning import seed_everything
         from flagai.model.predictor.utils import chunk, check_safety, get_safety_checker
@@ -433,8 +435,7 @@ class Predictor:
                     for prompts in tqdm(data, desc="data"):
                         uc = None
                         if scale != 1.0:
-                            uc = self.model.get_learned_conditioning(
-                                batch_size * [""])
+                            uc = self.model.get_learned_conditioning(batch_size * [negative_prompt])
                         if isinstance(prompts, tuple):
                             prompts = list(prompts)
                         c = self.model.get_learned_conditioning(prompts)
@@ -461,7 +462,6 @@ class Predictor:
 
                         x_checked_image_torch = torch.from_numpy(
                             x_checked_image).permute(0, 3, 1, 2)
-
                         prompt_count = 0
                         if not skip_save:
                             for x_sample in x_checked_image_torch:
@@ -496,8 +496,6 @@ class Predictor:
                     img.save(
                         os.path.join(outpath, f'grid-{grid_count:04}.png'))
                     grid_count += 1
-
-                toc = time.time()
 
         print(
             f"Your samples are ready and waiting for you here: \n{outpath} \n"
