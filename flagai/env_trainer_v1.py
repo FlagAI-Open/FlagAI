@@ -410,11 +410,11 @@ class EnvTrainer():
 
         self.total_iter = int(self.epochs * len(train_dataloader))
         if lr_scheduler == None and self.optimizer != None and (self.warm_up > 0 or self.warm_up_iters > 0) and 'deepspeed' not in self.env_type and self.epochs > 0:
-            num_iters = int(self.total_iter / self.gradient_accumulation_steps)
+            num_iters = self.total_iter
             if self.warm_up_iters > 0:
                 warmup_iter = self.warm_up_iters
             else:
-                warmup_iter = int(self.warm_up * self.total_iter / self.gradient_accumulation_steps)
+                warmup_iter = int(self.warm_up * self.total_iter)
 
             if self.env_type == 'bmtrain':
                 ## lr_scheduler.step with optim_manager.step
@@ -451,6 +451,7 @@ class EnvTrainer():
 
         # Tracking loss.
         total_lm_loss = 0.0
+        total_grad_norm = 0.0
         self.iteration = 0
         self.accumulate_count = 0
         best_iteration = 0
@@ -528,6 +529,9 @@ class EnvTrainer():
                     else:
                         total_lm_loss += lm_loss
 
+                if 'bmtrain' in self.env_type and cached is not None and 'grad_norm' in cached:
+                    total_grad_norm += cached['grad_norm']
+
                 # Logging.
                 if (self.iteration + 1) % self.log_interval == 0:
                     if self.optimizer is not None:
@@ -541,20 +545,23 @@ class EnvTrainer():
                     elapsed_time = self.timers('interval time').elapsed()
 
                     # TODO
-                    avg_lm_loss *= self.gradient_accumulation_steps
+                    #avg_lm_loss *= self.gradient_accumulation_steps
+                    avg_grad_norm = total_grad_norm / self.log_interval
                     self.report_iteration_metrics(
                         self.optimizer, learning_rate, avg_lm_loss,
                         elapsed_time * 1000.0 / self.log_interval,
                         self.iteration + 1,
                         self.epochs * len(train_dataloader),
                         optimizer_manager=optim_manager if self.env_type == 'bmtrain' else None,
-                        cached=cached)
+                        grad_norm=avg_grad_norm)
+
                     if self.tb_writer:
                         self.tb_writer.add_scalar('train/loss', avg_lm_loss,
                                                   self.iteration + 1)
                         self.tb_writer.add_scalar('lr', learning_rate,
                                                   self.iteration + 1)
                     total_lm_loss = 0.0
+                    total_grad_norm = 0.0
 
                 # Evaluation #todo add train_args
                 if self.eval_interval and (
@@ -1097,7 +1104,7 @@ class EnvTrainer():
         return metric_dct
 
     def report_iteration_metrics(self, optimizer, lr, loss, elapsed_time, step,
-                                 total_step, optimizer_manager=None, cached=None):
+                                 total_step, optimizer_manager=None, grad_norm=0.0):
         log_string = ' iteration {:8d}/{:8d} |'.format(step, total_step)
         log_string += ' elapsed time per iteration (ms): {:.1f} |'.format(
             elapsed_time)
@@ -1115,9 +1122,6 @@ class EnvTrainer():
                 else hasattr(optimizer, 'loss_scale') and optimizer.loss_scale
         log_string += ' loss scale {:.1f} |'.format(loss_scale)
 
-        grad_norm = 0.0
-        if 'bmtrain' in self.env_type and cached is not None and 'grad_norm' in cached:
-            grad_norm = cached['grad_norm']
         log_string += ' grad norm {:.1f} |'.format(grad_norm)
         # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
 
