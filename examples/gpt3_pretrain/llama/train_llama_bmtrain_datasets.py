@@ -81,6 +81,9 @@ tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
 #print('*'*20, "tokenizer", tokenizer)
 
 config_file = cache_dir + "/config.json"
+# avoid sync loading models in case of Mem OOM
+import time
+time.sleep(10*60*(trainer.local_rank%2))
 from flagai.model.llama_model import LLAMAModel
 model = LLAMAModel.init_from_json(config_file=config_file)
 #print('*'*20, "model", model)
