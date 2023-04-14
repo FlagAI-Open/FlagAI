@@ -975,7 +975,7 @@ class Trainer():
         loss = model_output['loss']
 
         lm_loss = bmt.sum_loss(loss)
-        lm_loss /= self.gradient_accumulation_steps
+        #lm_loss /= self.gradient_accumulation_steps
         reduced_loss = lm_loss.detach().clone().view(1)
 
         # skip the iter while loss has NAN
@@ -1256,7 +1256,8 @@ class Trainer():
         log_string += ' loss scale {:.1f} |'.format(loss_scale)
 
         log_string += ' grad norm {:.1f} |'.format(grad_norm)
-        # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
+
+        log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
 
         log_dist(log_string, [self.rank])
 
