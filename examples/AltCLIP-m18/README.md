@@ -1,30 +1,68 @@
 
-# AltCLIP
+# AltCLIP-m18
 
-## 简介/Overview
 
-我们提出了一个简单高效的方法去训练更加优秀的双语CLIP模型。命名为AltCLIP。AltCLIP基于 [OpenAI CLIP](https://github.com/openai/CLIP) 训练，训练数据来自 [WuDao数据集](https://data.baai.ac.cn/details/WuDaoCorporaText) 和 [LIAON](https://huggingface.co/datasets/ChristophSchuhmann/improved_aesthetics_6plus)
+|      名称 Name       |  任务 Task   |   语言 Language(s)    | 模型 Model | Github |
+|:------------------:|:----------:|:-------------------:|:--------:|:------:|
+| AltCLIP-m18 |  Text-Image | Multilingual |   CLIP   |   [FlagAI](https://github.com/FlagAI-Open/FlagAI)   |
 
-AltCLIP模型可以为本项目中的AltDiffusion模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
+## 简介 Brief Introduction
 
-模型代码已经在 [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 上开源，权重位于我们搭建的 [modelhub](https://model.baai.ac.cn/model-detail/100075) 上。我们还提供了微调，推理，验证的脚本，欢迎试用。
+继双语模型AltCLIP与9语模型AltCLIP-m9之后，我们训练了18语CLIP模型。命名为AltCLIP-m18。它支持英语、中文、日语、泰语、韩语、印地语、乌克兰语、阿拉伯语、土耳其语、越南语、波兰语、荷兰语、葡萄牙语、意大利语、西班牙语、德语、法语和俄语。
 
-首次运行AltCLIP时，下列权重将会自动从modelhub上下载。
+AltCLIP-m18模型可以为AltDiffusion-m18模型提供支持，关于AltDiffusion模型的具体信息可查看[此教程](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md) 。
 
-| 模型名称 Model name | 大小 Size | 描述 Description                                   |
-| ------------------- | --------- | -------------------------------------------------- |
-| [AltCLIP](https://model.baai.ac.cn/model-detail/100075)             | 3.22G     | 我们的双语AltCLIP模型；Our bilingual AltCLIP model |
-| [AltCLIP-m9](https://model.baai.ac.cn/model-detail/100077)             | 3.22G     | support English(En), Chinese(Zh), Spanish(Es), French(Fr), Russian(Ru), Japanese(Ja), Korean(Ko), Arabic(Ar) and Italian(It) |
+模型代码已经在 [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP-m18) 上开源，权重位于我们搭建的 [modelhub](https://model.baai.ac.cn/model-detail/100095) 上。我们还提供了微调，推理，验证的脚本，欢迎试用。
 
-Our AltCLIP support 
+Following the bilingual model AltCLIP and the nine-language model AltCLIP-m9, we trained the eighteen-language CLIP model, Named AltCLIP-m18. It supports English, Chinese, Japanese, Thai, Korean, Hindi, Ukrainian, Arabic, Turkish, Vietnamese, Polish, Dutch, Portuguese, Italian, Spanish, German, French, and Russian.
 
-We propose a simple and efficient method to train a better multilingual CLIP model. Named AltCLIP. AltCLIP is trained based on [Stable Diffusiosn](https://github.com/CompVis/stable-diffusion) with training data from [WuDao dataset](https://data.baai.ac.cn/details/WuDaoCorporaText) and [Liaon](https://huggingface.co/datasets/laion/laion2B-en).
+The AltCLIP-m18 model can provide support for the AltDiffusion-m18 model. Specific information on the AltDiffusion modle can be found in [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
 
-The AltCLIP model can provide support for the AltDiffusion model in this project. Specific information on the AltDiffusion model can be found in [this tutorial](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion/README.md).
+The model code has been open sourced on [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP-m18) and the weights are located on [modelhub](https://model.baai.ac.cn/model-detail/100095). We also provide scripts for fine-tuning, inference, and validation, so feel free to try them out.
 
-The model code has been open sourced on [FlagAI](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) and the weights are located on [modelhub](https://model.baai.ac.cn/model-detail/100075). We also provide scripts for fine-tuning, inference, and validation, so feel free to try them out.
+## 训练数据集 Training datasets
 
-## 引用
+
+
+| No   | Language |                    Stage1(LAION400M)(MIT)                    |      |                         Stage 2 & 3                          |
+| ---- | :------: | :----------------------------------------------------------: | :--: | :----------------------------------------------------------: |
+| 1    |  **En**  |                                                              |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 2    |  **th**  |       [CCAligned](https://opus.nlpl.eu/CCAligned.php)        |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 3    |  **ko**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 4    |  **hi**  |       [CCAligned](https://opus.nlpl.eu/CCAligned.php)        |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 5    |  **uk**  |        [CCMatrix](https://opus.nlpl.eu/CCMatrix.php)         |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 6    |  **ar**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)), [OpenSubtitles](https://opus.nlpl.eu/OpenSubtitles-v2018.php) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 7    |  **tr**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)), [CCMatrix](https://opus.nlpl.eu/CCMatrix.php) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 8    |  **vi**  |        [CCMatrix](https://opus.nlpl.eu/CCMatrix.php)         |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 9    |  **pl**  | [CCMatrix](https://opus.nlpl.eu/CCMatrix.php) , WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 10   |  **nl**  |        [CCMatrix](https://opus.nlpl.eu/CCMatrix.php)         |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 11   |  **pt**  |       [CCAligned](https://opus.nlpl.eu/CCAligned.php)        |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 12   |  **it**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)), [Wikipedia](https://opus.nlpl.eu/Wikipedia.php) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 13   |  **ja**  | [MultiParaCrawl](https://opus.nlpl.eu/MultiParaCrawl.php) ([Creative Commons CC0 license](https://creativecommons.org/share-your-work/public-domain/cc0/) ) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 14   |  **zh**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)), [TSL2019](https://github.com/brightmart/nlp_chinese_corpus) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)), wudaoMM([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode))[1] |
+| 15   |  **es**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 16   |  **de**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)), [EUbookshop](https://opus.nlpl.eu/EUbookshop.php) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 17   |  **fr**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)), EuroPat ([Creative Commons CC0 license](https://creativecommons.org/share-your-work/public-domain/cc0/)) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+| 18   |  **ru**  | WikiMatrix ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode)), [CCMatrix](https://opus.nlpl.eu/CCMatrix.php) |      | LAION-Aesthetics ([MIT](https://github.com/LAION-AI/laion-datasets/blob/main/LICENSE)) |
+
+\[1] WuDaoMM数据集仅用于学术研究，任何使用该数据集都应该遵循以下要求。WuDaoMM不拥有这些图片的版权。 图片的使用必须遵守[Flickr使用条款](http://creativecommons.org/licenses/by/4.0/)。 图像的用户对使用数据集承担全部责任，不私自传播上面的图片。 如果图片的版权受到侵犯，请联系我们，我们将立即删除。
+
+[1] WuDaoMMdataset is only used for academic research, any use of this dataset should follow the following requirements. WuDaoMM does not own the copyright of these pictures. Use of images is subject to the [Flickr term of use](http://creativecommons.org/licenses/by/4.0/). Users of the images take full responsibility for using the dataset and do not distribute the above images privately. If the copyright of the image is violated, please contact us and it will be removed immediately.
+
+
+
+阶段1使用平行语料库数据。
+
+阶段2和3主要使用Laion-Aesthetics的一个子集。中文数据集采用wudaoMM数据集(CC-BY-SA 4.0)。
+
+Stage 1 uses parallel corpus data. 
+
+Stage2&3 mainly use a subset of Laion-Aesthetics. The wudaoMM data set (CC-BY-SA 4.0) is used as a Chinese data set.
+
+
+
+## 引用 Citation
+
 关于AltCLIP，我们已经推出了相关报告，有更多细节可以查阅，如对您的工作有帮助，欢迎引用。
 
 If you find this work helpful, please consider to cite
@@ -40,7 +78,6 @@ If you find this work helpful, please consider to cite
   copyright = {arXiv.org perpetual, non-exclusive license}
 }
 ```
-
 
 ## 训练/Training
 
@@ -223,6 +260,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 loader = AutoLoader(
     task_name="txt_img_matching",
     model_name="AltCLIP-XLMR-L",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_name="AltCLIP-XLMR-L-m18",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
     model_dir="./checkpoints"
 )
 
@@ -286,7 +324,7 @@ classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'hors
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
     model_dir="./checkpoints",
-    model_name="AltCLIP-XLMR-L"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_name="AltCLIP-XLMR-L-m18"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
 )
 
 model = auto_loader.get_model()

@@ -228,4 +228,6 @@ class BaseModel(Module):
                 if not file_name.endswith("bin"):
                     _get_vocab_path(os.path.join(download_path, model_name), file_name, model_id)
                 else :
+                    if only_download_config:
+                        continue
                     _get_checkpoint_path(os.path.join(download_path, model_name), file_name, model_id)
