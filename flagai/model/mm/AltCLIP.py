@@ -76,8 +76,7 @@ class AltCLIPConfig(CLIPConfig):
                  num_layers=3,
                  variant='invert',
                  **kwargs):
-        super().__init__(text_config_dict, vision_config_dict, projection_dim,
-                         logit_scale_init_value, **kwargs)
+        super().__init__(projection_dim=projection_dim, logit_scale_init_value=logit_scale_init_value, **kwargs)
         if text_config_dict is None:
             text_config_dict = {}
         # when reload the config from local, we need name to select which class should be instanced.
@@ -446,7 +445,7 @@ class AltCLIP(BaseModel):
                       only_download_config=False,
                       device="cpu",
                       **kwargs):
-        super().download(download_path, model_name)
+        super().download(download_path, model_name, only_download_config=only_download_config)
         pretrained_model_name_or_path = os.path.join(download_path, model_name)
         print(pretrained_model_name_or_path)
         return CLIPHF.from_pretrained(pretrained_model_name_or_path)
