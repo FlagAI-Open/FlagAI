@@ -173,6 +173,7 @@ class Trainer():
         already_fp16=False,
         resume_dataset=False,
         shuffle_dataset=True,
+        bmt_cpu_offload=True,
         extra_args=None,
     ):
 
@@ -241,6 +242,8 @@ class Trainer():
 
         self.resume_dataset = resume_dataset
         self.shuffle_dataset = shuffle_dataset
+
+        self.bmt_cpu_offload = bmt_cpu_offload
 
         self.extra_args = extra_args
 
@@ -346,8 +349,9 @@ class Trainer():
                 log_dist(e)
                 log_dist("No mpu is installed! No model parallel is used")
             log_dist("initialize eviroments succesed")
-        if self.env_type != 'bmtrain':
-            self.set_seed(self.seed)
+
+        #if self.env_type != 'bmtrain':
+        self.set_seed(self.seed)
 
         # wandb
         if self.wandb and wandb is not None and self.rank == 0:
@@ -490,16 +494,16 @@ class Trainer():
         if self.optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
                 if self.fp16:
-                    '''
-                    self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
-                                                             weight_decay=self.weight_decay,
-                                                             betas=(self.adam_beta1, self.adam_beta2),
-                                                             lr=self.lr)
-                    '''
-                    self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
-                                                                    weight_decay=self.weight_decay,
-                                                                    betas=(self.adam_beta1, self.adam_beta2),
-                                                                    lr=self.lr)
+                    if self.bmt_cpu_offload:
+                        self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                                                                        weight_decay=self.weight_decay,
+                                                                        betas=(self.adam_beta1, self.adam_beta2),
+                                                                        lr=self.lr)
+                    else:
+                        self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                                                                 weight_decay=self.weight_decay,
+                                                                 betas=(self.adam_beta1, self.adam_beta2),
+                                                                 lr=self.lr)
                 else:
                     self.optimizer = get_optimizer(
                         param_groups=param_groups,

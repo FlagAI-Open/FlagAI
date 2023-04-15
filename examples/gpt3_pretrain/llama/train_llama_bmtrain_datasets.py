@@ -45,6 +45,22 @@ env_args = EnvArgs(
 env_args = env_args.parse_args()
 #env_args.wandb = False
 
+# overwrite
+if env_args.yaml_config:
+    import yaml
+    file_data = open(env_args.yaml_config, 'r', encoding="utf-8").read()
+    data = yaml.load_all(file_data)
+    delattr(env_args, 'yaml_config')
+    arg_dict = env_args.__dict__
+    for subdata in data:
+        for key, value in subdata.items():
+            if isinstance(value, list):
+                for v in value:
+                    arg_dict[key].append(v)
+            else:
+                arg_dict[key] = value
+    print(f"env_args={env_args}", flush=True)
+
 trainer = EnvTrainer(env_args)
 
 # Trainer as Trigger
@@ -59,7 +75,7 @@ checkpoints = "/data/ldwang/state_dict/"
 model_name = "llama-30b-en"
 model_name = "llama-7b-en"
 model_name = env_args.model_name
-print('*'*20, "model_name", model_name)
+print('*'*20, "model_name", model_name, flush=True)
 
 '''
 auto_loader = AutoLoader(
@@ -82,14 +98,20 @@ tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
 
 config_file = cache_dir + "/config.json"
 # avoid sync loading models in case of Mem OOM
-import time
-time.sleep(10*60*(trainer.local_rank%2))
+if env_args.bmt_async_load:
+    import time
+    time.sleep(10*60*(trainer.local_rank%2))
+
 from flagai.model.llama_model import LLAMAModel
 model = LLAMAModel.init_from_json(config_file=config_file)
 #print('*'*20, "model", model)
 
+if env_args.bmt_pre_load:
+    checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
+    model.load_weights(checkpoint_path)
+
 trainer.pre_train(model)
-print('*'*20, "model", model)
+print('*'*20, "model", model, flush=True)
 
 '''
 data_prefix = [
@@ -206,8 +228,8 @@ train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
     train_valid_test_num_samples,
     seq_length, seed, skip_warmup,
     train_max_num_samples)
-print("Total train_dataset: ", len(train_dataset))
-print("Total valid_dataset: ", len(valid_dataset))
+print("Total train_dataset: ", len(train_dataset), flush=True)
+print("Total valid_dataset: ", len(valid_dataset), flush=True)
 
 def collate_fn(batch):
     def padding(indice, max_length, pad_idx=tokenizer.token_end_id):

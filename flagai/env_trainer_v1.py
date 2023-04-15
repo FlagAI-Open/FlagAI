@@ -131,6 +131,8 @@ class EnvTrainer():
         self.resume_dataset = env_args.resume_dataset
         self.shuffle_dataset = env_args.shuffle_dataset
 
+        self.bmt_cpu_offload = env_args.bmt_cpu_offload
+
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
             self.rank = int(os.environ.get('RANK', 0))
@@ -213,8 +215,9 @@ class EnvTrainer():
                 log_dist(e)
                 log_dist("No mpu is installed! No model parallel is used")
             log_dist("initialize eviroments succesed")
-        if self.env_type != 'bmtrain':
-            self.set_seed(self.seed)
+
+        #if self.env_type != 'bmtrain':
+        self.set_seed(self.seed)
 
         # wandb
         if self.wandb and wandb is not None and self.rank == 0:
@@ -357,16 +360,16 @@ class EnvTrainer():
         if self.optimizer is None and 'deepspeed' not in self.env_type and self.epochs > 0:
             if self.env_type == 'bmtrain':
                 if self.fp16:
-                    '''
-                    self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
-                                                             weight_decay=self.weight_decay,
-                                                             betas=(self.adam_beta1, self.adam_beta2),
-                                                             lr=self.lr)
-                    '''
-                    self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
-                                                                    weight_decay=self.weight_decay,
-                                                                    betas=(self.adam_beta1, self.adam_beta2),
-                                                                    lr=self.lr)
+                    if self.bmt_cpu_offload:
+                        self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
+                                                                        weight_decay=self.weight_decay,
+                                                                        betas=(self.adam_beta1, self.adam_beta2),
+                                                                        lr=self.lr)
+                    else:
+                        self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
+                                                                 weight_decay=self.weight_decay,
+                                                                 betas=(self.adam_beta1, self.adam_beta2),
+                                                                 lr=self.lr)
                 else:
                     self.optimizer = get_optimizer(
                         param_groups=param_groups,
@@ -488,6 +491,7 @@ class EnvTrainer():
 
                 if 'input_ids' in batch:
                     log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [self.local_rank])
+                    log_dist("Batch Input_ids %s"%str(batch['input_ids']), [self.local_rank])
 
                 # Train for one step.
                 if 'pytorch' != self.env_type:

@@ -10,11 +10,13 @@ export NCCL_DEBUG=debug
 export OMP_NUM_THREADS=4
 
 set -u
-	hostfile=$1
+  hostfile=$1
+  configfile=$2
 set +u
 # DIST
 #export HOSTFILE=$FLAGAI_HOME/examples/gpt3_pretrain/llama/hostfile.bmt_8n8g
 export HOSTFILE=$hostfile
+export CONFIGFILE=$configfile
 export NODE_ADDR=$(ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2;}'|tr -d "addr:")
 export GPU_NUM_PER_NODE=$(awk -F" |=" '{ranks[$1]=$NF;}END{print ranks["'$NODE_ADDR'"];}' $HOSTFILE)
 export NODES_NUM=$(cat $HOSTFILE | wc -l)
@@ -58,7 +60,8 @@ OPTS=" --batch_size $BATCH_SIZE \
        --save_dir $SAVE_DIR \
        --experiment_name $EXP_NAME \
        --model_name $MODEL_NAME \
-       --wandb_dir $WANDB_DIR"
+       --wandb_dir $WANDB_DIR \
+       --yaml_config $CONFIGFILE"
 
 ## Trigger job on Each Node when bmt or ddp.
 python -m torch.distributed.launch \
