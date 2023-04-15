@@ -9,8 +9,12 @@ export NCCL_IB_HCA=mlx5_2,mlx5_5
 export NCCL_DEBUG=debug
 export OMP_NUM_THREADS=4
 
+set -u
+	hostfile=$1
+set +u
 # DIST
-export HOSTFILE=$FLAGAI_HOME/examples/gpt3_pretrain/llama/hostfile.bmt_8n8g
+#export HOSTFILE=$FLAGAI_HOME/examples/gpt3_pretrain/llama/hostfile.bmt_8n8g
+export HOSTFILE=$hostfile
 export NODE_ADDR=$(ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2;}'|tr -d "addr:")
 export GPU_NUM_PER_NODE=$(awk -F" |=" '{ranks[$1]=$NF;}END{print ranks["'$NODE_ADDR'"];}' $HOSTFILE)
 export NODES_NUM=$(cat $HOSTFILE | wc -l)
