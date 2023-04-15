@@ -24,19 +24,31 @@ export MASTER_ADDR=$(head -n1 $HOSTFILE | awk '{print $1;}')
 export RANK=$(awk '{ranks[$1]=(FNR-1);}END{print ranks["'$NODE_ADDR'"];}' $HOSTFILE)
 export MASTER_PORT=23456
 
+export TRIGGER_FILE=bmtrain_mgpu.sh
 export SCRIPT_FILE=train_llama_bmtrain_datasets.py
 
 ## wandb
 export WANDB_MODE=offline
 
 ## EXP
-export EXP_NAME=llama_7b_8n8g
-export MODEL_NAME=llama-7b-en-init
-export MODEL_NAME=llama-7b-en
+#export EXP_NAME=llama_7b_8n8g
+export EXP_NAME=Aquila-7b-1n8g
+#export MODEL_NAME=llama-7b-en-init
+#export MODEL_NAME=llama-7b-en
+export MODEL_NAME=Aquila-7b-1n8g
+
+export WORKSPACE=$FLAGAI_HOME/examples/gpt3_pretrain/llama
+export STATE_DICT_DIR=/data/ldwang/state_dict
 export SAVE_DIR=/data/ldwang/checkpoints/${EXP_NAME}
 export WANDB_DIR=/data/ldwang/wandb/${EXP_NAME}
-mkdir -p $SAVE_DIR
+mkdir -p $SAVE_DIR/configs
 mkdir -p $WANDB_DIR
+## Backup ckpts & scripts into configs
+cp -r $STATE_DICT_DIR/$MODEL_NAME $SAVE_DIR/configs/
+cp -r $WORKSPACE/$TRIGGER_FILE $SAVE_DIR/configs/
+cp -r $hostfile $SAVE_DIR/configs/
+cp -r $configfile $SAVE_DIR/configs/
+
 export EPOCH_NUM=1
 export BATCH_SIZE=6
 export GRADIENT_ACCUM_STEPS=1
