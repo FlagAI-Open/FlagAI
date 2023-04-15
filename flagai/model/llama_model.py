@@ -73,6 +73,7 @@ class LLAMAConfig(dict):
  
         norm_eps=1e-6,
         use_cache=False,
+        flash_atten=False,
         # pad_token_id=-1,
         # bos_token_id=0,
         # eos_token_id=1,
@@ -95,6 +96,8 @@ class LLAMAConfig(dict):
 
         self.norm_eps = norm_eps
         self.use_cache = use_cache
+
+        self.flash_atten = flash_atten
         # super().__init__(
         #     pad_token_id=pad_token_id,
         #     bos_token_id=bos_token_id,

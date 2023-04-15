@@ -491,7 +491,6 @@ class EnvTrainer():
 
                 if 'input_ids' in batch:
                     log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [self.local_rank])
-                    log_dist("Batch Input_ids %s"%str(batch['input_ids']), [self.local_rank])
 
                 # Train for one step.
                 if 'pytorch' != self.env_type:

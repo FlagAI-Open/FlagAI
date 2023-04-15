@@ -138,6 +138,8 @@ class LLAMAAttention(nn.Module):
                 (config.max_batch_size, config.max_seq_len, self.n_local_heads, self.head_dim)
             )
 
+        self.cu_seqlens = None
+
     def forward(
                 self, 
                 x,
@@ -167,17 +169,32 @@ class LLAMAAttention(nn.Module):
         else :
             keys = xk
             values = xv 
-        xq = xq.transpose(1, 2)
-        keys = keys.transpose(1, 2)
-        values = values.transpose(1, 2)
-        scores = torch.matmul(xq, keys.transpose(2, 3)) / math.sqrt(self.head_dim)
-        if mask is not None:
-            scores = scores + mask  # (bs, n_local_heads, slen, cache_len + slen)
-        scores = F.softmax(scores.float(), dim=-1).type_as(xq)
-        output = torch.matmul(scores, values)  # (bs, n_local_heads, slen, head_dim)
-        output = output.transpose(
-            1, 2
-        ).contiguous().view(bsz, seqlen, -1)
+
+        if self.training and self.config.flash_atten:
+            seqlen = self.config.max_seq_len
+            xq = xq.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            keys = keys.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            qkv = torch.concat([xq, keys, values], dim=2)
+            qkv = einops.rearrange(qkv, 'b s ... -> (b s) ...')
+
+            if self.cu_seqlens is None:
+                self.cu_seqlens = torch.arange(0, (bsz + 1) * seqlen, step=seqlen, dtype=torch.int32, device=qkv.device)
+            output = flash_attn_unpadded_qkvpacked_func(
+                qkv, self.cu_seqlens, seqlen, 0.0, causal=True)
+            output = einops.rearrange(output, '(b s) h d -> b s (h d)', b=bsz)
+        else:
+            xq = xq.transpose(1, 2)
+            keys = keys.transpose(1, 2)
+            values = values.transpose(1, 2)
+            scores = torch.matmul(xq, keys.transpose(2, 3)) / math.sqrt(self.head_dim)
+            if mask is not None:
+                scores = scores + mask  # (bs, n_local_heads, slen, cache_len + slen)
+            scores = F.softmax(scores.float(), dim=-1).type_as(xq)
+            output = torch.matmul(scores, values)  # (bs, n_local_heads, slen, head_dim)
+            output = output.transpose(
+                1, 2
+            ).contiguous().view(bsz, seqlen, -1)
 
         return self.wo(output)
 
