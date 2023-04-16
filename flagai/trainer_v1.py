@@ -999,6 +999,10 @@ class Trainer():
                 optim_manager.zero_grad()
                 self.accumulate_count = 0
             else:
+                # Need update lr_scheduler
+                for lr_scheduler in optim_manager.lr_schedulers:
+                    if lr_scheduler is not None:
+                        lr_scheduler.step()
                 self.accumulate_count += 1
 
             self.timers('optimizer').stop()
