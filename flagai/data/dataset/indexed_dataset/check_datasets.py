@@ -38,7 +38,14 @@ dataset = get_indexed_dataset_(
     data_impl='mmap',
     skip_warmup=True)
 total_num_of_documents = dataset.sizes.shape[0]
+total_num_of_tokens = 0.0
+B = 1000000000
+for x in range(total_num_of_documents):
+    total_num_of_tokens += float(dataset[x].shape[0])
+total_num_of_tokens_B = total_num_of_tokens/B
+print(f"{data_prefix}\t{total_num_of_tokens}\t{total_num_of_tokens_B}", file=sys.stderr)
 
+'''
 splits_string='9999,1,0'
 splits = get_train_valid_test_split_(splits_string, total_num_of_documents)
 print(total_num_of_documents)
@@ -48,5 +55,6 @@ print(type(dataset[0]))
 print(dataset[0].shape)
 last = total_num_of_documents-1
 print(dataset[last])
+'''
 import sys
 sys.exit(0)
