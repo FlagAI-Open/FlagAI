@@ -171,7 +171,7 @@ class LLAMAAttention(nn.Module):
             values = xv 
 
         if self.training and self.config.flash_atten:
-            seqlen = self.config.max_seq_len
+            #seqlen = self.config.max_seq_len
             xq = xq.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             keys = keys.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)

@@ -59,14 +59,14 @@ if env_args.yaml_config:
                     arg_dict[key].append(v)
             else:
                 arg_dict[key] = value
-    print(f"env_args={env_args}", flush=True)
-
 trainer = EnvTrainer(env_args)
 
 # Trainer as Trigger
 if not env_args.not_call_launch:
     import sys
     sys.exit(0)
+
+print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}", flush=True)
 
 ## TODO
 checkpoints = "/share/project/ldwang/checkpoints/"
@@ -113,145 +113,207 @@ if env_args.bmt_pre_load:
 trainer.pre_train(model)
 print('*'*20, "model", model, flush=True)
 
-'''
-data_prefix = [
-    2.7,
-    '/data/indexed_dataset/batch1_tok100k/cn_baike_text_document',
-    2.91,
-    '/data/indexed_dataset/batch1_tok100k/cn_ebook_merge_maxlen_text_document',
-    1.89,
-    '/data/indexed_dataset/batch1_tok100k/cn_zhihu_text_document',
-    1.46,
-    '/data/indexed_dataset/batch1_tok100k/cn_wudao_base_text_document',
-    1.01,
-    '/data/indexed_dataset/batch1_tok100k/cn_wudao_dedup_merged_text_document',
-    0.9,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-arxiv_text_document',
-    2.5,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-bookcorpus2_text_document',
-    1.1,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-books3_text_document',
-    1.38,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-gutenberg_pg-19_text_document',
-    2.82,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-openwebtext2_text_document',
-    1.01,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pile-cc_text_document',
-    0.95,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pubmed_abstracts_text_document',
-    0.95,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-pubmed_central_text_document',
-    2.08,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-stackexchange_text_document',
-    1.46,
-    '/data/indexed_dataset/batch1_tok100k/en_dedup-md5-pile-wikipedia_en_text_document',
-]
+if env_args.enable_sft_dataset:
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    ## TODO
+    json_data = cur_dir + '/data/sample_data_10w_0416.json'
+    max_seq_len = 2048
+    
+    import json
+    import numpy as np
+    def read_file():
+        src = []
+        tgt = []
+        with open(json_data, 'r', encoding='utf-8') as f:
+            lines = json.load(f)
+            for line in lines:
+                if 'response' not in line or 'prompt' not in line:
+                    continue
+                src.append(line['prompt'].strip('\n').lower())
+                tgt.append(line['response'].strip('\n').lower())
 
-data_impl = 'mmap'
-## splits_string len should same as train_valid_test_num_samples len
-splits_string = '9999,1'
-## rebuilding if no npy files for train_valid_test_num_samples config
-## 400B
-train_valid_test_num_samples = [390585937, 39063]
-seq_length = 2048
-seed = 2023
-skip_warmup = True
+        return src, tgt
 
-train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
-    data_prefix, data_impl, splits_string,
-    train_valid_test_num_samples,
-    seq_length, seed, skip_warmup)
-print("Total train_dataset: ", len(train_dataset))
-print("Total valid_dataset: ", len(valid_dataset))
+    class InstructionDataset(Dataset):
+        def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
+            super(InstructionDataset, self).__init__()
+            self.sents_src = sents_src
+            self.sents_tgt = sents_tgt
+            self.tokenizer = tokenizer
+            self.maxlen = maxlen
+    
+        def __getitem__(self, i):
+            src = self.sents_src[i]
+            #[:self.maxlen]
+            tgt = self.sents_tgt[i]
+            
+            ## Based on different tokenizers
+            prompt = self.tokenizer.encode_plus(src, None, max_length=None)['input_ids']
+            ## remove eos
+            prompt = prompt[:-1]
+            ## maxlen
+            prompt = prompt[:self.maxlen]
+            ## bos+ids+eos
+            example = self.tokenizer.encode_plus(f"{src}{tgt}", None, max_length=None)['input_ids']
+            ## maxlen
+            example = example[:self.maxlen]
 
-'''
+            prompt = torch.tensor(prompt, dtype=torch.int64)
+            example = torch.tensor(example, dtype=torch.int64)
 
-data_prefix = [
-    1.0,
-    '/data/indexed_dataset/batch1_tok100k_sep/cn_9_dedup_wudao_text_document',
-    1.0,
-    '/data/indexed_dataset/batch1_tok100k_sep/cn_9_part_merged_text_document',
-    1.0,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pile-cc_text_document',
-    1.51,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-openwebtext2_text_document',
+            import copy
+            labels = copy.deepcopy(example)
+            prompt_len = len(prompt)
+            labels[:prompt_len] = -1
+            example_mask = example.ge(0)
+            label_mask = labels.ge(0)
+            example[~example_mask] = 0
+            labels[~label_mask] = 0
+    
+            output = {
+                "input_ids": example.tolist(),
+                "labels": labels.tolist(),
+            }
+            return output
+    
+        def __len__(self):
+            return len(self.sents_src)
+    
+        @staticmethod
+        def collate_fn(batch):
+            def padding(indice, max_length, pad_idx=0):
+                pad_indice = [
+                    item + [pad_idx] * max(0, max_length - len(item)) for item in indice
+                ]
+                return torch.tensor(pad_indice)
+    
+            input_ids = [data["input_ids"] for data in batch]
+            labels = [data["labels"] for data in batch]
+            #max_length = max([len(t) for t in input_ids])
+            #max_length_labels = max([len(t) for t in labels])
+            #assert max_length == max_length_labels
+            max_length = max_seq_len
+            input_ids = padding(input_ids, max_length)[:,:max_length]
+            labels = padding(labels, max_length)[:,:max_length]
+    
+            data = {
+                "input_ids": input_ids,
+                "labels": labels
+            }
+            return data
+    
+    sents_src, sents_tgt = read_file()
+    data_len = len(sents_tgt)
+    train_size = int(data_len * 0.9)
+    train_src = sents_src[:train_size]
+    train_tgt = sents_tgt[:train_size]
 
-    0.6,
-    '/data/indexed_dataset/batch1_tok100k_sep/code_dedup-md5-pile-github_text_document',
-    0.53,
-    '/data/indexed_dataset/batch1_tok100k_sep/code_code_text_document',
-    0.53,
-    '/data/indexed_dataset/batch1_tok100k_sep/code_newcode1_text_document',
-    0.53,
-    '/data/indexed_dataset/batch1_tok100k_sep/code_newcode2_text_document',
-    0.38,
-    '/data/indexed_dataset/batch1_tok100k_sep/code_code-cpp_text_document',
-    0.38,
-    '/data/indexed_dataset/batch1_tok100k_sep/code_code-java_text_document',
+    train_dataset = InstructionDataset(train_src,
+                                       train_tgt,
+                                       tokenizer=tokenizer,
+                                       maxlen=max_seq_len)
 
-    1.06,
-    '/data/indexed_dataset/batch1_tok100k_sep/cn_baike_text_document',
-    2.43,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
+    valid_src = sents_src[train_size:]
+    valid_tgt = sents_tgt[train_size:]
+    valid_dataset = InstructionDataset(valid_src,
+                                       valid_tgt,
+                                       tokenizer=tokenizer,
+                                       maxlen=max_seq_len)
 
-    1.0,
-    '/data/indexed_dataset/batch1_tok100k_sep/cn_ebook_merge_maxlen_text_document',
-    1.42,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-gutenberg_pg-19_text_document',
-    1.42,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-bookcorpus2_text_document',
-    1.42,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-books3_text_document',
-    1.14,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-arxiv_text_document',
-    1.14,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_abstracts_text_document',
+    trainer.do_train(
+        train_dataset=train_dataset,
+        valid_dataset=valid_dataset,
+        collate_fn=InstructionDataset.collate_fn,
+        optimizer=None,
+        rank_split=False)
 
-    1.13,
-    '/data/indexed_dataset/batch1_tok100k_sep/cn_zhihu_text_document',
-    2.08,
-    '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
-]
-
-data_impl = 'mmap'
-## splits_string len should same as train_valid_test_num_samples len
-splits_string = '9999,1'
-## rebuilding if no npy files for train_valid_test_num_samples config
-train_valid_test_num_samples = [195312500, 19531]
-seq_length = 2048
-seed = 2023
-skip_warmup = True
-## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
-train_max_num_samples = 195312500
-train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
-    data_prefix, data_impl, splits_string,
-    train_valid_test_num_samples,
-    seq_length, seed, skip_warmup,
-    train_max_num_samples)
-print("Total train_dataset: ", len(train_dataset), flush=True)
-print("Total valid_dataset: ", len(valid_dataset), flush=True)
-
-def collate_fn(batch):
-    def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
-        pad_indice = [
-            item.tolist() + [pad_idx] * max(0, max_length - len(item.tolist())) for item in indice
-        ]
-        return torch.tensor(pad_indice)
-
-    input_ids = [data["input_ids"] for data in batch]
-    max_length = max([len(t) for t in input_ids])
-    input_ids = padding(input_ids, max_length)[:,:seq_length]
-
-    data = {
-        "input_ids": input_ids,
-        "labels": input_ids
-    }
-    return data
-
-trainer.do_train(
-    train_dataset=train_dataset,
-    valid_dataset=None,
-    collate_fn=collate_fn,
-    optimizer=None,
-    rank_split=False)
+else:
+    data_prefix = [
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_9_dedup_wudao_text_document',
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_9_part_merged_text_document',
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pile-cc_text_document',
+        1.51,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-openwebtext2_text_document',
+    
+        0.6,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_dedup-md5-pile-github_text_document',
+        0.53,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code_text_document',
+        0.53,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_newcode1_text_document',
+        0.53,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_newcode2_text_document',
+        0.38,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code-cpp_text_document',
+        0.38,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code-java_text_document',
+    
+        1.06,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_baike_text_document',
+        2.43,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
+    
+        1.0,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_ebook_merge_maxlen_text_document',
+        1.42,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-gutenberg_pg-19_text_document',
+        1.42,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-bookcorpus2_text_document',
+        1.42,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-books3_text_document',
+        1.14,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-arxiv_text_document',
+        1.14,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_abstracts_text_document',
+    
+        1.13,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_zhihu_text_document',
+        2.08,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
+    ]
+    
+    data_impl = 'mmap'
+    ## splits_string len should same as train_valid_test_num_samples len
+    splits_string = '9999,1'
+    ## rebuilding if no npy files for train_valid_test_num_samples config
+    train_valid_test_num_samples = [195312500, 19531]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+    ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+    train_max_num_samples = 195312500
+    train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
+        data_prefix, data_impl, splits_string,
+        train_valid_test_num_samples,
+        seq_length, seed, skip_warmup,
+        train_max_num_samples)
+    print("Total train_dataset: ", len(train_dataset), flush=True)
+    print("Total valid_dataset: ", len(valid_dataset), flush=True)
+    
+    def collate_fn(batch):
+        def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
+            pad_indice = [
+                item.tolist() + [pad_idx] * max(0, max_length - len(item.tolist())) for item in indice
+            ]
+            return torch.tensor(pad_indice)
+    
+        input_ids = [data["input_ids"] for data in batch]
+        max_length = max([len(t) for t in input_ids])
+        input_ids = padding(input_ids, max_length)[:,:seq_length]
+    
+        data = {
+            "input_ids": input_ids,
+            "labels": input_ids
+        }
+        return data
+    
+    trainer.do_train(
+        train_dataset=train_dataset,
+        valid_dataset=None,
+        collate_fn=collate_fn,
+        optimizer=None,
+        rank_split=False)
 

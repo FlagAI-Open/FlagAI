@@ -9,9 +9,12 @@ export NCCL_IB_HCA=mlx5_2,mlx5_5
 export NCCL_DEBUG=debug
 export OMP_NUM_THREADS=4
 
+echo "[INFO] $0: hostfile configfile model_name exp_name"
 set -u
   hostfile=$1
   configfile=$2
+  model_name=$3
+  exp_name=$4
 set +u
 # DIST
 #export HOSTFILE=$FLAGAI_HOME/examples/gpt3_pretrain/llama/hostfile.bmt_8n8g
@@ -32,10 +35,14 @@ export WANDB_MODE=offline
 
 ## EXP
 #export EXP_NAME=llama_7b_8n8g
+export EXP_NAME=Aquila-7b-16n8g
 export EXP_NAME=Aquila-7b-1n8g
-#export MODEL_NAME=llama-7b-en-init
+export EXP_NAME=Aquila-7b-6n8g
 #export MODEL_NAME=llama-7b-en
-export MODEL_NAME=Aquila-7b-1n8g
+export MODEL_NAME=Aquila-7b
+
+export MODEL_NAME=$model_name
+export EXP_NAME=$exp_name
 
 export WORKSPACE=$FLAGAI_HOME/examples/gpt3_pretrain/llama
 export STATE_DICT_DIR=/data/ldwang/state_dict

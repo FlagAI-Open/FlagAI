@@ -69,10 +69,12 @@ class EnvArgs:
 
                  yaml_config=None,
                  bmt_cpu_offload=True,
+                 bmt_lr_decay_style='cosine',
 
-                 ## TODO
+                 ## EnvTrainer Debug Only Flags
                  bmt_async_load=False,
                  bmt_pre_load=False,
+                 enable_sft_dataset=False,
                  ):
 
         self.parser = argparse.ArgumentParser(description='Env args parser')
@@ -130,6 +132,7 @@ class EnvArgs:
         self.parser.add_argument('--adam_beta2', default=adam_beta2, type=float, help='adam beta2')
 
         self.parser.add_argument('--bmt_cpu_offload', default=bmt_cpu_offload, type=str2bool, help='whther to enable cpu_offload in bmtrain')
+        self.parser.add_argument('--bmt_lr_decay_style', default=bmt_lr_decay_style, type=str, help='lr scheduler type in bmtrain')
 
         ## TODO, Used in caller script, configs will be updated with yaml_config.
         self.parser.add_argument("--yaml_config", default=yaml_config, type=str, help="yaml config file")
@@ -137,6 +140,7 @@ class EnvArgs:
         ## EnvTrainer Debug Only
         self.parser.add_argument('--bmt_async_load', default=bmt_async_load, type=str2bool, help='debug args')
         self.parser.add_argument('--bmt_pre_load', default=bmt_pre_load, type=str2bool, help='debug args')
+        self.parser.add_argument('--enable_sft_dataset', default=enable_sft_dataset, type=str2bool, help='debug args')
 
     def add_arg(self, arg_name, default=None, type=str, help="", store_true=False):
         if store_true:

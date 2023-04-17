@@ -174,6 +174,7 @@ class Trainer():
         resume_dataset=False,
         shuffle_dataset=True,
         bmt_cpu_offload=True,
+        bmt_lr_decay_style='cosine',
         extra_args=None,
     ):
 
@@ -244,6 +245,7 @@ class Trainer():
         self.shuffle_dataset = shuffle_dataset
 
         self.bmt_cpu_offload = bmt_cpu_offload
+        self.bmt_lr_decay_style = bmt_lr_decay_style
 
         self.extra_args = extra_args
 
@@ -557,12 +559,19 @@ class Trainer():
                 ## lr_scheduler.step with optim_manager.step
                 ## lr_scheduler = bmt.lr_scheduler.Noam(
                 ## lr_scheduler = bmt.lr_scheduler.Cosine(
-                from flagai.schedulers import Cosine10PP
-                lr_scheduler = Cosine10PP(
-                    self.optimizer,
-                    start_lr=self.lr, 
-                    warmup_iter=warmup_iter,
-                    end_iter=num_iters)
+                if self.bmt_lr_decay_style == 'linear':
+                    lr_scheduler = bmt.lr_scheduler.Linear(
+                        self.optimizer,
+                        start_lr=self.lr, 
+                        warmup_iter=warmup_iter,
+                        end_iter=num_iters)
+                else:
+                    from flagai.schedulers import Cosine10PP
+                    lr_scheduler = Cosine10PP(
+                        self.optimizer,
+                        start_lr=self.lr, 
+                        warmup_iter=warmup_iter,
+                        end_iter=num_iters)
             else:
                 lr_scheduler = AnnealingLR(
                     self.optimizer,

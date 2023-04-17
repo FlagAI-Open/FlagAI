@@ -74,6 +74,7 @@ class LLAMAConfig(dict):
         norm_eps=1e-6,
         use_cache=False,
         flash_atten=False,
+        ignore_index=-100,
         # pad_token_id=-1,
         # bos_token_id=0,
         # eos_token_id=1,
@@ -98,6 +99,8 @@ class LLAMAConfig(dict):
         self.use_cache = use_cache
 
         self.flash_atten = flash_atten
+        self.ignore_index = ignore_index
+
         # super().__init__(
         #     pad_token_id=pad_token_id,
         #     bos_token_id=bos_token_id,
@@ -157,7 +160,7 @@ class LLAMAModel(BaseModel):
             self.config.dim // self.config.n_heads, self.config.max_seq_len * 2
         )
 
-        self.loss_func = nn.CrossEntropyLoss()
+        self.loss_func = nn.CrossEntropyLoss(ignore_index=self.config.ignore_index)
 
     def forward(self, input_ids: torch.Tensor, start_pos=0, labels=None, **kwargs):
         _bsz, seqlen = input_ids.shape
