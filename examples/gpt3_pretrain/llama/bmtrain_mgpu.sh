@@ -9,12 +9,13 @@ export NCCL_IB_HCA=mlx5_2,mlx5_5
 export NCCL_DEBUG=debug
 export OMP_NUM_THREADS=4
 
-echo "[INFO] $0: hostfile configfile model_name exp_name"
+echo "[INFO] $0: hostfile configfile model_name exp_name exp_version"
 set -u
   hostfile=$1
   configfile=$2
   model_name=$3
   exp_name=$4
+  exp_version=$5
 set +u
 # DIST
 #export HOSTFILE=$FLAGAI_HOME/examples/gpt3_pretrain/llama/hostfile.bmt_8n8g
@@ -48,13 +49,14 @@ export WORKSPACE=$FLAGAI_HOME/examples/gpt3_pretrain/llama
 export STATE_DICT_DIR=/data/ldwang/state_dict
 export SAVE_DIR=/data/ldwang/checkpoints/${EXP_NAME}
 export WANDB_DIR=/data/ldwang/wandb/${EXP_NAME}
-mkdir -p $SAVE_DIR/configs
+export EXP_VERSION_DIR=$SAVE_DIR/$exp_version
+mkdir -p $EXP_VERSION_DIR
 mkdir -p $WANDB_DIR
-## Backup ckpts & scripts into configs
-cp -r $STATE_DICT_DIR/$MODEL_NAME $SAVE_DIR/configs/
-cp -r $WORKSPACE/$TRIGGER_FILE $SAVE_DIR/configs/
-cp -r $hostfile $SAVE_DIR/configs/
-cp -r $configfile $SAVE_DIR/configs/
+## Backup ckpts & scripts into exp versions
+cp -r $STATE_DICT_DIR/$MODEL_NAME $EXP_VERSION_DIR
+cp -r $WORKSPACE/$TRIGGER_FILE $EXP_VERSION_DIR
+cp -r $hostfile $EXP_VERSION_DIR
+cp -r $configfile $EXP_VERSION_DIR
 
 export EPOCH_NUM=1
 export BATCH_SIZE=6

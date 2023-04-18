@@ -11,17 +11,21 @@ set +u
 app_num=`cat $hostfile |wc -l`
 echo "app_num", $app_num
 
+exp_version=$(date +"%Y%m%d%H%M")
+echo "exp_version", $exp_version
+
 WORKSPACE=/data/ldwang/workspace/FlagAI/examples/gpt3_pretrain/llama
-export SAVE_DIR=/data/ldwang/checkpoints/${exp_name}
-mkdir -p $SAVE_DIR/configs
-LOGFILE=$SAVE_DIR/configs/$configfile.log.txt
+SAVE_DIR=/data/ldwang/checkpoints/${exp_name}
+EXP_VERSION_DIR=$SAVE_DIR/$exp_version
+mkdir -p $EXP_VERSION_DIR
+LOGFILE=$EXP_VERSION_DIR/$configfile.log.txt
 echo "LOGFILE", $LOGFILE
 
 for ((i=1;i<=$app_num;i++ )); do
     ip=`sed -n $i,1p $hostfile|cut -f 1 -d" "`
     echo "ip", $ip
-    ssh $ip "cd $WORKSPACE; bash bmtrain_mgpu.sh $hostfile $configfile $model_name $exp_name 1>$LOGFILE 2>&1 &" &
-    #ssh $ip "pkill -f '/opt/conda/bin/python -u train_llama_bmtrain_datasets.py'" &
+    #ssh $ip "cd $WORKSPACE; bash bmtrain_mgpu.sh $hostfile $configfile $model_name $exp_name $exp_version 1>$LOGFILE 2>&1 &" &
+    ssh $ip "pkill -f '/opt/conda/bin/python -u train_llama_bmtrain_datasets.py'" &
     #ssh $ip "killall python"
     #sleep 5
 done
