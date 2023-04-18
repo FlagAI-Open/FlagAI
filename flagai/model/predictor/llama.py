@@ -10,6 +10,9 @@ def llama_generate(
         temperature: float = 0.8,
         top_p: float = 0.95,
     ) -> List[str]:
+        # token_end_id depends
+        token_end_id = tokenizer.get_command_id('sep')
+
         bsz = len(prompts)
         prompt_tokens = [torch.LongTensor(tokenizer.encode(x)) for x in prompts]
 
@@ -33,6 +36,8 @@ def llama_generate(
             else:
                 next_token = torch.argmax(logits, dim=-1)
             next_token = next_token.reshape(-1)
+            if token_end_id == next_token.item():
+                break
             # only replace token if prompt has already been generated
             next_token = torch.where(
                 input_text_mask[:, cur_pos], tokens[:, cur_pos], next_token
