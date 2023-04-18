@@ -360,7 +360,7 @@ class Trainer():
             wandb.login(key=self.wandb_key)
             wandb.init(project=self.experiment_name, dir=self.wandb_dir)
 
-    def get_dataloader(self, dataset, collate_fn, shuffle=False, rank_split=False):
+    def get_dataloader(self, dataset, collate_fn, shuffle=False, rank_split=False, drop_last=False):
         """ initilize the dataloader"""
         if dataset is None:
             return None
@@ -371,7 +371,7 @@ class Trainer():
                                                num_workers=4,
                                                prefetch_factor=4,
                                                pin_memory=True,
-                                               drop_last=False,
+                                               drop_last=drop_last,
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
@@ -394,7 +394,7 @@ class Trainer():
                                                        num_workers=4,
                                                        prefetch_factor=4,
                                                        pin_memory=True,
-                                                       drop_last=False,
+                                                       drop_last=drop_last,
                                                        shuffle=shuffle)
                 else:
                     num_replicas = self.world_size
@@ -413,7 +413,7 @@ class Trainer():
                                                batch_size=self.batch_size,
                                                sampler=sampler,
                                                num_workers=4,
-                                               drop_last=False,
+                                               drop_last=drop_last,
                                                pin_memory=False,
                                                prefetch_factor=4,
                                                collate_fn=collate_fn)
@@ -476,13 +476,14 @@ class Trainer():
 
         if not isinstance(train_dataset, torch.utils.data.DataLoader):
             train_dataloader = self.get_dataloader(train_dataset, collate_fn,
-                                                   self.shuffle_dataset, rank_split=rank_split)
+                                                   self.shuffle_dataset, rank_split=rank_split,
+                                                   drop_last=True)
         else:
             train_dataloader = train_dataset
 
         if not isinstance(valid_dataset, torch.utils.data.DataLoader):
             valid_dataloader = self.get_dataloader(valid_dataset, collate_fn,
-                                                   False)
+                                                   False, drop_last=True)
         else:
             valid_dataloader = valid_dataset
 
@@ -771,7 +772,18 @@ class Trainer():
                                     iteration_in_epoch=iteration_)
                 self.iteration += 1
 
-                # Checkpointing at the end of each epoch.
+            # Checkpointing at the end of each epoch.
+            # self.iteration-1 as the exact iteration
+            if self.save_dir and (self.iteration-1) != best_iteration:
+                save_checkpoint(self.iteration-1+1,
+                                best_iteration+1,
+                                self.model,
+                                self.optimizer,
+                                lr_scheduler,
+                                save_optim=self.save_optim,
+                                save_dir=self.save_dir,
+                                save_rng=self.save_rng,
+                                iteration_in_epoch=99999999999)
 
         # Evaluation #todo add train_args
         if ((self.epochs == 0) or (self.eval_interval and
