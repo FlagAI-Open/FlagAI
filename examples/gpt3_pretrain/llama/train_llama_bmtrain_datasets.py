@@ -204,7 +204,8 @@ if env_args.enable_sft_dataset:
     
     sents_src, sents_tgt = read_file()
     data_len = len(sents_tgt)
-    train_size = int(data_len * 0.9)
+    #train_size = int(data_len * 0.95)
+    train_size = data_len
     train_src = sents_src[:train_size]
     train_tgt = sents_tgt[:train_size]
 
@@ -213,16 +214,18 @@ if env_args.enable_sft_dataset:
                                        tokenizer=tokenizer,
                                        maxlen=max_seq_len)
 
+    '''
     valid_src = sents_src[train_size:]
     valid_tgt = sents_tgt[train_size:]
     valid_dataset = InstructionDataset(valid_src,
                                        valid_tgt,
                                        tokenizer=tokenizer,
                                        maxlen=max_seq_len)
+    '''
 
     trainer.do_train(
         train_dataset=train_dataset,
-        valid_dataset=valid_dataset,
+        valid_dataset=None,
         collate_fn=InstructionDataset.collate_fn,
         optimizer=None,
         rank_split=False)

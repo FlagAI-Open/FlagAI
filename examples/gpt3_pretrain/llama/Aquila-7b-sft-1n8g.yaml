@@ -4,6 +4,7 @@ batch_size: 4
 gradient_accumulation_steps: 4
 lr: 1.0e-5
 warm_up: 0.06
+save_interval: 2000
 
 bmt_lr_decay_style: "linear"
 bmt_cpu_offload: False
