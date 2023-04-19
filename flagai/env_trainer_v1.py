@@ -131,9 +131,11 @@ class EnvTrainer():
         self.resume_dataset = env_args.resume_dataset
         self.shuffle_dataset = env_args.shuffle_dataset
 
+        # bmt
         self.bmt_cpu_offload = env_args.bmt_cpu_offload
         self.bmt_lr_decay_style = env_args.bmt_lr_decay_style
         self.bmt_loss_scale = env_args.bmt_loss_scale
+        self.bmt_loss_scale_steps = env_args.bmt_loss_scale_steps
 
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
@@ -457,9 +459,11 @@ class EnvTrainer():
         if self.env_type == 'bmtrain':
             if self.fp16:
                 loss_scale = self.bmt_loss_scale
+                loss_scale_steps = self.bmt_loss_scale_steps
             else:
                 loss_scale = None
-            optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale)
+            optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale,
+                                                   loss_scale_steps=loss_scale_steps)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.

@@ -71,6 +71,7 @@ class EnvArgs:
                  bmt_cpu_offload=True,
                  bmt_lr_decay_style='cosine',
                  bmt_loss_scale=1024.,
+                 bmt_loss_scale_steps=1024,
 
                  ## EnvTrainer Debug Only Flags
                  bmt_async_load=False,
@@ -135,6 +136,7 @@ class EnvArgs:
         self.parser.add_argument('--bmt_cpu_offload', default=bmt_cpu_offload, type=str2bool, help='whther to enable cpu_offload in bmtrain')
         self.parser.add_argument('--bmt_lr_decay_style', default=bmt_lr_decay_style, type=str, help='lr scheduler type in bmtrain')
         self.parser.add_argument('--bmt_loss_scale', default=bmt_loss_scale, type=float, help='loss scale in bmtrain')
+        self.parser.add_argument('--bmt_loss_scale_steps', default=bmt_loss_scale_steps, type=int, help='loss scale steps in bmtrain')
 
         ## TODO, Used in caller script, configs will be updated with yaml_config.
         self.parser.add_argument("--yaml_config", default=yaml_config, type=str, help="yaml config file")

@@ -176,6 +176,7 @@ class Trainer():
         bmt_cpu_offload=True,
         bmt_lr_decay_style='cosine',
         bmt_loss_scale=1024.,
+        bmt_loss_scale_steps=1024,
         extra_args=None,
     ):
 
@@ -248,6 +249,7 @@ class Trainer():
         self.bmt_cpu_offload = bmt_cpu_offload
         self.bmt_lr_decay_style = bmt_lr_decay_style
         self.bmt_loss_scale = bmt_loss_scale
+        self.bmt_loss_scale_steps = bmt_loss_scale_steps
 
         self.extra_args = extra_args
 
@@ -593,9 +595,11 @@ class Trainer():
         if self.env_type == 'bmtrain':
             if self.fp16:
                 loss_scale = self.bmt_loss_scale
+                loss_scale_steps = self.bmt_loss_scale_steps
             else:
                 loss_scale = None
-            optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale)
+            optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale,
+                                                   loss_scale_steps=loss_scale_steps)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
 
         # Tracking loss.
