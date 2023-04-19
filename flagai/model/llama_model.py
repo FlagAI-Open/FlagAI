@@ -74,6 +74,7 @@ class LLAMAConfig(dict):
         norm_eps=1e-6,
         use_cache=False,
         flash_atten=False,
+        flash_atten_pdrop=0.0,
         ignore_index=-100,
         # pad_token_id=-1,
         # bos_token_id=0,
@@ -99,6 +100,7 @@ class LLAMAConfig(dict):
         self.use_cache = use_cache
 
         self.flash_atten = flash_atten
+        self.flash_atten_pdrop = flash_atten_pdrop
         self.ignore_index = ignore_index
 
         # super().__init__(

@@ -181,7 +181,8 @@ class LLAMAAttention(nn.Module):
             if self.cu_seqlens is None:
                 self.cu_seqlens = torch.arange(0, (bsz + 1) * seqlen, step=seqlen, dtype=torch.int32, device=qkv.device)
             output = flash_attn_unpadded_qkvpacked_func(
-                qkv, self.cu_seqlens, seqlen, 0.0, causal=True)
+                qkv, self.cu_seqlens, seqlen,
+                self.config.flash_atten_pdrop if self.training else 0.0, causal=True)
             output = einops.rearrange(output, '(b s) h d -> b s (h d)', b=bsz)
         else:
             xq = xq.transpose(1, 2)
