@@ -133,6 +133,7 @@ class EnvTrainer():
 
         self.bmt_cpu_offload = env_args.bmt_cpu_offload
         self.bmt_lr_decay_style = env_args.bmt_lr_decay_style
+        self.bmt_loss_scale = env_args.bmt_loss_scale
 
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
@@ -455,7 +456,7 @@ class EnvTrainer():
         ## Needed global optim_manager
         if self.env_type == 'bmtrain':
             if self.fp16:
-                loss_scale = 1024
+                loss_scale = self.bmt_loss_scale
             else:
                 loss_scale = None
             optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale)
@@ -498,8 +499,8 @@ class EnvTrainer():
                     if iteration_ < iteration_in_epoch:
                         continue
 
-                if 'input_ids' in batch:
-                    log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [self.local_rank])
+                if 'input_ids' in batch and iteration_ % 500 == 0:
+                    log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
 
                 # Train for one step.
                 if 'pytorch' != self.env_type:
@@ -1149,7 +1150,7 @@ class EnvTrainer():
                 else hasattr(optimizer, 'loss_scale') and optimizer.loss_scale
         log_string += ' loss scale {:.1f} |'.format(loss_scale)
 
-        log_string += ' grad norm {:.1f} |'.format(grad_norm)
+        log_string += ' grad norm {:.6f} |'.format(grad_norm)
 
         log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
 
