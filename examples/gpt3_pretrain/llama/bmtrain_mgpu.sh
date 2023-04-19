@@ -1,4 +1,5 @@
 # ENVS
+export PROJ_HOME=/data/ldwang
 export FLAGAI_HOME=/data/ldwang/workspace/FlagAI
 export PYTHONPATH=$FLAGAI_HOME
 export NCCL_SOCKET_IFNAME=eth0
@@ -17,8 +18,8 @@ set -u
   exp_name=$4
   exp_version=$5
 set +u
+
 # DIST
-#export HOSTFILE=$FLAGAI_HOME/examples/gpt3_pretrain/llama/hostfile.bmt_8n8g
 export HOSTFILE=$hostfile
 export CONFIGFILE=$configfile
 export NODE_ADDR=$(ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2;}'|tr -d "addr:")
@@ -46,17 +47,16 @@ export MODEL_NAME=$model_name
 export EXP_NAME=$exp_name
 
 export WORKSPACE=$FLAGAI_HOME/examples/gpt3_pretrain/llama
-export STATE_DICT_DIR=/data/ldwang/state_dict
-export SAVE_DIR=/data/ldwang/checkpoints/${EXP_NAME}
-export WANDB_DIR=/data/ldwang/wandb/${EXP_NAME}
-export EXP_VERSION_DIR=$SAVE_DIR/$exp_version
-mkdir -p $EXP_VERSION_DIR
+export STATE_DICT_DIR=$PROJ_HOME/state_dict
+export WANDB_DIR=$PROJ_HOME/wandb/${EXP_NAME}/$exp_version
+export SAVE_DIR=$PROJ_HOME/checkpoints/${EXP_NAME}/$exp_version
+mkdir -p $SAVE_DIR
 mkdir -p $WANDB_DIR
 ## Backup ckpts & scripts into exp versions
-cp -r $STATE_DICT_DIR/$MODEL_NAME $EXP_VERSION_DIR
-cp -r $WORKSPACE/$TRIGGER_FILE $EXP_VERSION_DIR
-cp -r $hostfile $EXP_VERSION_DIR
-cp -r $configfile $EXP_VERSION_DIR
+cp -r $STATE_DICT_DIR/$MODEL_NAME $SAVE_DIR
+cp -r $WORKSPACE/$TRIGGER_FILE $SAVE_DIR
+cp -r $hostfile $SAVE_DIR
+cp -r $configfile $SAVE_DIR
 
 export EPOCH_NUM=1
 export BATCH_SIZE=6

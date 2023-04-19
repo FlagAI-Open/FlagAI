@@ -138,8 +138,12 @@ try:
     import math
     from bmtrain.lr_scheduler.warmup import WarmupLRScheduler
     class Cosine10PP(WarmupLRScheduler):
+        def __init__(self, optimizer, start_lr, warmup_iter, end_iter, num_iter=0, warmup_start_lr=0.0) -> None:
+            self.warmup_start_lr = warmup_start_lr
+            super().__init__(optimizer, start_lr, warmup_iter, end_iter, num_iter)
+
         def get_lr_warmup(self, num_iter) -> float:
-            return self.start_lr * num_iter / self.warmup_iter
+            return max(self.start_lr * num_iter / self.warmup_iter, self.warmup_start_lr)
     
         def get_lr_decay(self, num_iter) -> float:
             min_lr = self.start_lr * 0.1

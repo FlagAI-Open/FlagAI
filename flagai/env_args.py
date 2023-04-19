@@ -19,6 +19,7 @@ class EnvArgs:
                  epochs=1,
                  batch_size=1,
                  lr=1e-5,
+                 warmup_start_lr=0.0,
                  seed=1234,
 
                  fp16=False,
@@ -30,6 +31,7 @@ class EnvArgs:
                  weight_decay=1e-5,
                  warm_up=0.1,
                  warm_up_iters=0,
+                 skip_iters=0,
 
                  log_interval=100,
                  eval_interval=1000,
@@ -86,6 +88,7 @@ class EnvArgs:
         self.parser.add_argument('--epochs', default=epochs, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--batch_size', default=batch_size, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--lr', default=lr, type=float, help='start training from saved checkpoint')
+        self.parser.add_argument('--warmup_start_lr', default=warmup_start_lr, type=float, help='start training from saved checkpoint')
         self.parser.add_argument('--seed', default=seed, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--fp16', default=fp16, type=str2bool, help='start training from saved checkpoint')
         self.parser.add_argument('--pytorch_device', default=pytorch_device, help='start training from saved checkpoint')
@@ -95,6 +98,7 @@ class EnvArgs:
         self.parser.add_argument('--weight_decay', default=weight_decay, type=float, help='start training from saved checkpoint')
         self.parser.add_argument('--warm_up', default=warm_up, type=float, help='start training from saved checkpoint')
         self.parser.add_argument('--warm_up_iters', default=warm_up_iters, type=int, help='start training from saved checkpoint')
+        self.parser.add_argument('--skip_iters', default=skip_iters, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--log_interval', default=log_interval, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--eval_interval', default=eval_interval, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--save_interval', default=save_interval, type=int, help='start training from saved checkpoint')

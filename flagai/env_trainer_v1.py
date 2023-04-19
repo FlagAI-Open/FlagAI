@@ -76,6 +76,7 @@ class EnvTrainer():
         self.batch_size = env_args.batch_size
         self.gradient_accumulation_steps = env_args.gradient_accumulation_steps
         self.lr = env_args.lr
+        self.warmup_start_lr = env_args.warmup_start_lr
         self.weight_decay = env_args.weight_decay
         self.epochs = env_args.epochs
         self.clip_grad = env_args.clip_grad
@@ -83,6 +84,7 @@ class EnvTrainer():
         self.fp16 = env_args.fp16
         self.warm_up = env_args.warm_up
         self.warm_up_iters = env_args.warm_up_iters
+        self.skip_iters = env_args.skip_iters
         self.adam_beta1 = env_args.adam_beta1
         self.adam_beta2 = env_args.adam_beta2
 
@@ -136,6 +138,8 @@ class EnvTrainer():
         self.bmt_lr_decay_style = env_args.bmt_lr_decay_style
         self.bmt_loss_scale = env_args.bmt_loss_scale
         self.bmt_loss_scale_steps = env_args.bmt_loss_scale_steps
+
+        self.warmup_start_lr = env_args.warmup_start_lr
 
         if self.env_type != 'pytorch':
             training_paras = get_args_list(env_args)
@@ -440,7 +444,8 @@ class EnvTrainer():
                         self.optimizer,
                         start_lr=self.lr, 
                         warmup_iter=warmup_iter,
-                        end_iter=num_iters)
+                        end_iter=num_iters,
+                        warmup_start_lr=self.warmup_start_lr)
             else:
                 lr_scheduler = AnnealingLR(
                     self.optimizer,
@@ -482,12 +487,8 @@ class EnvTrainer():
         if len(self.metric_methods) > 0:
             best_score = -best_score
 
+        in_first_epoch = True
         for epoch in range(self.epochs):
-            # log_dist('working on epoch {} ...'.format(epoch), [0])
-            # Set the data loader epoch to shuffle the index iterator.
-            # if self.env_type == 'deepspeed+mpu':
-            #     if mpu.get_model_parallel_rank() == 0:
-            #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
             if self.env_type != 'pytorch':
                 set_epoch = getattr(train_dataloader.sampler, "set_epoch", None)
                 if set_epoch is not None:
@@ -498,9 +499,11 @@ class EnvTrainer():
 
                 # skip batches when resume_dataset=True
                 iteration_in_epoch = 0
-                if self.resume_dataset and 'iteration_in_epoch' in self.sd:
+                if in_first_epoch and self.resume_dataset and 'iteration_in_epoch' in self.sd:
                     iteration_in_epoch = self.sd['iteration_in_epoch']
                     if iteration_ < iteration_in_epoch:
+                        continue
+                elif in_first_epoch and iteration_ < self.skip_iters:
                         continue
 
                 if 'input_ids' in batch and iteration_ % 500 == 0:
@@ -641,6 +644,9 @@ class EnvTrainer():
                                     save_rng=self.save_rng,
                                     iteration_in_epoch=iteration_)
                 self.iteration += 1
+
+            # at the end of each epoch.
+            in_first_epoch = False
 
             # Checkpointing at the end of each epoch.
             # self.iteration-1 as the exact iteration

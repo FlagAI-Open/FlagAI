@@ -132,6 +132,7 @@ class Trainer():
         gradient_accumulation_steps=1,  # 'Data Loader batch size'
         weight_decay=0.1,  # 'weight decay coefficient for L2 regularization'
         lr=1e-3,
+        warmup_start_lr=0.0,
         warm_up=0.1,
         warm_up_iters=0,
         epochs=0,  # 'Number of finetunning epochs. Zero results in evaluation only.'
@@ -193,6 +194,7 @@ class Trainer():
         self.batch_size = batch_size
         self.gradient_accumulation_steps = gradient_accumulation_steps
         self.lr = lr
+        self.warmup_start_lr = warmup_start_lr
         self.weight_decay = weight_decay
         self.epochs = epochs
         self.clip_grad = clip_grad
@@ -576,7 +578,8 @@ class Trainer():
                         self.optimizer,
                         start_lr=self.lr, 
                         warmup_iter=warmup_iter,
-                        end_iter=num_iters)
+                        end_iter=num_iters,
+                        warmup_start_lr=self.warmup_start_lr)
             else:
                 lr_scheduler = AnnealingLR(
                     self.optimizer,
@@ -618,12 +621,8 @@ class Trainer():
         if len(self.metric_methods) > 0:
             best_score = -best_score
 
+        in_first_epoch = True
         for epoch in range(self.epochs):
-            # log_dist('working on epoch {} ...'.format(epoch), [0])
-            # Set the data loader epoch to shuffle the index iterator.
-            # if self.env_type == 'deepspeed+mpu':
-            #     if mpu.get_model_parallel_rank() == 0:
-            #         train_dataloader.sampler.set_epoch(epoch + self.world_size)
             if self.env_type != 'pytorch':
                 set_epoch = getattr(train_dataloader.sampler, "set_epoch", None)
                 if set_epoch is not None:
@@ -634,9 +633,11 @@ class Trainer():
 
                 # skip batches when resume_dataset=True
                 iteration_in_epoch = 0
-                if self.resume_dataset and 'iteration_in_epoch' in self.sd:
+                if in_first_epoch and self.resume_dataset and 'iteration_in_epoch' in self.sd:
                     iteration_in_epoch = self.sd['iteration_in_epoch']
                     if iteration_ < iteration_in_epoch:
+                        continue
+                elif in_first_epoch and iteration_ < self.skip_iters:
                         continue
 
                 if 'input_ids' in batch and iteration_ % 500 == 0:
@@ -777,6 +778,9 @@ class Trainer():
                                     save_rng=self.save_rng,
                                     iteration_in_epoch=iteration_)
                 self.iteration += 1
+
+            # at the end of each epoch.
+            in_first_epoch = False
 
             # Checkpointing at the end of each epoch.
             # self.iteration-1 as the exact iteration
