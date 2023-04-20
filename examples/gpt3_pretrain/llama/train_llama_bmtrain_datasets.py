@@ -278,13 +278,15 @@ elif env_args.enable_weighted_dataset_v2:
     data_impl = 'mmap'
     ## splits_string len should same as train_valid_test_num_samples len
     splits_string = '9999,1'
-    ## rebuilding if no npy files for train_valid_test_num_samples config
-    train_valid_test_num_samples = [195312500, 19531]
+    ## 2. specify total samples needed
+    ## 400B = 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+    ## 1000B = 1000 * 1000 * 1000 * 1000./ 2048 = 488281250
+    train_max_num_samples = 195312500
+    train_valid_test_num_samples = [train_max_num_samples, int(train_max_num_samples*0.00001)]
     seq_length = 2048
     seed = 2023
     skip_warmup = True
-    ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
-    train_max_num_samples = 195312500
+
     train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
         data_prefix, data_impl, splits_string,
         train_valid_test_num_samples,
