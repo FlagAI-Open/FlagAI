@@ -79,6 +79,7 @@ class EnvArgs:
                  bmt_async_load=False,
                  bmt_pre_load=False,
                  enable_sft_dataset=False,
+                 enable_weighted_dataset_v2=False,
                  ):
 
         self.parser = argparse.ArgumentParser(description='Env args parser')
@@ -149,6 +150,7 @@ class EnvArgs:
         self.parser.add_argument('--bmt_async_load', default=bmt_async_load, type=str2bool, help='debug args')
         self.parser.add_argument('--bmt_pre_load', default=bmt_pre_load, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_sft_dataset', default=enable_sft_dataset, type=str2bool, help='debug args')
+        self.parser.add_argument('--enable_weighted_dataset_v2', default=enable_weighted_dataset_v2, type=str2bool, help='debug args')
 
     def add_arg(self, arg_name, default=None, type=str, help="", store_true=False):
         if store_true:

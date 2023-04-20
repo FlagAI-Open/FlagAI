@@ -226,6 +226,97 @@ if env_args.enable_sft_dataset:
         optimizer=None,
         rank_split=False)
 
+elif env_args.enable_weighted_dataset_v2:
+    ## 1: weight01, prefix01, weight02, prefix02, ...
+    data_prefix = [
+        1.296091,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_9_dedup_wudao_text_document',
+        144.325674,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_9_part_merged_text_document',
+        53.498074,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pile-cc_text_document',
+        23.575721,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-openwebtext2_text_document',
+    
+        14.718128,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_dedup-md5-pile-github_text_document',
+        8.878174,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code_text_document',
+        3.439587,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_newcode1_text_document',
+        2.533595,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_newcode2_text_document',
+        9.410141,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code-cpp_text_document',
+        5.965614,
+        '/data/indexed_dataset/batch1_tok100k_sep/code_code-java_text_document',
+    
+        22.442690,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_baike_text_document',
+        10.276255,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-wikipedia_en_text_document',
+    
+        6.821143,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_ebook_merge_maxlen_text_document',
+        4.057581,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-gutenberg_pg-19_text_document',
+        2.266030,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-bookcorpus2_text_document',
+        37.479110,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-books3_text_document',
+        20.044762,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-arxiv_text_document',
+        4.826957,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-pubmed_abstracts_text_document',
+    
+        7.514409,
+        '/data/indexed_dataset/batch1_tok100k_sep/cn_zhihu_text_document',
+        19.639909,
+        '/data/indexed_dataset/batch1_tok100k_sep/en_dedup-md5-pile-stackexchange_text_document',
+    ]
+    
+    data_impl = 'mmap'
+    ## splits_string len should same as train_valid_test_num_samples len
+    splits_string = '9999,1'
+    ## rebuilding if no npy files for train_valid_test_num_samples config
+    train_valid_test_num_samples = [195312500, 19531]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+    ## 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+    train_max_num_samples = 195312500
+    train_dataset, valid_dataset, _ = _build_train_valid_test_weighted_datasets(
+        data_prefix, data_impl, splits_string,
+        train_valid_test_num_samples,
+        seq_length, seed, skip_warmup,
+        train_max_num_samples)
+    print("Total train_dataset: ", len(train_dataset), flush=True)
+    print("Total valid_dataset: ", len(valid_dataset), flush=True)
+    
+    def collate_fn(batch):
+        def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
+            pad_indice = [
+                item.tolist() + [pad_idx] * max(0, max_length - len(item.tolist())) for item in indice
+            ]
+            return torch.tensor(pad_indice)
+    
+        input_ids = [data["input_ids"] for data in batch]
+        max_length = max([len(t) for t in input_ids])
+        input_ids = padding(input_ids, max_length)[:,:seq_length]
+    
+        data = {
+            "input_ids": input_ids,
+            "labels": input_ids
+        }
+        return data
+    
+    trainer.do_train(
+        train_dataset=train_dataset,
+        valid_dataset=None,
+        collate_fn=collate_fn,
+        optimizer=None,
+        rank_split=False)
+
 else:
     data_prefix = [
         1.0,

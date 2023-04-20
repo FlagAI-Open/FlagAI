@@ -263,7 +263,7 @@ class GPT2Model(BaseModel):
 
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
-        self.config = config
+        self.config = config.json_config
 
         # TODO Global Config
         if type(config) is dict:
