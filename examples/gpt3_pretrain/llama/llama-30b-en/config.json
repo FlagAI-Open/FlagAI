@@ -1,1 +1,11 @@
-{"dim": 6656, "multiple_of": 256, "n_heads": 56, "n_layers": 60, "norm_eps": 1e-06, "vocab_size": 100008, "max_seq_len": 2048, "initializer_range": 0.0001}
+{
+  "dim": 6656,
+  "multiple_of": 256,
+  "n_heads": 56,
+  "n_layers": 60,
+  "norm_eps": 1e-06,
+  "vocab_size": 100008,
+  "max_seq_len": 2048,
+  "initializer_range": 0.006,
+  "flash_atten": true
+}
