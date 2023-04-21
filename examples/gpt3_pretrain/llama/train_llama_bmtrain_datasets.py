@@ -226,6 +226,119 @@ if env_args.enable_sft_dataset:
         optimizer=None,
         rank_split=False)
 
+elif env_args.enable_sft_dataset_text:
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    ## TODO
+    data_dir = cur_dir + '/data/sample_data_v0.6_5w_0420'
+    max_seq_len = 2048
+    src_dir = data_dir + '/train.source'
+    tgt_dir = data_dir + '/train.target'
+
+    def read_file():
+        src = []
+        tgt = []
+    
+        # text = text.replace('\\n', '\n')
+        with open(src_dir, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            for line in lines:
+                src.append(line.strip('\n').replace('\\n', '\n').lower())
+    
+        with open(tgt_dir, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            for line in lines:
+                tgt.append(line.strip('\n').replace('\\n', '\n').lower())
+    
+        assert len(src)==len(tgt), "Samples should be same."
+        return src, tgt
+    
+    class InstructionDataset(Dataset):
+        def __init__(self, sents_src, sents_tgt, tokenizer, maxlen=512):
+            super(InstructionDataset, self).__init__()
+            self.sents_src = sents_src
+            self.sents_tgt = sents_tgt
+            self.tokenizer = tokenizer
+            self.maxlen = maxlen
+    
+        def __getitem__(self, i):
+            src = self.sents_src[i]
+            #[:self.maxlen]
+            tgt = self.sents_tgt[i]
+            
+            ## Based on different tokenizers
+            prompt = self.tokenizer.encode_plus(src, None, max_length=None)['input_ids']
+            ## remove eos
+            prompt = prompt[:-1]
+            ## maxlen
+            prompt = prompt[:self.maxlen]
+            ## bos+ids+eos
+            example = self.tokenizer.encode_plus(f"{src}{tgt}", None, max_length=None)['input_ids']
+            ## maxlen
+            example = example[:self.maxlen]
+
+            prompt = torch.tensor(prompt, dtype=torch.int64)
+            example = torch.tensor(example, dtype=torch.int64)
+
+            import copy
+            labels = copy.deepcopy(example)
+            prompt_len = len(prompt)
+            labels[:prompt_len] = -1
+            example_mask = example.ge(0)
+            label_mask = labels.ge(0)
+            example[~example_mask] = 0
+            labels[~label_mask] = 0
+    
+            output = {
+                "input_ids": example.tolist(),
+                "labels": labels.tolist(),
+            }
+            return output
+    
+        def __len__(self):
+            return len(self.sents_src)
+    
+        @staticmethod
+        def collate_fn(batch):
+            def padding(indice, max_length, pad_idx=0):
+                pad_indice = [
+                    item + [pad_idx] * max(0, max_length - len(item)) for item in indice
+                ]
+                return torch.tensor(pad_indice)
+    
+            input_ids = [data["input_ids"] for data in batch]
+            labels = [data["labels"] for data in batch]
+            #max_length = max([len(t) for t in input_ids])
+            #max_length_labels = max([len(t) for t in labels])
+            #assert max_length == max_length_labels
+            max_length = max_seq_len
+            input_ids = padding(input_ids, max_length)[:,:max_length]
+            labels = padding(labels, max_length)[:,:max_length]
+    
+            data = {
+                "input_ids": input_ids,
+                "labels": labels
+            }
+            return data
+    
+    sents_src, sents_tgt = read_file()
+    data_len = len(sents_tgt)
+    #train_size = int(data_len * 0.95)
+    train_size = data_len
+    train_src = sents_src[:train_size]
+    train_tgt = sents_tgt[:train_size]
+
+    train_dataset = InstructionDataset(train_src,
+                                       train_tgt,
+                                       tokenizer=tokenizer,
+                                       maxlen=max_seq_len)
+
+    trainer.do_train(
+        train_dataset=train_dataset,
+        valid_dataset=None,
+        collate_fn=InstructionDataset.collate_fn,
+        optimizer=None,
+        rank_split=False)
+
 elif env_args.enable_weighted_dataset_v2:
     ## 1: weight01, prefix01, weight02, prefix02, ...
     data_prefix = [
