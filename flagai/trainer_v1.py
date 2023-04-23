@@ -1298,7 +1298,7 @@ class Trainer():
 
         log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
 
-        log_dist(log_string, [self.rank])
+        log_dist(log_string, [0])
 
         # wandb
         if self.wandb and wandb is not None and self.rank == 0:
