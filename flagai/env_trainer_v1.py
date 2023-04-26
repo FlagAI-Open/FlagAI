@@ -502,12 +502,19 @@ class EnvTrainer():
                 if in_first_epoch and self.resume_dataset and 'iteration_in_epoch' in self.sd:
                     iteration_in_epoch = self.sd['iteration_in_epoch']
                     if iteration_ < iteration_in_epoch:
+                        if iteration_%1000==0:
+                            log_dist(f"Resume skip iteration={iteration_+1}", [0])
+                        self.iteration += 1
                         continue
                 elif in_first_epoch and iteration_ < self.skip_iters:
-                        continue
+                    if iteration_%1000==0:
+                        log_dist(f"Resume skip iteration={iteration_+1}", [0])
+                    self.iteration += 1
+                    continue
 
-                if 'input_ids' in batch and iteration_ % 500 == 0:
+                if 'input_ids' in batch and iteration_ % 1 == 0:
                     log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
+                    log_dist("Batch Input_ids %s"%str(batch['input_ids']), [0])
 
                 # Train for one step.
                 if 'pytorch' != self.env_type:
