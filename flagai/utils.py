@@ -174,7 +174,7 @@ def save_checkpoint(iteration,
     checkpoint_name = get_checkpoint_name(save_dir, str(iteration))
     log_dist(
         'global rank {} is saving checkpoint at iteration {:7d} to {}'.format(
-            0, iteration, checkpoint_name))
+            0, iteration, checkpoint_name), [0])
     sd = {'iteration': iteration}
     sd = {'iteration_in_epoch': iteration_in_epoch}
 
@@ -190,16 +190,19 @@ def save_checkpoint(iteration,
     #         for key, value in state_dict.items() if requires_grad_dict[key]
     #     }
     # else:
-    state_dict = model.state_dict()
-    sd['module'] = state_dict
+    if env_type == 'bmtrain':
+        pass
+    else:
+        state_dict = model.state_dict()
+        sd['module'] = state_dict
 
     # Optimizer stuff.
     if save_optim:
         if optimizer is not None:
             # delete fp16 temporary states
             sd['optimizer'] = optimizer.state_dict()
-            if 'state' in sd['optimizer'] and '_param_fp32' in sd['optimizer']['state']:
-                del sd['optimizer']['state']['_param_fp32']
+            #if 'state' in sd['optimizer'] and '_param_fp32' in sd['optimizer']['state']:
+            #    del sd['optimizer']['state']['_param_fp32']
         if lr_scheduler is not None:
             sd['lr_scheduler'] = lr_scheduler.state_dict()
     # rng states.
@@ -226,18 +229,21 @@ def save_checkpoint(iteration,
             f.write(str(iteration) + '\t' + str(best_iteration))
     elif  env_type == 'bmtrain':
         import bmtrain as bmt
+        ensure_directory_exists(checkpoint_name)
+        bmt.save(model, checkpoint_name)
+        optim_checkpoint_name = "%s.optim.%d" % (checkpoint_name, bmt.rank())
+        torch.save(sd, optim_checkpoint_name)
         if bmt.rank() == 0:
-            ensure_directory_exists(checkpoint_name)
             config_path = os.path.join(save_dir, str(iteration), 'config.json')
             if hasattr(model, 'save_config'):
                 model.save_config(config_path)
                 log_dist('  successfully saved {}'.format(config_path))
-            torch.save(sd, checkpoint_name)
-            log_dist('  successfully saved {}'.format(checkpoint_name))
-
             tracker_filename = get_checkpoint_tracker_filename(save_dir)
             with open(tracker_filename, 'w') as f:
                 f.write(str(iteration) + '\t' + str(best_iteration))
+
+        # Wait so everyone is done (necessary)
+        bmt.synchronize()
 
     # Wait so everyone is done (necessary)
     if barrier and dist.is_initialized():
@@ -282,14 +288,24 @@ def load_checkpoint(model, load_dir="checkpoints", load_type='latest'):
         checkpoint_name = get_checkpoint_name(load_dir, best_iteration)
 
     log_dist('global rank {} is loading checkpoint {}'.format(
-        0, checkpoint_name))
-    sd = torch.load(checkpoint_name, map_location='cpu')
+        0, checkpoint_name), [0])
+    env_type = os.getenv('ENV_TYPE')
 
-    while hasattr(model, 'module'):
-        model = model.module
-    model.load_state_dict(sd['module'], strict=False)
-    del sd['module']
-    return sd
+    if env_type == 'bmtrain':
+        import bmtrain as bmt
+        bmt.load(model, checkpoint_name, strict=False)
+        optim_checkpoint_name = "%s.optim.%d" % (checkpoint_name, bmt.rank())
+        sd = torch.load(optim_checkpoint_name, map_location='cpu')
+        log_dist(f'bmt load from sd {sd}', [bmt.rank()])
+        return sd
+    else:
+        sd = torch.load(checkpoint_name, map_location='cpu')
+
+        while hasattr(model, 'module'):
+            model = model.module
+        model.load_state_dict(sd['module'], strict=False)
+        del sd['module']
+        return sd
 
 
 def load_optim(optimizer, lr_scheduler, sd):
