@@ -646,9 +646,8 @@ class Trainer():
                     self.iteration += 1
                     continue
 
-                if 'input_ids' in batch and iteration_ % 1 == 0:
+                if 'input_ids' in batch and iteration_ % 1000 == 0:
                     log_dist("Batch Input_ids Size %s"%str(batch['input_ids'].size()), [0])
-                    log_dist("Batch Input_ids %s"%str(batch['input_ids']), [0])
 
                 # Train for one step.
                 if 'pytorch' != self.env_type:
