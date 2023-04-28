@@ -78,7 +78,9 @@ class EnvArgs:
                  ## EnvTrainer Debug Only Flags
                  bmt_async_load=False,
                  bmt_pre_load=False,
+                 pre_load_dir=None,
                  enable_sft_dataset_dir=None,
+                 enable_sft_dataset_file=None,
                  enable_sft_dataset=False,
                  enable_sft_dataset_text=False,
                  enable_sft_dataset_jsonl=False,
@@ -152,7 +154,9 @@ class EnvArgs:
         ## EnvTrainer Debug Only
         self.parser.add_argument('--bmt_async_load', default=bmt_async_load, type=str2bool, help='debug args')
         self.parser.add_argument('--bmt_pre_load', default=bmt_pre_load, type=str2bool, help='debug args')
+        self.parser.add_argument('--pre_load_dir', default=pre_load_dir, help='start training from saved checkpoint')
         self.parser.add_argument('--enable_sft_dataset_dir', default=enable_sft_dataset_dir, type=str, help='debug args')
+        self.parser.add_argument('--enable_sft_dataset_file', default=enable_sft_dataset_file, type=str, help='debug args')
         self.parser.add_argument('--enable_sft_dataset', default=enable_sft_dataset, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_sft_dataset_text', default=enable_sft_dataset_text, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_sft_dataset_jsonl', default=enable_sft_dataset_jsonl, type=str2bool, help='debug args')

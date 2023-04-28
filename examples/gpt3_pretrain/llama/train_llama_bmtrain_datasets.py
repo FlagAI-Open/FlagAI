@@ -68,8 +68,8 @@ if not env_args.not_call_launch:
 
 print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}", flush=True)
 
-## TODO
-checkpoints = "/share/project/ldwang/sft/state_dict/"
+#checkpoints = "/share/project/ldwang/sft/state_dict/"
+checkpoints = env_args.pre_load_dir
 model_name = env_args.model_name
 print('*'*20, "model_name", model_name, flush=True)
 
@@ -87,12 +87,13 @@ trainer.pre_train(model)
 print('*'*20, "model", model)
 
 '''
-cache_dir = checkpoints + model_name
+cache_dir = os.path.join(checkpoints, model_name)
 #print('*'*20, "cache_dir", cache_dir)
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
 #print('*'*20, "tokenizer", tokenizer)
 
-config_file = cache_dir + "/config.json"
+#config_file = cache_dir + "/config.json"
+config_file = os.path.join(cache_dir, 'config.json')
 # avoid sync loading models in case of Mem OOM
 if env_args.bmt_async_load:
     import time
@@ -111,8 +112,8 @@ print('*'*20, "model", model, flush=True)
 
 if env_args.enable_sft_dataset:
     cur_dir = os.path.dirname(os.path.abspath(__file__))
-    ## TODO
-    json_data = cur_dir + '/data/sample_data_10w_0416.json'
+    ## v0.5
+    json_data = os.path.join(cur_dir, 'data/sample_data_10w_0416.json')
     max_seq_len = 2048
     
     import json
@@ -230,10 +231,10 @@ elif env_args.enable_sft_dataset_jsonl:
     ## TODO
     if env_args.enable_sft_dataset_dir:
         cur_dir = env_args.enable_sft_dataset_dir
-        jsonl_data = cur_dir + '/merge_chat_clean_dataset.jsonl'
+        jsonl_data = os.path.join(cur_dir, 'merge_chat_clean_dataset.jsonl')
     else:
         cur_dir = os.path.dirname(os.path.abspath(__file__))
-        jsonl_data = cur_dir + '/data/sample_data_10w_0416.json'
+        jsonl_data = os.path.join(cur_dir, 'data/sample_data_10w_0416.json')
     max_seq_len = 2048
     
     import jsonlines
@@ -339,12 +340,15 @@ elif env_args.enable_sft_dataset_jsonl:
         rank_split=False)
 
 elif env_args.enable_sft_dataset_text:
-    cur_dir = os.path.dirname(os.path.abspath(__file__))
-    ## TODO
-    data_dir = cur_dir + '/data/sample_data_v0.6_5w_0420'
+    if env_args.enable_sft_dataset_dir:
+        data_dir = env_args.enable_sft_dataset_dir
+    else:
+        ## v0.6
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        data_dir = os.path.join(cur_dir, 'data/sample_data_v0.6_5w_0420')
     max_seq_len = 2048
-    src_dir = data_dir + '/train.source'
-    tgt_dir = data_dir + '/train.target'
+    src_dir = os.path.join(data_dir, 'train.source')
+    tgt_dir = os.path.join(data_dir, 'train.target')
 
     def read_file():
         src = []
