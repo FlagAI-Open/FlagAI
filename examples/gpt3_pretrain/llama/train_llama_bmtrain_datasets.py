@@ -126,8 +126,8 @@ if env_args.enable_sft_dataset:
             for line in lines:
                 if 'response' not in line or 'prompt' not in line:
                     continue
-                src.append(line['prompt'].strip('\n').lower())
-                tgt.append(line['response'].strip('\n').lower())
+                src.append(line['prompt'].strip('\n'))
+                tgt.append(line['response'].strip('\n'))
 
         return src, tgt
 
@@ -246,8 +246,8 @@ elif env_args.enable_sft_dataset_jsonl:
             for line in reader:
                 if 'response' not in line or 'prompt' not in line:
                     continue
-                src.append(line['prompt'].strip('\n').lower())
-                tgt.append(line['response'].strip('\n').lower())
+                src.append(line['prompt'].strip('\n'))
+                tgt.append(line['response'].strip('\n'))
 
         return src, tgt
 
@@ -358,12 +358,12 @@ elif env_args.enable_sft_dataset_text:
         with open(src_dir, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             for line in lines:
-                src.append(line.strip('\n').replace('\\n', '\n').lower())
+                src.append(line.strip('\n').replace('\\n', '\n'))
     
         with open(tgt_dir, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             for line in lines:
-                tgt.append(line.strip('\n').replace('\\n', '\n').lower())
+                tgt.append(line.strip('\n').replace('\\n', '\n'))
     
         assert len(src)==len(tgt), "Samples should be same."
         return src, tgt
