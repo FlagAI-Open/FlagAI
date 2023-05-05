@@ -56,8 +56,10 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 |   Model          |  Task    | Train | Finetune | Inference/Generate | Examples       |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
 | ALM          | Arabic Text Generation  |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
-| AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |                           
+| AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
+| AltCLIP-m18      | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
 | AltDiffusion    | Text-to-Image Generation    | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
+| AltDiffusion-m18    | Text-to-Image Generation,supporting 18 languages    | ❌  | ❌  | ✅  |[README.md](/examples/AltDiffusion-m18/README.md)   |
 | BERT-title-generation-english     | English Title Generation | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
 | CLIP           | Image-Text Matching    | ✅  | ❌  | ✅  | ——   |                                                                 
 | CPM3-finetune       | Text Continuation   | ❌  | ✅  | ❌  | ——    |                                                                
