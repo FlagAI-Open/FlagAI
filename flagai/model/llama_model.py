@@ -13,7 +13,12 @@ elif os.getenv('ENV_TYPE') == 'deepspeed':
 else:
     from torch.utils.checkpoint import checkpoint
 import os 
-from flagai.model.base_model import BaseModel 
+from flagai.model.base_model import BaseModel
+
+try:
+    import bmtrain as bmt
+except:
+    pass
 
 class LLAMAConfig(dict):
     r"""
@@ -164,6 +169,12 @@ class LLAMAModel(BaseModel):
 
         self.loss_func = nn.CrossEntropyLoss(ignore_index=self.config.ignore_index)
 
+    def pre_train(self):
+        """ before training """
+        if os.getenv("ENV_TYPE") == "bmtrain":
+            blocks = [layer for layer in self.layers]
+            self.layers = bmt.TransformerBlockList(blocks)
+
     def forward(self, input_ids: torch.Tensor, start_pos=0, labels=None, **kwargs):
         _bsz, seqlen = input_ids.shape
         if self.config.checkpoint_activations:
@@ -186,6 +197,12 @@ class LLAMAModel(BaseModel):
                 layer.start_pos = start_pos
                 h = checkpoint(create_custom_forward(layer),
                                 h, freqs_cis, mask)
+        elif os.getenv("ENV_TYPE") == "bmtrain":
+            # to overlap communication with computation
+            for layer in self.layers:
+                layer.use_cache = self.use_cache
+                layer.start_pos = start_pos
+            h = self.layers(h, freqs_cis, mask)
         else:
             for layer in self.layers:
                 layer.use_cache = self.use_cache
