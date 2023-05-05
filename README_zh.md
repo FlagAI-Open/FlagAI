@@ -57,7 +57,7 @@
 | AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
 | AltCLIP-m18      | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
 | AltDiffusion    | Text-to-Image Generation    | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
-| AltDiffusion-m18    | Text-to-Image Generation,supporting 18 languages    | ❌  | ❌  | ✅  | ——   |
+| AltDiffusion-m18    | Text-to-Image Generation,supporting 18 languages    | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion-m18/README.md)   |
 | BERT-title-generation-english     | 英文标题生成  | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
 | CLIP           | 图文匹配    | ✅  | ❌  | ✅  | ——   |                                                                 
 | CPM3-finetune       | 文本续写    | ❌  | ✅  | ❌  | ——    |                                                                

@@ -48,14 +48,15 @@ checkpoint we used is SD v2.1 512-base-ema. We also use Xformer and Efficient At
 ![chinese_samples](./imgs/chinese_samples.png)
 
 ### 长图效果
+
 ![long1](./imgs/long1.SVG)
 
 ![long2](./imgs/long2.SVG)
 
 ## 参考
 
---Stability AI: https://stability.ai/
+- Stability AI: https://stability.ai/
 
---FlagAI: https://github.com/FlagAI-Open/FlagAI
+- FlagAI: https://github.com/FlagAI-Open/FlagAI
 
---Stable Diffusion: https://huggingface.co/spaces/stabilityai/stable-diffusion
+- Stable Diffusion: https://huggingface.co/spaces/stabilityai/stable-diffusion
