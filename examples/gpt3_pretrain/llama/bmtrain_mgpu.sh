@@ -1,6 +1,7 @@
 # ENVS
 export PROJ_HOME=/data/ldwang
 export FLAGAI_HOME=/data/ldwang/workspace/FlagAI
+export PRE_LOAD_DIR=/data/ldwang/state_dict
 export PYTHONPATH=$FLAGAI_HOME
 export NCCL_SOCKET_IFNAME=eth0
 export NCCL_IB_DISABLE=0
@@ -79,6 +80,7 @@ OPTS=" --batch_size $BATCH_SIZE \
        --adam_beta1 0.9 \
        --adam_beta2 0.95 \
        --save_dir $SAVE_DIR \
+       --pre_load_dir $PRE_LOAD_DIR \
        --experiment_name $EXP_NAME \
        --model_name $MODEL_NAME \
        --wandb_dir $WANDB_DIR \
