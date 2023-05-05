@@ -231,7 +231,8 @@ elif env_args.enable_sft_dataset_jsonl:
     ## TODO
     if env_args.enable_sft_dataset_dir:
         cur_dir = env_args.enable_sft_dataset_dir
-        jsonl_data = os.path.join(cur_dir, 'merge_chat_clean_dataset.jsonl')
+        #jsonl_data = os.path.join(cur_dir, 'merge_chat_clean_dataset.jsonl')
+        jsonl_data = os.path.join(cur_dir, env_args.enable_sft_dataset_file)
     else:
         cur_dir = os.path.dirname(os.path.abspath(__file__))
         jsonl_data = os.path.join(cur_dir, 'data/sample_data_10w_0416.json')
@@ -637,4 +638,3 @@ else:
         collate_fn=collate_fn,
         optimizer=None,
         rank_split=False)
-
