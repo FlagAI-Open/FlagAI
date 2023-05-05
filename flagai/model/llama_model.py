@@ -15,11 +15,6 @@ else:
 import os 
 from flagai.model.base_model import BaseModel
 
-try:
-    import bmtrain as bmt
-except:
-    pass
-
 class LLAMAConfig(dict):
     r"""
     This is the configuration class to store the configuration of a [`~LLaMAModel`]. It is used to instantiate an LLaMA
@@ -81,6 +76,7 @@ class LLAMAConfig(dict):
         flash_atten=False,
         flash_atten_pdrop=0.0,
         ignore_index=-100,
+        bmt_comm_overlap=False,
         # pad_token_id=-1,
         # bos_token_id=0,
         # eos_token_id=1,
@@ -107,6 +103,7 @@ class LLAMAConfig(dict):
         self.flash_atten = flash_atten
         self.flash_atten_pdrop = flash_atten_pdrop
         self.ignore_index = ignore_index
+        self.bmt_comm_overlap = bmt_comm_overlap
 
         # super().__init__(
         #     pad_token_id=pad_token_id,
@@ -169,9 +166,10 @@ class LLAMAModel(BaseModel):
 
         self.loss_func = nn.CrossEntropyLoss(ignore_index=self.config.ignore_index)
 
-    def pre_train(self):
+    def pre_train_hook(self):
         """ before training """
-        if os.getenv("ENV_TYPE") == "bmtrain":
+        if os.getenv("ENV_TYPE") == "bmtrain" and self.config.bmt_comm_overlap:
+            import bmtrain as bmt
             blocks = [layer for layer in self.layers]
             self.layers = bmt.TransformerBlockList(blocks)
 
@@ -197,7 +195,7 @@ class LLAMAModel(BaseModel):
                 layer.start_pos = start_pos
                 h = checkpoint(create_custom_forward(layer),
                                 h, freqs_cis, mask)
-        elif os.getenv("ENV_TYPE") == "bmtrain":
+        elif os.getenv("ENV_TYPE") == "bmtrain" and self.config.bmt_comm_overlap:
             # to overlap communication with computation
             for layer in self.layers:
                 layer.use_cache = self.use_cache
