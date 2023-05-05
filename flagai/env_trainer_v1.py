@@ -325,6 +325,8 @@ class EnvTrainer():
         elif self.env_type == 'bmtrain':
             print('*'*20, 'self.model', model, __file__)
             self.model = bmt.BMTrainModelWrapper(self.model)
+            if hasattr(self.model, "pre_train"):
+                self.model.pre_train()
             print('*'*20, 'BMTrainModelWrapper model', self.model, __file__)
         else:
             self.model.cuda(torch.device('cuda', self.local_rank))
