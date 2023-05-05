@@ -54,8 +54,10 @@
 |    模型名称            | 任务      | 训练 | 微调 | 推理 | 样例           |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
 | ALM          | 阿拉伯语文本生成   |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
-| AltCLIP       | 图文匹配    | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |                           
-| AltDiffusion    | 文生图     | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
+| AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
+| AltCLIP-m18      | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
+| AltDiffusion    | Text-to-Image Generation    | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
+| AltDiffusion-m18    | Text-to-Image Generation,supporting 18 languages    | ❌  | ❌  | ✅  | ——   |
 | BERT-title-generation-english     | 英文标题生成  | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
 | CLIP           | 图文匹配    | ✅  | ❌  | ✅  | ——   |                                                                 
 | CPM3-finetune       | 文本续写    | ❌  | ✅  | ❌  | ——    |                                                                
