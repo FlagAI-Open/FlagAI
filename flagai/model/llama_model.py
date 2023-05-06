@@ -77,6 +77,7 @@ class LLAMAConfig(dict):
         flash_atten_pdrop=0.0,
         ignore_index=-100,
         bmt_comm_overlap=False,
+        bmt_fused_ce=False,
         # pad_token_id=-1,
         # bos_token_id=0,
         # eos_token_id=1,
@@ -104,6 +105,7 @@ class LLAMAConfig(dict):
         self.flash_atten_pdrop = flash_atten_pdrop
         self.ignore_index = ignore_index
         self.bmt_comm_overlap = bmt_comm_overlap
+        self.bmt_fused_ce = bmt_fused_ce
 
         # super().__init__(
         #     pad_token_id=pad_token_id,
@@ -164,7 +166,11 @@ class LLAMAModel(BaseModel):
             self.config.dim // self.config.n_heads, self.config.max_seq_len * 2
         )
 
-        self.loss_func = nn.CrossEntropyLoss(ignore_index=self.config.ignore_index)
+        if os.getenv("ENV_TYPE") == "bmtrain" and self.config.bmt_fused_ce:
+            import bmtrain as bmt
+            self.loss_func = bmt.loss.FusedCrossEntropy(ignore_index=self.config.ignore_index)
+        else:
+            self.loss_func = nn.CrossEntropyLoss(ignore_index=self.config.ignore_index)
 
     def pre_train_hook(self):
         """ before training """
