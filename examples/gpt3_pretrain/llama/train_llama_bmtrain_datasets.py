@@ -110,7 +110,125 @@ if env_args.bmt_pre_load:
 trainer.pre_train(model)
 print('*'*20, "model", model, flush=True)
 
-if env_args.enable_sft_dataset:
+## conversations_dataset
+if env_args.enable_sft_conversations_dataset:
+    assert env_args.enable_sft_dataset_dir is not None and \
+           env_args.enable_sft_dataset_file is not None
+
+    cur_dir = env_args.enable_sft_dataset_dir
+    jsonl_data = os.path.join(cur_dir, env_args.enable_sft_dataset_file)
+    max_seq_len = 2048
+
+    import jsonlines
+    import numpy as np
+    def read_file():
+        conversations = []
+        with jsonlines.open(jsonl_data) as reader:
+            for line in reader:
+                if 'chat_desc' not in line or 'instruction' not in line or 'conversations' not in line:
+                    continue
+                obj = dict()
+                obj['chat_desc'] = line['chat_desc']
+                obj['conversations'] = line['conversations']
+                obj['instruction'] = line['instruction']
+                conversations.append(obj)
+        return conversations
+    
+    class ConversationDataset(Dataset):
+        def __init__(self, conversations, tokenizer, maxlen=512):
+            super(ConversationDataset, self).__init__()
+            self.conversations = conversations
+            self.tokenizer = tokenizer
+            self.maxlen = maxlen
+    
+        def __getitem__(self, i):
+            chat_desc = self.conversations[i]['chat_desc']
+            instruction = self.conversations[i]['instruction']
+            conversations = self.conversations[i]['conversations']
+            
+            # chat_desc
+            example = self.tokenizer.encode_plus(f"{chat_desc}", None, max_length=None)['input_ids']
+            EOS_TOKEN = example[-1]
+            example = example[:-1] # remove eos
+            # instruction
+            instruction = self.tokenizer.encode_plus(f"{instruction}", None, max_length=None)['input_ids']
+            instruction = instruction[1:-1] # remove bos & eos
+            example += instruction
+
+            import copy
+            labels = copy.deepcopy(example)
+
+            for conversation in conversations:
+                role = conversation['from']
+                content = conversation['value']
+                content = self.tokenizer.encode_plus(f"{content}", None, max_length=None)['input_ids']
+                content = content[1:-1] # remove bos & eos
+                example += content
+                if role == 'gpt':
+                    role_labels = copy.deepcopy(content)
+                else:
+                    # masking
+                    role_labels = [0] * len(content)
+                labels += role_labels
+
+            example.append(EOS_TOKEN)
+            labels.append(EOS_TOKEN)
+
+            ## maxlen
+            example = example[:self.maxlen]
+            labels = labels[:self.maxlen]
+
+            output = {
+                "input_ids": example,
+                "labels": labels,
+            }
+            return output
+    
+        def __len__(self):
+            return len(self.conversations)
+    
+        @staticmethod
+        def collate_fn(batch):
+            def padding(indice, max_length, pad_idx=0):
+                pad_indice = [
+                    item + [pad_idx] * max(0, max_length - len(item)) for item in indice
+                ]
+                return torch.tensor(pad_indice)
+    
+            input_ids = [data["input_ids"] for data in batch]
+            labels = [data["labels"] for data in batch]
+            #max_length = max([len(t) for t in input_ids])
+            #max_length_labels = max([len(t) for t in labels])
+            #assert max_length == max_length_labels
+            max_length = max_seq_len
+            input_ids = padding(input_ids, max_length)[:,:max_length]
+            labels = padding(labels, max_length)[:,:max_length]
+    
+            data = {
+                "input_ids": input_ids,
+                "labels": labels
+            }
+            return data
+    
+    conversations = read_file()
+    data_len = len(conversations)
+    #train_size = int(data_len * 0.95)
+    train_size = data_len
+    train_conversations = conversations[:train_size]
+
+    train_dataset = ConversationDataset(train_conversations,
+                                       tokenizer=tokenizer,
+                                       maxlen=max_seq_len)
+
+    trainer.do_train(
+        train_dataset=train_dataset,
+        valid_dataset=None,
+        collate_fn=ConversationDataset.collate_fn,
+        optimizer=None,
+        rank_split=False)
+
+    
+elif env_args.enable_sft_dataset:
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     ## v0.5
     json_data = os.path.join(cur_dir, 'data/sample_data_10w_0416.json')

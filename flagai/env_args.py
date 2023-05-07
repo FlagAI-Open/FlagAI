@@ -84,6 +84,7 @@ class EnvArgs:
                  enable_sft_dataset=False,
                  enable_sft_dataset_text=False,
                  enable_sft_dataset_jsonl=False,
+                 enable_sft_conversations_dataset=False,
                  enable_weighted_dataset_v2=False,
                  ):
 
@@ -160,6 +161,7 @@ class EnvArgs:
         self.parser.add_argument('--enable_sft_dataset', default=enable_sft_dataset, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_sft_dataset_text', default=enable_sft_dataset_text, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_sft_dataset_jsonl', default=enable_sft_dataset_jsonl, type=str2bool, help='debug args')
+        self.parser.add_argument('--enable_sft_conversations_dataset', default=enable_sft_conversations_dataset, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_weighted_dataset_v2', default=enable_weighted_dataset_v2, type=str2bool, help='debug args')
 
     def add_arg(self, arg_name, default=None, type=str, help="", store_true=False):
