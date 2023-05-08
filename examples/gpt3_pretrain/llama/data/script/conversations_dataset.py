@@ -37,10 +37,12 @@ def _add_speaker_and_signal(header, source, get_conversation=True):
 header = "A chat between a curious user and an artificial intelligence assistant. " \
          "The assistant gives helpful, detailed, and polite answers to the user's questions.\n"
 
-input_file = 'a.jsonl'
-output_file = 'xxx.jsonl'
 input_file = 'conversations/sample_data_v0.6_5w_0420.jsonl'
 output_file = 'conversations/sample_data_v0.6_5w_0420_dataset.jsonl'
+input_file = '/share/project/ldwang/sft/datasets/conversations/merge_chat_clean.jsonl'
+output_file = '/share/project/ldwang/sft/datasets/conversations/merge_chat_clean_convo_dataset.jsonl'
+input_file = 'conversation_demo.jsonl'
+output_file = 'conversation_dataset_demo.jsonl'
 fo = jsonlines.open(output_file, mode='w')
 with jsonlines.open(input_file) as reader:
     for obj in reader:
