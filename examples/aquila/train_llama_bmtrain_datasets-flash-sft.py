@@ -125,7 +125,7 @@ config.use_flash_attn = True
 print(config)
 model = GPTLMHeadModel(config, device='cpu')#,dtype= torch.float16)
 print('*'*20, "model", model)
-checkpoint_path = os.path.join('/data2/checkpoints/Aquila-7b-24n8g-V3/16000', "pytorch_model.bin")
+checkpoint_path = os.path.join('/data2/checkpoints/Aquila-7b-24n8g-V3/47000', "pytorch_model.bin")
 ckpt = torch.load(checkpoint_path, map_location=torch.device('cpu'))
 #ckpt = remap_state_dict_meta_llama(ckpt, config)
 model.load_state_dict(ckpt, strict=True)
@@ -235,7 +235,26 @@ if env_args.enable_sft_conversations_dataset:
                 "labels": labels
             }
             return data
+    
+    def forward_step(data, model, mems=None):
+        """Simple forward step. """
+        # data['mems'] = mems
+        model_output = model(input_ids=data['input_ids'],labels=data['labels'])
+        # print(model_output)
+        logits = model_output.logits
+        loss = model_output.loss
+        hidden_states = None
+        if 'hidden_states' in model_output:
+            hidden_states = model_output['hidden_states']
+        elif 'encoder_hidden_states' in model_output:
+            hidden_states = model_output['encoder_hidden_states']
 
+        return {
+            'loss': loss,
+            'hidden_states': hidden_states,
+            'logits': logits.contiguous().float()
+        }
+    trainer.forward_step = forward_step
     conversations = read_file()
     data_len = len(conversations)
     #train_size = int(data_len * 0.95)

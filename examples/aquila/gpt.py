@@ -450,7 +450,7 @@ class GPTLMHeadModel(GPTPreTrainedModel, GenerationMixin):
         if self.process_group is not None:
             sync_shared_params(self, self.process_group)
 
-    def forward(self, input_ids, position_ids=None, inference_params=None):
+    def forward(self, input_ids, labels=None, position_ids=None, inference_params=None):
         """
             inference_params: for generation. Adapted from Megatron-LM (and Apex)
             https://github.com/NVIDIA/apex/blob/3ff1a10f72ec07067c4e44759442329804ac5162/apex/transformer/testing/standalone_transformer_lm.py#L470
@@ -465,7 +465,10 @@ class GPTLMHeadModel(GPTPreTrainedModel, GenerationMixin):
             lm_logits, _ = all_gather_raw(lm_logits, self.lm_head.process_group)
             lm_logits = rearrange(lm_logits, '(n b) s d -> b s (n d)', b=hidden_states.shape[0])
         shift_logits = lm_logits[..., :-1, :].contiguous()
-        shift_labels = input_ids[..., 1:].contiguous()
+        if labels is not None:
+            shift_labels = labels[..., 1:].contiguous()
+        else:
+            shift_labels = input_ids[..., 1:].contiguous()
         loss = self.loss_fn(shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1).long())
         CausalLMOutput = namedtuple('CausalLMOutput', ['logits','loss'])
         return CausalLMOutput(logits=lm_logits,loss=loss)
