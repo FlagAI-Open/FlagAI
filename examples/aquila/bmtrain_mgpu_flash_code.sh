@@ -30,9 +30,9 @@ export MASTER_ADDR=$(head -n1 $HOSTFILE | awk '{print $1;}')
 export RANK=$(awk '{ranks[$1]=(FNR-1);}END{print ranks["'$NODE_ADDR'"];}' $HOSTFILE)
 export MASTER_PORT=23456
 
-export TRIGGER_FILE=bmtrain_mgpu_flash_sft.sh
+export TRIGGER_FILE=bmtrain_mgpu_flash_code.sh
 
-export SCRIPT_FILE=train_llama_bmtrain_datasets-flash-sft.py
+export SCRIPT_FILE=train_llama_bmtrain_datasets-flash-code.py
 
 ## wandb
 export WANDB_MODE=offline
