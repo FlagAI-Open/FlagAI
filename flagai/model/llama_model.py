@@ -79,6 +79,7 @@ class LLAMAConfig(dict):
         bmt_comm_overlap=False,
         bmt_fused_ce=False,
         bmt_fused_ce_inplace=True,
+        fix_large_bsz=False,
         # pad_token_id=-1,
         # bos_token_id=0,
         # eos_token_id=1,
@@ -108,6 +109,7 @@ class LLAMAConfig(dict):
         self.bmt_comm_overlap = bmt_comm_overlap
         self.bmt_fused_ce = bmt_fused_ce
         self.bmt_fused_ce_inplace = bmt_fused_ce_inplace
+        self.fix_large_bsz = fix_large_bsz
 
         # super().__init__(
         #     pad_token_id=pad_token_id,
@@ -227,8 +229,24 @@ class LLAMAModel(BaseModel):
             shift_logits = h[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
 
-            loss = self.loss_func(
-                shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1).long()).mean()
+            bsz_half = _bsz // 2
+            bsz_split = bsz_half * seqlen
+            bsz_total = _bsz * seqlen
+            ## torch 1.12.1 
+            ## CUDA Illegal memory access on CrossEntropyLoss with large batch size
+            ## https://github.com/pytorch/pytorch/issues/85005
+            if self.config.fix_large_bsz and bsz_total > bsz_split:
+                shift_logits = shift_logits.view(-1, self.config.vocab_size)
+                shift_labels = shift_labels.view(-1).long()
+                loss_split = self.loss_func(shift_logits[:bsz_split, :], shift_labels[:bsz_split]).mean()
+                loss_remain = self.loss_func(shift_logits[bsz_split:, :], shift_labels[bsz_split:]).mean()
+                bsz_remain = bsz_total - bsz_split
+                ## NaN
+                #loss = (loss_split * bsz_split + loss_remain * bsz_remain) / bsz_total
+                loss = bsz_split / bsz_total * loss_split + bsz_remain / bsz_total * loss_remain
+            else:
+                loss = self.loss_func(
+                    shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1).long()).mean()
             
             return {
                 'logits': h, 
