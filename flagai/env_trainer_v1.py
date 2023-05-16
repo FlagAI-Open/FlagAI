@@ -1186,7 +1186,7 @@ class EnvTrainer():
             metrics['grad_norm'] = grad_norm
             try:
                 # billion per step
-                tokens_num = self.world_size * self.batch_size * 2048. / 1000 / 1000 / 1000
+                tokens_num = step * self.world_size * self.batch_size * 2048. / 1000 / 1000 / 1000
                 metrics['tokens_num'] = tokens_num
             except:
                 pass
