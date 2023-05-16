@@ -129,9 +129,9 @@ for text in texts:
     conv.append_message(conv.roles[1], None)
 
     #print(conv.get_prompt())
-    example = tokenizer.encode_plus(f"{conv.get_prompt()}", None, max_length=None)['input_ids']
-    example = example[1:-1]
-    #print(f"example \n {example}")
+    tokens = tokenizer.encode_plus(f"{conv.get_prompt()}", None, max_length=None)['input_ids']
+    tokens = tokens[1:-1]
+    #print(f"tokens \n {tokens}")
 
     with torch.no_grad():
         #out = predictor.predict_generate_randomsample(text, out_max_length=200,top_p=0.95)
