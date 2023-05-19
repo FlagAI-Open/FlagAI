@@ -34,8 +34,10 @@ def _add_speaker_and_signal(header, source, get_conversation=True):
             conversation += sentence["value"]
     return conversation
 
-header = "A chat between a curious user and an artificial intelligence assistant. " \
-         "The assistant gives helpful, detailed, and polite answers to the user's questions.\n"
+#header = "A chat between a curious user and an artificial intelligence assistant. " \
+#         "The assistant gives helpful, detailed, and polite answers to the user's questions.\n"
+header = "A chat between a curious human and an artificial intelligence assistant. " \
+         "The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n"
 
 input_file = 'conversations/sample_data_v0.6_5w_0420.jsonl'
 output_file = 'conversations/sample_data_v0.6_5w_0420_dataset.jsonl'
