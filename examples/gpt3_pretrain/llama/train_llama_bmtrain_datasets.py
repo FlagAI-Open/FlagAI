@@ -320,7 +320,7 @@ elif env_args.enable_sft_conversations_dataset:
                     role_labels = copy.deepcopy(content)
                 else:
                     # masking
-                    role_labels = [0] * len(content)
+                    role_labels = [env_args.IGNORE_INDEX] * len(content)
                 labels += role_labels
 
             example.append(EOS_TOKEN)
