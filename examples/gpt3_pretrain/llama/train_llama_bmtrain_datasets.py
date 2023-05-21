@@ -320,7 +320,7 @@ elif env_args.enable_sft_conversations_dataset:
                     role_labels = copy.deepcopy(content)
                 else:
                     # masking
-                    role_labels = [0] * len(content)
+                    role_labels = [env_args.IGNORE_INDEX] * len(content)
                 labels += role_labels
 
             example.append(EOS_TOKEN)
@@ -349,12 +349,9 @@ elif env_args.enable_sft_conversations_dataset:
     
             input_ids = [data["input_ids"] for data in batch]
             labels = [data["labels"] for data in batch]
-            #max_length = max([len(t) for t in input_ids])
-            #max_length_labels = max([len(t) for t in labels])
-            #assert max_length == max_length_labels
             max_length = max_seq_len
             input_ids = padding(input_ids, max_length)[:,:max_length]
-            labels = padding(labels, max_length)[:,:max_length]
+            labels = padding(labels, max_length, pad_idx=env_args.IGNORE_INDEX)[:,:max_length]
     
             data = {
                 "input_ids": input_ids,

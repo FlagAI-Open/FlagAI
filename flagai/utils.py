@@ -201,8 +201,6 @@ def save_checkpoint(iteration,
         if optimizer is not None:
             # delete fp16 temporary states
             sd['optimizer'] = optimizer.state_dict()
-            #if 'state' in sd['optimizer'] and '_param_fp32' in sd['optimizer']['state']:
-            #    del sd['optimizer']['state']['_param_fp32']
         if lr_scheduler is not None:
             sd['lr_scheduler'] = lr_scheduler.state_dict()
     # rng states.
@@ -296,7 +294,7 @@ def load_checkpoint(model, load_dir="checkpoints", load_type='latest'):
         bmt.load(model, checkpoint_name, strict=False)
         optim_checkpoint_name = "%s.optim.%d" % (checkpoint_name, bmt.rank())
         sd = torch.load(optim_checkpoint_name, map_location='cpu')
-        log_dist(f'bmt load from sd {sd}', [bmt.rank()])
+        log_dist(f'bmt rank {bmt.rank()} load sd {sd} from {optim_checkpoint_name}', [bmt.rank()])
         return sd
     else:
         sd = torch.load(checkpoint_name, map_location='cpu')
@@ -315,12 +313,11 @@ def load_optim(optimizer, lr_scheduler, sd):
             optimizer.load_state_dict(sd['optimizer'])
         if lr_scheduler is not None:
             lr_scheduler.load_state_dict(sd['lr_scheduler'])
-        log_dist('global rank 0 is loading optimizer & lr_scheduler')
     except KeyError:
         log_dist('Unable to load optimizer from checkpoint, exiting. '
                  'Specify --no-load-optim or --finetune to prevent '
                  'attempting to load the optimizer '
-                 'state.')
+                 'state.', [0])
 
 
 def load_rng(sd):

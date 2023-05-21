@@ -623,6 +623,21 @@ class Trainer():
         if len(self.metric_methods) > 0:
             best_score = -best_score
 
+        '''
+        # Temporary Usage
+        save_checkpoint(self.iteration+1,
+                        best_iteration+1,
+                        self.model,
+                        self.optimizer,
+                        lr_scheduler,
+                        save_optim=self.save_optim,
+                        save_dir=self.save_dir,
+                        save_rng=self.save_rng,
+                        iteration_in_epoch=0)
+        import sys
+        sys.exit(0)
+        '''
+
         in_first_epoch = True
         for epoch in range(self.epochs):
             if self.env_type != 'pytorch':
@@ -637,7 +652,7 @@ class Trainer():
                 iteration_in_epoch = 0
                 if in_first_epoch and self.resume_dataset and 'iteration_in_epoch' in self.sd:
                     iteration_in_epoch = self.sd['iteration_in_epoch']
-                    if iteration_ < iteration_in_epoch:
+                    if iteration_ <= iteration_in_epoch:
                         if iteration_%1000==0:
                             log_dist(f"Resume skip iteration={iteration_+1}", [0])
                         self.iteration += 1
