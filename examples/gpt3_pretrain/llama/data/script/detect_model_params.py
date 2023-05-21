@@ -21,8 +21,13 @@ def analyze(modules, verbose=True):
         if verbose:
             print("\nParams Results:")
             print("modules   | param   | abs min   | abs max   | norm")
+        if 'module' in m:
+            m = m['module']
         for j,key in enumerate(m.keys()):
             p = m[key]
+            ## should filter non trainable params
+            if 'inv_freq' in key:
+                continue
             p = p.float()
             p_abs = p.abs()
             p_abs_max = p_abs.max().item()
@@ -57,14 +62,9 @@ modules.append(model.norm)
 '''
 
 import torch
-sd1 = torch.load('/share/ldwang/checkpoints/Aquila-7b-16n8g/2023050202/178000/pytorch_model.bin')
+sd1 = torch.load('/data2/checkpoints/Aquila-7b-24n8g-V3/67000/pytorch_model.bin')
+#sd1 = torch.load('/data2/checkpoints/Aquila-7b-24n8g-V3/88000/pytorch_model.bin')
 modules = [sd1]
-abs_min, abs_max, norm_min, norm_max = analyze(modules, verbose=True)
-print("\nModules Results:")
-print("abs min   | abs max   | norm min  | norm max")
-print(f"{abs_min:.3e} | {abs_max:.3e} | {norm_min:.3e} | {norm_max:.3e}")
-sd2 = torch.load('/share/ldwang/checkpoints/Aquila-7b-16n8g/2023050202/100000/pytorch_model.bin')
-modules = [sd2]
 abs_min, abs_max, norm_min, norm_max = analyze(modules, verbose=True)
 print("\nModules Results:")
 print("abs min   | abs max   | norm min  | norm max")
