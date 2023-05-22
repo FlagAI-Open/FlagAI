@@ -131,6 +131,7 @@ class Trainer():
         batch_size=1,  # 'Data Loader batch size'
         gradient_accumulation_steps=1,  # 'Data Loader batch size'
         weight_decay=0.1,  # 'weight decay coefficient for L2 regularization'
+        eps=1e-8,  # 'eps used in optim'
         lr=1e-3,
         warmup_start_lr=0.0,
         warm_up=0.1,
@@ -196,6 +197,7 @@ class Trainer():
         self.lr = lr
         self.warmup_start_lr = warmup_start_lr
         self.weight_decay = weight_decay
+        self.eps = eps
         self.epochs = epochs
         self.clip_grad = clip_grad
         self.seed = seed
@@ -509,12 +511,14 @@ class Trainer():
                         self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
                                                                         weight_decay=self.weight_decay,
                                                                         betas=(self.adam_beta1, self.adam_beta2),
-                                                                        lr=self.lr)
+                                                                        lr=self.lr,
+                                                                        eps=self.eps)
                     else:
                         self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                                  weight_decay=self.weight_decay,
                                                                  betas=(self.adam_beta1, self.adam_beta2),
-                                                                 lr=self.lr)
+                                                                 lr=self.lr,
+                                                                 eps=self.eps)
                 else:
                     self.optimizer = get_optimizer(
                         param_groups=param_groups,

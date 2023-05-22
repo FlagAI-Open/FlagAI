@@ -41,7 +41,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from flagai.fp16 import DynamicLossScaler
 
 # TODO
-torch.autograd.set_detect_anomaly(True)
+# torch.autograd.set_detect_anomaly(True)
 
 """
 The Trainer class, to easily train a pytorh model on a new task.
@@ -78,6 +78,7 @@ class EnvTrainer():
         self.lr = env_args.lr
         self.warmup_start_lr = env_args.warmup_start_lr
         self.weight_decay = env_args.weight_decay
+        self.eps = env_args.eps
         self.epochs = env_args.epochs
         self.clip_grad = env_args.clip_grad
         self.seed = env_args.seed
@@ -375,12 +376,14 @@ class EnvTrainer():
                         self.optimizer = bmt.optim.AdamOffloadOptimizer(param_groups, 
                                                                         weight_decay=self.weight_decay,
                                                                         betas=(self.adam_beta1, self.adam_beta2),
-                                                                        lr=self.lr)
+                                                                        lr=self.lr,
+                                                                        eps=self.eps)
                     else:
                         self.optimizer = bmt.optim.AdamOptimizer(param_groups, 
                                                                  weight_decay=self.weight_decay,
                                                                  betas=(self.adam_beta1, self.adam_beta2),
-                                                                 lr=self.lr)
+                                                                 lr=self.lr,
+                                                                 eps=self.eps)
                 else:
                     self.optimizer = get_optimizer(
                         param_groups=param_groups,
