@@ -272,8 +272,8 @@ if env_args.enable_sft_conversations_dataset_v2:
             labels.append(EOS_TOKEN)
 
             ## delete bos & eos
-            #example = example[1:-1]
-            #labels = labels[1:-1]
+            example = example[1:-1]
+            labels = labels[1:-1]
 
             ## maxlen
             example = example[:self.maxlen]
