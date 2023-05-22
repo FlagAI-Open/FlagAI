@@ -87,27 +87,90 @@ trainer.pre_train(model)
 print('*'*20, "model", model)
 
 '''
-cache_dir = os.path.join(checkpoints, model_name)
-#print('*'*20, "cache_dir", cache_dir)
-tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-#print('*'*20, "tokenizer", tokenizer)
 
-#config_file = cache_dir + "/config.json"
-config_file = os.path.join(cache_dir, 'config.json')
+cache_dir = os.path.join(checkpoints, model_name)
+print('*'*20, "cache_dir", cache_dir)
+tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
+print('*'*20, "tokenizer", tokenizer)
+
 # avoid sync loading models in case of Mem OOM
 if env_args.bmt_async_load:
     import time
-    time.sleep(10*60*(trainer.local_rank%2))
+    time.sleep(10*60*(trainer.local_rank%4))
 
-from flagai.model.llama_model import LLAMAModel
-model = LLAMAModel.init_from_json(config_file=config_file)
-#print('*'*20, "model", model)
+# switch to flash_attn models
+if env_args.enable_flash_attn_models:
+    import flash_attn
+    from flash_attn.models.gpt import GPTLMHeadModel, combine_state_dicts_tp
+    from flash_attn.models.llama import remap_state_dict_meta_llama, llama_config_to_gpt2_config
+    from flash_attn.models.llama import config_from_checkpoint, state_dicts_from_checkpoint
 
-if env_args.bmt_pre_load:
-    checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
+    config = llama_config_to_gpt2_config(config_from_checkpoint(checkpoints, model_name))
+    config.vocab_size=100008
+    config.use_cache = False 
+    config.attn_pdrop = 0.0
+    config.resid_pdrop = 0.0
+    config.layer_norm_epsilon = 1e-5
+
+    config.fused_bias_fc = False
+    config.fused_mlp = False  # We don't have fused GatedMLP yet
+    config.fused_dropout_add_ln = False
+    config.residual_in_fp32 = False
+
+    config.bmt = True 
+    config.prenorm = True 
+    config.use_flash_attn = True
+    print('*'*20, "flash_attn model config", config)
+    model = GPTLMHeadModel(config, device='cpu')#,dtype= torch.float16)
+    print('*'*20, "flash_attn model", model)
+else:
+    config_file = os.path.join(cache_dir, 'config.json')
+    from flagai.model.llama_model import LLAMAModel
+    model = LLAMAModel.init_from_json(config_file=config_file)
+print('*'*20, "model", model)
+
+## bmt_pre_load
+checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
+if env_args.enable_flash_attn_models and env_args.bmt_pre_load:
+    ckpt = torch.load(checkpoint_path, map_location=torch.device('cpu'))
+    if 'module' in ckpt:
+        ckpt = ckpt['module']
+    model.load_state_dict(ckpt, strict=True)
+    del ckpt
+    gc.collect()
+    torch.cuda.empty_cache()
+elif env_args.bmt_pre_load:
     model.load_weights(checkpoint_path)
 
 trainer.pre_train(model)
+
+## switch to flash_attn models
+if env_args.enable_flash_attn_models:
+    model.transformer.bmt_replace()
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    def forward_step(data, model, mems=None):
+        """Simple forward step. """
+        # data['mems'] = mems
+        model_output = model(data['input_ids'])
+        # print(model_output)
+        logits = model_output.logits
+        loss = model_output.loss
+        hidden_states = None
+        if 'hidden_states' in model_output:
+            hidden_states = model_output['hidden_states']
+        elif 'encoder_hidden_states' in model_output:
+            hidden_states = model_output['encoder_hidden_states']
+
+        return {
+            'loss': loss,
+            'hidden_states': hidden_states,
+            'logits': logits.contiguous().float()
+        }
+
+    trainer.forward_step = forward_step
+
 print('*'*20, "model", model, flush=True)
 
 ## conversations_dataset
@@ -209,8 +272,8 @@ if env_args.enable_sft_conversations_dataset_v2:
             labels.append(EOS_TOKEN)
 
             ## delete bos & eos
-            example = example[1:-1]
-            labels = labels[1:-1]
+            #example = example[1:-1]
+            #labels = labels[1:-1]
 
             ## maxlen
             example = example[:self.maxlen]
@@ -725,6 +788,7 @@ elif env_args.enable_sft_dataset_text:
 
 elif env_args.enable_weighted_dataset_v2:
     ## 1: weight01, prefix01, weight02, prefix02, ...
+    '''
     data_prefix = [
         1.296091,
         '/data/indexed_dataset/batch1_tok100k_sep/cn_9_dedup_wudao_text_document',
@@ -779,6 +843,70 @@ elif env_args.enable_weighted_dataset_v2:
     ## 400B = 400 * 1000 * 1000 * 1000./ 2048 = 195312500
     ## 1000B = 1000 * 1000 * 1000 * 1000./ 2048 = 488281250
     train_max_num_samples = 195312500
+    train_valid_test_num_samples = [train_max_num_samples, int(train_max_num_samples*0.00001)]
+    seq_length = 2048
+    seed = 2023
+    skip_warmup = True
+    '''
+
+    ## 1T tokens
+    batch1_tok100k = '/share/indexed_dataset/batch1_batch2_tok100k/batch1_tok100k'
+    batch2_tok100k = '/share/indexed_dataset/batch1_batch2_tok100k/batch2_tok100k'
+    data_prefix = [
+        2.242990654,
+        os.path.join(batch1_tok100k, 'en_dedup-md5-pile-openwebtext2_text_document'),
+        5.046728972,
+        os.path.join(batch1_tok100k, 'en_dedup-md5-pile-pile-cc_text_document'),
+        13.64485981,
+        os.path.join(batch1_tok100k, 'wudao-9_text_document'),
+        2.336448598,
+        os.path.join(batch1_tok100k, 'code_dedup-md5-pile-github_text_document'),
+        1.869158879,
+        os.path.join(batch1_tok100k, 'codegeex_text_document'),
+        1.588785047,
+        os.path.join(batch1_tok100k, 'en_dedup-md5-pile-wikipedia_en_text_document'),
+        2.336448598,
+        os.path.join(batch1_tok100k, 'cn_baike_text_document'),
+        4.205607477,
+        os.path.join(batch1_tok100k, 'pile-books_text_document'),
+        0.186915888,
+        os.path.join(batch1_tok100k, 'cn_ebook_merge_maxlen_text_document'),
+        2.429906542,
+        os.path.join(batch1_tok100k, 'pile-papers_text_document'),
+        1.869158879,
+        os.path.join(batch1_tok100k, 'en_dedup-md5-pile-stackexchange_text_document'),
+        0.747663551,
+        os.path.join(batch1_tok100k, 'cn_zhihu_text_document'),
+
+        31.77570093,
+        os.path.join(batch2_tok100k, 'ccnews_text_document'),
+        12.42990654,
+        os.path.join(batch2_tok100k, 'c4_text_document'),
+        11.58878505,
+        os.path.join(batch2_tok100k, 'wudao-3-8_text_document'),
+        1.869158879,
+        os.path.join(batch2_tok100k, 'hf-wiki_text_document'),
+        0.654205607,
+        os.path.join(batch2_tok100k, 'sjt_text_document'),
+        1.214953271,
+        os.path.join(batch2_tok100k, 'col_text_document'),
+        1.121495327,
+        os.path.join(batch2_tok100k, 'byg-cn_text_document'),
+        0.093457944,
+        os.path.join(batch2_tok100k, 'qa_text_document'),
+        0.747663551,
+        os.path.join(batch2_tok100k, 'wenge-zhihu-high_text_document'),
+    ]
+    data_impl = 'mmap'
+    ## splits_string len should same as train_valid_test_num_samples len
+    splits_string = '9999,1'
+    ## 2. specify total samples needed
+    ## 400B = 400 * 1000 * 1000 * 1000./ 2048 = 195312500
+    ## 1000B = 1000 * 1000 * 1000 * 1000./ 2048 = 488281250
+    train_max_num_samples = 195312500
+    train_max_num_samples = 488281250
+    ## 1070B
+    train_max_num_samples = 522460937
     train_valid_test_num_samples = [train_max_num_samples, int(train_max_num_samples*0.00001)]
     seq_length = 2048
     seed = 2023
