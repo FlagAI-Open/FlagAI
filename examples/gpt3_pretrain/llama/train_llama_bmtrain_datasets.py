@@ -101,7 +101,7 @@ if env_args.bmt_async_load:
 # switch to flash_attn models
 if env_args.enable_flash_attn_models:
     import flash_attn
-    from flash_attn.models.gpt import GPTLMHeadModel, combine_state_dicts_tp
+    from examples.aquila.gpt import GPTLMHeadModel, combine_state_dicts_tp
     from flash_attn.models.llama import remap_state_dict_meta_llama, llama_config_to_gpt2_config
     from flash_attn.models.llama import config_from_checkpoint, state_dicts_from_checkpoint
 
@@ -153,7 +153,7 @@ if env_args.enable_flash_attn_models:
     def forward_step(data, model, mems=None):
         """Simple forward step. """
         # data['mems'] = mems
-        model_output = model(data['input_ids'])
+        model_output = model(input_ids=data['input_ids'],labels=data['labels'])
         # print(model_output)
         logits = model_output.logits
         loss = model_output.loss
