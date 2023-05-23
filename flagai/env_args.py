@@ -29,6 +29,7 @@ class EnvArgs:
                  gradient_accumulation_steps=1,
 
                  weight_decay=1e-5,
+                 eps=1e-8,
                  warm_up=0.1,
                  warm_up_iters=0,
                  skip_iters=0,
@@ -106,6 +107,7 @@ class EnvArgs:
         self.parser.add_argument('--checkpoint_activations', default=checkpoint_activations, type=str2bool, help='start training from saved checkpoint')
         self.parser.add_argument('--gradient_accumulation_steps', default=gradient_accumulation_steps, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--weight_decay', default=weight_decay, type=float, help='start training from saved checkpoint')
+        self.parser.add_argument('--eps', default=eps, type=float, help='start training from saved checkpoint')
         self.parser.add_argument('--warm_up', default=warm_up, type=float, help='start training from saved checkpoint')
         self.parser.add_argument('--warm_up_iters', default=warm_up_iters, type=int, help='start training from saved checkpoint')
         self.parser.add_argument('--skip_iters', default=skip_iters, type=int, help='start training from saved checkpoint')
