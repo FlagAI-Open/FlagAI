@@ -13,7 +13,7 @@ import random
 import numpy as np 
 import torch
 import sys
-sys.path.append('../../../../flagai-internal-bmt-flashatten')
+sys.path.append('../../../../flagai-internal')
 from flash_attn.models.gpt import GPTLMHeadModel, combine_state_dicts_tp
 from flash_attn.models.llama import remap_state_dict_meta_llama, llama_config_to_gpt2_config
 from flash_attn.models.llama import config_from_checkpoint, state_dicts_from_checkpoint
@@ -25,7 +25,7 @@ from flagai.data.tokenizer import Tokenizer
 
 
 tokenizer = Tokenizer.from_pretrained("llama-30b-en", 
-                                      cache_dir="../gpt2_new_100k/")
+                                      cache_dir="../../gpt3_pretrain/gpt2_new_100k_newline/")
 vocab = tokenizer.get_vocab()
 
 id2word = {v:k for k, v in vocab.items()}
