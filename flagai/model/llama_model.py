@@ -219,9 +219,8 @@ class LLAMAModel(BaseModel):
                 layer.start_pos = start_pos
                 h = layer(h, freqs_cis, mask)
       
-        
+        h = self.norm(h)
         if labels is not None:
-            h = self.norm(h)
             if self.config.checkpoint_activations:
                 h = checkpoint(create_custom_forward(self.output),h)
             else:
@@ -254,7 +253,6 @@ class LLAMAModel(BaseModel):
                 'hidden_states': h,
             }
         else :
-
             output = self.output(h[:, -1, :])  # only compute last logits
             return {
                 "logits": output.float()
