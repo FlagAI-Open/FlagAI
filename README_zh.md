@@ -45,9 +45,9 @@
 
 | 工具名称           | 描述         | 样例                |
 |:-------------- |:---------- |:------------------------------------------------------ |
-| 	`GLM_custom_pvp` | 自定义 PET 模板   | [README.md](http:///examples/glm_custom_pvp/README.md) |
+| 	`GLM_custom_pvp` | 自定义 PET 模板   | [README.md](./examples/glm_custom_pvp/README.md) |
 | `GLM_ptuning`    | p-tuning 工具 | ——                                                     |
-| `BMInf-generate` | 推理加速    | [README.md](http:///examples/bminf_generate/README.md) |
+| `BMInf-generate` | 推理加速    | [README.md](./examples/bminf_generate/README.md) |
 
 ### 模型
 
