@@ -261,7 +261,7 @@ if env_args.enable_sft_conversations_dataset_v3:
                 content = conversation['value']
 
                 if role == 'gpt':
-                    prefix_gpt = BEGIN_SIGNAL + roles.get(sentence_from, unknown_role) + ": "
+                    prefix_gpt = BEGIN_SIGNAL + role + ": "
                     content_gpt = content[len(prefix_gpt):]
 
                     prefix_gpt = self.tokenizer.encode_plus(f"{prefix_gpt}", None, max_length=None)['input_ids']
@@ -272,7 +272,7 @@ if env_args.enable_sft_conversations_dataset_v3:
                     content_gpt = self.tokenizer.encode_plus(f"{content_gpt}", None, max_length=None)['input_ids']
                     content_gpt = content_gpt[1:-1] # remove bos & eos
                     example += content_gpt
-                    role_labels = copy.deepcopy(content_gpt)
+                    role_labels += copy.deepcopy(content_gpt)
                 else:
                     content = self.tokenizer.encode_plus(f"{content}", None, max_length=None)['input_ids']
                     content = content[1:-1] # remove bos & eos
