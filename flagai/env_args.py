@@ -87,6 +87,7 @@ class EnvArgs:
                  enable_sft_dataset_jsonl=False,
                  enable_sft_conversations_dataset=False,
                  enable_sft_conversations_dataset_v2=False,
+                 enable_sft_conversations_dataset_v3=False,
                  enable_weighted_dataset_v2=False,
 
                  enable_flash_attn_models=False,
@@ -168,6 +169,7 @@ class EnvArgs:
         self.parser.add_argument('--enable_sft_dataset_jsonl', default=enable_sft_dataset_jsonl, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_sft_conversations_dataset', default=enable_sft_conversations_dataset, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_sft_conversations_dataset_v2', default=enable_sft_conversations_dataset_v2, type=str2bool, help='debug args')
+        self.parser.add_argument('--enable_sft_conversations_dataset_v3', default=enable_sft_conversations_dataset_v3, type=str2bool, help='debug args')
         self.parser.add_argument('--enable_weighted_dataset_v2', default=enable_weighted_dataset_v2, type=str2bool, help='debug args')
         self.parser.add_argument('--IGNORE_INDEX', default=-100, type=int, help='start training from saved checkpoint')
 
