@@ -281,7 +281,7 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 
 
 ## News
-
+- [31 Mar 2023] release v1.6.3, Support AltCLIP-m18 [#303](https://github.com/FlagAI-Open/FlagAI/pull/303) and AltDiffusion-m18 [#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
 - [17 Mar 2023] release v1.6.2, Support application of new optimizers [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), and added a new gpt model name 'GPT2-base-en' for English; 
 - [2 Mar 2023] release v1.6.1, Support Galactica model [#234](https://github.com/FlagAI-Open/FlagAI/pull/234); BMInf, a low-resource inference package [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), and examples for p-tuning [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
 - [12 Jan 2023] release v1.6.0, support a new parallel lib called [**BMTrain**](https://github.com/OpenBMB/BMTrain) and integate [**Flash Attention**](https://github.com/HazyResearch/flash-attention) to speedup training of BERT and ViT models, examples in [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py) and [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). Also add the contrastive search based text generation method [**SimCTG**](https://github.com/yxuansu/SimCTG) and DreamBooth finetuning based on AltDiffusion, examples in [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
