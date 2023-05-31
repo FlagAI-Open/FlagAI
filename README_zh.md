@@ -263,7 +263,7 @@ for text_pair in test_data:
 
 
 ## 动态
-- [31 Mar 2023] 支持v1.6.3版本, 增加AltCLIP-m18模型[#303](https://github.com/FlagAI-Open/FlagAI/pull/303) 以及 AltDiffusion-m18模型[#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
+- [31 Mar 2023] 支持v1.6.3版本, 增加AltCLIP-m18模型 [#303](https://github.com/FlagAI-Open/FlagAI/pull/303) 以及 AltDiffusion-m18模型 [#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
 - [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
 - [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
 - [12 Jan 2023] 发布v1.6.0版本, 新增支持并行训练库 [**BMTrain**](https://github.com/OpenBMB/BMTrain) 以及集成 [**Flash Attention**](https://github.com/HazyResearch/flash-attention) 到 Bert 和 Vit 模型提速端到端训练, 示例见 [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py)和 [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). 同时增加了基于对比搜索的文本生成方法 [**SimCTG**](https://github.com/yxuansu/SimCTG) 以及基于 AltDiffusion 进行 DreamBooth 个性化微调, 示例见 [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
