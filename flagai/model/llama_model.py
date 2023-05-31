@@ -84,6 +84,7 @@ class LLAMAConfig(dict):
         # bos_token_id=0,
         # eos_token_id=1,
         # tie_word_embeddings=False,
+        flash_atten_llama_style=False,
         **kwargs,
     ):
         self.vocab_size = vocab_size
@@ -110,6 +111,8 @@ class LLAMAConfig(dict):
         self.bmt_fused_ce = bmt_fused_ce
         self.bmt_fused_ce_inplace = bmt_fused_ce_inplace
         self.fix_large_bsz = fix_large_bsz
+
+        self.flash_atten_llama_style = flash_atten_llama_style
 
         # super().__init__(
         #     pad_token_id=pad_token_id,
@@ -155,7 +158,11 @@ class LLAMAModel(BaseModel):
         for layer_id in range(config.n_layers):
             self.layers.append(LLAMABlock(layer_id, config))
 
-        self.norm = RMSNorm(config.dim, eps=config.norm_eps)
+        if config.flash_atten_llama_style:
+            from flash_attn.ops.rms_norm import RMSNorm
+            self.norm = RMSNorm(config.dim, eps=config.norm_eps)
+        else:
+            self.norm = RMSNorm(config.dim, eps=config.norm_eps)
         if os.getenv("ENV_TYPE") == "deepspeed+mpu":
             self.output = ColumnParallelLinear(
                 config.dim, config.vocab_size, bias=False,
@@ -263,4 +270,4 @@ class LLAMAModel(BaseModel):
         if "module" in sd:
             sd = sd["module"]
         self.load_state_dict(sd, strict=False)
-        print(f"model config are loaded successfully...")
+        print(f"model checkpoint_path={checkpoint_path} are loaded successfully...")

@@ -117,6 +117,16 @@ class LLAMAAttention(nn.Module):
                 input_is_parallel=True,
                 init_method=normal_init_method(0, self.config.initializer_range),
             )
+        elif config.flash_atten_llama_style:
+            self.n_local_heads = config.n_heads 
+            self.head_dim = config.dim // config.n_heads
+            self.Wqkv = nn.Linear(config.dim, 3 * config.dim, bias=False)
+            from flash_attn.layers.rotary import RotaryEmbedding
+            self.rotary_emb = RotaryEmbedding(
+                self.head_dim*1.0, scale_base=None, interleaved=True)
+            self.wo = nn.Linear(config.n_heads * self.head_dim, config.dim, bias=False)
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.wo.weight)
         else:
             self.n_local_heads = config.n_heads 
             self.head_dim = config.dim // config.n_heads
@@ -149,33 +159,37 @@ class LLAMAAttention(nn.Module):
                 use_cache=False,
                 **kwargs):
         bsz, seqlen, _ = x.shape
-        xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
+        if self.config.flash_atten_llama_style:
+            qkv = self.Wqkv(x)
+            qkv = einops.rearrange(qkv, '... (three h d) -> ... three h d', three=3, d=self.head_dim)
+            qkv = self.rotary_emb(qkv)
+        else:
+            xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
+            xq = xq.view(bsz, seqlen, self.n_local_heads, self.head_dim)
+            xk = xk.view(bsz, seqlen, self.n_local_heads, self.head_dim)
+            xv = xv.view(bsz, seqlen, self.n_local_heads, self.head_dim)
 
-        xq = xq.view(bsz, seqlen, self.n_local_heads, self.head_dim)
-        xk = xk.view(bsz, seqlen, self.n_local_heads, self.head_dim)
-        xv = xv.view(bsz, seqlen, self.n_local_heads, self.head_dim)
+            xq, xk = apply_rotary_pos_emb(xq, xk, freqs_cis=freqs_cis)
 
-        xq, xk = apply_rotary_pos_emb(xq, xk, freqs_cis=freqs_cis)
-
-        if use_cache:
-            self.cache_k = self.cache_k.to(xq)
-            self.cache_v = self.cache_v.to(xq)
-
-            self.cache_k[:bsz, start_pos : start_pos + seqlen] = xk
-            self.cache_v[:bsz, start_pos : start_pos + seqlen] = xv
-
-            keys = self.cache_k[:bsz, : start_pos + seqlen]
-            values = self.cache_v[:bsz, : start_pos + seqlen]
-        else :
-            keys = xk
-            values = xv 
-
-        if self.training and self.config.flash_atten:
-            #seqlen = self.config.max_seq_len
             xq = xq.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             keys = keys.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             qkv = torch.concat([xq, keys, values], dim=2)
+
+            if use_cache:
+                self.cache_k = self.cache_k.to(xq)
+                self.cache_v = self.cache_v.to(xq)
+    
+                self.cache_k[:bsz, start_pos : start_pos + seqlen] = xk
+                self.cache_v[:bsz, start_pos : start_pos + seqlen] = xv
+    
+                keys = self.cache_k[:bsz, : start_pos + seqlen]
+                values = self.cache_v[:bsz, : start_pos + seqlen]
+            else :
+                keys = xk
+                values = xv 
+
+        if self.config.flash_atten or (self.config.flash_atten_llama_style and not self.training):
             qkv = einops.rearrange(qkv, 'b s ... -> (b s) ...')
 
             if self.cu_seqlens is None:
