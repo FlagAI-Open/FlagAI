@@ -1048,8 +1048,12 @@ class EnvTrainer():
             tmp_model = tmp_model.module
         # Turn on evaluation mode which disables dropout.
         tmp_model.eval()
-        if hasattr(tmp_model,
-                   'config') and 'checkpoint_activations' in tmp_model.config:
+
+        # TODO
+        from collections.abc import Iterable
+        if hasattr(tmp_model, 'config') and \
+           isinstance(tmp_model.config, Iterable) and \
+           'checkpoint_activations' in tmp_model.config:
             tmp_checkpoint_activations = tmp_model.config[
                 'checkpoint_activations']
             tmp_model.config['checkpoint_activations'] = False
