@@ -7,7 +7,7 @@ MODEL_NAME = os.getenv('MODEL') or 'AltCLIP-XLMR-L-m18'
 
 ROOT = dirname(dirname(abspath(__file__)))
 
-IMG_DIR = join(ROOT, 'img')
+IMG_DIR = join(ROOT, 'test/img')
 MODEL_DIR = join(ROOT, 'model')
 
 MODEL_FP = join(MODEL_DIR, MODEL_NAME)

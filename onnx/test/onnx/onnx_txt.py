@@ -3,22 +3,34 @@
 from misc.proc import tokenizer
 from onnx_load import onnx_load
 
-MODEL = onnx_load('txt')
+TXT = onnx_load('Txt')
 
 
 def txt2vec(li):
   text, attention_mask = tokenizer(li)
   text = text.numpy()
   attention_mask = attention_mask.numpy()
-  output = MODEL.run(None, {'input': text, 'attention_mask': attention_mask})
+  output = TXT.run(None, {'input': text, 'attention_mask': attention_mask})
   return output[0]
 
 
 if __name__ == '__main__':
+
   from test_txt import TEST_TXT
+
+  TXT_NORM = onnx_load('TxtNorm')
+
   for li in TEST_TXT:
     r = txt2vec(li)
-    for txt, i in zip(li, r):
+    text, attention_mask = tokenizer(li)
+    text = text.numpy()
+    attention_mask = attention_mask.numpy()
+    output = TXT_NORM.run(None, {
+        'input': text,
+        'attention_mask': attention_mask
+    })[0]
+    for txt, vec, norm in zip(li, r, output):
       print(txt)
-      print(i)
+      print('vec', vec)
+      print('norm', norm)
       print('\n')

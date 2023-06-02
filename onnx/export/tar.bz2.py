@@ -7,12 +7,12 @@ import tarfile
 
 
 def txz(src, to):
-    stream = bz2.BZ2File(to, 'w')
+  stream = bz2.BZ2File(to, 'w')
 
-    with tarfile.TarFile(fileobj=stream, mode='w') as tar:
-        tar.add(src, arcname=basename(src))
+  with tarfile.TarFile(fileobj=stream, mode='w') as tar:
+    tar.add(src, arcname=basename(src))
 
-    stream.close()
+  stream.close()
 
 
 txz(ONNX_DIR, ONNX_DIR + '.tar.bz2')

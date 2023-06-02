@@ -13,8 +13,12 @@ def img2vec(img):
 
 if __name__ == "__main__":
   from misc.config import IMG_DIR
+  from misc.norm import norm
   from os.path import join
-  fp = join(IMG_DIR, 'cat.jpg')
   from PIL import Image
+
+  fp = join(IMG_DIR, 'cat.jpg')
   img = Image.open(fp)
-  print(img2vec(img))
+  vec = img2vec(img)
+  print('vec', vec)
+  print('norm', norm(vec))

@@ -13,11 +13,13 @@ if __name__ == "__main__":
   from glob import glob
   from misc.config import ROOT
   from test_txt import TEST_TXT
+  from misc.norm import norm
 
   li = glob(join(ROOT, 'jpg/*.jpg'))
   for li in TEST_TXT:
     r = txt2vec(li)
-    for txt, i in zip(li, r):
+    for txt, vec in zip(li, r):
       print(txt)
-      print(i)
+      print('vec', vec)
+      print('norm', norm(vec))
       print('\n')

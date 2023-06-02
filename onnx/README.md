@@ -30,7 +30,7 @@ ONNX(Open Neural Network Exchange)，开放神经网络交换，用于在各种�
 
 * `./bash.sh` 在本地进入容器的 bash，方便调试
 
-* `./export.sh` 运行容器，导出 onnx
+* `./export.sh` 运行容器，下载 pytorch 模型，然后转换为 onnx
 
     设置环境变量 MODEL ，可以配置导出、测试脚本运行的模型 。
 
@@ -38,6 +38,17 @@ ONNX(Open Neural Network Exchange)，开放神经网络交换，用于在各种�
 
     * AltCLIP-XLMR-L
     * AltCLIP-XLMR-L-m9
+
+    运行后将生成 4 个 onnx 文件和很多权重文件
+
+    * onnx/AltCLIP-XLMR-L-m18/onnx/Img.onnx
+    * onnx/AltCLIP-XLMR-L-m18/onnx/ImgNorm.onnx
+    * onnx/AltCLIP-XLMR-L-m18/onnx/Txt.onnx
+    * onnx/AltCLIP-XLMR-L-m18/onnx/TxtNorm.onnx
+
+    其中 Norm 代表输出归一化的向量，如果想把生成的文本向量和图片向量存入向量数据库，进行相似性搜索，请用归一化的向量。
+
+    具体用见下文的 onnx 模型的测试脚本。
 
 * `./dist.sh` 运行容器，导出以上 3 个模型的 onnx，并打包放到 dist 目录下。
 
@@ -67,16 +78,9 @@ onnxruntime 有很多版本可以选择，见[onnxruntime](https://onnxruntime.a
 
 请先安装 [direnv](https://github.com/direnv/direnv/blob/master/README.md) 并在本目录下 `direnv allow` 或者手工 `source .envrc` 来设置 PYTHONPATH 环境变量。
 
-* [./test/onnx/onnx_img.py](./test/onnx/onnx_img.py)  生成图片向量
+* [./test/onnx/onnx_img.py](./test/onnx/onnx_img.py)  生成图片向量 (norm 代表归一化的向量，可用于向量搜索)
 * [./test/onnx/onnx_txt.py](./test/onnx/onnx_txt.py)  生成文本向量
 * [./test/onnx/onnx_test.py](./test/onnx/onnx_test.py) 匹配图片向量和文本向量，进行零样本分类
-
-如果想把生成的文本向量和图片向量存入数据库，进行相似性搜索，请先对特征进行归一化。
-
-```python
-image_features /= image_features.norm(dim=-1, keepdim=True)
-text_features /= text_features.norm(dim=-1, keepdim=True)
-```
 
 可借助向量数据库，提升零样本分类的准确性，参见[ECCV 2022 | 无需下游训练，Tip-Adapter 大幅提升 CLIP 图像分类准确率](https://cloud.tencent.com/developer/article/2126102)。
 

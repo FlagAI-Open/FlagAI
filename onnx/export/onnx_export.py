@@ -3,7 +3,7 @@
 from PIL import Image
 from os import makedirs
 from os.path import join
-from misc.clip_model import TXT, IMG
+from misc.clip_model import TXT, IMG, TXT_NORM, IMG_NORM
 from misc.config import ONNX_FP, opset_version, IMG_DIR
 from misc.proc import transform, tokenizer
 import torch
@@ -17,8 +17,8 @@ image = transform(image)
 image = torch.tensor(image)
 
 
-def onnx_export(outdir, model, args, **kwds):
-  name = f'{outdir}.onnx'
+def onnx_export(model, args, **kwds):
+  name = f'{model.__class__.__name__}.onnx'
   fp = join(ONNX_FP, name)
   torch.onnx.export(
       model,
@@ -35,26 +35,28 @@ def onnx_export(outdir, model, args, **kwds):
 
 
 # 参考 https://github.com/OFA-Sys/Chinese-CLIP/blob/master/cn_clip/deploy/pytorch_to_onnx.py
+def export(txt, img):
+  onnx_export(txt,
+              tokenizer(['a photo of cat', 'a image of cat'], ),
+              input_names=['input', 'attention_mask'],
+              dynamic_axes={
+                  'input': {
+                      0: 'batch',
+                      1: 'batch',
+                  },
+                  'attention_mask': {
+                      0: 'batch',
+                      1: 'batch',
+                  }
+              })
 
-onnx_export('txt',
-            TXT,
-            tokenizer(['a photo of cat', 'a image of cat'], ),
-            input_names=['input', 'attention_mask'],
-            dynamic_axes={
-                'input': {
-                    0: 'batch',
-                    1: 'batch',
-                },
-                'attention_mask': {
-                    0: 'batch',
-                    1: 'batch',
-                }
-            })
+  onnx_export(img,
+              image,
+              input_names=['input'],
+              dynamic_axes={'input': {
+                  0: 'batch'
+              }})
 
-onnx_export('img',
-            IMG,
-            image,
-            input_names=['input'],
-            dynamic_axes={'input': {
-                0: 'batch'
-            }})
+
+export(TXT, IMG)
+export(TXT_NORM, IMG_NORM)
