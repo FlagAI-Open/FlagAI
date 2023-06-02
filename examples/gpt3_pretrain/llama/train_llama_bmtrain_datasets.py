@@ -261,7 +261,7 @@ if env_args.enable_sft_conversations_dataset_v3:
                 content = conversation['value']
 
                 if role == 'gpt':
-                    prefix_gpt = BEGIN_SIGNAL + role + ": "
+                    prefix_gpt = BEGIN_SIGNAL + roles.get(role, unknown_role) + ": "
                     content_gpt = content[len(prefix_gpt):]
 
                     prefix_gpt = self.tokenizer.encode_plus(f"{prefix_gpt}", None, max_length=None)['input_ids']
@@ -342,13 +342,16 @@ elif env_args.enable_sft_conversations_dataset_v2:
 
     cur_dir = env_args.enable_sft_dataset_dir
     jsonl_data = os.path.join(cur_dir, env_args.enable_sft_dataset_file)
+    jsonl_data_val = None
+    if env_args.enable_sft_dataset_val_file is not None:
+        jsonl_data_val = os.path.join(cur_dir, env_args.enable_sft_dataset_file)
     max_seq_len = 2048
 
     import jsonlines
     import numpy as np
-    def read_file():
+    def read_file(jsonl_file):
         conversations = []
-        with jsonlines.open(jsonl_data) as reader:
+        with jsonlines.open(jsonl_file) as reader:
             for line in reader:
                 conversations.append(line)
         return conversations
@@ -470,7 +473,7 @@ elif env_args.enable_sft_conversations_dataset_v2:
             }
             return data
     
-    conversations = read_file()
+    conversations = read_file(jsonl_data)
     data_len = len(conversations)
     #train_size = int(data_len * 0.95)
     train_size = data_len
@@ -481,9 +484,16 @@ elif env_args.enable_sft_conversations_dataset_v2:
                                           maxlen=max_seq_len)
     #print(f"train_dataset \n {train_dataset[0]}")
 
+    valid_dataset = None
+    if jsonl_data_val is not None:
+        conversations_val = read_file(jsonl_data_val)
+        valid_dataset = ConversationDatasetV2(conversations_val,
+                                              tokenizer=tokenizer,
+                                              maxlen=max_seq_len)
+
     trainer.do_train(
         train_dataset=train_dataset,
-        valid_dataset=None,
+        valid_dataset=valid_dataset,
         collate_fn=ConversationDatasetV2.collate_fn,
         optimizer=None,
         rank_split=False)
