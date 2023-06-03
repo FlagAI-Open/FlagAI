@@ -36,19 +36,16 @@ config.fused_mlp = False  # We don't have fused GatedMLP yet
 config.fused_dropout_add_ln = False
 config.residual_in_fp32 = False
 config.use_flash_attn = True
-print(config)
 ckpt=sys.argv[1]
 import jsonlines
 import numpy as np
 conversations = []
 max_seq_len=2048
-torch.cuda.set_device("cuda:7")
-with jsonlines.open("/data/benchmark/common/wikitext.jsonl") as reader:
+torch.cuda.set_device("cuda:0")
+with jsonlines.open("/data/benchmark/package/benchmark_v2.jsonl") as reader:
     for line in reader:
-        if len(line['text']) < 100:
-            continue
         obj = dict()
-        obj['text'] = line['text']
+        obj['text'] = line['content'] if 'content' in line.keys() else line['text']
         conversations.append(obj)
 
 class ConversationDataset(Dataset):
@@ -59,7 +56,7 @@ class ConversationDataset(Dataset):
         self.maxlen = maxlen
 
     def __getitem__(self, i):
-        text = self.conversations[i]['text']
+        text = self.conversations[i]['text'][:2048]
 
             # chat_desc
         example = self.tokenizer.encode_plus(f"{text}", None, max_length=None)['input_ids']
@@ -106,27 +103,24 @@ train_dataset = ConversationDataset(train_conversations,
                                     tokenizer=tokenizer,
                                     maxlen=max_seq_len)
 
-model_list =[ckpt]
-model = GPTLMHeadModel(config, device='cuda:7', dtype=torch.float16)
+model_list = [ckpt]
+model = GPTLMHeadModel(config, device='cuda:0', dtype=torch.float16)
 for ck in model_list:
     #checkpoint_path = os.path.join(f'/data2/state_dict/Aquila-7b-67000', "pytorch_model.bin")
     #ckpt = torch.load(checkpoint_path, map_location=torch.device('cpu'))
     checkpoint_path = os.path.join(f'{ck}', "pytorch_model.bin")
     ckpt_model = torch.load(checkpoint_path, map_location=torch.device('cpu'))
     model.load_state_dict(ckpt_model, strict=True)
-    print(f"eval on ckpt {ck}...")
     gc.collect()
     torch.cuda.empty_cache()
     losses = []
-    accuracy = []
     model.eval()
     for d in tqdm(train_dataset):
-        output = model.forward(**d)
         try:
             output = model.forward(**d)
         except Exception as e:
             continue
         losses += output.loss.view(-1).detach().cpu().numpy().tolist()
-        accuracy += output.acc.view(-1).detach().cpu().numpy().tolist()
-with open("wiki_loss.log",'a') as wf:
-    wf.write(f"{ckpt} {sum(losses)/len(losses)} {sum(accuracy)/len(losses)}\n")
+#print(f"{ckpt} {sum(losses)/len(losses)})
+with open("all_loss_before_67000.log",'a') as wf:
+    wf.write(f"{ckpt} {sum(losses)/len(losses)}\n")

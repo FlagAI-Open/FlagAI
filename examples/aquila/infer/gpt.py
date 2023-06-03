@@ -470,8 +470,9 @@ class GPTLMHeadModel(GPTPreTrainedModel, GenerationMixin):
         else:
             shift_labels = input_ids[..., 1:].contiguous()
         loss = self.loss_fn(shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1).long())
-        CausalLMOutput = namedtuple('CausalLMOutput', ['logits','loss'])
-        return CausalLMOutput(logits=lm_logits,loss=loss)
+        accuracy = (shift_logits.view(-1, self.config.vocab_size).argmax(dim=-1)==shift_labels.view(-1).long()).sum()/shift_labels.numel()
+        CausalLMOutput = namedtuple('CausalLMOutput', ['logits','loss','acc'])
+        return CausalLMOutput(logits=lm_logits,loss=loss,acc=accuracy)
 
     def load_state_dict(self, state_dict, strict=True):
         # Remapping from our checkpoints that used a different ordering of layers in the block

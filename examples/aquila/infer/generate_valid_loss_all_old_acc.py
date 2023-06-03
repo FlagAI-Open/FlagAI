@@ -36,30 +36,27 @@ config.fused_mlp = False  # We don't have fused GatedMLP yet
 config.fused_dropout_add_ln = False
 config.residual_in_fp32 = False
 config.use_flash_attn = True
-print(config)
 ckpt=sys.argv[1]
 import jsonlines
 import numpy as np
 conversations = []
 max_seq_len=2048
-torch.cuda.set_device("cuda:7")
-with jsonlines.open("/data/benchmark/common/wikitext.jsonl") as reader:
+torch.cuda.set_device("cuda:0")
+with jsonlines.open("/data/benchmark/package/benchmark_v2.jsonl") as reader:
     for line in reader:
-        if len(line['text']) < 100:
-            continue
         obj = dict()
-        obj['text'] = line['text']
+        obj['text'] = line['content'] if 'content' in line.keys() else line['text']
         conversations.append(obj)
 
 class ConversationDataset(Dataset):
-    def __init__(self, conversations, tokenizer, maxlen=512):
+    def __init__(self, conversations, tokenizer, maxlen=2048):
         super(ConversationDataset, self).__init__()
         self.conversations = conversations
         self.tokenizer = tokenizer
         self.maxlen = maxlen
 
     def __getitem__(self, i):
-        text = self.conversations[i]['text']
+        text = self.conversations[i]['text'][:self.maxlen]
 
             # chat_desc
         example = self.tokenizer.encode_plus(f"{text}", None, max_length=None)['input_ids']
@@ -79,26 +76,6 @@ class ConversationDataset(Dataset):
     def __len__(self):
         return len(self.conversations)
 
-    @staticmethod
-    def collate_fn(batch):
-        def padding(indice, max_length, pad_idx=0):
-            pad_indice = [
-                item + [pad_idx] * max(0, max_length - len(item)) for item in indice
-            ]
-            return torch.tensor(pad_indice)
-
-        input_ids = [data["input_ids"] for data in batch]
-        labels = [data["labels"] for data in batch]
-        max_length = max_seq_len
-        input_ids = padding(input_ids, max_length)[:,:max_length]
-        labels = padding(labels, max_length, pad_idx=env_args.IGNORE_INDEX)[:,:max_length]
-
-        data = {
-            "input_ids": input_ids,
-            "labels": labels
-        }
-        return data
-
 data_len = len(conversations)
 train_size = data_len
 train_conversations = conversations[:train_size]
@@ -106,27 +83,31 @@ train_dataset = ConversationDataset(train_conversations,
                                     tokenizer=tokenizer,
                                     maxlen=max_seq_len)
 
-model_list =[ckpt]
-model = GPTLMHeadModel(config, device='cuda:7', dtype=torch.float16)
+model_list = [ckpt]
+model = GPTLMHeadModel(config, device='cuda:0', dtype=torch.float16)
 for ck in model_list:
     #checkpoint_path = os.path.join(f'/data2/state_dict/Aquila-7b-67000', "pytorch_model.bin")
     #ckpt = torch.load(checkpoint_path, map_location=torch.device('cpu'))
     checkpoint_path = os.path.join(f'{ck}', "pytorch_model.bin")
     ckpt_model = torch.load(checkpoint_path, map_location=torch.device('cpu'))
     model.load_state_dict(ckpt_model, strict=True)
-    print(f"eval on ckpt {ck}...")
     gc.collect()
     torch.cuda.empty_cache()
     losses = []
+    numel = 0
     accuracy = []
     model.eval()
     for d in tqdm(train_dataset):
+        #try:
+        #    output = model.forward(**d)
+        #except Exception as e:
+        #    continue
         output = model.forward(**d)
-        try:
-            output = model.forward(**d)
-        except Exception as e:
-            continue
         losses += output.loss.view(-1).detach().cpu().numpy().tolist()
         accuracy += output.acc.view(-1).detach().cpu().numpy().tolist()
-with open("wiki_loss.log",'a') as wf:
-    wf.write(f"{ckpt} {sum(losses)/len(losses)} {sum(accuracy)/len(losses)}\n")
+        if len(losses) > 100:
+            break
+#print(f"{ckpt} {sum(losses)/len(losses)})
+with open("test.log",'a') as wf:
+    wf.write(f"{ckpt} {sum(losses)/len(losses)}\n")
+    wf.write(f"{ckpt} {sum(accuracy)/len(losses)}\n")

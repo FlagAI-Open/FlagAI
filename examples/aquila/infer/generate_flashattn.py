@@ -14,7 +14,7 @@ import numpy as np
 import torch
 import sys
 sys.path.append('../../../../flagai-internal')
-from flash_attn.models.gpt import GPTLMHeadModel, combine_state_dicts_tp
+from gpt import GPTLMHeadModel, combine_state_dicts_tp
 from flash_attn.models.llama import remap_state_dict_meta_llama, llama_config_to_gpt2_config
 from flash_attn.models.llama import config_from_checkpoint, state_dicts_from_checkpoint
 from flash_attn.utils.pretrained import state_dict_from_pretrained
@@ -30,13 +30,13 @@ vocab = tokenizer.get_vocab()
 
 id2word = {v:k for k, v in vocab.items()}
 ckpt_iter = int(sys.argv[1])
-model_name='Aquila-7b'
-device = "cuda:0"
+model_name='Aquila-30b'
+device = "cuda:5"
 model_info = f"model-{ckpt_iter}"
 server_port = 5050 
-model_path = f"{ckpt_iter}-flash/pytorch_model.bin"
+model_path = f"/share/project/64node-bmt-flashatten/checkpoints/Aquila-30b-64n8g/{ckpt_iter}/pytorch_model.bin"
 
-checkpoint_path = './state_dict'
+checkpoint_path = '/share/project/lijijie/state_dict'
 config = llama_config_to_gpt2_config(config_from_checkpoint(checkpoint_path, model_name))
 config.vocab_size=100008
 config.use_cache = True
@@ -57,10 +57,10 @@ model = GPTLMHeadModel(config,
                        device=device, 
                        dtype=dtype)
 
-sd = torch.load(model_path, map_location="cpu")
+sd = torch.load(model_path, map_location="cpu")['module']
 
 print(f"正在加载参数")
-model.load_state_dict(sd, strict=False)
+model.load_state_dict(sd, strict=True)
 print(f"参数加载成功")
 
 def set_random_seed(seed):
@@ -122,11 +122,13 @@ texts = [
         "The capital of Germany is the city of ",
         ]
 
-
 for text in texts:
     res, tokens, probs = predict(text, 123, max_length=128, topk=100, topp=1.0, t=1.0)
     print(text)
     print(res)
-    print(type(res))
     print("*"*40)
 
+while True:
+    text = input()
+    print(predict(text, 123, max_length=128, topk=100, topp=1.0, t=1.0))
+    print("*"*40)

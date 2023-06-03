@@ -42,7 +42,7 @@ import jsonlines
 import numpy as np
 conversations = []
 max_seq_len=2048
-torch.cuda.set_device("cuda:7")
+torch.cuda.set_device("cuda:0")
 with jsonlines.open("/data/benchmark/common/wikitext.jsonl") as reader:
     for line in reader:
         if len(line['text']) < 100:
@@ -107,7 +107,7 @@ train_dataset = ConversationDataset(train_conversations,
                                     maxlen=max_seq_len)
 
 model_list =[ckpt]
-model = GPTLMHeadModel(config, device='cuda:7', dtype=torch.float16)
+model = GPTLMHeadModel(config, device='cuda:0', dtype=torch.float16)
 for ck in model_list:
     #checkpoint_path = os.path.join(f'/data2/state_dict/Aquila-7b-67000', "pytorch_model.bin")
     #ckpt = torch.load(checkpoint_path, map_location=torch.device('cpu'))
@@ -118,7 +118,6 @@ for ck in model_list:
     gc.collect()
     torch.cuda.empty_cache()
     losses = []
-    accuracy = []
     model.eval()
     for d in tqdm(train_dataset):
         output = model.forward(**d)
@@ -127,6 +126,5 @@ for ck in model_list:
         except Exception as e:
             continue
         losses += output.loss.view(-1).detach().cpu().numpy().tolist()
-        accuracy += output.acc.view(-1).detach().cpu().numpy().tolist()
-with open("wiki_loss.log",'a') as wf:
-    wf.write(f"{ckpt} {sum(losses)/len(losses)} {sum(accuracy)/len(losses)}\n")
+with open("wiki_loss_before_67000.log",'a') as wf:
+    wf.write(f"{ckpt} {sum(losses)/len(losses)}\n")

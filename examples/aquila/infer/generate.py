@@ -3,7 +3,7 @@ import torch
 import os
 import argparse
 import sys
-sys.path.append('../../../../flagai-internal')
+sys.path.append('../../../../flagai-internal-bmt-flashatten')
 from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
 import random
@@ -33,7 +33,7 @@ model = loader.get_model()
 model.eval()
 model.to(device)
 tokenizer = Tokenizer.from_pretrained("llama-30b-en", 
-                                      cache_dir="../../gpt3_pretrain/gpt2_new_100k_newline/")
+                                      cache_dir="../../gpt2_new_100k/")
 predictor = Predictor(model, tokenizer)
 vocab = tokenizer.get_vocab()
 
@@ -100,6 +100,6 @@ texts = [
 
 
 for text in texts:
-    out, convert_tokens, probs, model_in = predict(text, 123, 138, 100, 1.0, 1.0, candidate=None)
+    out, convert_tokens, probs, model_in = predict(text, 123, 138, 15, 0.9, 0.1, candidate=None)
     print(text)
     print(out)
