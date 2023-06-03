@@ -53,7 +53,7 @@ def transform_flash_to_flagai(ckpt):
     tgt_ckpt["output.weight"] =  ckpt.pop("lm_head.weight")
     tgt_ckpt["norm.weight"] = ckpt.pop("transformer.ln_f.weight")
     
-    for l in range(32):
+    for l in range(config.n_layers):
         # attention
         Wqkv = ckpt.pop(f'transformer.layers.{l}.mixer.Wqkv.weight') 
         split_size = Wqkv.size()[0]//3
