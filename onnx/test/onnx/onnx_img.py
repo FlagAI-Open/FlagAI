@@ -17,10 +17,10 @@ if __name__ == '__main__':
   img = Image.open(join(IMG_DIR, 'cat.jpg'))
 
   img_data = transform(img)
-  import torch
-  print('img data size', torch.tensor(img_data).size())
-
   vec = img2vec(img)
   print('vec', vec)
   IMG_NORM = onnx_load('ImgNorm')
   print('norm', IMG_NORM.run(None, {'input': img_data})[0])
+
+  # from json import dumps
+  # print(dumps(img_data[0].tolist()))
