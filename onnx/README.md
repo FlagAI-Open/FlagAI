@@ -54,8 +54,8 @@ ONNX(Open Neural Network Exchange)，开放神经网络交换，用于在各种�
 
 ### 目录
 
-* model/ 存放下载的模型
-* onnx/ 存放导出的 onnx，下载的 onnx 也请解压到这里
+* `model/` 存放下载的模型
+* `onnx/` 存放导出的 onnx，下载的 onnx 也请解压到这里
 
 ### 测试
 
@@ -80,9 +80,36 @@ onnxruntime 有很多版本可以选择，见[onnxruntime](https://onnxruntime.a
 
 * [./test/onnx/onnx_img.py](./test/onnx/onnx_img.py)  生成图片向量 (norm 代表归一化的向量，可用于向量搜索)
 * [./test/onnx/onnx_txt.py](./test/onnx/onnx_txt.py)  生成文本向量
-* [./test/onnx/onnx_test.py](./test/onnx/onnx_test.py) 匹配图片向量和文本向量，进行零样本分类
+* [./test/onnx/onnx_test.py](./test/onnx/onnx_test.py)
 
-可借助向量数据库，提升零样本分类的准确性，参见[ECCV 2022 | 无需下游训练，Tip-Adapter 大幅提升 CLIP 图像分类准确率](https://cloud.tencent.com/developer/article/2126102)。
+  匹配图片向量和文本向量，进行零样本分类
+
+  可借助向量数据库，提升零样本分类的准确性，参见[ECCV 2022 | 无需下游训练，Tip-Adapter 大幅提升 CLIP 图像分类准确率](https://cloud.tencent.com/developer/article/2126102)。
+* [./test/onnx/onnx_load.py](./test/onnx/onnx_load.py)
+
+  onnx 模型的加载代码，运行它可以看到当前机器可用的 onnx provider。
+
+  比如苹果 M2 芯片的笔记本上运行如下：
+
+  ```
+  ❯ ./onnx_load.py 2>/dev/null
+  all providers :
+  ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'MIGraphXExecutionProvider', 'ROCMExecutionProvider', 'OpenVINOExecutionProvider', 'DnnlExecutionProvider', 'TvmExecutionProvider', 'VitisAIExecutionProvider', 'NnapiExecutionProvider', 'CoreMLExecutionProvider', 'ArmNNExecutionProvider', 'ACLExecutionProvider', 'DmlExecutionProvider', 'RknpuExecutionProvider', 'XnnpackExecutionProvider', 'CANNExecutionProvider', 'CPUExecutionProvider']
+
+  now can use providers :
+  ['CoreMLExecutionProvider', 'CPUExecutionProvider']
+  ```
+
+  可以创建 FlagAI/onnx/.env ，设置环境变量 `ONNX_PROVIDER`，配置当前环境的 Onnx Execution Provider，方便测试对比性能。
+
+  设置的示例如下：
+
+  ```
+  ❯ cat FlagAI/onnx/.env
+  ONNX_PROVIDER=CoreMLExecutionProvider
+  ```
+
+  设置成功后，需要在 `FlagAI/onnx` 目录下运行 `direnv allow` 或者手工 `source .envrc` 让其在当前命令行中生效。
 
 #### pytorch 模型
 
