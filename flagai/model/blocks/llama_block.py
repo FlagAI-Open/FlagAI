@@ -40,9 +40,9 @@ class LLAMABlock(nn.Module):
 
         self.layer_id = layer_id
         if config.flash_atten_llama_style:
-            from flash_attn.ops.rms_norm import RMSNorm
-            self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
-            self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)
+            import flash_attn
+            self.attention_norm = flash_attn.ops.rms_norm.RMSNorm(config.dim, eps=config.norm_eps)
+            self.ffn_norm = flash_attn.ops.rms_norm.RMSNorm(config.dim, eps=config.norm_eps)
         else:
             self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
             self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)

@@ -171,11 +171,6 @@ class LLAMAAttention(nn.Module):
 
             xq, xk = apply_rotary_pos_emb(xq, xk, freqs_cis=freqs_cis)
 
-            xq = xq.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
-            keys = keys.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
-            values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
-            qkv = torch.concat([xq, keys, values], dim=2)
-
             if use_cache:
                 self.cache_k = self.cache_k.to(xq)
                 self.cache_v = self.cache_v.to(xq)
@@ -188,6 +183,11 @@ class LLAMAAttention(nn.Module):
             else :
                 keys = xk
                 values = xv 
+
+            xq = xq.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            keys = keys.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            qkv = torch.concat([xq, keys, values], dim=2)
 
         if self.config.flash_atten or (self.config.flash_atten_llama_style and not self.training):
             qkv = einops.rearrange(qkv, 'b s ... -> (b s) ...')

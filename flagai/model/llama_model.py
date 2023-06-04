@@ -159,8 +159,8 @@ class LLAMAModel(BaseModel):
             self.layers.append(LLAMABlock(layer_id, config))
 
         if config.flash_atten_llama_style:
-            from flash_attn.ops.rms_norm import RMSNorm
-            self.norm = RMSNorm(config.dim, eps=config.norm_eps)
+            import flash_attn
+            self.norm = flash_attn.ops.rms_norm.RMSNorm(config.dim, eps=config.norm_eps)
         else:
             self.norm = RMSNorm(config.dim, eps=config.norm_eps)
         if os.getenv("ENV_TYPE") == "deepspeed+mpu":
