@@ -37,7 +37,7 @@ def inference(img, tmpl_kind_li):
     for kind, p in zip(kind_li, text_probs.cpu().numpy()[0].tolist()):
       p = round(p * 10000)
       if p:
-        print("  %s %.1f%%" % (kind, p / 100))
+        print("  %s %.2f%%" % (kind, p / 100))
   return
 
 
