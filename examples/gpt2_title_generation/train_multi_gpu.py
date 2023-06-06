@@ -1,8 +1,10 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-import os
+import sys
+sys.path.append('/share/project/liuguang/flagai-internal')
 import torch
+import os
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
@@ -11,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
 # single gpu
 trainer = Trainer(
-    env_type="pytorchDDP",
+    env_type="deepspeed+mpu",
     experiment_name="roberta_seq2seq",
     batch_size=1,
     gradient_accumulation_steps=1,
@@ -20,32 +22,36 @@ trainer = Trainer(
     epochs=10,
     log_interval=10,
     eval_interval=10000,
-    load_dir=None,
+    # load_dir='state_dicts',
     pytorch_device=device,
     save_dir="checkpoints",
     save_interval=1,
     num_checkpoints=1,
+    save_optim=True,
+    save_rng=True,
     master_ip='127.0.0.1',
     master_port=17750,
     num_nodes=1,
-    num_gpus=2,
-    checkpoint_activations=False,
+    num_gpus=6,
+    checkpoint_activations=True,
     model_parallel_size=1,
     hostfile='./hostfile',
     deepspeed_config='./deepspeed.json',
     training_script=__file__,
+    load_type='latest'
 )
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/train.src'
 tgt_dir = cur_dir + '/data/train.tgt'
-model_dir = "./checkpoints/"
+model_dir = "./state_dict/"
 os.makedirs(model_dir, exist_ok=True)
-maxlen = 256
-
+maxlen = 1024
 auto_loader = AutoLoader(
-    "seq2seq",
-    model_name="GPT2-base-ch",
+    "lm",
+    model_name="llama-7b-en",
     model_dir=model_dir,
+    only_download_config=True,
+    use_cache=False
 )
 model = auto_loader.get_model()
 tokenizer = auto_loader.get_tokenizer()
@@ -128,12 +134,12 @@ val_dataset = GPT2Seq2seqDataset(val_src,
                                  tokenizer=tokenizer,
                                  maxlen=maxlen)
 
-optimizer = torch.optim.Adam(model.parameters(),
-                             lr=1e-5,
-                             weight_decay=1e-5)
+# optimizer = torch.optim.Adam(model.parameters(),
+#                              lr=1e-5,
+#                              weight_decay=1e-5)
 trainer.train(model,
               train_dataset=train_dataset,
-              valid_dataset=val_dataset,
+            #   valid_dataset=val_dataset,
               collate_fn=GPT2Seq2seqDataset.collate_fn,
-              optimizer=optimizer,
+            #   optimizer=optimizer,
               )

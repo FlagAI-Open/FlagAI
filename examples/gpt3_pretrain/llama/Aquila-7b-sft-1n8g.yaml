@@ -1,0 +1,17 @@
+# comments
+epochs: 5
+batch_size: 4
+gradient_accumulation_steps: 4
+lr: 1.0e-5
+warm_up: 0.06
+save_interval: 2000
+
+bmt_lr_decay_style: "linear"
+bmt_cpu_offload: False
+# sft
+bmt_pre_load: True
+# sft_dataset
+enable_sft_dataset: True
+
+save_optim: False
+save_rng: False

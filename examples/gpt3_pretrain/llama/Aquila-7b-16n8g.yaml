@@ -1,0 +1,14 @@
+# comments
+batch_size: 10
+gradient_accumulation_steps: 1
+lr: 6.0e-5
+warm_up: 0.2
+save_interval: 3000
+
+enable_weighted_dataset_v2: True
+bmt_cpu_offload: False
+bmt_pre_load: False
+#bmt_loss_scale: 2097152
+
+save_optim: True
+save_rng: True

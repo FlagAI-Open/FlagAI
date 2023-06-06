@@ -20,7 +20,6 @@ import torch
 from packaging import version
 from torch import Tensor, nn
 
-
 class NewGELUActivation(nn.Module):
     """
     Implementation of the GELU activation function currently in Google BERT repo (identical to OpenAI GPT). Also see

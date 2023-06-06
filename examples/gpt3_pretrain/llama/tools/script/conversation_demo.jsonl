@@ -1,0 +1,54 @@
+{
+  "id": "chatalpaca_data_10k_0",
+  "conversations": [
+    {
+      "from": "human",
+      "value": "Find the product of the numbers: 5 and 8"
+    },
+    {
+      "from": "gpt",
+      "value": "The product of 5 and 8 is 40."
+    },
+    {
+      "from": "human",
+      "value": "What is the sum of the numbers 6 and 12?"
+    },
+    {
+      "from": "gpt",
+      "value": "The sum of the numbers 6 and 12 is 18."
+    },
+    {
+      "from": "human",
+      "value": "Can you tell me the quotient of 20 and 5?"
+    },
+    {
+      "from": "gpt",
+      "value": "Yes, the quotient of 20 and 5 is 4."
+    },
+    {
+      "from": "human",
+      "value": "What is the difference between 25 and 13?"
+    },
+    {
+      "from": "gpt",
+      "value": "The difference between 25 and 13 is 12."
+    },
+    {
+      "from": "human",
+      "value": "What is the square of 9?"
+    },
+    {
+      "from": "gpt",
+      "value": "The square of 9 is 81."
+    },
+    {
+      "from": "human",
+      "value": "What is the cube of 6?"
+    },
+    {
+      "from": "gpt",
+      "value": "The cube of 6 is 216."
+    }
+  ],
+  "instruction": "根据给定的年份，计算该年是否为闰年。"
+}

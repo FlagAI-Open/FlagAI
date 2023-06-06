@@ -69,7 +69,7 @@ trainer = Trainer(env_type='deepspeed',
 # Single-GPU trainer
 # trainer = Trainer(env_type='pytorch',
 #                     epochs=100,
-#                     batch_size=4,
+#                     batch_size=1,
 #                     eval_interval=100,
 #                     log_interval=50,
 #                     experiment_name='glm_large',

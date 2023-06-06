@@ -32,7 +32,6 @@ from flagai.model.layers.layer_norm import T5LayerNorm
 from flagai.model.layers.feedforward import ColumnParallelLinear, RowParallelLinear
 from flagai.model.utils import normal_init_method
 from flagai.model.utils import divide
-from flagai.model.utils import ensure_divisibility
 from flagai.model.utils import split_tensor_along_last_dim
 from flagai.model.layers.layer_norm import CPM3LayerNorm
 
@@ -52,6 +51,168 @@ elif os.getenv('ENV_TYPE') == 'bmtrain':
     pass
 
 from flagai.model.layers.linear import CPM3Linear
+
+## cis x = cos x + i sin x
+def precompute_freqs_cis(dim: int, end: int, theta: float = 10000.0):
+    freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim))
+    t = torch.arange(end, device=freqs.device)
+    freqs = torch.outer(t, freqs).float()
+    freqs_cis = torch.polar(torch.ones_like(freqs), freqs)
+    return freqs_cis
+
+
+def reshape_for_broadcast(freqs_cis: torch.Tensor, x: torch.Tensor):
+    ndim = x.ndim
+    assert 0 <= 1 < ndim
+    assert freqs_cis.shape == (x.shape[1], x.shape[-1])
+    shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
+    return freqs_cis.view(*shape)
+
+
+def apply_rotary_pos_emb(
+    xq: torch.Tensor,
+    xk: torch.Tensor,
+    freqs_cis: torch.Tensor,
+) :
+    xq_ = torch.view_as_complex(xq.float().reshape(*xq.shape[:-1], -1, 2))
+    xk_ = torch.view_as_complex(xk.float().reshape(*xk.shape[:-1], -1, 2))
+    freqs_cis = reshape_for_broadcast(freqs_cis, xq_)
+    xq_out = torch.view_as_real(xq_ * freqs_cis).flatten(3)
+    xk_out = torch.view_as_real(xk_ * freqs_cis).flatten(3)
+    return xq_out.type_as(xq), xk_out.type_as(xk) 
+
+class LLAMAAttention(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+
+        self.config = config 
+        if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
+            self.n_local_heads = config.n_heads // get_model_parallel_world_size()
+            self.head_dim = config.dim // config.n_heads
+            self.wq = ColumnParallelLinear(
+                config.dim,
+                config.n_heads * self.head_dim,
+                bias=False,
+                gather_output=False,
+                init_method=normal_init_method(0, self.config.initializer_range),
+            )
+            self.wk = ColumnParallelLinear(
+                config.dim,
+                config.n_heads * self.head_dim,
+                bias=False,
+                gather_output=False,
+                init_method=normal_init_method(0, self.config.initializer_range),
+            )
+            self.wv = ColumnParallelLinear(
+                config.dim,
+                config.n_heads * self.head_dim,
+                bias=False,
+                gather_output=False,
+                init_method=normal_init_method(0, self.config.initializer_range),
+            )
+            self.wo = RowParallelLinear(
+                config.n_heads * self.head_dim,
+                config.dim,
+                bias=False,
+                input_is_parallel=True,
+                init_method=normal_init_method(0, self.config.initializer_range),
+            )
+        elif config.flash_atten_llama_style:
+            self.n_local_heads = config.n_heads 
+            self.head_dim = config.dim // config.n_heads
+            self.Wqkv = nn.Linear(config.dim, 3 * config.dim, bias=False)
+            from flash_attn.layers.rotary import RotaryEmbedding
+            self.rotary_emb = RotaryEmbedding(
+                self.head_dim*1.0, scale_base=None, interleaved=True)
+            self.wo = nn.Linear(config.n_heads * self.head_dim, config.dim, bias=False)
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.wo.weight)
+        else:
+            self.n_local_heads = config.n_heads 
+            self.head_dim = config.dim // config.n_heads
+            self.wq = nn.Linear(config.dim, config.n_heads * self.head_dim, bias=False)
+            self.wk = nn.Linear(config.dim, config.n_heads * self.head_dim, bias=False)
+            self.wv = nn.Linear(config.dim, config.n_heads * self.head_dim, bias=False)
+            self.wo = nn.Linear(config.n_heads * self.head_dim, config.dim, bias=False)
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.wq.weight)
+            init_method(self.wk.weight)
+            init_method(self.wv.weight)
+            init_method(self.wo.weight)
+
+        if config.use_cache:
+            self.cache_k = torch.zeros(
+                (config.max_batch_size, config.max_seq_len, self.n_local_heads, self.head_dim)
+            )
+            self.cache_v = torch.zeros(
+                (config.max_batch_size, config.max_seq_len, self.n_local_heads, self.head_dim)
+            )
+
+        self.cu_seqlens = None
+
+    def forward(
+                self, 
+                x,
+                start_pos,
+                freqs_cis, 
+                mask,
+                use_cache=False,
+                **kwargs):
+        bsz, seqlen, _ = x.shape
+        if self.config.flash_atten_llama_style:
+            qkv = self.Wqkv(x)
+            qkv = einops.rearrange(qkv, '... (three h d) -> ... three h d', three=3, d=self.head_dim)
+            qkv = self.rotary_emb(qkv)
+        else:
+            xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
+            xq = xq.view(bsz, seqlen, self.n_local_heads, self.head_dim)
+            xk = xk.view(bsz, seqlen, self.n_local_heads, self.head_dim)
+            xv = xv.view(bsz, seqlen, self.n_local_heads, self.head_dim)
+
+            xq, xk = apply_rotary_pos_emb(xq, xk, freqs_cis=freqs_cis)
+
+            if use_cache:
+                self.cache_k = self.cache_k.to(xq)
+                self.cache_v = self.cache_v.to(xq)
+    
+                self.cache_k[:bsz, start_pos : start_pos + seqlen] = xk
+                self.cache_v[:bsz, start_pos : start_pos + seqlen] = xv
+    
+                keys = self.cache_k[:bsz, : start_pos + seqlen]
+                values = self.cache_v[:bsz, : start_pos + seqlen]
+            else :
+                keys = xk
+                values = xv 
+
+            xq = xq.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            keys = keys.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
+            qkv = torch.concat([xq, keys, values], dim=2)
+
+        if self.config.flash_atten or (self.config.flash_atten_llama_style and not self.training):
+            qkv = einops.rearrange(qkv, 'b s ... -> (b s) ...')
+
+            if self.cu_seqlens is None:
+                self.cu_seqlens = torch.arange(0, (bsz + 1) * seqlen, step=seqlen, dtype=torch.int32, device=qkv.device)
+            output = flash_attn_unpadded_qkvpacked_func(
+                qkv, self.cu_seqlens, seqlen,
+                self.config.flash_atten_pdrop if self.training else 0.0, causal=True)
+            output = einops.rearrange(output, '(b s) h d -> b s (h d)', b=bsz)
+        else:
+            xq = xq.transpose(1, 2)
+            keys = keys.transpose(1, 2)
+            values = values.transpose(1, 2)
+            scores = torch.matmul(xq, keys.transpose(2, 3)) / math.sqrt(self.head_dim)
+            if mask is not None:
+                scores = scores + mask  # (bs, n_local_heads, slen, cache_len + slen)
+            scores = F.softmax(scores.float(), dim=-1).type_as(xq)
+            output = torch.matmul(scores, values)  # (bs, n_local_heads, slen, head_dim)
+            output = output.transpose(
+                1, 2
+            ).contiguous().view(bsz, seqlen, -1)
+
+        return self.wo(output)
+
 
 class GPT2Attention(nn.Module):
 
@@ -74,6 +235,10 @@ class GPT2Attention(nn.Module):
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
+        init_method = config.init_method
+        output_layer_init_method = config.output_layer_init_method
+        if output_layer_init_method is None:
+            output_layer_init_method = init_method
         if os.getenv("ENV_TYPE") == 'deepspeed+mpu':
             world_size = get_model_parallel_world_size()
             self.split_size = divide(n_state, world_size)
@@ -94,10 +259,21 @@ class GPT2Attention(nn.Module):
                                             bias=True,
                                             input_is_parallel=True,
                                             stride=1,
-                                            init_method=init_method)
+                                            init_method=output_layer_init_method)
         else:
             self.c_attn = nn.Linear(nx, 3 * n_state)
             self.c_proj = nn.Linear(nx, n_state)
+
+            # TODO
+            with torch.no_grad():
+                self.c_attn.bias.zero_()
+                self.c_proj.bias.zero_()
+            init_method(self.c_attn.weight)
+
+            # 20230310
+            # init_method(self.c_proj.weight)
+            output_layer_init_method(self.c_proj.weight)
+
         self.attn_dropout = nn.Dropout(config.attn_pdrop)
         self.resid_dropout = nn.Dropout(config.resid_pdrop)
         self.pruned_heads = set()

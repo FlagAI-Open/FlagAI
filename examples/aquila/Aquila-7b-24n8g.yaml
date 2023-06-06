@@ -1,0 +1,33 @@
+# comments
+batch_size: 10
+gradient_accumulation_steps: 1
+lr: 2.4e-4
+warm_up: 0.01
+save_interval: 1000 
+log_interval: 10
+
+bmt_cpu_offload: False
+bmt_pre_load: False 
+#bmt_async_load: True 
+# bmt_loss_scale: 65536 
+bmt_loss_scale: 1048576.0
+
+#enable_weighted_dataset_v2: False
+#bmt_cpu_offload: False
+#bmt_loss_scale: 131072
+
+save_optim: True
+save_rng: True
+
+#save_optim: False
+#save_rng: False
+#load_rng: True
+#load_dir: '/data2/checkpoints/Aquila-7b-24n8g-V3'
+#load_optim: True 
+resume_dataset: False
+skip_iters: 17000
+#bmt_lr_decay_style: 'consine'
+# warm_up_iters: 2000
+# iteration_in_epoch: 9000
+
+

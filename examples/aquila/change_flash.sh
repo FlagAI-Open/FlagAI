@@ -1,0 +1,1 @@
+for a in `cat $1 | awk -F " " '{print $1}'`; do pdsh -f 1024 -w ssh:$a "cp /share/project/flash-attention/flash_attn/models/gpt.py /opt/conda/lib/python3.8/site-packages/flash_attn-1.0.2-py3.8-linux-x86_64.egg/flash_attn/models/gpt.py"; done

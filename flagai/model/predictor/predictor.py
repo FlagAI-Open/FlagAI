@@ -19,6 +19,7 @@ import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
 from torch.cuda.amp import autocast as autocast
+from .llama import llama_generate
 
 class Predictor:
     def __init__(self, model, tokenizer=None):
@@ -346,6 +347,10 @@ class Predictor:
                                       input_max_length, out_max_length, top_k,
                                       top_p, repetition_penalty, temperature,
                                       device)
+        elif "llama" in self.class_name.lower():
+            return llama_generate(self.tokenizer, self.model,
+                                  [text], out_max_length,
+                                  temperature, top_p)
 
         else:
             print("Unsupported decoding mode")

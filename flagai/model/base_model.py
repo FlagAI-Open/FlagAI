@@ -7,8 +7,29 @@ import json
 from typing import Union
 from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
 import os
+class ConfigObj:
 
+    def __init__(self):
+        self.json_config = None
 
+    def  __getitem__(self, key):
+        return getattr(self, key)
+    def __setitem__(self, key, value):
+        setattr(self, key, value)
+
+    def get(self, key, default=None):
+        return getattr(self, key, default)
+    
+        
+def change_json_to_cls(jsonobj):
+    obj = ConfigObj()
+    for key in jsonobj:
+        setattr(obj, key, jsonobj[key])
+
+    obj.json_config = jsonobj
+    
+    return obj
+    
 # The base model for models
 class BaseModel(Module):
 
@@ -27,7 +48,11 @@ class BaseModel(Module):
 
     def save_config(self, config_path='./config.json'):
         with open(config_path, 'w', encoding='utf8') as jsonfile:
-            json.dump(self.config, jsonfile, indent=4)
+            if isinstance(self.config, ConfigObj):
+                config = self.config.json_config
+            else :
+                config = self.config 
+            json.dump(config, jsonfile, indent=4)
 
     @classmethod
     def init_from_json(cls, config_file='./config.json', **kwargs):
@@ -37,7 +62,16 @@ class BaseModel(Module):
             args[k] = kwargs[k]
         if 'checkpoint_activations' not in args:
             args['checkpoint_activations'] = False
-        return cls(args, **kwargs)
+        if 'use_cache' not in args:
+            args['use_cache'] = False
+        if "fp16" in kwargs and kwargs["fp16"] == True:
+            torch.set_default_tensor_type(torch.cuda.HalfTensor)
+            model = cls(change_json_to_cls(args), **kwargs)
+            torch.set_default_tensor_type(torch.FloatTensor)
+        else :
+            model = cls(change_json_to_cls(args), **kwargs)
+
+        return model
 
     @classmethod
     def _load_state_dict_into_model(cls,
@@ -81,7 +115,7 @@ class BaseModel(Module):
             model = cls.init_from_json(config_path, **kwargs)
             model.to(device)
             if only_download_config:
-                return model
+                return model 
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
                 if os.path.exists(checkpoint_path):
                     model.load_weights(checkpoint_path)
@@ -207,7 +241,7 @@ class BaseModel(Module):
                         os.path.join(download_path, "pytorch_model.bin"))
         if os.path.exists(yaml_path):
             return load_diffusion_local(yaml_path,only_download_config=only_download_config)
-        return load_local(checkpoint_path)
+        return load_local(checkpoint_path, only_download_config=only_download_config)
 
     @classmethod
     def download(cls,
@@ -225,7 +259,7 @@ class BaseModel(Module):
             model_files = eval(_get_model_files(model_name))
             print("model files:" + str(model_files))
             for file_name in model_files:
-                if not file_name.endswith("bin"):
+                if not file_name.endswith("bin") and not file_name.endswith("pth"):
                     _get_vocab_path(os.path.join(download_path, model_name), file_name, model_id)
                 else :
                     if only_download_config:

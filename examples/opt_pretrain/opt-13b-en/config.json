@@ -1,0 +1,29 @@
+{
+  "_name_or_path": "facebook/opt-13b",
+  "activation_dropout": 0.0,
+  "activation_function": "relu",
+  "architectures": [
+    "OPTForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 2,
+  "do_layer_norm_before": true,
+  "dropout": 0.1,
+  "eos_token_id": 2,
+  "ffn_dim": 20480,
+  "hidden_size": 5120,
+  "init_std": 0.02,
+  "layerdrop": 0.0,
+  "max_position_embeddings": 2048,
+  "model_type": "opt",
+  "num_attention_heads": 40,
+  "num_hidden_layers": 40,
+  "output_projection": true,
+  "pad_token_id": 1,
+  "prefix": "</s>",
+  "torch_dtype": "float16",
+  "transformers_version": "4.20.0.dev0",
+  "use_cache": true,
+  "vocab_size": 50272,
+  "word_embed_proj_dim": 5120
+}
