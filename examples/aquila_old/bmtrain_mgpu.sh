@@ -1,13 +1,14 @@
 # ENVS
-export PROJ_HOME=/data/ldwang
-export FLAGAI_HOME=/data/yzd/FlagAI
-export PRE_LOAD_DIR=/data/yzd/FlagAI/examples/aquila/checkpoints_in
+# TODO
+export FLAGAI_HOME=/share/project/flagai-internal-bmt-flashatten
+export WORKSPACE=/share/project/64node-bmt-flashatten
+
 export PYTHONPATH=$FLAGAI_HOME
-export NCCL_SOCKET_IFNAME=eth0
+# export NCCL_SOCKET_IFNAME=eth0
 export NCCL_IB_DISABLE=0
 export NCCL_IB_CUDA_SUPPORT=1
-export NCCL_IB_GID_INDEX=0
-export NCCL_IB_HCA=mlx5_2,mlx5_5
+# export NCCL_IB_GID_INDEX=0
+export NCCL_IB_HCA=mlx5_0,mlx5_3
 export NCCL_DEBUG=debug
 export OMP_NUM_THREADS=4
 
@@ -19,7 +20,6 @@ set -u
   exp_name=$4
   exp_version=$5
 set +u
-
 # DIST
 export HOSTFILE=$hostfile
 export CONFIGFILE=$configfile
@@ -31,29 +31,33 @@ export RANK=$(awk '{ranks[$1]=(FNR-1);}END{print ranks["'$NODE_ADDR'"];}' $HOSTF
 export MASTER_PORT=23456
 
 export TRIGGER_FILE=bmtrain_mgpu.sh
-export SCRIPT_FILE=aquila_sft.py
+export SCRIPT_FILE=train_llama_bmtrain_datasets.py
 
 ## wandb
 export WANDB_MODE=offline
 
 ## EXP
+#export EXP_NAME=llama_7b_8n8g
+export EXP_NAME=Aquila-7b-16n8g
+export EXP_NAME=Aquila-7b-1n8g
+export EXP_NAME=Aquila-7b-6n8g
 #export MODEL_NAME=llama-7b-en
-export MODEL_NAME=aquila-7b
+export MODEL_NAME=Aquila-7b
 
 export MODEL_NAME=$model_name
 export EXP_NAME=$exp_name
 
-export WORKSPACE=$FLAGAI_HOME/examples/aquila
-export STATE_DICT_DIR=$PROJ_HOME/checkpoints_in
-export WANDB_DIR=$PROJ_HOME/wandb/${EXP_NAME}/$exp_version
-export SAVE_DIR=$PROJ_HOME/checkpoints_out/${EXP_NAME}/$exp_version
-mkdir -p $SAVE_DIR
+export STATE_DICT_DIR=$WORKSPACE/state_dict
+export SAVE_DIR=$WORKSPACE/checkpoints/${EXP_NAME}
+export WANDB_DIR=$WORKSPACE/wandb/${EXP_NAME}
+export EXP_VERSION_DIR=$SAVE_DIR/$exp_version
+mkdir -p $EXP_VERSION_DIR
 mkdir -p $WANDB_DIR
 ## Backup ckpts & scripts into exp versions
-cp -r $STATE_DICT_DIR/$MODEL_NAME $SAVE_DIR
-cp -r $WORKSPACE/$TRIGGER_FILE $SAVE_DIR
-cp -r $hostfile $SAVE_DIR
-cp -r $configfile $SAVE_DIR
+# cp -r $STATE_DICT_DIR/$MODEL_NAME $EXP_VERSION_DIR
+cp -r $WORKSPACE/$TRIGGER_FILE $EXP_VERSION_DIR
+cp -r $hostfile $EXP_VERSION_DIR
+cp -r $configfile $EXP_VERSION_DIR
 
 export EPOCH_NUM=1
 export BATCH_SIZE=6
@@ -76,14 +80,13 @@ OPTS=" --batch_size $BATCH_SIZE \
        --adam_beta1 0.9 \
        --adam_beta2 0.95 \
        --save_dir $SAVE_DIR \
-       --pre_load_dir $PRE_LOAD_DIR \
        --experiment_name $EXP_NAME \
        --model_name $MODEL_NAME \
        --wandb_dir $WANDB_DIR \
        --yaml_config $CONFIGFILE"
 
 ## Trigger job on Each Node when bmt or ddp.
-python -m torch.distributed.launch \
+python -u -m torch.distributed.launch \
        --nproc_per_node $GPU_NUM_PER_NODE \
        --nnodes $NODES_NUM \
        --node_rank $RANK \

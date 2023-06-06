@@ -24,7 +24,7 @@ class BaseTokenizer(object):
         """
         if cache_dir is None:
             # cache_dir = os.path.join(os.path.dirname(__file__), 'vocabs', f"{tokenizer_model_name}")
-            cache_dir = './checkpoints/' + tokenizer_model_name
+            cache_dir = './checkpoints_in/' + tokenizer_model_name
         tokenizer_class = ""
         # search the cache directory for certain files
         if os.path.exists(cache_dir):

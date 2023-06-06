@@ -1,7 +1,7 @@
 # ENVS
 # TODO
-export FLAGAI_HOME=/data2/gitee/flagai-internal
-export WORKSPACE=/data2/gitee/flagai-internal/examples/aquila
+export FLAGAI_HOME=/data/yzd/FlagAI
+export WORKSPACE=/data/yzd/FlagAI/examples/aquila
 
 export PYTHONPATH=$FLAGAI_HOME
 export NCCL_SOCKET_IFNAME=eth0

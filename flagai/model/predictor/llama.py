@@ -37,6 +37,7 @@ def llama_generate(
             #print(logits.shape)
             if temperature > 0:
                 probs = torch.softmax(logits / temperature, dim=-1)
+                
                 next_token = sample_top_p(probs, top_p)
             else:
                 next_token = torch.argmax(logits, dim=-1)

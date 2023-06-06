@@ -305,7 +305,8 @@ class Predictor:
                                       top_k: int = 30,
                                       top_p: float = 1.0,
                                       repetition_penalty: float = 1.0,
-                                      temperature: float = 1.0):
+                                      temperature: float = 1.0,
+                                      prompts_tokens=[]):
         """
         Args:
         text: The input text.
@@ -350,7 +351,7 @@ class Predictor:
         elif "llama" in self.class_name.lower():
             return llama_generate(self.tokenizer, self.model,
                                   [text], out_max_length,
-                                  temperature, top_p)
+                                  temperature, top_p, prompts_tokens=prompts_tokens)
 
         else:
             print("Unsupported decoding mode")

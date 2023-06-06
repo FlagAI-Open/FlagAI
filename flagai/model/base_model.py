@@ -170,7 +170,6 @@ class BaseModel(Module):
                     checkpoint_path,
                 )
             return model
-
         yaml_path = os.path.join(download_path, "config.yaml")
         if os.path.exists(yaml_path):
             """

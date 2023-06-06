@@ -99,10 +99,7 @@ MODEL_DICT = {
     "galactica-6.7b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-30b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-120b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
-    "llama-7b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
-    "llama-13b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
-    "llama-30b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
-    "llama-65b-en": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp", "flagai.data.tokenizer.llama.tokenizer", "Tokenizer"],
+    "aquilachat-7b": ["flagai.model.llama_model", "LLAMAModel", "llama", "nlp"],
     "vit-base-p16-224":
         ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":
@@ -222,12 +219,13 @@ class AutoLoader:
             self.model.half()
         
         if model_type == "nlp":
+
+            # elif brief_model_name in ["aquila",]:
+            #     self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
+            #                                         MODEL_DICT[model_name][5])(os.path.join(download_path, "tokenizer.model"))
             if brief_model_name in ["galactica",]:
                 self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
                                                     MODEL_DICT[model_name][5])(download_path)
-            elif brief_model_name in ["llama",]:
-                self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
-                                                    MODEL_DICT[model_name][5])(os.path.join(download_path, "tokenizer.model"))
             else :
                 tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
                                         "Tokenizer")
