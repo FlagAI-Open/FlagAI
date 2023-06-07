@@ -3,7 +3,7 @@ from torch import nn
 import os
 from flagai.model.layers.feedforward import ColumnParallelLinear
 from flagai.model.layers.embeddings import ParallelEmbedding
-from flagai.model.blocks.llama_block import LLAMABlock, RMSNorm
+from flagai.model.blocks.aquila_block import AQUILABlock, RMSNorm
 from flagai.model.layers.attentions import precompute_freqs_cis
 from flagai.model.utils import normal_init_method
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
@@ -15,7 +15,7 @@ else:
 import os 
 from flagai.model.base_model import BaseModel
 
-class LLAMAConfig(dict):
+class AQUILAConfig(dict):
     r"""
     This is the configuration class to store the configuration of a [`~LLaMAModel`]. It is used to instantiate an LLaMA
     model according to the specified arguments, defining the model architecture. Instantiating a configuration with the
@@ -48,14 +48,14 @@ class LLAMAConfig(dict):
         Example:
     ```python
     >>> from transformers import LLaMAModel, LLaMAConfig
-    >>> # Initializing a LLaMA llama-7b style configuration
+    >>> # Initializing a LLaMA aquila-7b style configuration
     >>> configuration = LLaMAConfig()
-    >>> # Initializing a model from the llama-7b style configuration
+    >>> # Initializing a model from the aquila-7b style configuration
     >>> model = LLaMAModel(configuration)
     >>> # Accessing the model configuration
     >>> configuration = model.config
     ```"""
-    model_type = "llama"
+    model_type = "aquila"
 
     def __init__(
         self,
@@ -84,7 +84,7 @@ class LLAMAConfig(dict):
         # bos_token_id=0,
         # eos_token_id=1,
         # tie_word_embeddings=False,
-        flash_atten_llama_style=False,
+        flash_atten_aquila_style=False,
         **kwargs,
     ):
         self.vocab_size = vocab_size
@@ -112,7 +112,7 @@ class LLAMAConfig(dict):
         self.bmt_fused_ce_inplace = bmt_fused_ce_inplace
         self.fix_large_bsz = fix_large_bsz
 
-        self.flash_atten_llama_style = flash_atten_llama_style
+        self.flash_atten_aquila_style = flash_atten_aquila_style
 
         # super().__init__(
         #     pad_token_id=pad_token_id,
@@ -126,11 +126,11 @@ def create_custom_forward(module):
         return module(*inputs)
     return custom_forward      
         
-class LLAMAModel(BaseModel):
+class AQUILAModel(BaseModel):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
 
-        self.config = LLAMAConfig()
+        self.config = AQUILAConfig()
         for key in config.json_config:
             if hasattr(self.config, key):
                 setattr(self.config, key, config.json_config[key])
@@ -156,9 +156,9 @@ class LLAMAModel(BaseModel):
         self.start_pos = 0
         self.layers = torch.nn.ModuleList()
         for layer_id in range(config.n_layers):
-            self.layers.append(LLAMABlock(layer_id, config))
+            self.layers.append(AQUILABlock(layer_id, config))
 
-        if config.flash_atten_llama_style:
+        if config.flash_atten_aquila_style:
             import flash_attn
             self.norm = flash_attn.ops.rms_norm.RMSNorm(config.dim, eps=config.norm_eps)
         else:
@@ -225,7 +225,6 @@ class LLAMAModel(BaseModel):
                 layer.use_cache = self.use_cache
                 layer.start_pos = start_pos
                 h = layer(h, freqs_cis, mask)
-      
         h = self.norm(h)
         if labels is not None:
             if self.config.checkpoint_activations:

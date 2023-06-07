@@ -81,7 +81,7 @@ def apply_rotary_pos_emb(
     xk_out = torch.view_as_real(xk_ * freqs_cis).flatten(3)
     return xq_out.type_as(xq), xk_out.type_as(xk) 
 
-class LLAMAAttention(nn.Module):
+class AQUILAAttention(nn.Module):
     def __init__(self, config):
         super().__init__()
 
@@ -117,7 +117,7 @@ class LLAMAAttention(nn.Module):
                 input_is_parallel=True,
                 init_method=normal_init_method(0, self.config.initializer_range),
             )
-        elif config.flash_atten_llama_style:
+        elif config.flash_atten_aquila_style:
             self.n_local_heads = config.n_heads 
             self.head_dim = config.dim // config.n_heads
             self.Wqkv = nn.Linear(config.dim, 3 * config.dim, bias=False)
@@ -159,7 +159,7 @@ class LLAMAAttention(nn.Module):
                 use_cache=False,
                 **kwargs):
         bsz, seqlen, _ = x.shape
-        if self.config.flash_atten_llama_style:
+        if self.config.flash_atten_aquila_style:
             qkv = self.Wqkv(x)
             qkv = einops.rearrange(qkv, '... (three h d) -> ... three h d', three=3, d=self.head_dim)
             qkv = self.rotary_emb(qkv)
@@ -189,7 +189,7 @@ class LLAMAAttention(nn.Module):
             values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             qkv = torch.concat([xq, keys, values], dim=2)
 
-        if self.config.flash_atten or (self.config.flash_atten_llama_style and not self.training):
+        if self.config.flash_atten or (self.config.flash_atten_aquila_style and not self.training):
             qkv = einops.rearrange(qkv, 'b s ... -> (b s) ...')
 
             if self.cu_seqlens is None:

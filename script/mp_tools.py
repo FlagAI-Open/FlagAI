@@ -38,7 +38,7 @@ from_1_to_n_models = {
         "mlp.c_proj.weight": 1,
         "lm_head.weight": 0,
     },
-    "llama": {
+    "aquila": {
         "tok_embeddings.weight": 1,
         "attention.wq.weight": 0,
         "attention.wk.weight": 0,
@@ -463,4 +463,4 @@ def change_pytorch_model_mp_from_n_to_1(model_name_brief, checkpoint):
 
 if __name__ == "__main__":
     change_pytorch_model_mp_from_1_to_n_new(
-        'llama', './', 4)
+        'aquila', './', 4)

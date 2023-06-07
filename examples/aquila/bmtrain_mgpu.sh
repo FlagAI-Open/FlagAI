@@ -1,5 +1,5 @@
 # ENVS
-export PROJ_HOME=/data/ldwang
+export PROJ_HOME=/data/yzd/FlagAI/examples/aquila
 export FLAGAI_HOME=/data/yzd/FlagAI
 export PRE_LOAD_DIR=/data/yzd/FlagAI/examples/aquila/checkpoints_in
 export PYTHONPATH=$FLAGAI_HOME
@@ -31,13 +31,12 @@ export RANK=$(awk '{ranks[$1]=(FNR-1);}END{print ranks["'$NODE_ADDR'"];}' $HOSTF
 export MASTER_PORT=23456
 
 export TRIGGER_FILE=bmtrain_mgpu.sh
-export SCRIPT_FILE=aquila_sft.py
+export SCRIPT_FILE=aquila_pretrain.py
 
 ## wandb
 export WANDB_MODE=offline
 
 ## EXP
-#export MODEL_NAME=llama-7b-en
 export MODEL_NAME=aquila-7b
 
 export MODEL_NAME=$model_name

@@ -19,6 +19,8 @@ test_report
 /data/
 /tests/*/data
 checkpoints
+checkpoints_in
+checkpoints_out
 state_dict
 checkpoints*
 vocabs

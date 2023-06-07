@@ -2,7 +2,7 @@ from typing import List
 import torch
 
 
-def llama_generate(
+def aquila_generate(
         tokenizer,
         model,
         prompts: List[str],

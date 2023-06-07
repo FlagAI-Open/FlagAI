@@ -16,5 +16,5 @@ save_rng: True
 load_optim: False 
 
 env_args.enable_sft_conversations_dataset_v3: false
-enable_sft_dataset_dir: '/data/yzd/FlagAI/examples/gpt3_pretrain/llama/tools/script/'
+enable_sft_dataset_dir: '/data/yzd/FlagAI/examples/aquila/datasets/'
 enable_sft_dataset_file: 'convo_v2.jsonl'

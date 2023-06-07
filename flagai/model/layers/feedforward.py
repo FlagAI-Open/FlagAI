@@ -68,7 +68,7 @@ def _initialize_affine_weight(weight,
     return None
 
 
-class LLAMAForward(nn.Module):
+class AQUILAForward(nn.Module):
     def __init__(
         self,
         dim,

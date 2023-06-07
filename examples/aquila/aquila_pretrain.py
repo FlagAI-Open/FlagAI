@@ -15,8 +15,8 @@ from flagai.env_trainer_v1 import EnvTrainer
 
 #torch.autograd.set_detect_anomaly(True)
 
-from examples.gpt3_pretrain.build_index_mappings import _build_train_valid_test_datasets
-from examples.gpt3_pretrain.build_index_mappings import _build_train_valid_test_weighted_datasets
+from examples.aquila.build_index_mappings import _build_train_valid_test_datasets
+from examples.aquila.build_index_mappings import _build_train_valid_test_weighted_datasets
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -24,7 +24,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # For example: python train_env_trainer.py --epochs=300 --batch_size=4 --env_type=pytorch
 env_args = EnvArgs(
     env_type="bmtrain",
-    experiment_name="llama",
+    experiment_name="aquila",
     batch_size=1,
     gradient_accumulation_steps=1,
     lr=2e-4,
@@ -35,7 +35,7 @@ env_args = EnvArgs(
     num_gpus=1,
     load_dir=None,
     pytorch_device=device,
-    save_dir="checkpoints_llama",
+    save_dir="checkpoints_aquila",
     checkpoint_activations=False,
     save_interval=5000,
     fp16=True,
@@ -67,14 +67,10 @@ if not env_args.not_call_launch:
 
 print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}", flush=True)
 
-#checkpoints = "/share/project/ldwang/sft/state_dict/"
 checkpoints = env_args.pre_load_dir
-# model_name = env_args.model_name
 
-# checkpoints = "/data/yzd/FlagAI/examples/aquila/checkpoints_in/"
 model_name = env_args.model_name
-# model_name = "aquila-7b"
-# env_args.enable_sft_dataset_dir = "/data/yzd/FlagAI/examples/gpt3_pretrain/llama/tools/script/convo_v2.jsonl"
+
 env_args.enable_sft_conversations_dataset_v3 = True
 
 
@@ -107,8 +103,8 @@ if env_args.bmt_async_load:
 
 
 config_file = os.path.join(cache_dir, 'config.json')
-from flagai.model.llama_model import LLAMAModel
-model = LLAMAModel.init_from_json(config_file=config_file)
+from flagai.model.aquila_model import AQUILAModel
+model = AQUILAModel.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
 
 ## bmt_pre_load
@@ -130,7 +126,7 @@ seq_length = 1024
 seed = 2023
 skip_warmup = True
 
-train_dataset, val_dataset, _ = _build_train_valid_test_datasets(
+train_dataset, valid_dataset, _ = _build_train_valid_test_datasets(
     data_prefix, data_impl, splits_string,
     train_valid_test_num_samples,
     seq_length, seed, skip_warmup)

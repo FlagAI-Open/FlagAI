@@ -1,4 +1,0 @@
-# comments
-batch_size: 1
-bmt_cpu_offload: False
-bmt_pre_load: True

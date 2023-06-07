@@ -13,11 +13,6 @@ from flagai.data.tokenizer import Tokenizer
 from flagai.env_args import EnvArgs
 from flagai.env_trainer_v1 import EnvTrainer
 
-#torch.autograd.set_detect_anomaly(True)
-
-from examples.gpt3_pretrain.build_index_mappings import _build_train_valid_test_datasets
-from examples.gpt3_pretrain.build_index_mappings import _build_train_valid_test_weighted_datasets
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
@@ -105,8 +100,8 @@ if env_args.bmt_async_load:
 
 
 config_file = os.path.join(cache_dir, 'config.json')
-from flagai.model.llama_model import LLAMAModel
-model = LLAMAModel.init_from_json(config_file=config_file)
+from flagai.model.aquila_model import AQUILAModel
+model = AQUILAModel.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
 
 ## bmt_pre_load
@@ -134,7 +129,7 @@ def read_file():
             conversations.append(line)
     return conversations
 
-from examples.aquila import ym_conversation as conversation_lib
+from examples.aquila import cyg_conversation as conversation_lib
 """Add speaker and start/end signal on each round."""
 BEGIN_SIGNAL = "### "
 END_SIGNAL = "\n"

@@ -187,6 +187,8 @@ class BaseModel(Module):
             model_id = _get_model_id(model_name)
         except:
             print("Model hub is not reachable!")
+
+        import pdb;pdb.set_trace()
         # prepare the download path
         # downloading the files
         model: Union[Module, None]

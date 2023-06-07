@@ -1,8 +1,8 @@
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
-from flagai.model.layers.attentions import LLAMAAttention
-from flagai.model.layers.feedforward import LLAMAForward
+from flagai.model.layers.attentions import AQUILAAttention
+from flagai.model.layers.feedforward import AQUILAForward
 from torch import nn
 import torch
 
@@ -26,21 +26,20 @@ class RMSNorm(nn.Module):
         return self.weight * hidden_states
 
 
-class LLAMABlock(nn.Module):
+class AQUILABlock(nn.Module):
     def __init__(self, layer_id, config ):
         super().__init__()
         self.n_heads = config.n_heads
         self.dim = config.dim
         self.head_dim = config.dim // config.n_heads
-        self.attention = LLAMAAttention(config)
+        self.attention = AQUILAAttention(config)
 
-        self.feed_forward = LLAMAForward(
+        self.feed_forward = AQUILAForward(
             dim=config.dim, hidden_dim=4 * config.dim, multiple_of=config.multiple_of, config=config
         )
 
         self.layer_id = layer_id
-        if config.flash_atten_llama_style:
-            # import flash_attn
+        if config.flash_atten_aquila_style:
             from flash_attn.ops.rms_norm import RMSNorm
             self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
             self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)
