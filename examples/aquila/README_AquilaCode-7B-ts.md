@@ -55,7 +55,7 @@ AquilaCode-7B-tianshu训练使用了[starcoderdata](https://huggingface.co/datas
 
 The AquilaCode-7B-tianshu model was supervised fine-tuning on [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(Python, jupyter-scripts, jupyter-structured-textt).
 
- 
+ ![Screenshot](img/data.jpg)
 
 ## 使用方式/How to use
 

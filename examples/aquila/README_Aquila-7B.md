@@ -44,6 +44,7 @@ Aquila-7B训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datase
 
 The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), wudao、e-book、Patent, encyclopedia, forum, github etc.
 
+![Screenshot](img/data.jpg)
 
 ## 快速使用/Quick start
 

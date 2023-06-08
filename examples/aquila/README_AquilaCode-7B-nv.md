@@ -54,7 +54,7 @@ AquilaCode-7B-nv训练使用了[starcoderdata](https://huggingface.co/datasets/b
 
 The AquilaCode-7B-nv model was  supervised fine-tuning on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
 
- 
+ ![Screenshot](img/data.jpg)
 
 ## 使用方式/How to use
 
