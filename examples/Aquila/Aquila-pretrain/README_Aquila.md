@@ -34,7 +34,6 @@ We also support [Huggingface](hflink)
 |   Model          |  License    | Commercial use?  |  GPU   | Model link                                     
 | :---------------- | :------- | :-- |:-- | :-- |    
 | <font color=red>Aquila-7B </font>         | Apache 2.0  |  ✅   | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100098
-| <font color=red>Aquila-33B          | Apache 2.0  |  ✅  |  Nvidia-A100  | mhlink
 | AquilaCode-7B-nv          | Apache 2.0  |  ✅   |   Nvidia-A100   | https://model.baai.ac.cn/model-detail/100102
 | AquilaCode-7B-ts           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   | https://model.baai.ac.cn/model-detail/100099                
 | AquilaChat-7B           | Apache 2.0  |  ✅    | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100101
@@ -88,7 +87,7 @@ The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://hugging
 bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquila-7b [实验名]
 ```   
 
-对于Aquila-7B模型
+对于Aquila-33B模型
 ```
 bash dist_trigger_docker.sh hostfile Aquila-pretrain-33B.yaml aquila-33b [实验名]
 ```   

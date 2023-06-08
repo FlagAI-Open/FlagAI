@@ -1,7 +1,7 @@
 license: [Apache License 2.0](https://model.baai.ac.cn/use-agreement)
 
 
-# AquilaChat-7B
+# AquilaChat
 
 ## 简介/Overview
 Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed zero-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
@@ -31,6 +31,13 @@ We also support [Huggingface](hflink)
 aquila chat 主要为了验证基础模型能力，使用者可以根据自己需要。。。， 免责说明(license那句话改改)
 
 ## 模型细节/Model details
+|   Model          |  License    | Commercial use?  |  GPU   | Model link                                     
+| :---------------- | :------- | :-- |:-- | :-- |    
+|Aquila-7B        | Apache 2.0  |  ✅   | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100098
+| AquilaCode-7B-nv          | Apache 2.0  |  ✅   |   Nvidia-A100   | https://model.baai.ac.cn/model-detail/100102
+| AquilaCode-7B-ts           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   | https://model.baai.ac.cn/model-detail/100099                
+| AquilaChat-7B           | Apache 2.0  |  ✅    | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100101
+
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们应用了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 
