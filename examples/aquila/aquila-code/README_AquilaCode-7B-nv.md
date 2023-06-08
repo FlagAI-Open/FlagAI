@@ -56,7 +56,7 @@ The model was trained on an 8 8-card Nvidia A100-40G for 14 days, and there are 
 ## 训练数据集/Training data 
 AquilaCode-7B-nv训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text数据
 
-
+给予我们的模型进行了continue pretrain--------
 The AquilaCode-7B-nv model was  supervised fine-tuning on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
 
 ![Screenshot](../img/data.jpg)
