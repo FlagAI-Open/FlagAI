@@ -118,7 +118,7 @@ print('*'*20, "model", model, flush=True)
 
 
 ## Use Prebuilt DataSets
-data_prefix = '../indexed_dataset/data/demo_text_document'
+data_prefix = '../../indexed_dataset/data/demo_text_document'
 data_impl = 'mmap'
 splits_string = '90,10'
 train_valid_test_num_samples = [90, 10]

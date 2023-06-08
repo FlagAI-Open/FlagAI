@@ -20,7 +20,7 @@ tokenizer = loader.get_tokenizer()
 # from flagai.model.aquila_model import AQUILAModel
 # model = AQUILAModel.from
 # tokenizer = Tokenizer.from_pretrained('aquila-7b', cache_dir='./checkpoints_in/aquila-7b')
-pl_sd = torch.load('./checkpoints_in/aquila-7b/pytorch_model.bin', map_location="cpu")
+pl_sd = torch.load('../checkpoints_in/aquila-7b/pytorch_model.bin', map_location="cpu")
 if "state_dict" in pl_sd:
     sd = pl_sd["state_dict"]
 else:

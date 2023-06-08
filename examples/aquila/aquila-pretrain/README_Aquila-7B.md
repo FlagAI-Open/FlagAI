@@ -39,13 +39,13 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | llama | 32000 | sp(bpe)|1805.6541| 1257.9891|1970.3644 |
 | gpt2_new_100k | 100000 | bpe|1575.7418 | 477.4393|1679.7736 |
 
-|   Model          |  License    | Commercial use? | Pretraining length [tokens] | Pretraining compute |  GPU | # of GPUs                                         
-| :---------------- | :------- | :-- |:-- | :-- | 
-| Aquila-7B          | Apache 2.0  |  ✅  | xx  | xx  |     
-| Aquila-33B          | Apache 2.0  |  ✅  | xx  | xx  |    
-| AquilaCode-7B-nv          | Apache 2.0  |  ✅  | xx  | xx  |    
-| AquilaCode-7B-ts           | Apache 2.0  |  ✅  | xx  | xx  |                     
-
+|   Model          |  License    | Commercial use? | Pretraining length [tokens] | Pretraining compute (days) |  GPU | # of GPUs                                         
+| :---------------- | :------- | :-- |:-- | :-- | :-- | :-- | 
+| Aquila-7B          | Apache 2.0  |  ✅  | 400B  | xx  | Nvidia-A100-40G  | 22x8  |    
+| Aquila-33B          | Apache 2.0  |  ✅  | xx  | xx  |  Nvidia-A100  |   |  
+| AquilaCode-7B-nv          | Apache 2.0  |  ✅  |  235B  | 14 |   Nvidia-A100   | 8x8  | 
+| AquilaCode-7B-ts           | Apache 2.0  |  ✅  |  75B | 9  |  Tianshu-BI-V100   | 32x8  |                   
+| AquilaChat-7B           | Apache 2.0  |  ✅  | 1  | xx  | Nvidia-A100  | 1x8  |
 
 ## 训练数据集/Training data 
 Aquila-7B训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), 悟道、电子书、专利、百科、论坛, github数据等
