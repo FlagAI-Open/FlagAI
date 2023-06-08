@@ -1,22 +1,21 @@
 license: [Apache License 2.0](https://model.baai.ac.cn/use-agreement)
 
 
-# AquilaChat-7B
+# AquilaCode-7B-tianshu
 
 ## 简介/Overview
-Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed zero-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
+Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed ZeRO-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
 
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
-  
-AquilaChat-7B是在Aquila-7B模型的基础上，进行SFT微调后的支持中英双语的对话式语言模型。模型在一台8卡Nvidia A100上训练8小时，总共对15万条数据训练了3个epoch。AquilaChat-7B模型由智源研究院研发，其在主流评测数据集上的评测结果如下
 
-AquilaChat-7B is a conversational language model that supports Chinese-English dialogue. It is based on the Aquila-7B model and fine-tuned using SFT. The model was trained on an 8-card Nvidia A100 for 8 hours, and a total of 150,000 lines of data were trained for 3 epochs. AquilaChat-7B model was developed by Beijing Academy of Artificial Intelligence. The evaluation results on mainstream benchmark datasets are as follows:
+
+AquilaCode-7B-tianshu是在Aquila-7B模型的基础上，经过代码数据的继续预训练得到的基础代码模型。此模型由智源研究院研发。在主流评测数据集上的评测结果如下
+
+AquilaCode-7B-tianshu is a foundational code model obtained by further pretraining on code data based on the Aquila-7B model. It was developed by Beijing Academy of Artificial Intelligence. The evaluation results on mainstream benchmark datasets are as follows:
 
 | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
 |  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
-| [AcuilaChat-7B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.292 | 0.385|0.269 | 0.731|0.347 |0.939| 0.443|
-| [BiLLa-7B-LLM](https://model.baai.ac.cn/model-detail/xxxxx) | 0.279 | 0.374|0.257 | 0.76|0.205 |0.864| 0.514|
-| [Ziya-LLaMA-13B-v1](https://model.baai.ac.cn/model-detail/xxxxx) | 0.273 | 0.404|0.406 | 0.786|0.284 |0.762| 0.191|
+| [AquilaCode-7B-tianshu](https://model.baai.ac.cn/model-detail/xxxxx) | 0.xxx | 0.xxx|0.xxx | 0.xxx|0.xxx |
 
 您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
 
@@ -27,7 +26,6 @@ You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/
 我们的模型也同时支持[Huggingface平台](hflink)
 
 We also support [Huggingface](hflink)
-
 
 
 ## 模型细节/Model details
@@ -46,39 +44,66 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | llama | 32000 | sp(bpe)|1805.6541| 1257.9891|1970.3644 |
 | gpt2_new_100k | 100000 | bpe|1575.7418 | 477.4393|1679.7736 |
 
+模型在32台8卡天数显卡上训练9天，数据集规模为750亿。
+
+The model was trained on an 8 8-card Nvidia A100-40G for 9 days, and there are 75B tokens in the train set.
+
 
 
 ## 训练数据集/Training data 
+AquilaCode-7B-tianshu训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的Python, jupyter-scripts, jupyter-structured-text数据
 
-我们采用了一系列高质量中英文数据集来训练和微调我们的对话语言模型，并且在不断更新迭代
+The AquilaCode-7B-tianshu model was supervised fine-tuning on [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(Python, jupyter-scripts, jupyter-structured-textt).
 
-We used a series of high-quality Chinese and English datasets to train and fine-tune our conversational language model, and continuously updated it through iterations.
+![Screenshot](../img/data.jpg)
 
-![Screenshot](img/data.jpg)
+## 使用方式/How to use
 
+### 快速使用/Quick start
 
-## 快速使用/Quick start
+```python
+import torch
+from flagai.auto_model.auto_loader import AutoLoader
+from flagai.model.predictor.predictor import Predictor
+from flagai.data.tokenizer import Tokenizer
 
-### 预训练/Pre-training
-#### Step 1: 修改参数/Modify Parameters
+model_info = "Aquila-7b-sft-10m-1"
+model_dir = "./aquila-7b-45500-sft-10m-1"
+prompt = "今天吃什么"
 
-* 进入`/examples/aquila`目录
-* 配置`hostfile`文件
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`
-* 在`Aquila-pretrain.yaml`文件里更改参数 (可选)
-* 我们的演示数据集放在`../indexed_dataset/data/demo_text_document`里，可通过aquila_pretrain的`data_prefix`变量来修改数据集       
-#### Step 2: 启动训练/Start training
+tokenizer = Tokenizer.from_pretrained("llama-30b-en", 
+                                      cache_dir="./gpt2_new_100k/")
+
+loader = AutoLoader("lm", model_name="llama-7b-en", 
+                    only_download_config=False, 
+                    use_cache=True, 
+                    fp16=True,
+                    model_dir=model_dir)
+
+model = loader.get_model()
+model.eval()
+vocab = tokenizer.get_vocab()
+id2word = {v:k for k, v in vocab.items()}
+predictor = Predictor(model, tokenizer)
+with torch.no_grad():
+    prompt = "#用户#" + prompt + " " + "#ai助手#"
+    model_in = "[CLS]" + prompt
+    out, tokens, probs = predictor.predict_generate_randomsample(prompt, 
+                                                    out_max_length=200, 
+                                                    )
 ```
-bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-30b [实验名]
-```   
- 
-  
+
 ### 可监督微调/Supervised Fine-tuning(SFT)
-#### Step 1: 修改参数
+#### Step 1: 配置模型
+在`./checkpoints_in`里新建`aquila-7b`目录。将微调后的checkpoint，以及原始`aquila-7b`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
+
+Create a new directory named `aquila-7b` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquila-7b` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
+
+#### Step 2: 修改参数
 * `cd /examples/aquila`
-* 配置`hostfile`文件, 参考[这里](../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_pretrain.py`
-* (可选) 在`Aquila-pretrain.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-pretrain.yaml`
+* 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft_code.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft_code.py`
+* (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft-code.yaml`
 
 | 参数名 Parameter             | 类型 Type | 描述 Description                                        |
 |--------------------------------|------------|-------------------------------------------------------|
@@ -86,50 +111,16 @@ bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-30b [实验名]
 | gradient_accumulation_steps | int   | 在更新模型权重之前，要对多个小批次进行梯度计算的次数。主要应用于GPU显存较小的情况下，可以使用小的batch_size，通过梯度累积达到与大batch_size相同的效果; The number of samples extracted from the dataset for each iteration during training. Generally, a larger batch size can speed up processing but may also consume more memoryimages                  |
 | lr | float   | 指控制模型更新参数时的步长或速率。学习率过高可能导致模型不收敛，而学习率过低则可能导致训练时间过长或者陷入局部最优解; The step size or rate at which the model updates its parameters during training. A high learning rate may cause the model not to converge, while a low learning rate may result in long training times or being stuck in a local optimum                  |
 | warm_up | float   | 初始学习率与原始学习率的比例; The ratio between the initial learning rate and the original learning rate
-| save_interval | int  | 模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失; The interval at which the model is saved, i.e., how often the model is saved per epoch during training. When training takes a long time, saving intervals can prevent all training achievements from being lost due to sudden interruptions or errors.   
+| save_interval | int  | 模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失; The interval at which the model is saved, i.e., how often the model is saved per epoch during training. When training takes a long time, saving intervals can prevent all training achievements from being lost due to sudden interruptions or errors.                    |
+| enable_sft_conversations_dataset_v3 | bool  | 数据处理方式; Data preprocessing method                    |
+| enable_sft_dataset_dir | str   | 可监督微调的数据集目录; Dataset directory of SFT dataset                    |
+| enable_sft_dataset_file | str   | 可监督微调的数据集文件名; Filename of SFT dataset                     |                  |
 
-#### Step 2: 启动微调
+
+#### Step 3: 启动微调
 ```
-bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-30b [实验名]
+bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
 ```
-
-
-### 推理/Inference
-
-```python
-import os
-import torch
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
-from flagai.data.tokenizer import Tokenizer
-import bminf
-
-state_dict = "./checkpoints_in/"
-model_name = 'aquila-7b'
-
-loader = AutoLoader(
-    "lm",
-    model_dir=state_dict,
-    model_name=model_name,
-    use_cache=True)
-model = loader.get_model()
-tokenizer = loader.get_tokenizer()
-
-model.eval()
-model.half()
-model.cuda()
-
-predictor = Predictor(model, tokenizer)
-
-text = "北京在哪儿?"
-text = f'{text}' 
-print(f"text is {text}")
-with torch.no_grad():
-    out = predictor.predict_generate_randomsample(text, out_max_length=200, temperature=0)
-    print(f"pred is {out}")
-
-```
-
 
 
 ## 证书/License

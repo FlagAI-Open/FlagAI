@@ -39,12 +39,20 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | llama | 32000 | sp(bpe)|1805.6541| 1257.9891|1970.3644 |
 | gpt2_new_100k | 100000 | bpe|1575.7418 | 477.4393|1679.7736 |
 
+|   Model          |  License    | Commercial use? | Pretraining length [tokens] | Pretraining compute |  GPU | # of GPUs                                         
+| :---------------- | :------- | :-- |:-- | :-- | 
+| Aquila-7B          | Apache 2.0  |  ✅  | xx  | xx  |     
+| Aquila-33B          | Apache 2.0  |  ✅  | xx  | xx  |    
+| AquilaCode-7B-nv          | Apache 2.0  |  ✅  | xx  | xx  |    
+| AquilaCode-7B-ts           | Apache 2.0  |  ✅  | xx  | xx  |                     
+
+
 ## 训练数据集/Training data 
 Aquila-7B训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), 悟道、电子书、专利、百科、论坛, github数据等
 
 The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), wudao、e-book、Patent, encyclopedia, forum, github etc.
 
-![Screenshot](img/data.jpg)
+![Screenshot](../img/data.jpg)
 
 ## 快速使用/Quick start
 
@@ -55,7 +63,7 @@ The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://hugging
 * 配置`hostfile`文件
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`
 * 在`Aquila-pretrain.yaml`文件里更改参数 (可选)
-* 我们的演示数据集放在`../indexed_dataset/data/demo_text_document`里，可通过aquila_pretrain的`data_prefix`变量来修改数据集       
+* 我们的演示数据集放在`../indexed_dataset/data/demo_text_document`里。 如果想修改预训练数据集，可更改`aquila_pretrain.py`里的`data_prefix`参数       
 #### Step 2: 启动训练/Start training
 ```
 bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-7b [实验名]
@@ -65,7 +73,7 @@ bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-7b [实验名]
 ### 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 修改参数
 * `cd /examples/aquila`
-* 配置`hostfile`文件, 参考[这里](../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_pretrain.py`
 * (可选) 在`Aquila-pretrain.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-pretrain.yaml`
 

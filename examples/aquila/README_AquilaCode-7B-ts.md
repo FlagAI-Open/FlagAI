@@ -93,15 +93,29 @@ with torch.no_grad():
                                                     )
 ```
 
-### 微调/Fine-tuning
+### 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 配置模型
 在`./checkpoints_in`里新建`aquila-7b`目录。将微调后的checkpoint，以及原始`aquila-7b`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
 
+Create a new directory named `aquila-7b` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquila-7b` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
+
 #### Step 2: 修改参数
-* 进入`/examples/aquila`目录
-* 配置`hostfile`文件
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft.py`
-* 在`Aquila-sft.yaml`文件里更改参数 (可选)
+* `cd /examples/aquila`
+* 配置`hostfile`文件, 参考[这里](../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft_code.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft_code.py`
+* (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft-code.yaml`
+
+| 参数名 Parameter             | 类型 Type | 描述 Description                                        |
+|--------------------------------|------------|-------------------------------------------------------|
+| batch_size | int   | 每次迭代训练时，从数据集中抽取的样本数。一般来说，它越大，处理速度越快，但会占用更多的内存; The number of samples extracted from the dataset for each iteration during training. Generally, a larger batch size can speed up processing but may also consume more memory                    |
+| gradient_accumulation_steps | int   | 在更新模型权重之前，要对多个小批次进行梯度计算的次数。主要应用于GPU显存较小的情况下，可以使用小的batch_size，通过梯度累积达到与大batch_size相同的效果; The number of samples extracted from the dataset for each iteration during training. Generally, a larger batch size can speed up processing but may also consume more memoryimages                  |
+| lr | float   | 指控制模型更新参数时的步长或速率。学习率过高可能导致模型不收敛，而学习率过低则可能导致训练时间过长或者陷入局部最优解; The step size or rate at which the model updates its parameters during training. A high learning rate may cause the model not to converge, while a low learning rate may result in long training times or being stuck in a local optimum                  |
+| warm_up | float   | 初始学习率与原始学习率的比例; The ratio between the initial learning rate and the original learning rate
+| save_interval | int  | 模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失; The interval at which the model is saved, i.e., how often the model is saved per epoch during training. When training takes a long time, saving intervals can prevent all training achievements from being lost due to sudden interruptions or errors.                    |
+| enable_sft_conversations_dataset_v3 | bool  | 数据处理方式; Data preprocessing method                    |
+| enable_sft_dataset_dir | str   | 可监督微调的数据集目录; Dataset directory of SFT dataset                    |
+| enable_sft_dataset_file | str   | 可监督微调的数据集文件名; Filename of SFT dataset                     |                  |
+
 
 #### Step 3: 启动微调
 ```

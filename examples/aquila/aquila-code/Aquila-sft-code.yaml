@@ -1,0 +1,20 @@
+# comments
+batch_size: 10
+gradient_accumulation_steps: 1
+lr: 2.e-4
+warm_up: 0.001
+save_interval: 500 
+
+bmt_cpu_offload: False
+bmt_pre_load: False 
+bmt_async_load: False 
+bmt_loss_scale: 65536 
+
+save_optim: True
+save_rng: True
+
+load_optim: False 
+
+enable_sft_conversations_dataset: True
+enable_sft_dataset_dir: './datasets/'
+enable_sft_dataset_file: 'convo_v2.jsonl'

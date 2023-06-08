@@ -230,8 +230,6 @@ class AQUILAModel(BaseModel):
                 h = checkpoint(create_custom_forward(self.output),h)
             else:
                 h = self.output(h)
-            print(torch.mean(h, dim=2))
-            import pdb;pdb.set_trace()
             shift_logits = h[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
 

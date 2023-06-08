@@ -54,7 +54,7 @@ AquilaCode-7B-nv训练使用了[starcoderdata](https://huggingface.co/datasets/b
 
 The AquilaCode-7B-nv model was  supervised fine-tuning on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
 
- ![Screenshot](img/data.jpg)
+![Screenshot](../img/data.jpg)
 
 ## 使用方式/How to use
 
@@ -127,7 +127,7 @@ Create a new directory named `aquila-7b` inside `./checkpoints_in`. Place the fi
 
 #### Step 2: 修改参数
 * `cd /examples/aquila`
-* 配置`hostfile`文件, 参考[这里](../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft_code.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft_code.py`
 * (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft-code.yaml`
 
