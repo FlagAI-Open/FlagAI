@@ -1,8 +1,10 @@
+# Defined by User
+export TRIGGER_FILE=bmtrain_mgpu.sh
+export SCRIPT_FILE=aquila_pretrain.py
+
 # ENVS
-export PROJ_HOME=/data/yzd/FlagAI/examples/aquila
-export FLAGAI_HOME=/data/yzd/FlagAI
-export PRE_LOAD_DIR=/data/yzd/FlagAI/examples/aquila/checkpoints_in
-export PYTHONPATH=$FLAGAI_HOME
+export PROJ_HOME=$PWD
+export PRE_LOAD_DIR=$PROJ_HOME/checkpoints_in
 export NCCL_SOCKET_IFNAME=eth0
 export NCCL_IB_DISABLE=0
 export NCCL_IB_CUDA_SUPPORT=1
@@ -30,27 +32,21 @@ export MASTER_ADDR=$(head -n1 $HOSTFILE | awk '{print $1;}')
 export RANK=$(awk '{ranks[$1]=(FNR-1);}END{print ranks["'$NODE_ADDR'"];}' $HOSTFILE)
 export MASTER_PORT=23456
 
-export TRIGGER_FILE=bmtrain_mgpu.sh
-export SCRIPT_FILE=aquila_pretrain.py
 
 ## wandb
 export WANDB_MODE=offline
 
 ## EXP
-export MODEL_NAME=aquila-7b
-
 export MODEL_NAME=$model_name
 export EXP_NAME=$exp_name
-
-export WORKSPACE=$FLAGAI_HOME/examples/aquila
-export STATE_DICT_DIR=$PROJ_HOME/checkpoints_in
 export WANDB_DIR=$PROJ_HOME/wandb/${EXP_NAME}/$exp_version
+mkdir -p $PROJ_HOME/checkpoints_out
 export SAVE_DIR=$PROJ_HOME/checkpoints_out/${EXP_NAME}/$exp_version
 mkdir -p $SAVE_DIR
 mkdir -p $WANDB_DIR
 ## Backup ckpts & scripts into exp versions
-cp -r $STATE_DICT_DIR/$MODEL_NAME $SAVE_DIR
-cp -r $WORKSPACE/$TRIGGER_FILE $SAVE_DIR
+cp -r $PRE_LOAD_DIR/$MODEL_NAME $SAVE_DIR
+cp -r $PROJ_HOME/$TRIGGER_FILE $SAVE_DIR
 cp -r $hostfile $SAVE_DIR
 cp -r $configfile $SAVE_DIR
 
@@ -82,6 +78,8 @@ OPTS=" --batch_size $BATCH_SIZE \
        --yaml_config $CONFIGFILE"
 
 ## Trigger job on Each Node when bmt or ddp.
+
+mkdir -p $PRE_LOAD_DIR
 python -m torch.distributed.launch \
        --nproc_per_node $GPU_NUM_PER_NODE \
        --nnodes $NODES_NUM \
@@ -91,4 +89,3 @@ python -m torch.distributed.launch \
        $SCRIPT_FILE \
        --not_call_launch \
        $OPTS
-

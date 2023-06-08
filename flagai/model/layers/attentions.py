@@ -184,12 +184,12 @@ class AQUILAAttention(nn.Module):
                 keys = xk
                 values = xv 
 
+        if self.config.flash_atten or (self.config.flash_atten_aquila_style and not self.training):
             xq = xq.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             keys = keys.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             values = values.view(bsz, seqlen, 1, self.n_local_heads, self.head_dim)
             qkv = torch.concat([xq, keys, values], dim=2)
 
-        if self.config.flash_atten or (self.config.flash_atten_aquila_style and not self.training):
             qkv = einops.rearrange(qkv, 'b s ... -> (b s) ...')
 
             if self.cu_seqlens is None:

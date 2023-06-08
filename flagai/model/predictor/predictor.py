@@ -306,7 +306,7 @@ class Predictor:
                                       top_p: float = 1.0,
                                       repetition_penalty: float = 1.0,
                                       temperature: float = 1.0,
-                                      prompts_tokens=[]):
+                                      prompts_tokens=None):
         """
         Args:
         text: The input text.

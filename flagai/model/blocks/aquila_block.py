@@ -39,13 +39,14 @@ class AQUILABlock(nn.Module):
         )
 
         self.layer_id = layer_id
-        if config.flash_atten_aquila_style:
-            from flash_attn.ops.rms_norm import RMSNorm
-            self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
-            self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)
-        else:
-            self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
-            self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)
+        # if config.flash_atten_aquila_style:
+        #     from flash_attn.ops.rms_norm import RMSNorm
+        #     self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
+        #     self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)
+        # else:
+            
+        self.attention_norm = RMSNorm(config.dim, eps=config.norm_eps)
+        self.ffn_norm = RMSNorm(config.dim, eps=config.norm_eps)
         self.start_pos = 0
         self.use_cache = False
     def forward(self, x, 

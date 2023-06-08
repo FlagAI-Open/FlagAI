@@ -129,7 +129,6 @@ def create_custom_forward(module):
 class AQUILAModel(BaseModel):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
-
         self.config = AQUILAConfig()
         for key in config.json_config:
             if hasattr(self.config, key):
@@ -185,6 +184,7 @@ class AQUILAModel(BaseModel):
         else:
             self.loss_func = nn.CrossEntropyLoss(ignore_index=self.config.ignore_index)
 
+
     def pre_train_hook(self):
         """ before training """
         if os.getenv("ENV_TYPE") == "bmtrain" and self.config.bmt_comm_overlap:
@@ -208,12 +208,10 @@ class AQUILAModel(BaseModel):
             mask = torch.triu(mask, diagonal=start_pos + 1).type_as(h)
         self.start_pos = start_pos
         if self.config.checkpoint_activations:
-
             for layer in self.layers:
                 layer.use_cache = self.use_cache
                 layer.start_pos = start_pos
-                h = checkpoint(create_custom_forward(layer),
-                                h, freqs_cis, mask)
+                h = checkpoint(create_custom_forward(layer), h, freqs_cis, mask)
         elif os.getenv("ENV_TYPE") == "bmtrain" and self.config.bmt_comm_overlap:
             # to overlap communication with computation
             for layer in self.layers:
@@ -225,12 +223,15 @@ class AQUILAModel(BaseModel):
                 layer.use_cache = self.use_cache
                 layer.start_pos = start_pos
                 h = layer(h, freqs_cis, mask)
+        
         h = self.norm(h)
         if labels is not None:
             if self.config.checkpoint_activations:
                 h = checkpoint(create_custom_forward(self.output),h)
             else:
                 h = self.output(h)
+            print(torch.mean(h, dim=2))
+            import pdb;pdb.set_trace()
             shift_logits = h[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
 

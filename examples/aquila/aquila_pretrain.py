@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 import gc
 gc.collect()
 torch.cuda.empty_cache()
-
+import sys;sys.path.append("/data2/yzd/workspace/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.tokenizer import Tokenizer
 from flagai.env_args import EnvArgs
@@ -118,7 +118,7 @@ print('*'*20, "model", model, flush=True)
 
 
 ## Use Prebuilt DataSets
-data_prefix = '/data/yzd/FlagAI/examples/indexed_dataset/data/demo_text_document'
+data_prefix = '../indexed_dataset/data/demo_text_document'
 data_impl = 'mmap'
 splits_string = '90,10'
 train_valid_test_num_samples = [90, 10]

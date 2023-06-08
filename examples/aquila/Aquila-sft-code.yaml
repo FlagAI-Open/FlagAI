@@ -15,6 +15,6 @@ save_rng: True
 
 load_optim: False 
 
-enable_sft_conversations_dataset_v3: true
+enable_sft_conversations_dataset: True
 enable_sft_dataset_dir: './datasets/'
 enable_sft_dataset_file: 'convo_v2.jsonl'
