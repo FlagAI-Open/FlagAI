@@ -33,11 +33,11 @@ We also support [Huggingface](hflink)
 
 |   Model          |  License    | Commercial use?  |  GPU   | Model link                                     
 | :---------------- | :------- | :-- |:-- | :-- |    
-| <font color=red>Aquila-7B </font>         | Apache 2.0  |  ✅   | Nvidia-A100  | mhlink
+| <font color=red>Aquila-7B </font>         | Apache 2.0  |  ✅   | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100098
 | <font color=red>Aquila-33B          | Apache 2.0  |  ✅  |  Nvidia-A100  | mhlink
-| AquilaCode-7B-nv          | Apache 2.0  |  ✅   |   Nvidia-A100   | mhlink
-| AquilaCode-7B-ts           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   |    mhlink                
-| AquilaChat-7B           | Apache 2.0  |  ✅    | Nvidia-A100  | mhlink
+| AquilaCode-7B-nv          | Apache 2.0  |  ✅   |   Nvidia-A100   | https://model.baai.ac.cn/model-detail/100102
+| AquilaCode-7B-ts           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   | https://model.baai.ac.cn/model-detail/100099                
+| AquilaChat-7B           | Apache 2.0  |  ✅    | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100101
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们升级了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 

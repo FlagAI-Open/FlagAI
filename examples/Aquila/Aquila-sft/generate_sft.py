@@ -5,7 +5,6 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 from flagai.model.predictor.aquila import aquila_generate
 from flagai.data.tokenizer import Tokenizer
-import bminf
 
 state_dict = "./checkpoints_in"
 model_name = 'aquilachat-7b'
@@ -21,8 +20,6 @@ cache_dir = os.path.join(state_dict, model_name)
 
 model.eval()
 model.half()
-# with torch.cuda.device(0):
-#     model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)
 model.cuda()
 
 predictor = Predictor(model, tokenizer)
@@ -108,4 +105,3 @@ for text in texts:
     with torch.no_grad():
         out = aquila_generate(tokenizer, model, [text], max_gen_len:=200, top_p=0.95, prompts_tokens=[tokens])
         print(f"pred is {out}")
-

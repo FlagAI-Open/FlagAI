@@ -65,7 +65,16 @@ class EnvArgs:
                  deepspeed_config="./deepspeed.json",
                  model_parallel_size=1,
                  training_script="train.py",
-
+                
+                ## Lora
+                lora=False,
+                lora_r= 8,
+                lora_alpha = 16,
+                lora_dropout = 0.05,
+                lora_target_modules= [
+                    "wq",
+                    "wv",
+                ],
                  ## TODO optim
                  adam_beta1=0.9,
                  adam_beta2=0.999,
@@ -156,6 +165,12 @@ class EnvArgs:
         self.parser.add_argument('--bmt_loss_scale', default=bmt_loss_scale, type=float, help='loss scale in bmtrain')
         self.parser.add_argument('--bmt_loss_scale_steps', default=bmt_loss_scale_steps, type=int, help='loss scale steps in bmtrain')
 
+        self.parser.add_argument('--lora', default=lora, help='Use lora')
+        self.parser.add_argument('--lora_r', default=lora_r, help='lora r value')
+        self.parser.add_argument('--lora_alpha', default=lora_alpha, help='lora alpha value')
+        self.parser.add_argument('--lora_dropout', default=lora_dropout, help='lora dropout value')
+        self.parser.add_argument('--lora_target_modules', default=lora_target_modules, help='lora_target_modules')
+        
         ## TODO, Used in caller script, configs will be updated with yaml_config.
         self.parser.add_argument("--yaml_config", default=yaml_config, type=str, help="yaml config file")
 

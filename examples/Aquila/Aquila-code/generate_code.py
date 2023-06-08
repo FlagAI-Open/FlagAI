@@ -18,29 +18,22 @@ device = "cuda"
 
 print(f"building model...")
 loader = AutoLoader("lm", model_name="aquilacode-7b-nv",
-                    only_download_config=True, 
                     use_cache=True, 
-                    fp16=True,
                     model_dir=model_dir)
 
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
-
+model.half()
 model.eval()
-
+model.cuda()
 model.to(device)
 
 vocab = tokenizer.get_vocab()
 
 id2word = {v:k for k, v in vocab.items()}
-
 predictor = Predictor(model, tokenizer)
 
 max_new_tokens = 256
-
-# test_file = "./datasets/code_test.txt"
-# with open(test_file) as fin:
-#     prompt = '\n'+fin.read()+'\n'
 
 texts = ["#补全代码\ndef quick_sort(x):", 
            '"""\n向用户询问他们的名字并说“你好”\m"""',
@@ -52,8 +45,11 @@ for text in texts:
 
     max_length = input_length+max_new_tokens
     with torch.no_grad():
-        res = predictor.predict_generate_randomsample(prompt, 
+        res = predictor.predict_generate_randomsample(text, 
                                                         out_max_length=max_length, 
                                                         top_p=0.95, 
                                                         temperature=0.7)
         print(res)
+
+
+        

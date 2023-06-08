@@ -15,6 +15,7 @@ from flagai.env_trainer_v1 import EnvTrainer
 import jsonlines
 import numpy as np
 from examples.Aquila import cyg_conversation as conversation_lib
+from flagai.model.tools.lora.prepare_lora import lora_transfer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
@@ -69,20 +70,6 @@ model_name = env_args.model_name
 
 print('*'*20, "model_name", model_name, flush=True)
 
-'''
-auto_loader = AutoLoader(
-    "lm",
-    model_name=model_name,
-    model_dir=checkpoints,
-    only_download_config=True,
-)
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
-print('*'*20, "model", model)
-trainer.pre_train(model)
-print('*'*20, "model", model)
-
-'''
 
 cache_dir = os.path.join(checkpoints, model_name)
 print('*'*20, "cache_dir", cache_dir)
@@ -99,6 +86,11 @@ config_file = os.path.join(cache_dir, 'config.json')
 from flagai.model.aquila_model import AQUILAModel
 model = AQUILAModel.init_from_json(config_file=config_file)
 print('*'*20, "model", model)
+
+#lora
+if env_args.lora:
+    model = lora_transfer(model,env_args)
+    model.print_trainable_parameters()
 
 ## bmt_pre_load
 checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
