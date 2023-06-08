@@ -24,28 +24,30 @@ You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/
 We also support [Huggingface](hflink)
 
 ## 模型细节/Model details
+|   Model          |  License    | Commercial use? | Pretraining length [tokens] | Pretraining compute (GPU days) |  GPU                                        
+| :---------------- | :------- | :-- |:-- | :-- | :-- | 
+| Aquila-7B          | Apache 2.0  |  ✅  | 400B  | dx22x8  | Nvidia-A100-40G  |   
+| Aquila-33B          | Apache 2.0  |  ✅  | xx  | xx  |  Nvidia-A100  | 
+| AquilaCode-7B-nv          | Apache 2.0  |  ✅  |  235B  | 14x8x8  |   Nvidia-A100   |
+| AquilaCode-7B-ts           | Apache 2.0  |  ✅  |  75B | 9x32x8  |  Tianshu-BI-V100   |                   
+| AquilaChat-7B           | Apache 2.0  |  ✅  | 1  | dx1x8  | Nvidia-A100  |
+
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们应用了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 
-Aquila模型所采用的tokenizer是由我们从头开始训练的，支持中英双语。与其他tokenizer的参数对比见下图：
+Aquila模型所采用的tokenizer是由我们从头开始训练的，支持中英双语。与其他tokenizer的参数对比见下表：
 
 We used a series of more efficient low-level operators to assist with model training, including methods referenced from [flash-attention](https://github.com/HazyResearch/flash-attention) and replacing some intermediate calculations, as well as using RMSNorm. Building upon this foundation, we applied the [BMtrain](https://github.com/OpenBMB/BMTrain) for lightweight parallel training, which utilizes methods such as data parallelism, ZeRO (zero redundancy optimizer), optimizer offloading, checkpoint and operation fusion, and communication-computation overlap to optimize the model training process.
 
-The tokenizer used in the Aquila model was trained from scratch by us and supports both English and Chinese. The parameters of this tokenizer are compared to those of other tokenizers in the figure below:
+The tokenizer used in the Aquila model was trained from scratch by us and supports both English and Chinese. The parameters of this tokenizer are compared to those of other tokenizers in the table below:
 
-| 模型/Model | 词表大小 | 说明 |英文平均tokens量| 中文平均tokens量|代码平均tokens量  |
+| 模型/Model | 词表大小/Vocab size | 说明/Note |英文平均tokens量/Avg tokens(English)| 中文平均tokens量/Avg tokens(Chinesse)|代码平均tokens量/Avg tokens(code)  |
 |  -----  | ----  | -----  | ----  | -----  | ----  | 
-| gpt2 | 50527 | bpe|1717.2914 | 1764.7128|2323.8167 |
-| llama | 32000 | sp(bpe)|1805.6541| 1257.9891|1970.3644 |
-| gpt2_new_100k | 100000 | bpe|1575.7418 | 477.4393|1679.7736 |
+| gpt2 | 50527 | bpe|1717 | 1764|2323 |
+| llama | 32000 | sp(bpe)|1805| 1257|1970 |
+| gpt2_new_100k | 100000 | bpe|1575 | 477|1679 |
 
-|   Model          |  License    | Commercial use? | Pretraining length [tokens] | Pretraining compute (days) |  GPU | # of GPUs                                         
-| :---------------- | :------- | :-- |:-- | :-- | :-- | :-- | 
-| Aquila-7B          | Apache 2.0  |  ✅  | 400B  | xx  | Nvidia-A100-40G  | 22x8  |    
-| Aquila-33B          | Apache 2.0  |  ✅  | xx  | xx  |  Nvidia-A100  |   |  
-| AquilaCode-7B-nv          | Apache 2.0  |  ✅  |  235B  | 14 |   Nvidia-A100   | 8x8  | 
-| AquilaCode-7B-ts           | Apache 2.0  |  ✅  |  75B | 9  |  Tianshu-BI-V100   | 32x8  |                   
-| AquilaChat-7B           | Apache 2.0  |  ✅  | 1  | xx  | Nvidia-A100  | 1x8  |
+
 
 ## 训练数据集/Training data 
 Aquila-7B训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), 悟道、电子书、专利、百科、论坛, github数据等
@@ -54,30 +56,11 @@ The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://hugging
 
 ![Screenshot](../img/data.jpg)
 
-## 快速使用/Quick start
+## 使用方式/How to use
 
-### 预训练/Pre-training
+### 1. 预训练/Pre-training
 #### Step 1: 修改参数/Modify Parameters
 
-* 进入`/examples/aquila`目录
-* 配置`hostfile`文件
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`
-* 在`Aquila-pretrain.yaml`文件里更改参数 (可选)
-* 我们的演示数据集放在`../indexed_dataset/data/demo_text_document`里。 如果想修改预训练数据集，可更改`aquila_pretrain.py`里的`data_prefix`参数       
-#### Step 2: 启动训练/Start training
-```
-bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-7b [实验名]
-```   
- 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
-
-![Screenshot](../img/info.jpg)
-
-成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
-
-![Screenshot](../img/info2.jpg)
-  
-### 可监督微调/Supervised Fine-tuning(SFT)
-#### Step 1: 修改参数/Modify Parameters
 * `cd /examples/aquila`
 * 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_pretrain.py`
@@ -91,6 +74,28 @@ bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-7b [实验名]
 | warm_up | float   | 初始学习率与原始学习率的比例; The ratio between the initial learning rate and the original learning rate
 | save_interval | int  | 模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失; The interval at which the model is saved, i.e., how often the model is saved per epoch during training. When training takes a long time, saving intervals can prevent all training achievements from being lost due to sudden interruptions or errors.                    |
 
+* 我们的演示数据集放在`../indexed_dataset/data/demo_text_document`里。 如果想修改预训练数据集，可更改`aquila_pretrain.py`里的`data_prefix`参数; Our demo dataset is located in `../indexed_dataset/data/demo_text_document`. If you want to modify the pre-training dataset, you can change the data_prefix parameter in `aquila_pretrain.py`.
+#### Step 2: 启动训练/Start training
+```
+bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquila-7b [实验名]
+```   
+ 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+
+![Screenshot](../img/info.jpg)
+
+成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
+
+![Screenshot](../img/info2.jpg)
+  
+### 2. 可监督微调/Supervised Fine-tuning(SFT)
+#### Step 1: 修改参数/Modify Parameters
+* `cd /examples/aquila`
+* 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
+* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_pretrain.py`
+* (可选) 在`Aquila-pretrain.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-pretrain.yaml`
+
+
+
 #### Step 2: 启动可监督微调/Start SFT
 ```
 bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
@@ -103,7 +108,7 @@ bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
 
 ![Screenshot](../img/info2.jpg)
 
-### 推理/Inference
+### 3. 推理/Inference
 
 ```python
 import os

@@ -1,3 +1,6 @@
+# Copyright © 2022 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 import torch
 import os
 import argparse
@@ -10,7 +13,6 @@ import numpy as np
 from flagai.model.predictor.predictor import Predictor
 from pathlib import Path 
 from flagai.data.tokenizer import Tokenizer
-import time
 import torch.distributed as dist
 import json 
 import json, datetime
@@ -21,7 +23,7 @@ model_dir = "./checkpoints_in"
 device = "cuda"
 
 print(f"building model...")
-loader = AutoLoader("lm", model_name="aquilacode-7b-nv",#,"llama-7b-en", 
+loader = AutoLoader("lm", model_name="aquilacode-7b-nv",
                     only_download_config=True, 
                     use_cache=True, 
                     fp16=True,
@@ -56,10 +58,6 @@ input_length = len(input_ids)
 
 max_length = input_length+max_new_tokens
 with torch.no_grad():
-
-    # prompt = "#用户#" + prompt + " " + "#ai助手#"
-
-    prompt = '''"A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions."''' + '''### Human: ''' + prompt.strip() + '''### Assistant:'''        
     res = predictor.predict_generate_randomsample(prompt, 
                                                     out_max_length=max_length, 
                                                     top_p=0.95, 

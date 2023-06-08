@@ -31,17 +31,17 @@ We also support [Huggingface](hflink)
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们应用了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 
-Aquila模型所采用的tokenizer是由我们从头开始训练的，支持中英双语。与其他tokenizer的参数对比见下图：
+Aquila模型所采用的tokenizer是由我们从头开始训练的，支持中英双语。与其他tokenizer的参数对比见下表：
 
 We used a series of more efficient low-level operators to assist with model training, including methods referenced from [flash-attention](https://github.com/HazyResearch/flash-attention) and replacing some intermediate calculations, as well as using RMSNorm. Building upon this foundation, we applied the [BMtrain](https://github.com/OpenBMB/BMTrain) for lightweight parallel training, which utilizes methods such as data parallelism, ZeRO (zero redundancy optimizer), optimizer offloading, checkpoint and operation fusion, and communication-computation overlap to optimize the model training process.
 
-The tokenizer used in the Aquila model was trained from scratch by us and supports both English and Chinese. The parameters of this tokenizer are compared to those of other tokenizers in the figure below:
+The tokenizer used in the Aquila model was trained from scratch by us and supports both English and Chinese. The parameters of this tokenizer are compared to those of other tokenizers in the table below:
 
-| 模型/Model | 词表大小 | 说明 |英文平均tokens量| 中文平均tokens量|代码平均tokens量  |
+| 模型/Model | 词表大小/Vocab size | 说明/Note |英文平均tokens量/Avg tokens(English)| 中文平均tokens量/Avg tokens(Chinesse)|代码平均tokens量/Avg tokens(code)  |
 |  -----  | ----  | -----  | ----  | -----  | ----  | 
-| gpt2 | 50527 | bpe|1717.2914 | 1764.7128|2323.8167 |
-| llama | 32000 | sp(bpe)|1805.6541| 1257.9891|1970.3644 |
-| gpt2_new_100k | 100000 | bpe|1575.7418 | 477.4393|1679.7736 |
+| gpt2 | 50527 | bpe|1717 | 1764|2323 |
+| llama | 32000 | sp(bpe)|1805| 1257|1970 |
+| gpt2_new_100k | 100000 | bpe|1575 | 477|1679 |
 
 
 模型在8台8卡Nvidia A100-40G上训练14天，数据集规模为2350亿。
@@ -58,7 +58,7 @@ The AquilaCode-7B-nv model was  supervised fine-tuning on  [starcoderdata](https
 
 ## 使用方式/How to use
 
-### 快速使用/Quick start
+### 1. 推断/Inference
 
 ```python
 import torch
@@ -110,8 +110,7 @@ input_ids = tokenizer.encode_plus_non_glm(prompt)["input_ids"][:-1]
 input_length = len(input_ids)
 
 max_length = input_length+max_new_tokens
-with torch.no_grad():
-    prompt = '''"A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions."''' + '''### Human: ''' + prompt.strip() + '''### Assistant:'''        
+with torch.no_grad():    
     res = predictor.predict_generate_randomsample(prompt, 
                                                     out_max_length=max_length, 
                                                     top_p=0.95, 
@@ -119,11 +118,11 @@ with torch.no_grad():
     print(res)
 ```
 
-### 可监督微调/Supervised Fine-tuning(SFT)
+### 2. 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 配置模型/ Setup Checkpoints
-在`./checkpoints_in`里新建`aquila-7b`目录。将微调后的checkpoint，以及原始`aquila-7b`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
+在`./checkpoints_in`里新建`aquilacode-7b-nv`目录。将微调后的checkpoint，以及原始`aquilacode-7b-nv`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
 
-Create a new directory named `aquila-7b` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquila-7b` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
+Create a new directory named `aquilacode-7b-nv` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquilacode-7b-nv` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
 
 #### Step 2: 修改参数/Modify Parameters
 * `cd /examples/aquila`
