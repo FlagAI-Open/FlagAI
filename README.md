@@ -13,7 +13,7 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 <p align="center">
 Platforms supported
 </p>
-
+放到后面，加logo------------------
 ****
                              Tianshu                                      Nvidia            
 ****
