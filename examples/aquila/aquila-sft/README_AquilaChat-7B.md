@@ -28,7 +28,7 @@ You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/
 
 We also support [Huggingface](hflink)
 
-
+aquila chat 主要为了验证基础模型能力，使用者可以根据自己需要。。。， 免责说明(license那句话改改)
 
 ## 模型细节/Model details
 
