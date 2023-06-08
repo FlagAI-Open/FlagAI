@@ -12,9 +12,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.tokenizer import Tokenizer
 from flagai.env_args import EnvArgs
 from flagai.env_trainer_v1 import EnvTrainer
-
-#torch.autograd.set_detect_anomaly(True)
-
+from flagai.model.aquila_model import AQUILAModel
 from flagai.data.datasets.indexed_dataset.build_index_mappings import _build_train_valid_test_datasets,_build_train_valid_test_weighted_datasets
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -65,30 +63,10 @@ if not env_args.not_call_launch:
     sys.exit(0)
 
 print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}", flush=True)
-
 checkpoints = env_args.pre_load_dir
-
 model_name = env_args.model_name
 
-env_args.enable_sft_conversations_dataset_v3 = True
-
-
 print('*'*20, "model_name", model_name, flush=True)
-
-'''
-auto_loader = AutoLoader(
-    "lm",
-    model_name=model_name,
-    model_dir=checkpoints,
-    only_download_config=True,
-)
-model = auto_loader.get_model()
-tokenizer = auto_loader.get_tokenizer()
-print('*'*20, "model", model)
-trainer.pre_train(model)
-print('*'*20, "model", model)
-
-'''
 
 cache_dir = os.path.join(checkpoints, model_name)
 print('*'*20, "cache_dir", cache_dir)
@@ -100,11 +78,8 @@ if env_args.bmt_async_load:
     import time
     time.sleep(10*60*(trainer.local_rank%4))
 
-
 config_file = os.path.join(cache_dir, 'config.json')
-from flagai.model.aquila_model import AQUILAModel
 model = AQUILAModel.init_from_json(config_file=config_file)
-print('*'*20, "model", model)
 
 ## bmt_pre_load
 checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
@@ -114,7 +89,6 @@ if env_args.bmt_pre_load:
 trainer.pre_train(model)
 
 print('*'*20, "model", model, flush=True)
-
 
 ## Use Prebuilt DataSets
 data_prefix = '../../indexed_dataset/data/demo_text_document'
