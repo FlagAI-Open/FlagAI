@@ -1,6 +1,6 @@
 # Defined by User
 export TRIGGER_FILE=bmtrain_mgpu.sh
-export SCRIPT_FILE=aquila_code.py
+export SCRIPT_FILE=aquila_sft.py
 
 # ENVS
 export PROJ_HOME=$PWD

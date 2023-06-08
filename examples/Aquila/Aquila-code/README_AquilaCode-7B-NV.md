@@ -1,25 +1,25 @@
 license: [Apache License 2.0](https://model.baai.ac.cn/use-agreement)
 
 
-# AquilaCode-7B-nv
+# AquilaCode-7B
 
 ## 简介/Overview
 Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed ZeRO-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
 
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
 
-AquilaCode-7B-nv是在Aquila-7B模型的基础上，经过代码数据的继续预训练得到的基础代码模型。此模型由智源研究院研发。在主流评测数据集上的评测结果如下
+<!-- AquilaCode-7B-NV是在Aquila-7B模型的基础上，经过代码数据的继续预训练得到的基础代码模型。此模型由智源研究院研发。在主流评测数据集上的评测结果如下
 
 AquilaCode-7B-nv is a foundational code model obtained by further pretraining on code data based on the Aquila-7B model. It was developed by Beijing Academy of Artificial Intelligence. The evaluation results on mainstream benchmark datasets are as follows:
 
 | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
 |  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
-| [AquilaCode-7B-nv](https://model.baai.ac.cn/model-detail/xxxxx) | 0.xxx | 0.xxx|0.xxx | 0.xxx|0.xxx |
+| [AquilaCode-7B-nv](https://model.baai.ac.cn/model-detail/xxxxx) | 0.xxx | 0.xxx|0.xxx | 0.xxx|0.xxx | -->
 
 
-您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
+<!-- 您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
 
-You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details
+You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details -->
 
 
 
@@ -49,17 +49,11 @@ We used different tokenizers to extract ten thousand data samples from English, 
 | gpt2_new_100k | 100000 | bpe|1575 | 477|1679 |
 
 
-模型在8台8卡Nvidia A100-40G上训练14天，数据集规模为2350亿。
-
-The model was trained on an 8 8-card Nvidia A100-40G for 14 days, and there are 235B tokens in the train set.
-
 ## 训练数据集/Training data 
-AquilaCode-7B-nv训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text数据
+`AquilaCode-7B-NV`和`AquilaCode-7B-TS`训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text数据
 
 给予我们的模型进行了continue pretrain--------
-The AquilaCode-7B-nv model was  supervised fine-tuning on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
-
-![Screenshot](../img/data.jpg)
+The AquilaCode-7B-NV model was supervised fine-tuning on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
 
 ## 使用方式/How to use
 
@@ -125,12 +119,12 @@ with torch.no_grad():
 
 ### 2. 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 配置模型/ Setup Checkpoints
-在`./checkpoints_in`里新建`aquilacode-7b-nv`目录。将微调后的checkpoint，以及原始`aquilacode-7b-nv`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
+在`./checkpoints_in`里新建`aquilacode-7b-nv`(或`aquilacode-7b-ts`)目录。将微调后的checkpoint，以及原始`aquilacode-7b-nv`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
 
-Create a new directory named `aquilacode-7b-nv` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquilacode-7b-nv` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
+Create a new directory named `aquilacode-7b-nv` (or`aquilacode-7b-ts`) inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquilacode-7b-nv` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
 
 #### Step 2: 修改参数/Modify Parameters
-* `cd /examples/aquila`
+* `cd /examples/Aquila/Aquila-code`
 * 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft_code.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft_code.py`
 * (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft-code.yaml`
@@ -148,7 +142,7 @@ Create a new directory named `aquilacode-7b-nv` inside `./checkpoints_in`. Place
 
 #### Step 3: 启动可监督微调/Start SFT
 ```
-bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
+bash dist_trigger_docker.sh hostfile Aquila-sft.yaml [aquilacode-7b-nv/aquilacode-7b-ts] [实验名]
 ```
 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 

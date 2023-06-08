@@ -11,13 +11,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 import random
 import numpy as np
 from flagai.model.predictor.predictor import Predictor
-from pathlib import Path 
 from flagai.data.tokenizer import Tokenizer
-import torch.distributed as dist
-import json 
-import json, datetime
-
-import os
 
 model_dir = "./checkpoints_in"
 device = "cuda"
@@ -31,11 +25,6 @@ loader = AutoLoader("lm", model_name="aquilacode-7b-nv",
 
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
-
-# import pdb;pdb.set_trace()
-# ckpt = torch.load('./checkpoints_in/aquilacode-7b-nv/pytorch_model.bin', map_location=torch.device('cpu'))
-# # print(ckpt)
-# model.load_state_dict(ckpt, strict=True)
 
 model.eval()
 
@@ -61,5 +50,5 @@ with torch.no_grad():
     res = predictor.predict_generate_randomsample(prompt, 
                                                     out_max_length=max_length, 
                                                     top_p=0.95, 
-                                                    temperature=t0.7)
+                                                    temperature=0.7)
     print(res)

@@ -292,7 +292,7 @@ elif env_args.enable_sft_conversations_dataset_v3:
                 conversations.append(line)
         return conversations
 
-    from examples.gpt3_pretrain.llama import ym_conversation as conversation_lib
+    from examples.gpt3_pretrain.aquila import ym_conversation as conversation_lib
     """Add speaker and start/end signal on each round."""
     BEGIN_SIGNAL = "### "
     END_SIGNAL = "\n"

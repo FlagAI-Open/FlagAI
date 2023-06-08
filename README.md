@@ -10,13 +10,7 @@
 
 FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality.
 
-<p align="center">
-Platforms supported
-</p>
-放到后面，加logo------------------
-****
-                             Tianshu                                      Nvidia            
-****
+
 
 ## Why should I use FlagAI?
 
@@ -298,6 +292,12 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 - [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
 - [29 Jun 2022] release v1.1.0, support OPTs downloading and inference/fine-tuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
 - [17 May 2022] made our first contribution in [#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
+
+## Platforms supported
+
+<div  align="center">    
+<img src="./examples/aquila/img/merged_platform.jpg" height = "100" align=center />
+</div>
 
 
 

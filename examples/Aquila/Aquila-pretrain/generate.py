@@ -20,14 +20,12 @@ tokenizer = loader.get_tokenizer()
 # from flagai.model.aquila_model import AQUILAModel
 # model = AQUILAModel.from
 # tokenizer = Tokenizer.from_pretrained('aquila-7b', cache_dir='./checkpoints_in/aquila-7b')
-pl_sd = torch.load('../checkpoints_in/aquila-7b/pytorch_model.bin', map_location="cpu")
-if "state_dict" in pl_sd:
-    sd = pl_sd["state_dict"]
-else:
-    sd = pl_sd
-model.load_state_dict(sd, strict=True)
-
-model.eval()
+# pl_sd = torch.load('./checkpoints_in/aquila-7b/pytorch_model.bin', map_location="cpu")
+# if "state_dict" in pl_sd:
+#     sd = pl_sd["state_dict"]
+# else:
+#     sd = pl_sd
+# model.load_state_dict(sd, strict=True)
 
 model.eval()
 model.half()
@@ -35,7 +33,6 @@ model.half()
 #     model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)
 
 model.cuda()
-
 
 predictor = Predictor(model, tokenizer)
 

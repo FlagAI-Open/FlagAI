@@ -48,7 +48,7 @@ os.makedirs(model_dir, exist_ok=True)
 maxlen = 1024
 auto_loader = AutoLoader(
     "lm",
-    model_name="llama-7b-en",
+    model_name="aquila-7b",
     model_dir=model_dir,
     only_download_config=True,
     use_cache=False

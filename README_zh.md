@@ -289,6 +289,11 @@ FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注�
 * GLM 是基于协议 [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
 * AltDiffusion 是基于协议 [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
 
+## 平台支持
+
+<div  align="center">    
+<img src="./examples/aquila/img/merged_platform.jpg" height = "100" align=center />
+</div>
 
 
 ## Misc

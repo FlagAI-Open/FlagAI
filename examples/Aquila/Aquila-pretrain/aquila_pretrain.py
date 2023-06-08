@@ -15,8 +15,7 @@ from flagai.env_trainer_v1 import EnvTrainer
 
 #torch.autograd.set_detect_anomaly(True)
 
-from examples.aquila.build_index_mappings import _build_train_valid_test_datasets
-from examples.aquila.build_index_mappings import _build_train_valid_test_weighted_datasets
+from flagai.data.datasets.indexed_dataset.build_index_mappings import _build_train_valid_test_datasets,_build_train_valid_test_weighted_datasets
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

@@ -1,0 +1,13 @@
+epochs: 3
+batch_size: 4
+gradient_accumulation_steps: 1
+lr: 9.65e-6
+warm_up: 0.1
+save_interval: 1000
+
+bmt_lr_decay_style: "linear"
+bmt_cpu_offload: False
+
+bmt_pre_load: True
+enable_sft_dataset_dir: './data/'
+enable_sft_dataset_file: 'sft_samples.jsonl'
