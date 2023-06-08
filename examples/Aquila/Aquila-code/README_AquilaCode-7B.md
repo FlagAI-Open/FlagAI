@@ -161,7 +161,7 @@ bash dist_trigger_docker.sh hostfile Aquila-sft.yaml [aquilacode-7b-nv/aquilacod
 
 ## 证书/License
 
-AquilaCode-7B-NV开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+AquilaCode-7B-NV开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 
-AquilaCode-7B-NV open-source model is licensed under [ BAAI Aquila Model Licence Agreement](linkhere). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+AquilaCode-7B-NV open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
