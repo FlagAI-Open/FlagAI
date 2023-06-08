@@ -114,13 +114,6 @@ with torch.no_grad():
 
 
 
- ## 源码/Source Code
-
-源代码可以进入GitHub[FlagAI仓库](https://github.com/THUDM/GLM) 查看. 同时我们也支持[Huggingface平台](hflink)
-
-The original code can be found in Github [FlagAI](https://github.com/THUDM/GLM) repository, and we also support [Huggingface](hflink)
-
-
 
 ## 证书/License
 

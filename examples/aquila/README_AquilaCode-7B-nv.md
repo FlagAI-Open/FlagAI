@@ -135,13 +135,6 @@ bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
 ```
 
 
-
- ## 来源/Source
-
-原代码可以点击此处[here](https://github.com/THUDM/GLM).
-
-The original code can be found [here](https://github.com/THUDM/GLM).
-
 ## 证书/License
 
 Aquila-7B开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](link)
