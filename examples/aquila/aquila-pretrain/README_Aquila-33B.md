@@ -14,7 +14,7 @@ AquilaChat-33B model was developed by Beijing Academy of Artificial Intelligence
 
 | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
 |  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
-| [AcuilaChat-33B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.292 | 0.385|0.269 | 0.731|0.347 |0.939| 0.443|
+| [Acuila-33B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.292 | 0.385|0.269 | 0.731|0.347 |0.939| 0.443|
 | [BiLLa-7B-LLM](https://model.baai.ac.cn/model-detail/xxxxx) | 0.279 | 0.374|0.257 | 0.76|0.205 |0.864| 0.514|
 | [Ziya-LLaMA-13B-v1](https://model.baai.ac.cn/model-detail/xxxxx) | 0.273 | 0.404|0.406 | 0.786|0.284 |0.762| 0.191|
 
@@ -120,7 +120,7 @@ from flagai.data.tokenizer import Tokenizer
 import bminf
 
 state_dict = "./checkpoints_in/"
-model_name = 'aquila-7b'
+model_name = 'aquila-33b'
 
 loader = AutoLoader(
     "lm",
@@ -149,7 +149,7 @@ with torch.no_grad():
 
 ## 证书/License
 
-Aquila-7B开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](link)
+Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 
-Aquila-7B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](linkhere). The source code is under [Apache Licence 2.0](link)
+Aquila-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](linkhere). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)

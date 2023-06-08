@@ -1,21 +1,22 @@
 license: [Apache License 2.0](https://model.baai.ac.cn/use-agreement)
 
 
-# AquilaCode-7B-tianshu
+# AquilaChat-33B
 
 ## 简介/Overview
-Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed ZeRO-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
+Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed zero-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
 
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
+  
+AquilaChat-33B是在Aquila-33B模型的基础上，进行SFT微调后的支持中英双语的对话式语言模型。AquilaChat-33B模型由智源研究院研发，其在主流评测数据集上的评测结果如下
 
-
-AquilaCode-7B-tianshu是在Aquila-7B模型的基础上，经过代码数据的继续预训练得到的基础代码模型。此模型由智源研究院研发。在主流评测数据集上的评测结果如下
-
-AquilaCode-7B-tianshu is a foundational code model obtained by further pretraining on code data based on the Aquila-7B model. It was developed by Beijing Academy of Artificial Intelligence. The evaluation results on mainstream benchmark datasets are as follows:
+AquilaChat-33B is a conversational language model that supports Chinese-English dialogue. It is based on the Aquila-33B model and fine-tuned using SFT. AquilaChat-33B model was developed by Beijing Academy of Artificial Intelligence. The evaluation results on mainstream benchmark datasets are as follows:
 
 | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
 |  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
-| [AquilaCode-7B-tianshu](https://model.baai.ac.cn/model-detail/xxxxx) | 0.xxx | 0.xxx|0.xxx | 0.xxx|0.xxx |
+| [AcuilaChat-33B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.292 | 0.385|0.269 | 0.731|0.347 |0.939| 0.443|
+| [BiLLa-7B-LLM](https://model.baai.ac.cn/model-detail/xxxxx) | 0.279 | 0.374|0.257 | 0.76|0.205 |0.864| 0.514|
+| [Ziya-LLaMA-13B-v1](https://model.baai.ac.cn/model-detail/xxxxx) | 0.273 | 0.404|0.406 | 0.786|0.284 |0.762| 0.191|
 
 您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
 
@@ -26,6 +27,7 @@ You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/
 我们的模型也同时支持[Huggingface平台](hflink)
 
 We also support [Huggingface](hflink)
+
 
 
 ## 模型细节/Model details
@@ -49,92 +51,142 @@ We used different tokenizers to extract ten thousand data samples from English, 
 | llama | 32000 | sp(bpe)|1805| 1257|1970 |
 | gpt2_new_100k | 100000 | bpe|1575 | 477|1679 |
 
-模型在32台8卡天数显卡上训练9天，数据集规模为750亿。
-
-The model was trained on an 8 8-card Nvidia A100-40G for 9 days, and there are 75B tokens in the train set.
 
 
+模型在一台8卡Nvidia A100上训练8小时，总共对15万条数据训练了3个epoch。
+
+The model was trained on an 8-card Nvidia A100 for 8 hours, and a total of 150,000 lines of data were trained for 3 epochs.
 
 ## 训练数据集/Training data 
-AquilaCode-7B-tianshu训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的Python, jupyter-scripts, jupyter-structured-text数据
 
-The AquilaCode-7B-tianshu model was supervised fine-tuning on [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(Python, jupyter-scripts, jupyter-structured-textt).
+我们采用了一系列高质量中英文数据集来训练和微调我们的对话语言模型，并且在不断更新迭代
+
+We used a series of high-quality Chinese and English datasets to train and fine-tune our conversational language model, and continuously updated it through iterations.
 
 ![Screenshot](../img/data.jpg)
 
+
 ## 使用方式/How to use
 
-### 1. 推断/Inference
+### 1. 推理/Inference
 
 ```python
+import os
 import torch
-import os
-import argparse
-import sys
-from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
-import numpy as np
 from flagai.model.predictor.predictor import Predictor
-from pathlib import Path 
+from flagai.model.predictor.aquila import aquila_generate
 from flagai.data.tokenizer import Tokenizer
-import time
-import torch.distributed as dist
-import json, datetime
+import bminf
 
-import os
+state_dict = "./checkpoints_in"
+model_name = 'aquilachat-30b'
 
-model_dir = "./checkpoints_in"
-device = "cuda"
-
-print(f"building model...")
-loader = AutoLoader("lm", model_name="aquilacode-7b-ts",
-                    only_download_config=True, 
-                    use_cache=True, 
-                    fp16=True,
-                    model_dir=model_dir)
+loader = AutoLoader(
+    "lm",
+    model_dir=state_dict,
+    model_name=model_name,
+    use_cache=True)
 
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
-
+cache_dir = os.path.join(state_dict, model_name)
 model.eval()
-
-model.to(device)
-
-vocab = tokenizer.get_vocab()
-
-id2word = {v:k for k, v in vocab.items()}
+model.half()
+model.cuda()
 
 predictor = Predictor(model, tokenizer)
 
-max_new_tokens = 256
+text = "北京为什么是中国的首都？"
 
-test_file = "./datasets/code_test.txt"
-with open(test_file) as fin:
-    prompt = '\n'+fin.read()+'\n'
+def pack_obj(text):
+    obj = dict()
+    obj['id'] = 'demo'
 
-input_ids = tokenizer.encode_plus_non_glm(prompt)["input_ids"][:-1]
-input_length = len(input_ids)
+    obj['conversations'] = []
+    human = dict()
+    human['from'] = 'human'
+    human['value'] = text
+    obj['conversations'].append(human)
+    # dummy bot
+    bot = dict()
+    bot['from'] = 'gpt'
+    bot['value'] = ''
+    obj['conversations'].append(bot)
 
-max_length = input_length+max_new_tokens
-with torch.no_grad():    
-    res = predictor.predict_generate_randomsample(prompt, 
-                                                    out_max_length=max_length, 
-                                                    top_p=0.95, 
-                                                    temperature=t0.7)
-    print(res)
+    obj['instruction'] = ''
+
+    return obj
+
+def delete_last_bot_end_singal(convo_obj):
+    conversations = convo_obj['conversations']
+    assert len(conversations) > 0 and len(conversations) % 2 == 0
+    assert conversations[0]['from'] == 'human'
+
+    last_bot = conversations[len(conversations)-1]
+    assert last_bot['from'] == 'gpt'
+
+    ## from _add_speaker_and_signal
+    END_SIGNAL = "\n"
+    len_end_singal = len(END_SIGNAL)
+    len_last_bot_value = len(last_bot['value'])
+    last_bot['value'] = last_bot['value'][:len_last_bot_value-len_end_singal]
+    return
+
+def convo_tokenize(convo_obj, tokenizer):
+    chat_desc = convo_obj['chat_desc']
+    instruction = convo_obj['instruction']
+    conversations = convo_obj['conversations']
+            
+    # chat_desc
+    example = tokenizer.encode_plus(f"{chat_desc}", None, max_length=None)['input_ids']
+    EOS_TOKEN = example[-1]
+    example = example[:-1] # remove eos
+    # instruction
+    instruction = tokenizer.encode_plus(f"{instruction}", None, max_length=None)['input_ids']
+    instruction = instruction[1:-1] # remove bos & eos
+    example += instruction
+
+    for conversation in conversations:
+        role = conversation['from']
+        content = conversation['value']
+        print(f"role {role}, raw content {content}")
+        content = tokenizer.encode_plus(f"{content}", None, max_length=None)['input_ids']
+        content = content[1:-1] # remove bos & eos
+        print(f"role {role}, content {content}")
+        example += content
+    return example
+
+print('-'*80)
+print(f"text is {text}")
+
+from examples.aquila.cyg_conversation import default_conversation
+
+conv = default_conversation.copy()
+conv.append_message(conv.roles[0], text)
+conv.append_message(conv.roles[1], None)
+
+tokens = tokenizer.encode_plus(f"{conv.get_prompt()}", None, max_length=None)['input_ids']
+tokens = tokens[1:-1]
+
+with torch.no_grad():
+    out = aquila_generate(tokenizer, model, [text], max_gen_len:=200, top_p=0.95, prompts_tokens=[tokens])
+    print(f"pred is {out}")
+
+
 ```
 
 ### 2. 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 配置模型/ Setup Checkpoints
-在`./checkpoints_in`里新建`aquilacode-7b-ts`目录。将微调后的checkpoint，以及原始`aquilacode-7b-ts`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
+在`./checkpoints_in`里新建`aquilachat-33b`目录。将微调后的checkpoint，以及原始`aquilachat-33b`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
 
-Create a new directory named `aquilacode-7b-ts` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquilacode-7b-ts` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
+Create a new directory named `aquila-33b` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquila-33b` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
 
-#### Step 2: 修改参数/Modify Parameters
+#### Step 2: 修改参数/ Modify Parameters
 * `cd /examples/aquila`
 * 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft_code.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft_code.py`
-* (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft-code.yaml`
+* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft.py`
+* (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft.yaml`
 
 | 参数名 Parameter             | 类型 Type | 描述 Description                                        |
 |--------------------------------|------------|-------------------------------------------------------|
@@ -148,9 +200,11 @@ Create a new directory named `aquilacode-7b-ts` inside `./checkpoints_in`. Place
 | enable_sft_dataset_file | str   | 可监督微调的数据集文件名; Filename of SFT dataset                     |                  |
 
 
+
+
 #### Step 3: 启动可监督微调/Start SFT
 ```
-bash dist_trigger_docker.sh hostfile aquila-sft.yaml AquilaCode-7B-ts [实验名]
+bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquilachat-33b [实验名]
 ```
 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 
@@ -160,9 +214,10 @@ bash dist_trigger_docker.sh hostfile aquila-sft.yaml AquilaCode-7B-ts [实验名
 
 ![Screenshot](../img/info2.jpg)
 
+
 ## 证书/License
 
-AquilaCode-7B-TS开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 
-AquilaCode-7B-TS open-source model is licensed under [ BAAI Aquila Model Licence Agreement](linkhere). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Aquila-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](linkhere). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)

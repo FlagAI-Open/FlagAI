@@ -154,7 +154,7 @@ with torch.no_grad():
 
 ## 证书/License
 
-Aquila-7B开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](link)
+Aquila-7B开源模型使用 [智源Aquila系列模型许可协议](linkhere), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 
-Aquila-7B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](linkhere). The source code is under [Apache Licence 2.0](link)
+Aquila-7B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](linkhere). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
