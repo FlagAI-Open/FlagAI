@@ -172,12 +172,12 @@ with torch.no_grad():
 ```
 
 ### 可监督微调/Supervised Fine-tuning(SFT)
-#### Step 1: 配置模型
+#### Step 1: 配置模型/ Setup Checkpoints
 在`./checkpoints_in`里新建`aquila-7b`目录。将微调后的checkpoint，以及原始`aquila-7b`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
 
 Create a new directory named `aquila-7b` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquila-7b` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
 
-#### Step 2: 修改参数
+#### Step 2: 修改参数/ Modify Parameters
 * `cd /examples/aquila`
 * 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft.py`
@@ -197,11 +197,17 @@ Create a new directory named `aquila-7b` inside `./checkpoints_in`. Place the fi
 
 
 
-#### Step 3: 启动微调
+#### Step 3: 启动可监督微调/Start SFT
 ```
 bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
 ```
+接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 
+![Screenshot](../img/info.jpg)
+
+成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
+
+![Screenshot](../img/info2.jpg)
 
 
 ## 证书/License

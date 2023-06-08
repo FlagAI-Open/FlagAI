@@ -68,10 +68,16 @@ The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://hugging
 ```
 bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-7b [实验名]
 ```   
- 
+ 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+
+![Screenshot](../img/info.jpg)
+
+成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
+
+![Screenshot](../img/info2.jpg)
   
 ### 可监督微调/Supervised Fine-tuning(SFT)
-#### Step 1: 修改参数
+#### Step 1: 修改参数/Modify Parameters
 * `cd /examples/aquila`
 * 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_pretrain.py`
@@ -85,12 +91,17 @@ bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-7b [实验名]
 | warm_up | float   | 初始学习率与原始学习率的比例; The ratio between the initial learning rate and the original learning rate
 | save_interval | int  | 模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失; The interval at which the model is saved, i.e., how often the model is saved per epoch during training. When training takes a long time, saving intervals can prevent all training achievements from being lost due to sudden interruptions or errors.                    |
 
-#### Step 2: 启动微调
+#### Step 2: 启动可监督微调/Start SFT
 ```
 bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
 ```
-接下来会输出下列信息，注意NODES_NUM应该与节点数相等，LOGFILE是模型运行的日志文件
-![Screenshot](img/info.jpg)
+接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+
+![Screenshot](../img/info.jpg)
+
+成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
+
+![Screenshot](../img/info2.jpg)
 
 ### 推理/Inference
 

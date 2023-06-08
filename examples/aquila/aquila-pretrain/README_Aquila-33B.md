@@ -71,7 +71,13 @@ We used a series of high-quality Chinese and English datasets to train and fine-
 ```
 bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-30b [实验名]
 ```   
- 
+接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+
+![Screenshot](../img/info.jpg)
+
+成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
+
+![Screenshot](../img/info2.jpg)
   
 ### 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 修改参数
@@ -90,10 +96,14 @@ bash dist_trigger_docker.sh hostfile aquila-pretrain.yaml aquila-30b [实验名]
 
 #### Step 2: 启动微调
 ```
-bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-30b [实验名]
+bash dist_trigger_docker.sh hostfile aquila-sft.yaml aquila-7b [实验名]
 ```
+接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+![Screenshot](../img/info.jpg)
 
+成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
 
+![Screenshot](../img/info2.jpg)
 ### 推理/Inference
 
 ```python

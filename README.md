@@ -8,8 +8,15 @@
 --------------------------------------------------------------------------------
 
 
-FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. 
+FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality.
 
+<p align="center">
+Platforms supported
+</p>
+
+****
+                             Tianshu                                      Nvidia            
+****
 
 ## Why should I use FlagAI?
 
