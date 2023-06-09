@@ -11,16 +11,7 @@
 **FlagAI飞智**是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。
 <br><br>
 
-<p align="center">
-已支持平台
-</p>
-
-****
-                             天数智芯                                      Nvidia            
-****
-
 ## 为什么你需要 FlagAI?
-
 
 1. **可通过 API 快速下载模型**
       
@@ -285,7 +276,7 @@ for text_pair in test_data:
 ## 许可 LICENSE 
 
 
-FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注意部分项目代码基于其他协议：
+FlagAI飞智大部分项目基于 [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)，但是请注意部分项目代码基于其他协议：
 
 * Megatron-LM 是基于协议 [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM 是基于协议 [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
@@ -294,7 +285,7 @@ FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注�
 ## 平台支持
 
 <div  align="center">    
-<img src="./examples/aquila/img/merged_platform.jpg" height = "100" align=center />
+<img src="./examples/Aquila/img/merged_platform.jpg" height = "100" align=center />
 </div>
 
 

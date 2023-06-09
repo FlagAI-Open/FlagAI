@@ -274,7 +274,7 @@ for text_pair in test_data:
 
 ## LICENSE
 
-The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), however portions of the project are available under separate license terms:
+The majority of FlagAI is licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0), however portions of the project are available under separate license terms:
 
 * Megatron-LM is licensed under the [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM is licensed under the [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
@@ -298,7 +298,7 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 ## Platforms supported
 
 <div  align="center">    
-<img src="./examples/aquila/img/merged_platform.jpg" height = "100" align=center />
+<img src="./examples/Aquila/img/merged_platform.jpg" height = "100" align=center />
 </div>
 
 
