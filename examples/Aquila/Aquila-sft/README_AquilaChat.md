@@ -28,7 +28,7 @@ You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/
 
 We also support [Huggingface](hflink)
 
-AquilaChat模型主要为了验证基础模型能力，您可以根据自己需要对模型进行使用，修改和商业化，但必须遵守所有国家的法律法规，并且对任何第三方使用者提供Aquila系列模型的来源以及Aquila系列模型协议的副本
+AquilaChat模型主要为了验证基础模型能力，您可以根据自己需要对模型进行使用，修改和商业化，但必须遵守所有国家的法律法规，并且对任何第三方使用者提供Aquila系列模型的来源以及Aquila系列模型协议的副本。
 
 The AquilaChat model was primarily developed to verify the capabilities of the foundational model. You can use, modify, and commercialize the model according to your needs, but you must comply with all applicable laws and regulations in your country. Additionally, you must provide the source of the Aquila series models and a copy of the Aquila series model lincense to any third-party users.
 
@@ -36,11 +36,12 @@ The AquilaChat model was primarily developed to verify the capabilities of the f
 
 |   模型/Model          |  状态/State    | 能否商用/Commercial use?  |  所用显卡/GPU   |                                    
 | :---------------- | :------- | :-- |:-- |   
-| Aquila-7B         | 已发布  |   ✅   | Nvidia-A100  | 
-| Aquila-30B          | 敬请期待  |   ✅   | Nvidia-A100  | 
+| Aquila-7B         | 已发布  |   ✅   | Nvidia-A100  |  
+| AquilaChat-7B          |已发布  |    ✅    | Nvidia-A100  | 
 | AquilaCode-7B-NV          |已发布  |    ✅   |   Nvidia-A100   | 
 | AquilaCode-7B-TS           |已发布 |   ✅    |  Tianshu-BI-V100   |
-| <font color=red>AquilaChat-7B  </font>            |已发布  |    ✅    | Nvidia-A100  | 
+| Aquila-33B          | **敬请期待**  |   ✅   | Nvidia-A100  |
+| AquilaChat-33B           |**敬请期待**  |    ✅    | Nvidia-A100  | 
 
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们应用了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
@@ -65,9 +66,15 @@ We used different tokenizers to extract ten thousand data samples from English, 
 
 ## 训练数据集/Training data 
 
-我们采用了一系列高质量中英文数据集来训练和微调我们的对话语言模型，并且在不断更新迭代
+我们采用了一系列高质量中英文数据集来训练和微调我们的对话语言模型，并且在不断更新迭代。
+
+
 
 We used a series of high-quality Chinese and English datasets to train and fine-tune our conversational language model, and continuously updated it through iterations.
+
+我们额外支持了两种多模态的指令: 文图生成和图片编辑，数据集格式请参考xxx
+
+
 
 
 ## 使用方式/How to use
