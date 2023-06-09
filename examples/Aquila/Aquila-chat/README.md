@@ -52,9 +52,9 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 
 We used a series of high-quality Chinese and English datasets to train and fine-tune our conversational language model, and continuously updated it through iterations.
 
-我们额外支持了两种多模态的指令: 文图生成和图片编辑，数据集格式请参考[这里](https://github.com/Anhforth/FlagAI/blob/merge_aquila/examples/Aquila/Aquila-sft/data/sft_samples.jsonl)
+我们额外支持了两种多模态的指令: 文图生成和图片编辑，数据集格式请参考[这里](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/Aquila-chat/data/sft_samples.jsonl)
 
-We have added support for two additional multimodal instructions: text-to-image generation and image editing. Please refer to the dataset format [here](https://github.com/Anhforth/FlagAI/blob/merge_aquila/examples/Aquila/Aquila-sft/data/sft_samples.jsonl).
+We have added support for two additional multimodal instructions: text-to-image generation and image editing. Please refer to the dataset format [here](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/Aquila-chat/data/sft_samples.jsonl).
 
 
 ## 使用方式/How to use
