@@ -15,7 +15,7 @@ We also support [Huggingface](https://huggingface.co/BAAI).
 |   模型/Model          |  状态/State    | 能否商用/Commercial use?  |  所用显卡/GPU   |                                    
 | :---------------- | :------- | :-- |:-- |   
 | <font color=red>Aquila-7B </font>         | 已发布  |   ✅   | Nvidia-A100  | 
-| <font color=red>Aquila-30B </font>         | 敬请期待  |   ✅   | Nvidia-A100  | 
+| <font color=red>Aquila-33B </font>         | 敬请期待  |   ✅   | Nvidia-A100  | 
 | AquilaCode-7B-NV          |已发布  |    ✅   |   Nvidia-A100   | 
 | AquilaCode-7B-TS           |已发布 |   ✅    |  Tianshu-BI-V100   |
 | AquilaChat-7B           |已发布  |    ✅    | Nvidia-A100  | 
