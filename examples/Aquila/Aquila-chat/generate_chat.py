@@ -92,7 +92,7 @@ for text in texts:
     print('-'*80)
     print(f"text is {text}")
 
-    from examples.Aquila.cyg_conversation import default_conversation
+    from cyg_conversation import default_conversation
 
     conv = default_conversation.copy()
     conv.append_message(conv.roles[0], text)

@@ -26,7 +26,7 @@
       
     提供 API 方便你快速下载模型，并在给定（中/英文）文本上使用这些预训练模型，在从[SuperGLUE](https://super.gluebenchmark.com/)和[CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks收集的广泛使用的数据集上对它们进行微调。
      
-      FlagAI 现已支持 30+ 主流模型，包括多模态模型 [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 、文生图模型 [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)、最高百亿参数的 **[悟道GLM](/doc_zh/GLM.md)**，[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**[Galactica](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/galactica)**、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**、**Huggingface Transformers** 等。
+      FlagAI 现已支持 30+ 主流模型，包括语言模型[**Aquila**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila), 多模态模型 [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 、文生图模型 [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)、最高百亿参数的 **[悟道GLM](/doc_zh/GLM.md)**，[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**[Galactica](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/galactica)**、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**、**Huggingface Transformers** 等。
       
 2.  **仅用十行代码即可进行并行训练**
 
@@ -59,6 +59,7 @@
 
 |    模型名称            | 任务      | 训练 | 微调 | 推理 | 样例           |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
+| Aquila      | 自然语言处理  | ✅  | ✅  | ✅  | [README.md](examples/Aquila/README.md) 
 | ALM          | 阿拉伯语文本生成   |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
 | AltCLIP       | 文图匹配 | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
 | AltCLIP-m18      | 文图匹配  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
