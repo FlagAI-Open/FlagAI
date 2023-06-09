@@ -1,6 +1,5 @@
 import os
 import torch
-import sys;sys.path.append("/data2/yzd/workspace/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 from flagai.model.predictor.aquila import aquila_generate
