@@ -23,20 +23,14 @@ You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/
 We also support [Huggingface](hflink)
 
 ## 模型细节/Model details
-<!-- |   Model          |  License    | Commercial use? | Pretraining length [tokens] | Pretraining compute (GPU days) |  GPU                                        
-| :---------------- | :------- | :-- |:-- | :-- | :-- | 
-| Aquila-7B          | Apache 2.0  |  ✅  | 400B  | dx22x8  | Nvidia-A100  |   
-| Aquila-33B          | Apache 2.0  |  ✅  | xx  | xx  |  Nvidia-A100  | 
-| AquilaCode-7B-nv          | Apache 2.0  |  ✅  |  235B  | 14x8x8  |   Nvidia-A100   |
-| AquilaCode-7B-ts           | Apache 2.0  |  ✅  |  75B | 9x32x8  |  Tianshu-BI-V100   |                   
-| AquilaChat-7B           | Apache 2.0  |  ✅  | 15万条  | 8/24x1x8  | Nvidia-A100  | -->
 
-|   Model          |  License    | Commercial use?  |  GPU   | Model link                                     
-| :---------------- | :------- | :-- |:-- | :-- |    
-| <font color=red>Aquila-7B </font>         | Apache 2.0  |  ✅   | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100098
-| AquilaCode-7B-nv          | Apache 2.0  |  ✅   |   Nvidia-A100   | https://model.baai.ac.cn/model-detail/100102
-| AquilaCode-7B-ts           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   | https://model.baai.ac.cn/model-detail/100099                
-| AquilaChat-7B           | Apache 2.0  |  ✅    | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100101
+|   模型/Model          |  状态/State    | 能否商用/Commercial use?  |  所用显卡/GPU   |                                    
+| :---------------- | :------- | :-- |:-- |   
+| <font color=red>Aquila-7B </font>         | 已发布  |   ✅   | Nvidia-A100  | 
+| <font color=red>Aquila-30B </font>         | 敬请期待  |   ✅   | Nvidia-A100  | 
+| AquilaCode-7B-NV          |已发布  |    ✅   |   Nvidia-A100   | 
+| AquilaCode-7B-TS           |已发布 |   ✅    |  Tianshu-BI-V100   |
+| AquilaChat-7B           |已发布  |    ✅    | Nvidia-A100  | 
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们升级了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 

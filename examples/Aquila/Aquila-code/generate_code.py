@@ -5,7 +5,6 @@ import torch
 import os
 import argparse
 import sys
-sys.path.append("/data2/yzd/workspace/FlagAI")
 from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
 import random
@@ -13,11 +12,13 @@ import numpy as np
 from flagai.model.predictor.predictor import Predictor
 from flagai.data.tokenizer import Tokenizer
 
+
 model_dir = "./checkpoints_in"
+# model_dir = "../converted_models_ldwang"
 device = "cuda"
 
 print(f"building model...")
-loader = AutoLoader("lm", model_name="aquilacode-7b-nv",
+loader = AutoLoader("lm", model_name="aquilacode-7b-ts",
                     use_cache=True, 
                     model_dir=model_dir)
 
@@ -35,9 +36,7 @@ predictor = Predictor(model, tokenizer)
 
 max_new_tokens = 256
 
-texts = ["#补全代码\ndef quick_sort(x):", 
-           '"""\n向用户询问他们的名字并说“你好”\m"""',
-           '"""\nAsk the user for their name and say "Hello\n""""' ]
+texts = ["#补全代码\ndef quick_sort(x):"]
 
 for text in texts:
     input_ids = tokenizer.encode_plus_non_glm(text)["input_ids"][:-1]
@@ -52,4 +51,3 @@ for text in texts:
         print(res)
 
 
-        

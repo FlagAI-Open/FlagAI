@@ -8,19 +8,6 @@ Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点�
 
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
 
-<!-- AquilaCode-7B-NV是在Aquila-7B模型的基础上，经过代码数据的继续预训练得到的基础代码模型。此模型由智源研究院研发。在主流评测数据集上的评测结果如下
-
-AquilaCode-7B-nv is a foundational code model obtained by further pretraining on code data based on the Aquila-7B model. It was developed by Beijing Academy of Artificial Intelligence. The evaluation results on mainstream benchmark datasets are as follows:
-
-| 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
-|  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
-| [AquilaCode-7B-nv](https://model.baai.ac.cn/model-detail/xxxxx) | 0.xxx | 0.xxx|0.xxx | 0.xxx|0.xxx | -->
-
-
-<!-- 您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
-
-You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details -->
-
 
 
 我们的模型也同时支持[Huggingface平台](hflink)
@@ -29,12 +16,13 @@ We also support [Huggingface](hflink)
 
 ## 模型细节/Model details
 
-|   Model          |  License    | Commercial use?  |  GPU   | Model link                                     
-| :---------------- | :------- | :-- |:-- | :-- |    
-| Aquila-7B         | Apache 2.0  |  ✅   | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100098
-| AquilaCode-7B-NV          | Apache 2.0  |  ✅   |   Nvidia-A100   | https://model.baai.ac.cn/model-detail/100102
-| AquilaCode-7B-TS           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   | https://model.baai.ac.cn/model-detail/100099                
-| AquilaChat-7B           | Apache 2.0  |  ✅    | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100101
+|   模型/Model          |  状态/State    | 能否商用/Commercial use?  |  所用显卡/GPU   |                                    
+| :---------------- | :------- | :-- |:-- |   
+| Aquila-7B         | 已发布  |   ✅   | Nvidia-A100  | 
+| Aquila-30B          | 敬请期待  |   ✅   | Nvidia-A100  | 
+| <font color=red>AquilaCode-7B-NV  </font>        |已发布  |    ✅   |   Nvidia-A100   | 
+| <font color=red>AquilaCode-7B-TS  </font>          |已发布 |   ✅    |  Tianshu-BI-V100   |
+| AquilaChat-7B           |已发布  |    ✅    | Nvidia-A100  | 
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们应用了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 
@@ -125,9 +113,9 @@ with torch.no_grad():
 
 ### 2. 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 配置模型/ Setup Checkpoints
-在`./checkpoints_in`里新建`aquilacode-7b-nv`(或`aquilacode-7b-ts`)目录。将微调后的checkpoint，以及原始`aquilacode-7b-nv`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
+在`./checkpoints_in`里新建`aquilacode-7b-NV`(或`aquilacode-7b-TS`)目录。将微调后的checkpoint，以及原始`aquilacode-7b-NV/aquilacode-7b-TS`模型里的其余文件，包括`config.json`, `mergex.txt`, `vocab.json`, `special_tokens_map.json`放进去
 
-Create a new directory named `aquilacode-7b-nv` (or`aquilacode-7b-ts`) inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquilacode-7b-nv` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
+Create a new directory named `aquilacode-7b-NV` (or`aquilacode-7b-TS`) inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquilacode-7b-NV/aquilacode-7b-TS` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
 
 #### Step 2: 修改参数/Modify Parameters
 * `cd /examples/Aquila/Aquila-code`

@@ -85,7 +85,6 @@ class BaseModel(Module):
             sd = pl_sd
         if "global_step" in pl_sd:
             print(f"Global Step: {pl_sd['global_step']}")
-        import pdb;pdb.set_trace()
         m, u = model.load_state_dict(sd, strict=True)
         if len(m) > 0 and verbose:
             print("missing keys:")
