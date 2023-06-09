@@ -10,9 +10,9 @@ The Aquila language model inherits the architectural design advantages of GPT-3 
 
 
 
-我们的模型也同时支持[Huggingface平台](hflink)
+我们的模型也同时支持[Huggingface平台](https://huggingface.co/BAAI)。
 
-We also support [Huggingface](hflink)
+We also support [Huggingface](https://huggingface.co/BAAI).
 
 ## 模型细节/Model details
 
@@ -41,9 +41,9 @@ We used different tokenizers to extract ten thousand data samples from English, 
 
 | 模型/Model | 词表大小/Vocab size | 说明/Note |英文平均tokens量/Avg tokens(English)| 中文平均tokens量/Avg tokens(Chinesse)|代码平均tokens量/Avg tokens(code)  |
 |  -----  | ----  | -----  | ----  | -----  | ----  | 
-| gpt2 | 50527 | bpe|1717 | 1764|2323 |
-| llama | 32000 | sp(bpe)|1805| 1257|1970 |
-| gpt2_new_100k | 100000 | bpe|1575 | 477|1679 |
+| GPT2 | 50527 | bpe|1717 | 1764|2323 |
+| LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
+| Aquila | 100000 | bpe|1575 | 477|1679 |
 
 
 ## 训练数据集/Training data 
@@ -148,7 +148,7 @@ bash dist_trigger_docker.sh hostfile Aquila-sft.yaml [aquilacode-7b-nv/aquilacod
 
 ## 证书/License
 
-AquilaCode-7B-NV开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+AquilaCode-7B-NV开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
 
 
-AquilaCode-7B-NV open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+AquilaCode-7B-NV open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0).

@@ -9,18 +9,9 @@ Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点�
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
 
 
-<!-- | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
-|  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
-| [Acuila-7B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.xxx | 0.xxx|0.xxx | 0.xxx|0.xxx |0.xxx| 0.xxx|
+我们同时也支持[Huggingface平台](https://huggingface.co/BAAI)。
 
-您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
-
-You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details -->
-
-
-我们同时也支持[Huggingface平台](hflink)
-
-We also support [Huggingface](hflink)
+We also support [Huggingface](https://huggingface.co/BAAI).
 
 ## 模型细节/Model details
 
@@ -44,16 +35,19 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 
 | 模型/Model | 词表大小/Vocab size | 说明/Note |英文平均tokens量/Avg tokens(English)| 中文平均tokens量/Avg tokens(Chinesse)|代码平均tokens量/Avg tokens(code)  |
 |  -----  | ----  | -----  | ----  | -----  | ----  | 
-| gpt2 | 50527 | bpe|1717 | 1764|2323 |
-| llama | 32000 | sp(bpe)|1805| 1257|1970 |
-| gpt2_new_100k | 100000 | bpe|1575 | 477|1679 |
+| GPT2 | 50527 | bpe|1717 | 1764|2323 |
+| LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
+| Aquila | 100000 | bpe|1575 | 477|1679 |
 
 
 
 ## 训练数据集/Training data 
-Aquila预训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), 悟道中文数据集、电子书、专利、百科、论坛, github数据等
+Aquila预训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), 悟道中文数据集、电子书、专利、百科、论坛, github数据等, 详情可见下图。
 
-The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), Wudao Corpus、e-book、Patent, encyclopedia, forum, github etc.
+The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), Wudao Corpus、e-book、Patent, encyclopedia, forum, github etc. Details are given in the figure below.
+
+![Screenshot](../img/data_dist.png)
+
 
 
 ## 使用方式/How to use
@@ -164,7 +158,7 @@ with torch.no_grad():
 
 ## 证书/License
 
-Aquila-7B和Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Aquila-7B和Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
 
 
-Aquila-7B and Aquila-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Aquila-7B and Aquila-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0).

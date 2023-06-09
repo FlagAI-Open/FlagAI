@@ -12,21 +12,10 @@ AquilaChat-7B是在Aquila-7B模型的基础上，进行SFT微调后的支持中�
 
 AquilaChat-7B is a conversational language model that supports Chinese-English dialogue. It is based on the Aquila-7B model and fine-tuned using SFT. AquilaChat-7B model was developed by Beijing Academy of Artificial Intelligence. 
 
-<!-- | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
-|  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
-| [AcuilaChat-7B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.292 | 0.385|0.269 | 0.731|0.347 |0.939| 0.443|
-| [BiLLa-7B-LLM](https://model.baai.ac.cn/model-detail/xxxxx) | 0.279 | 0.374|0.257 | 0.76|0.205 |0.864| 0.514|
-| [Ziya-LLaMA-13B-v1](https://model.baai.ac.cn/model-detail/xxxxx) | 0.273 | 0.404|0.406 | 0.786|0.284 |0.762| 0.191|
 
-您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
+我们的模型也同时支持[Huggingface平台](https://huggingface.co/BAAI)。
 
-You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details -->
-
-
-
-我们的模型也同时支持[Huggingface平台](hflink)
-
-We also support [Huggingface](hflink)
+We also support [Huggingface](https://huggingface.co/BAAI).
 
 AquilaChat模型主要为了验证基础模型能力，您可以根据自己需要对模型进行使用，修改和商业化，但必须遵守所有国家的法律法规，并且对任何第三方使用者提供Aquila系列模型的来源以及Aquila系列模型协议的副本。
 
@@ -46,35 +35,28 @@ The AquilaChat model was primarily developed to verify the capabilities of the f
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们应用了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 
-Aquila模型所采用的tokenizer是由我们从头开始训练的，支持中英双语。与其他tokenizer的参数对比见下表:
-
-我们在处理英文、中文以及代码数据时，采用了不同的分词器对一万个样本进行了抽取。随后，我们统计了每个样本的token数量，并将其记录在表格中。
-
+Aquila模型所采用的tokenizer是由我们从头开始训练的，支持中英双语。我们在处理英文、中文以及代码数据时，采用了不同的分词器对一万个样本进行了抽取。随后，我们统计了每个样本的token数量，并将其记录在表格中。Aquila tokenizer与其他tokenizer的参数对比见下表:
 
 We used a series of more efficient low-level operators to assist with model training, including methods referenced from [flash-attention](https://github.com/HazyResearch/flash-attention) and replacing some intermediate calculations, as well as using RMSNorm. Building upon this foundation, we applied the [BMtrain](https://github.com/OpenBMB/BMTrain) for lightweight parallel training, which utilizes methods such as data parallelism, ZeRO (zero redundancy optimizer), optimizer offloading, checkpoint and operation fusion, and communication-computation overlap to optimize the model training process.
 
-The tokenizer used in the Aquila model was trained from scratch by us and supports both English and Chinese. The parameters of this tokenizer are compared to those of other tokenizers in the table below:
-
-We used different tokenizers to extract ten thousand data samples from English, Chinese, and code data respectively, obtained the count of tokens for each sample, and also included it in the table.
+The tokenizer used in the Aquila model was trained from scratch by us and supports both English and Chinese. We used different tokenizers to extract ten thousand data samples from English, Chinese, and code data respectively, obtained the count of tokens for each sample, and also included it in the table. The parameters of this tokenizer are compared to those of other tokenizers in the table below:
 
 | 模型/Model | 词表大小/Vocab size | 说明/Note |英文平均tokens量/Avg tokens(English)| 中文平均tokens量/Avg tokens(Chinesse)|代码平均tokens量/Avg tokens(code)  |
 |  -----  | ----  | -----  | ----  | -----  | ----  | 
-| gpt2 | 50527 | bpe|1717 | 1764|2323 |
-| llama | 32000 | sp(bpe)|1805| 1257|1970 |
-| gpt2_new_100k | 100000 | bpe|1575 | 477|1679 |
+| GPT2 | 50527 | bpe|1717 | 1764|2323 |
+| LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
+| Aquila | 100000 | bpe|1575 | 477|1679 |
 
 
 ## 训练数据集/Training data 
 
 我们采用了一系列高质量中英文数据集来训练和微调我们的对话语言模型，并且在不断更新迭代。
 
-
-
 We used a series of high-quality Chinese and English datasets to train and fine-tune our conversational language model, and continuously updated it through iterations.
 
-我们额外支持了两种多模态的指令: 文图生成和图片编辑，数据集格式请参考xxx
+我们额外支持了两种多模态的指令: 文图生成和图片编辑，数据集格式请参考[这里](https://github.com/Anhforth/FlagAI/blob/merge_aquila/examples/Aquila/Aquila-sft/data/sft_samples.jsonl)
 
-
+We have added support for two additional multimodal instructions: text-to-image generation and image editing. Please refer to the dataset format [here](https://github.com/Anhforth/FlagAI/blob/merge_aquila/examples/Aquila/Aquila-sft/data/sft_samples.jsonl).
 
 
 ## 使用方式/How to use
@@ -228,7 +210,7 @@ bash dist_trigger_docker.sh hostfile Aquila-sft.yaml aquilachat-7b [实验名]
 
 ## 证书/License
 
-`AquilaChat`系列开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+`AquilaChat`系列开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
 
 
-`AquilaChat` open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+`AquilaChat` open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0).
