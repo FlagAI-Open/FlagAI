@@ -57,6 +57,7 @@ ALL_TASK = {
     "opt_seq2seq": ("flagai.model.opt_model", "OPTModel"),
     "opt_lm": ("flagai.model.opt_model", "OPTModel"),
     "galactica_lm": ("flagai.model.galactica_model", "GalacticaModel"),
+    "aquila_lm": ("flagai.model.aquila_model", "AQUILAModel",),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
@@ -98,6 +99,12 @@ MODEL_DICT = {
     "galactica-6.7b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-30b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-120b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "aquilachat-7b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquila-7b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquilachat-33b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquila-33b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquilacode-7b-nv": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquilacode-7b-ts": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
     "vit-base-p16-224":
         ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":
@@ -217,7 +224,7 @@ class AutoLoader:
             self.model.half()
         
         if model_type == "nlp":
-            if brief_model_name in ["galactica", ]:
+            if brief_model_name in ["galactica",]:
                 self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
                                                     MODEL_DICT[model_name][5])(download_path)
             else :

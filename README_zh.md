@@ -11,7 +11,13 @@
 **FlagAI飞智**是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。
 <br><br>
 
+<p align="center">
+已支持平台
+</p>
 
+****
+                             天数智芯                                      Nvidia            
+****
 
 ## 为什么你需要 FlagAI?
 
@@ -283,6 +289,11 @@ FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注�
 * GLM 是基于协议 [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
 * AltDiffusion 是基于协议 [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
 
+## 平台支持
+
+<div  align="center">    
+<img src="./examples/aquila/img/merged_platform.jpg" height = "100" align=center />
+</div>
 
 
 ## Misc

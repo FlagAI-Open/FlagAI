@@ -29,7 +29,7 @@ setup(
         'setuptools==59.5.0',
         'protobuf==3.19.6',
         'ftfy == 6.1.1',
-        'Pillow == 9.3.0',
+        'Pillow >= 9.3.0',
         'einops == 0.3.0',
         'diffusers == 0.7.2',
         'pytorch-lightning == 1.6.5',

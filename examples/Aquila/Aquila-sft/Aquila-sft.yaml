@@ -1,0 +1,12 @@
+batch_size: 4
+gradient_accumulation_steps: 4
+lr: 3.0e-4
+warm_up: 0.01
+
+bmt_cpu_offload: False
+bmt_pre_load: True
+
+save_optim: True
+save_rng: True
+enable_sft_dataset_dir: '../datasets/'
+enable_sft_dataset_file: 'convo_v2.jsonl'

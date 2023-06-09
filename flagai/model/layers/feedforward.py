@@ -17,7 +17,7 @@ from flagai.mpu.mappings import gather_from_model_parallel_region
 from flagai.mpu.mappings import reduce_from_model_parallel_region
 from flagai.mpu.mappings import scatter_to_model_parallel_region
 from flagai.mpu.utils import divide
-
+from flagai.model.utils import normal_init_method
 from flagai.model.layers.linear import CPM3Linear
 
 from .layer_norm import CPM3LayerNorm
@@ -42,15 +42,16 @@ def _initialize_affine_weight(weight,
         world_size = 1
     if world_size == 1:
         init_method(weight)
+        print(f"init weight {weight}")
         if return_master_weight:
             return weight
         return None
-
+    device = weight.device
     # Initialize master weight
     master_weight = torch.empty(output_size,
                                 input_size,
                                 dtype=weight.dtype,
-                                requires_grad=False)
+                                requires_grad=False,device=device)
     init_method(master_weight)
 
     # Split and copy
@@ -60,12 +61,49 @@ def _initialize_affine_weight(weight,
                               dim=partition_dim)
     rank = get_model_parallel_rank()
     my_weight_list = weight_list[rank::world_size]
-
     with torch.no_grad():
         torch.cat(my_weight_list, dim=partition_dim, out=weight)
     if return_master_weight:
         return master_weight
     return None
+
+
+class AQUILAForward(nn.Module):
+    def __init__(
+        self,
+        dim,
+        hidden_dim,
+        multiple_of,
+        config
+    ):
+        super().__init__()
+
+        self.config = config
+
+        hidden_dim = int(2 * hidden_dim / 3)
+        hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
+        if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+            self.w1 = ColumnParallelLinear(
+                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0, self.config.initializer_range)
+            )
+            self.w2 = RowParallelLinear(
+                hidden_dim, dim, bias=False, input_is_parallel=True, init_method=normal_init_method(0, self.config.initializer_range)
+            )
+            self.w3 = ColumnParallelLinear(
+                dim, hidden_dim, bias=False, gather_output=False, init_method=normal_init_method(0, self.config.initializer_range)
+            )
+        else:
+            self.w1 = nn.Linear(dim, hidden_dim, bias=False)
+            self.w2 = nn.Linear(hidden_dim, dim, bias=False)
+            self.w3 = nn.Linear(dim, hidden_dim, bias=False)
+
+            init_method=normal_init_method(0, self.config.initializer_range)
+            init_method(self.w1.weight)
+            init_method(self.w2.weight)
+            init_method(self.w3.weight)
+
+    def forward(self, x):
+        return self.w2(F.silu(self.w1(x)) * self.w3(x))
 
 
 class GPT2MLP(nn.Module):
