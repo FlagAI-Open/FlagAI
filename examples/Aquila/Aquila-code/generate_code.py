@@ -18,7 +18,7 @@ model_dir = "/data2/yzd/checkpoints/converted_models_ldwang"
 device = "cuda"
 
 print(f"building model...")
-loader = AutoLoader("lm", model_name="aquilacode-7b-nv",
+loader = AutoLoader("lm", model_name="aquilacode-7b-ts",
                     use_cache=True, 
                     model_dir=model_dir)
 

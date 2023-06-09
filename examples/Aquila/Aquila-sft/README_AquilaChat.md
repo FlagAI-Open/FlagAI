@@ -73,7 +73,7 @@ from flagai.data.tokenizer import Tokenizer
 import bminf
 
 state_dict = "./checkpoints_in"
-model_name = 'aquilachat-30b'
+model_name = 'aquilachat-33b'
 
 loader = AutoLoader(
     "lm",
