@@ -13,7 +13,7 @@ from flagai.env_args import EnvArgs
 from flagai.env_trainer_v1 import EnvTrainer
 import jsonlines
 import numpy as np
-from examples.Aquila import cyg_conversation as conversation_lib
+import cyg_conversation as conversation_lib
 from flagai.model.tools.lora.prepare_lora import lora_transfer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

@@ -4,8 +4,9 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 from flagai.model.predictor.aquila import aquila_generate
 from flagai.data.tokenizer import Tokenizer
+import bminf
 
-state_dict = "./checkpoints_in"
+state_dict = "/data2/yzd/checkpoints/converted_models_ldwang"
 model_name = 'aquilachat-7b'
 
 loader = AutoLoader(
@@ -19,7 +20,9 @@ cache_dir = os.path.join(state_dict, model_name)
 
 model.eval()
 model.half()
-model.cuda()
+
+with torch.cuda.device(0):
+    model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)
 
 predictor = Predictor(model, tokenizer)
 
@@ -92,7 +95,7 @@ for text in texts:
     print('-'*80)
     print(f"text is {text}")
 
-    from examples.Aquila.cyg_conversation import default_conversation
+    from cyg_conversation import default_conversation
 
     conv = default_conversation.copy()
     conv.append_message(conv.roles[0], text)
