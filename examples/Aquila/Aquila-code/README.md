@@ -1,5 +1,3 @@
-license: [Apache License 2.0](https://model.baai.ac.cn/use-agreement)
-
 
 # AquilaCode-7B
 

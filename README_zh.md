@@ -270,6 +270,7 @@ for text_pair in test_data:
 
 
 ## 动态
+- [9 June 2023] 支持 v1.7.0版本, 增加Aquila [#324](https://github.com/FlagAI-Open/FlagAI/pull/324);
 - [31 Mar 2023] 支持v1.6.3版本, 增加AltCLIP-m18模型 [#303](https://github.com/FlagAI-Open/FlagAI/pull/303) 以及 AltDiffusion-m18模型 [#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
 - [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
 - [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
