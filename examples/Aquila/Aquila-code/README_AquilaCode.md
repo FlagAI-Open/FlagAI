@@ -32,8 +32,8 @@ We also support [Huggingface](hflink)
 |   Model          |  License    | Commercial use?  |  GPU   | Model link                                     
 | :---------------- | :------- | :-- |:-- | :-- |    
 | Aquila-7B         | Apache 2.0  |  ✅   | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100098
-| AquilaCode-7B-nv          | Apache 2.0  |  ✅   |   Nvidia-A100   | https://model.baai.ac.cn/model-detail/100102
-| AquilaCode-7B-ts           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   | https://model.baai.ac.cn/model-detail/100099                
+| AquilaCode-7B-NV          | Apache 2.0  |  ✅   |   Nvidia-A100   | https://model.baai.ac.cn/model-detail/100102
+| AquilaCode-7B-TS           | Apache 2.0  |  ✅    |  Tianshu-BI-V100   | https://model.baai.ac.cn/model-detail/100099                
 | AquilaChat-7B           | Apache 2.0  |  ✅    | Nvidia-A100  | https://model.baai.ac.cn/model-detail/100101
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们应用了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
@@ -57,10 +57,9 @@ We used different tokenizers to extract ten thousand data samples from English, 
 
 
 ## 训练数据集/Training data 
-`AquilaCode-7B-NV`和`AquilaCode-7B-TS`训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text数据
+`AquilaCode-7B-NV`和`AquilaCode-7B-TS`模型训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text数据
 
-给予我们的模型进行了continue pretrain--------
-The AquilaCode-7B-NV model was supervised fine-tuning on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
+The `AquilaCode-7B-NV` and `AquilaCode-7B-TS` model was continue pretrained on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
 
 ## 使用方式/How to use
 
@@ -143,9 +142,7 @@ Create a new directory named `aquilacode-7b-nv` (or`aquilacode-7b-ts`) inside `.
 | lr | float   | 指控制模型更新参数时的步长或速率。学习率过高可能导致模型不收敛，而学习率过低则可能导致训练时间过长或者陷入局部最优解; The step size or rate at which the model updates its parameters during training. A high learning rate may cause the model not to converge, while a low learning rate may result in long training times or being stuck in a local optimum                  |
 | warm_up | float   | 初始学习率与原始学习率的比例; The ratio between the initial learning rate and the original learning rate
 | save_interval | int  | 模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失; The interval at which the model is saved, i.e., how often the model is saved per epoch during training. When training takes a long time, saving intervals can prevent all training achievements from being lost due to sudden interruptions or errors.                    |
-| enable_sft_conversations_dataset_v3 | bool  | 数据处理方式; Data preprocessing method                    |
-| enable_sft_dataset_dir | str   | 可监督微调的数据集目录; Dataset directory of SFT dataset                    |
-| enable_sft_dataset_file | str   | 可监督微调的数据集文件名; Filename of SFT dataset                     |                  |
+
 
 #### Step 3: 启动可监督微调/Start SFT
 ```

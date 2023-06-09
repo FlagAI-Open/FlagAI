@@ -9,13 +9,13 @@ Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点�
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
 
 
-| 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
+<!-- | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
 |  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
 | [Acuila-7B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.xxx | 0.xxx|0.xxx | 0.xxx|0.xxx |0.xxx| 0.xxx|
 
 您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
 
-You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details
+You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details -->
 
 
 我们同时也支持[Huggingface平台](hflink)

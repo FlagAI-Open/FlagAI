@@ -8,11 +8,11 @@ Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点�
 
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
   
-AquilaChat-7B是在Aquila-7B模型的基础上，进行SFT微调后的支持中英双语的对话式语言模型。AquilaChat-7B模型由智源研究院研发，其在主流评测数据集上的评测结果如下
+AquilaChat-7B是在Aquila-7B模型的基础上，进行SFT微调后的支持中英双语的对话式语言模型。AquilaChat-7B模型由智源研究院研发
 
-AquilaChat-7B is a conversational language model that supports Chinese-English dialogue. It is based on the Aquila-7B model and fine-tuned using SFT. AquilaChat-7B model was developed by Beijing Academy of Artificial Intelligence. The evaluation results on mainstream benchmark datasets are as follows:
+AquilaChat-7B is a conversational language model that supports Chinese-English dialogue. It is based on the Aquila-7B model and fine-tuned using SFT. AquilaChat-7B model was developed by Beijing Academy of Artificial Intelligence. 
 
-| 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
+<!-- | 名称/Name | MMLU_Chinese_EM | CLUE-EM |MMLU-EM| BoolQ-EM| TruthfulQA-EM |IMDB-EM| RAFT-EM|
 |  -----  | ----  | -----  | ----  | -----  | ----  | -----  | -----  |
 | [AcuilaChat-7B](https://model.baai.ac.cn/model-detail/xxxxx) | 0.292 | 0.385|0.269 | 0.731|0.347 |0.939| 0.443|
 | [BiLLa-7B-LLM](https://model.baai.ac.cn/model-detail/xxxxx) | 0.279 | 0.374|0.257 | 0.76|0.205 |0.864| 0.514|
@@ -20,7 +20,7 @@ AquilaChat-7B is a conversational language model that supports Chinese-English d
 
 您可以在[FlagEval基础模型评测平台](https://flageval.baai.ac.cn/#/home) 查看更多评测指标
 
-You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details
+You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/home) for more details -->
 
 
 
@@ -28,7 +28,9 @@ You can view [FlagEval Model Evaluation Platform](https://flageval.baai.ac.cn/#/
 
 We also support [Huggingface](hflink)
 
-aquila chat 主要为了验证基础模型能力，使用者可以根据自己需要。。。， 免责说明(license那句话改改)
+AquilaChat模型主要为了验证基础模型能力，您可以根据自己需要对模型进行使用，修改和商业化，但必须遵守所有国家的法律法规，并且对任何第三方使用者提供Aquila系列模型的来源以及Aquila系列模型协议的副本
+
+The AquilaChat model was primarily developed to verify the capabilities of the foundational model. You can use, modify, and commercialize the model according to your needs, but you must comply with all applicable laws and regulations in your country. Additionally, you must provide the source of the Aquila series models and a copy of the Aquila series model lincense to any third-party users.
 
 ## 模型细节/Model details
 |   Model          |  License    | Commercial use?  |  GPU   | Model link                                     
@@ -217,7 +219,7 @@ bash dist_trigger_docker.sh hostfile Aquila-sft.yaml aquilachat-7b [实验名]
 
 ## 证书/License
 
-Aquila-7B开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+`AquilaChat`系列开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 
-Aquila-7B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+`AquilaChat` open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
