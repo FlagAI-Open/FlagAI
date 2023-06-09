@@ -11,16 +11,7 @@
 **FlagAI飞智**是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。
 <br><br>
 
-<p align="center">
-已支持平台
-</p>
-
-****
-                             天数智芯                                      Nvidia            
-****
-
 ## 为什么你需要 FlagAI?
-
 
 1. **可通过 API 快速下载模型**
       
@@ -270,6 +261,7 @@ for text_pair in test_data:
 
 
 ## 动态
+- [9 June 2023] 支持 v1.7.0版本, 增加Aquila [#324](https://github.com/FlagAI-Open/FlagAI/pull/324);
 - [31 Mar 2023] 支持v1.6.3版本, 增加AltCLIP-m18模型 [#303](https://github.com/FlagAI-Open/FlagAI/pull/303) 以及 AltDiffusion-m18模型 [#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
 - [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
 - [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
@@ -284,7 +276,7 @@ for text_pair in test_data:
 ## 许可 LICENSE 
 
 
-FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注意部分项目代码基于其他协议：
+FlagAI飞智大部分项目基于 [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)，但是请注意部分项目代码基于其他协议：
 
 * Megatron-LM 是基于协议 [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM 是基于协议 [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
@@ -293,7 +285,7 @@ FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注�
 ## 平台支持
 
 <div  align="center">    
-<img src="./examples/aquila/img/merged_platform.jpg" height = "100" align=center />
+<img src="./examples/Aquila/img/merged_platform.jpg" height = "100" align=center />
 </div>
 
 

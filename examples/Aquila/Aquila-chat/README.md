@@ -1,5 +1,3 @@
-license: [Apache License 2.0](https://model.baai.ac.cn/use-agreement)
-
 
 # AquilaChat
 
@@ -153,7 +151,7 @@ def convo_tokenize(convo_obj, tokenizer):
 print('-'*80)
 print(f"text is {text}")
 
-from examples.aquila.cyg_conversation import default_conversation
+from cyg_conversation import default_conversation
 
 conv = default_conversation.copy()
 conv.append_message(conv.roles[0], text)

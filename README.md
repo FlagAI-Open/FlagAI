@@ -274,7 +274,7 @@ for text_pair in test_data:
 
 ## LICENSE
 
-The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), however portions of the project are available under separate license terms:
+The majority of FlagAI is licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0), however portions of the project are available under separate license terms:
 
 * Megatron-LM is licensed under the [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM is licensed under the [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
@@ -283,6 +283,7 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 
 
 ## News
+- [9 June 2023] release v1.7.0, Support Aquila [#324](https://github.com/FlagAI-Open/FlagAI/pull/324);
 - [31 Mar 2023] release v1.6.3, Support AltCLIP-m18 [#303](https://github.com/FlagAI-Open/FlagAI/pull/303) and AltDiffusion-m18 [#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
 - [17 Mar 2023] release v1.6.2, Support application of new optimizers [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), and added a new gpt model name 'GPT2-base-en' for English; 
 - [2 Mar 2023] release v1.6.1, Support Galactica model [#234](https://github.com/FlagAI-Open/FlagAI/pull/234); BMInf, a low-resource inference package [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), and examples for p-tuning [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
@@ -297,7 +298,7 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 ## Platforms supported
 
 <div  align="center">    
-<img src="./examples/aquila/img/merged_platform.jpg" height = "100" align=center />
+<img src="./examples/Aquila/img/merged_platform.jpg" height = "100" align=center />
 </div>
 
 

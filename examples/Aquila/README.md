@@ -1,6 +1,3 @@
-license: [Apache License 2.0](https://model.baai.ac.cn/use-agreement)
-
-
 # Aquila
 
 ## 简介/Overview
@@ -46,7 +43,7 @@ Aquila预训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datase
 
 The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), Wudao Corpus、e-book、Patent, encyclopedia, forum, github etc. Details are given in the figure below.
 
-![Screenshot](../img/data_dist.png)
+![Screenshot](./img/data_dist.png)
 
 
 
@@ -82,11 +79,11 @@ bash dist_trigger_docker.sh hostfile Aquila-pretrain-33B.yaml aquila-33b [实验
 
  接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 
-![Screenshot](../img/info.jpg)
+![Screenshot](./img/info.jpg)
 
 成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
 
-![Screenshot](../img/info2.jpg)
+![Screenshot](./img/info2.jpg)
   
 ### 2. 可监督微调/Supervised Fine-tuning(SFT)
 #### Step 1: 修改参数/Modify Parameters
@@ -111,11 +108,11 @@ bash dist_trigger_docker.sh hostfile Aquila-sft.yaml aquila-33b [实验名 exper
 ```
 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 
-![Screenshot](../img/info.jpg)
+![Screenshot](./img/info.jpg)
 
 成功训练之前能在日志里看到如下信息(具体参数可能不同)； Before successful training, you may see the following information in the log file with parameters that may differ:
 
-![Screenshot](../img/info2.jpg)
+![Screenshot](./img/info2.jpg)
 
 ### 3. 推理/Inference
 
