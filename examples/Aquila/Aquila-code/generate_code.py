@@ -3,8 +3,6 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
 import os
-import argparse
-import sys
 from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
 import random
@@ -14,11 +12,10 @@ from flagai.data.tokenizer import Tokenizer
 
 
 model_dir = "./checkpoints_in"
-model_dir = "/data2/yzd/checkpoints/converted_models_ldwang"
 device = "cuda"
 
 print(f"building model...")
-loader = AutoLoader("lm", model_name="aquilacode-7b-ts",
+loader = AutoLoader("lm", model_name="aquilacode-7b-nv",
                     use_cache=True, 
                     model_dir=model_dir)
 
