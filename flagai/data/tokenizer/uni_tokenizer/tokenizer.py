@@ -385,7 +385,6 @@ class Tokenizer(BaseTokenizer):
             self.token_start_id = self.TokenToId('<s>')
         except KeyError:
             self.token_start_id = self.TokenToId('[CLS]')
-        import pdb;pdb.set_trace()
         try:
             self.token_end_id = self.TokenToId("</s>")
         except KeyError:
