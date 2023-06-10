@@ -385,13 +385,13 @@ class Tokenizer(BaseTokenizer):
             self.token_start_id = self.TokenToId('<s>')
         except KeyError:
             self.token_start_id = self.TokenToId('[CLS]')
-
         try:
             self.token_end_id = self.TokenToId("</s>")
         except KeyError:
-            self.token_end_id = self.TokenToId("<|endoftext|>")
-        except KeyError:
-            self.token_end_id = self.TokenToId("[SEP]")
+            try:
+                self.token_end_id = self.TokenToId("<|endoftext|>")
+            except KeyError:
+                self.token_end_id = self.TokenToId("[SEP]")
 
         print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
 
