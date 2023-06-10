@@ -6,6 +6,13 @@ Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点�
 
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
 
+`AquilaCode-7B-NV`和`AquilaCode-7B-TS`是在Aquila-7B模型的基础上，经过代码数据的继续预训练得到的基础代码模型。此模型由智源研究院研发。`AquilaCode-7B-NV`在[HumanEval数据集](https://github.com/openai/human-eval)上的评测指标如下表所示:
+
+`AquilaCode-7B-NV` `AquilaCode-7B-TS` and  is a foundational code model obtained by continue pretraining on code data based on the Aquila-7B model. It was developed by Beijing Academy of Artificial Intelligence. This model was developed by the Institute of Intelligence. The evaluation results of `AquilaCode-7B-NV` model on the [HumanEval dataset]((https://github.com/openai/human-eval)) are shown in the following table:
+
+|   模型/Model          |  Pass@1   | Pass@10   |  Pass@100    |   
+| :---------------- | :------- | :-- |:-- |  
+| AquilaCode-7B-NV         | 25.0  |   37.9   | 61.9  |  
 
 
 我们的模型也同时支持[Huggingface平台](https://huggingface.co/BAAI)。
