@@ -62,7 +62,7 @@ class AQUILAConfig(dict):
         vocab_size=32000,
         dim=4096,
         max_seq_len=2048,
-        max_batch_size=32,
+        max_batch_size=1,
         multiple_of=None,
         # intermediate_size=11008,
         n_layers=32,
