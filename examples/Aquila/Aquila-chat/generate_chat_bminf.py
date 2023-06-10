@@ -32,64 +32,6 @@ texts = [
         "为什么湘菜那么甜？",
         "东三省和海南岛的区别？",
         ]
-## 
-def pack_obj(text):
-    obj = dict()
-    obj['id'] = 'demo'
-
-    obj['conversations'] = []
-    human = dict()
-    human['from'] = 'human'
-    human['value'] = text
-    obj['conversations'].append(human)
-    # dummy bot
-    bot = dict()
-    bot['from'] = 'gpt'
-    bot['value'] = ''
-    obj['conversations'].append(bot)
-
-    obj['instruction'] = ''
-
-    return obj
-
-def delete_last_bot_end_singal(convo_obj):
-    conversations = convo_obj['conversations']
-    assert len(conversations) > 0 and len(conversations) % 2 == 0
-    assert conversations[0]['from'] == 'human'
-
-    last_bot = conversations[len(conversations)-1]
-    assert last_bot['from'] == 'gpt'
-
-    ## from _add_speaker_and_signal
-    END_SIGNAL = "\n"
-    len_end_singal = len(END_SIGNAL)
-    len_last_bot_value = len(last_bot['value'])
-    last_bot['value'] = last_bot['value'][:len_last_bot_value-len_end_singal]
-    return
-
-def convo_tokenize(convo_obj, tokenizer):
-    chat_desc = convo_obj['chat_desc']
-    instruction = convo_obj['instruction']
-    conversations = convo_obj['conversations']
-            
-    # chat_desc
-    example = tokenizer.encode_plus(f"{chat_desc}", None, max_length=None)['input_ids']
-    EOS_TOKEN = example[-1]
-    example = example[:-1] # remove eos
-    # instruction
-    instruction = tokenizer.encode_plus(f"{instruction}", None, max_length=None)['input_ids']
-    instruction = instruction[1:-1] # remove bos & eos
-    example += instruction
-
-    for conversation in conversations:
-        role = conversation['from']
-        content = conversation['value']
-        print(f"role {role}, raw content {content}")
-        content = tokenizer.encode_plus(f"{content}", None, max_length=None)['input_ids']
-        content = content[1:-1] # remove bos & eos
-        print(f"role {role}, content {content}")
-        example += content
-    return example
 
 for text in texts:
     print('-'*80)
