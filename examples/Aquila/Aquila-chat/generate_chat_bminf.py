@@ -6,7 +6,7 @@ from flagai.model.predictor.aquila import aquila_generate
 from flagai.data.tokenizer import Tokenizer
 import bminf
 
-state_dict = "/data2/yzd/checkpoints/converted_models_ldwang"
+state_dict = "./checkpoints_in"
 model_name = 'aquilachat-7b'
 
 loader = AutoLoader(
