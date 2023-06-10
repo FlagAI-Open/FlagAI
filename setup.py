@@ -26,7 +26,7 @@ setup(
         'tensorboard==2.9.0',
         'transformers==4.20.1',
         'datasets==2.0.0',
-        'setuptools==59.5.0',
+        'setuptools==66.0.0',
         'protobuf==3.19.6',
         'ftfy == 6.1.1',
         'Pillow >= 9.3.0',

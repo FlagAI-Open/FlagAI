@@ -14,11 +14,12 @@ We also support [Huggingface](https://huggingface.co/BAAI).
 
 |   模型/Model          |  状态/State    | 能否商用/Commercial use?  |  所用显卡/GPU   |                                    
 | :---------------- | :------- | :-- |:-- |   
-| <font color=red>Aquila-7B </font>         | 已发布  |   ✅   | Nvidia-A100  | 
-| <font color=red>Aquila-33B </font>         | 敬请期待  |   ✅   | Nvidia-A100  | 
+| Aquila-7B         | 已发布  |   ✅   | Nvidia-A100  |  
+| AquilaChat-7B          |已发布  |    ✅    | Nvidia-A100  | 
 | AquilaCode-7B-NV          |已发布  |    ✅   |   Nvidia-A100   | 
 | AquilaCode-7B-TS           |已发布 |   ✅    |  Tianshu-BI-V100   |
-| AquilaChat-7B           |已发布  |    ✅    | Nvidia-A100  | 
+| Aquila-33B          | **敬请期待**  |   ✅   | Nvidia-A100  |
+| AquilaChat-33B           |**敬请期待**  |    ✅    | Nvidia-A100  | 
 
 我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们升级了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
 
@@ -155,7 +156,7 @@ with torch.no_grad():
 
 ## 证书/License
 
-Aquila-7B和Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
+Aquila-7B和Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](../../BAAI_Aquila_Model_License.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
 
 
-Aquila-7B and Aquila-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](https://huggingface.co/BAAI/AquilaCode-7B-NV/resolve/main/BAAI%20Aquila%20Model%20License%20Agreement.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Aquila-7B and Aquila-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](../../BAAI_Aquila_Model_License.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
