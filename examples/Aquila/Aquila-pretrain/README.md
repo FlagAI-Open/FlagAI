@@ -35,7 +35,7 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | 模型/Model | 词表大小/Vocab size | 说明/Note |英文平均tokens量/Avg tokens(English)| 中文平均tokens量/Avg tokens(Chinesse)|代码平均tokens量/Avg tokens(code)  |
 |  -----  | ----  | -----  | ----  | -----  | ----  | 
 | GPT2 | 50527 | bpe|1717 | 1764|2323 |
-| LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
+| LlaMA | 32000 | sp(bpe)|1805| 1257|1970 |
 | Aquila | 100000 | bpe|1575 | 477|1679 |
 
 
