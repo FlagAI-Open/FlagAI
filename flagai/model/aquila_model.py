@@ -17,15 +17,15 @@ from flagai.model.base_model import BaseModel
 
 class AQUILAConfig(dict):
     r"""
-    This is the configuration class to store the configuration of a [`~LLaMAModel`]. It is used to instantiate an LLaMA
+    This is the configuration class to store the configuration of a [`~AquilaModel`]. It is used to instantiate an Aquila
     model according to the specified arguments, defining the model architecture. Instantiating a configuration with the
-    defaults will yield a similar configuration to that of the LLaMA-7B.
+    defaults will yield a similar configuration to that of the Aquila-7B.
     Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the
     documentation from [`PretrainedConfig`] for more information.
     Args:
         vocab_size (`int`, *optional*, defaults to 32000):
-            Vocabulary size of the LLaMA model. Defines the number of different tokens that can be represented by the
-            `inputs_ids` passed when calling [`~LLaMAModel`] or [`~TFLLaMAModel`].
+            Vocabulary size of the Aquila model. Defines the number of different tokens that can be represented by the
+            `inputs_ids` passed when calling [`~AquilaModel`] or [`~TFAquilaModel`].
         hidden_size (`int`, *optional*, defaults to 4096):
             Dimension of the hidden representations.
         intermediate_size (`int`, *optional*, defaults to 11008):
@@ -47,11 +47,11 @@ class AQUILAConfig(dict):
             Whether to tie weight embeddings
         Example:
     ```python
-    >>> from transformers import LLaMAModel, LLaMAConfig
-    >>> # Initializing a LLaMA aquila-7b style configuration
-    >>> configuration = LLaMAConfig()
+    >>> from transformers import AquilaModel, AquilaConfig
+    >>> # Initializing a Aquila aquila-7b style configuration
+    >>> configuration = AquilaConfig()
     >>> # Initializing a model from the aquila-7b style configuration
-    >>> model = LLaMAModel(configuration)
+    >>> model = AquilaModel(configuration)
     >>> # Accessing the model configuration
     >>> configuration = model.config
     ```"""
