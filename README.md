@@ -149,7 +149,7 @@ cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # check the deespeed status
 ```
-- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain)
+- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain) (>= 0.2.2)
 ```
 git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
