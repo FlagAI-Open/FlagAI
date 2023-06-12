@@ -20,6 +20,7 @@
 # repo: https://github.com/pytorch/pytorch
 
 import torch
+import sys
 if torch.__version__ >= "2" and sys.platform != "win32":
     from torch import inf
 else:
