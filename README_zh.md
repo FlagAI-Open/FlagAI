@@ -144,6 +144,17 @@ git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
 python setup.py install 
 ```
+
+- [可选] 开启BMInf低资源推理, 需要安装[BMInf](https://github.com/OpenBMB/BMInf)
+```
+pip install bminf
+
+```
+- [可选] 对于FlashAttention, 需要安装[Flash-attention](https://github.com/HazyResearch/flash-attention)
+```
+pip install flash-attn
+```
+
 - [可选] 镜像构建，请参照 [Dockerfile](https://github.com/FlagAI-Open/FlagAI/blob/master/Dockerfile)
 - [提示] 单节点docker环境下，运行多卡数据并行需要设置host。 例如，docker节点 root@127.0.0.1，其端口 7110。
 ```

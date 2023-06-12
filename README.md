@@ -155,7 +155,17 @@ git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
 python setup.py install
 ```
-- [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 7110
+- [Optional] For BMInf low-resource inference, install [BMInf](https://github.com/OpenBMB/BMInf)
+```
+pip install bminf
+
+```
+- [Optional] For Flash Attention, install [Flash-attention](https://github.com/HazyResearch/flash-attention)
+```
+pip install flash-attn
+```
+
+- [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 711
 ```
 >>> vim ~/.ssh/config
 Host 127.0.0.1

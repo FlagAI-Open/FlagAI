@@ -45,6 +45,9 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | LlaMA | 32000 | sp(bpe)|1805| 1257|1970 |
 | Aquila | 100000 | bpe|1575 | 477|1679 |
 
+Aquila系列模型均可在24G显卡上运行。
+
+The Aquila series models can all run on a 24GB graphics card.
 
 ## 训练数据集/Training data 
 
@@ -61,6 +64,8 @@ We have added support for two additional multimodal instructions: text-to-image 
 
 ### 1. 推理/Inference
 
+运行成功后模型会自动下载在`./checkpoints_in`里，
+
 ```python
 import os
 import torch
@@ -71,7 +76,7 @@ from flagai.data.tokenizer import Tokenizer
 import bminf
 
 state_dict = "./checkpoints_in"
-model_name = 'aquilachat-33b'
+model_name = 'aquilachat-7b'
 
 loader = AutoLoader(
     "lm",
@@ -174,10 +179,10 @@ with torch.no_grad():
 Create a new directory named `aquilachat-7b` inside `./checkpoints_in`. Place the fine-tuned checkpoint and all other files from the original `aquilachat-7b` model, including `config.json`, `mergex.txt`, `vocab.json`, and `special_tokens_map.json`, into this directory.
 
 #### Step 2: 修改参数/ Modify Parameters
-* `cd /examples/Aquila/Aquila-sft`
+* `cd /examples/Aquila/Aquila-chat`
 * 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft.py`
-* (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft.yaml`
+* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_chat.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_chat.py`
+* (可选) 在`Aquila-chat.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-chat.yaml`
 
 | 参数名 Parameter             | 类型 Type | 描述 Description                                        |
 |--------------------------------|------------|-------------------------------------------------------|
@@ -195,7 +200,7 @@ Create a new directory named `aquilachat-7b` inside `./checkpoints_in`. Place th
 
 #### Step 3: 启动可监督微调/Start SFT
 ```
-bash dist_trigger_docker.sh hostfile Aquila-sft.yaml aquilachat-7b [实验名]
+bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquilachat-7b [实验名]
 ```
 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 

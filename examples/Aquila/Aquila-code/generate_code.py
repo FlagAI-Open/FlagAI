@@ -4,6 +4,7 @@
 import torch
 import os
 from flagai import mpu
+import sys;sys.path.append("/data2/yzd/workspace/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 import random
 import numpy as np

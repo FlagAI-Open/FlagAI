@@ -38,6 +38,9 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | LlaMA | 32000 | sp(bpe)|1805| 1257|1970 |
 | Aquila | 100000 | bpe|1575 | 477|1679 |
 
+Aquila系列模型均可在24G显卡上运行。
+
+The Aquila series models can all run on a 24GB graphics card.
 
 
 ## 训练数据集/Training data 
@@ -45,7 +48,7 @@ Aquila预训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datase
 
 The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), Wudao Corpus、e-book、Patent, encyclopedia, forum, github etc. Details are given in the figure below.
 
-![Screenshot](../img/data_dist.png)
+<!-- ![Screenshot](../img/data_dist.png) -->
 
 
 
@@ -98,15 +101,15 @@ bash dist_trigger_docker.sh hostfile Aquila-pretrain-33B.yaml aquila-33b [实验
 
 #### Step 2: 启动可监督微调/Start SFT
 ```
-cd ../Aquila-sft/
+cd ../Aquila-chat/
 ```
 对于Aquila-7B模型：
 ```
-bash dist_trigger_docker.sh hostfile Aquila-sft.yaml aquila-7b [实验名 experiment name]
+bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b [实验名 experiment name]
 ```
 对于Aquila-33B模型:
 ```
-bash dist_trigger_docker.sh hostfile Aquila-sft.yaml aquila-33b [实验名 experiment name]
+bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-33b [实验名 experiment name]
 ```
 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 
