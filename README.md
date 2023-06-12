@@ -155,14 +155,16 @@ git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
 python setup.py install
 ```
-- [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 7110
+- [Optional] For BMInf low-resource inference, install [BMInf](https://github.com/OpenBMB/BMInf)
 ```
->>> vim ~/.ssh/config
-Host 127.0.0.1
-    Hostname 127.0.0.1
-    Port 7110
-    User root
+pip install bminf
+
 ```
+- [Optional] For Flash Attention, install [Flash-attention](https://github.com/HazyResearch/flash-attention)
+```
+pip install flash-attn
+```
+
 - [Tips] For multi-node docker environments, generate ssh keys and copy the public key to all nodes (in `~/.ssh/`)
 ```
 >>> ssh-keygen -t rsa -C "xxx@xxx.com"

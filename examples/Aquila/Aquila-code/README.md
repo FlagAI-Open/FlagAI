@@ -43,6 +43,9 @@ We used different tokenizers to extract ten thousand data samples from English, 
 | LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
 | Aquila | 100000 | bpe|1575 | 477|1679 |
 
+Aquila系列模型均可在24G显卡上运行。
+
+The Aquila series models can all run on a 24GB graphics card.
 
 ## 训练数据集/Training data 
 `AquilaCode-7B-NV`和`AquilaCode-7B-TS`模型训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text数据
