@@ -165,6 +165,14 @@ pip install bminf
 pip install flash-attn
 ```
 
+- [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 711
+```
+>>> vim ~/.ssh/config
+Host 127.0.0.1
+    Hostname 127.0.0.1
+    Port 7110
+    User root
+```
 - [Tips] For multi-node docker environments, generate ssh keys and copy the public key to all nodes (in `~/.ssh/`)
 ```
 >>> ssh-keygen -t rsa -C "xxx@xxx.com"
