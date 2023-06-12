@@ -12,7 +12,7 @@ from flagai.data.tokenizer import Tokenizer
 from flagai.env_args import EnvArgs
 from flagai.env_trainer_v1 import EnvTrainer
 from flagai.model.aquila_model import AQUILAModel
-from flagai.data.datasets.indexed_dataset.build_index_mappings import _build_train_valid_test_datasets,_build_train_valid_test_weighted_datasets
+from flagai.data.dataset.indexed_dataset.build_index_mappings import _build_train_valid_test_datasets,_build_train_valid_test_weighted_datasets
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
