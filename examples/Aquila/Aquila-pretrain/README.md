@@ -7,9 +7,14 @@ Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点�
 The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
 
 
-我们同时也支持[Huggingface平台](https://huggingface.co/BAAI)。
+<!-- 我们同时也支持[Huggingface平台](https://huggingface.co/BAAI)。
 
-We also support [Huggingface](https://huggingface.co/BAAI).
+We also support [Huggingface](https://huggingface.co/BAAI). -->
+
+运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度200 token。
+
+To run the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 200 tokens.
+
 
 ## 模型细节/Model details
 
@@ -37,9 +42,6 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
 | Aquila | 100000 | bpe|1575 | 477|1679 |
 
-Aquila系列模型均可在24G显卡上运行。
-
-The Aquila series models can all run on a 24GB graphics card.
 
 
 ## 训练数据集/Training data 
@@ -48,7 +50,9 @@ Aquila预训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datase
 The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), Wudao Corpus、e-book、Patent, encyclopedia, forum, github etc. Details are given in the figure below.
 
 <!-- ![Screenshot](../img/data_dist.png) -->
+Aquila 系列模型的预训练数据不开源，但数据分布情况将在官方技术报告中展现（预计6月底发布，敬请期待）。
 
+The pre-training data of the Aquila series models are not open-sourced, but the data distribution will be presented in the official technical report (expected to be released by the end of June, stay tuned).
 
 
 ## 使用方式/How to use

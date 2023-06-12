@@ -11,9 +11,13 @@ AquilaChat-7B是在Aquila-7B模型的基础上，进行SFT微调后的支持中�
 AquilaChat-7B is a conversational language model that supports Chinese-English dialogue. It is based on the Aquila-7B model and fine-tuned using SFT. AquilaChat-7B model was developed by Beijing Academy of Artificial Intelligence. 
 
 
-我们的模型也同时支持[Huggingface平台](https://huggingface.co/BAAI)。
+<!-- 我们的模型也同时支持[Huggingface平台](https://huggingface.co/BAAI)。
 
-We also support [Huggingface](https://huggingface.co/BAAI).
+We also support [Huggingface](https://huggingface.co/BAAI). -->
+
+运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度200 token。
+
+To run the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 200 tokens.
 
 AquilaChat模型主要为了验证基础模型能力，您可以根据自己需要对模型进行使用，修改和商业化，但必须遵守所有国家的法律法规，并且对任何第三方使用者提供Aquila系列模型的来源以及Aquila系列模型协议的副本。
 
@@ -45,19 +49,17 @@ The tokenizer used in the Aquila model was trained from scratch by us and suppor
 | LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
 | Aquila | 100000 | bpe|1575 | 477|1679 |
 
-Aquila系列模型均可在24G显卡上运行。
-
-The Aquila series models can all run on a 24GB graphics card.
-
 ## 训练数据集/Training data 
 
-我们采用了一系列高质量中英文数据集来训练和微调我们的对话语言模型，并且在不断更新迭代。
+我们采用了一系列高质量中英文数据集来训练和微调我们的对话语言模型，并且在不断更新迭代。Aquila 系列模型的预训练数据和SFT数据不开源，但数据分布情况将在官方技术报告中展现（预计6月底发布，敬请期待）。
 
-We used a series of high-quality Chinese and English datasets to train and fine-tune our conversational language model, and continuously updated it through iterations.
+We used a series of high-quality Chinese and English datasets to train and fine-tune our conversational language model, and continuously updated it through iterations. The pre-training data and SFT data of the Aquila series models are not open-sourced, but the data distribution will be presented in the official technical report (expected to be released by the end of June, stay tuned).
 
 我们额外支持了两种多模态的指令: 文图生成和图片编辑，数据集格式请参考[这里](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/Aquila-chat/data/sft_samples.jsonl)
 
 We have added support for two additional multimodal instructions: text-to-image generation and image editing. Please refer to the dataset format [here](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/Aquila-chat/data/sft_samples.jsonl).
+
+
 
 
 ## 使用方式/How to use
@@ -186,6 +188,7 @@ Create a new directory named `aquilachat-7b` inside `./checkpoints_in`. Place th
 
 | 参数名 Parameter             | 类型 Type | 描述 Description                                        |
 |--------------------------------|------------|-------------------------------------------------------|
+| lora | bool   | 是否启用[LoRA](https://github.com/microsoft/LoRA)来减少微调成本；Whether to enable [LoRA](https://github.com/microsoft/LoRA) to reduce fine-tuning costs                   |
 | batch_size | int   | 每次迭代训练时，从数据集中抽取的样本数。一般来说，它越大，处理速度越快，但会占用更多的内存; The number of samples extracted from the dataset for each iteration during training. Generally, a larger batch size can speed up processing but may also consume more memory                    |
 | gradient_accumulation_steps | int   | 在更新模型权重之前，要对多个小批次进行梯度计算的次数。主要应用于GPU显存较小的情况下，可以使用小的batch_size，通过梯度累积达到与大batch_size相同的效果; The number of samples extracted from the dataset for each iteration during training. Generally, a larger batch size can speed up processing but may also consume more memoryimages                  |
 | lr | float   | 指控制模型更新参数时的步长或速率。学习率过高可能导致模型不收敛，而学习率过低则可能导致训练时间过长或者陷入局部最优解; The step size or rate at which the model updates its parameters during training. A high learning rate may cause the model not to converge, while a low learning rate may result in long training times or being stuck in a local optimum                  |

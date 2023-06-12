@@ -8,9 +8,14 @@ The Aquila language model inherits the architectural design advantages of GPT-3 
 
 
 
-我们的模型也同时支持[Huggingface平台](https://huggingface.co/BAAI)。
+<!-- 我们的模型也同时支持[Huggingface平台](https://huggingface.co/BAAI)。
 
-We also support [Huggingface](https://huggingface.co/BAAI).
+We also support [Huggingface](https://huggingface.co/BAAI). -->
+
+运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度200 token。
+
+To run the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 200 tokens.
+
 
 ## 模型细节/Model details
 
@@ -43,15 +48,15 @@ We used different tokenizers to extract ten thousand data samples from English, 
 | LLaMA | 32000 | sp(bpe)|1805| 1257|1970 |
 | Aquila | 100000 | bpe|1575 | 477|1679 |
 
-Aquila系列模型均可在24G显卡上运行。
-
-The Aquila series models can all run on a 24GB graphics card.
 
 ## 训练数据集/Training data 
 `AquilaCode-7B-NV`和`AquilaCode-7B-TS`模型训练使用了[starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)中的shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text数据
 
 The `AquilaCode-7B-NV` and `AquilaCode-7B-TS` model was continue pretrained on  [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata)(shell, sql，C, C++, Java, Javascript, Python, git-commits, github-issues, jupyter-scripts, jupyter-structured-text).
 
+Aquila 系列模型的预训练数据不开源，但数据分布情况将在官方技术报告中展现（预计6月底发布，敬请期待）。
+
+The pre-training data of the Aquila series models are not open-sourced, but the data distribution will be presented in the official technical report (expected to be released by the end of June, stay tuned).
 ## 使用方式/How to use
 
 ### 1. 推断/Inference
@@ -124,7 +129,7 @@ Create a new directory named `aquilacode-7b-NV` (or`aquilacode-7b-TS`) inside `.
 * `cd /examples/Aquila/Aquila-code`
 * 配置`hostfile`文件, 参考[这里](../../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
 * 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_sft_code.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_sft_code.py`
-* (可选) 在`Aquila-sft.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-sft-code.yaml`
+* (可选) 在`Aquila-chat.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-chat.yaml`
 
 | 参数名 Parameter             | 类型 Type | 描述 Description                                        |
 |--------------------------------|------------|-------------------------------------------------------|
@@ -137,7 +142,7 @@ Create a new directory named `aquilacode-7b-NV` (or`aquilacode-7b-TS`) inside `.
 
 #### Step 3: 启动可监督微调/Start SFT
 ```
-bash dist_trigger_docker.sh hostfile Aquila-sft.yaml [aquilacode-7b-nv/aquilacode-7b-ts] [实验名]
+bash dist_trigger_docker.sh hostfile Aquila-code.yaml [aquilacode-7b-nv/aquilacode-7b-ts] [实验名]
 ```
 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 
