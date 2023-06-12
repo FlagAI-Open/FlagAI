@@ -131,14 +131,14 @@ git clone https://github.com/NVIDIA/apex
 cd apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
-- [可选] 使用 ZeRO 优化器，需要安装 [DEEPSPEED](https://github.com/microsoft/DeepSpeed)
+- [可选] 使用 ZeRO 优化器，需要安装 [DEEPSPEED](https://github.com/microsoft/DeepSpeed) (>= 0.7.7)
 ```
 git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # 检查deepspeed的状态
 ```
-- [可选] 开启BMTrain训练，需要安装 [BMTrain](https://github.com/OpenBMB/BMTrain)
+- [可选] 开启BMTrain训练，需要安装 [BMTrain](https://github.com/OpenBMB/BMTrain) ((>= 0.2.2))
 ```
 git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
@@ -150,7 +150,7 @@ python setup.py install
 pip install bminf
 
 ```
-- [可选] 对于FlashAttention, 需要安装[Flash-attention](https://github.com/HazyResearch/flash-attention)
+- [可选] 对于FlashAttention, 需要安装[Flash-attention](https://github.com/HazyResearch/flash-attention) （>=1.0.2）
 ```
 pip install flash-attn
 ```

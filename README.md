@@ -142,14 +142,14 @@ git clone https://github.com/NVIDIA/apex
 cd apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
-- [Optional] For ZeRO optimizers, install [DEEPSPEED](https://github.com/microsoft/DeepSpeed)
+- [Optional] For ZeRO optimizers, install [DEEPSPEED](https://github.com/microsoft/DeepSpeed) (>= 0.7.7)
 ```
 git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # check the deespeed status
 ```
-- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain)
+- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain) (>= 0.2.2)
 ```
 git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
@@ -160,7 +160,7 @@ python setup.py install
 pip install bminf
 
 ```
-- [Optional] For Flash Attention, install [Flash-attention](https://github.com/HazyResearch/flash-attention)
+- [Optional] For Flash Attention, install [Flash-attention](https://github.com/HazyResearch/flash-attention) (>=1.0.2)
 ```
 pip install flash-attn
 ```
