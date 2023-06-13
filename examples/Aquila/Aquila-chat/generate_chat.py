@@ -12,7 +12,8 @@ loader = AutoLoader(
     "lm",
     model_dir=state_dict,
     model_name=model_name,
-    use_cache=True)
+    use_cache=True,
+    use_fp16=True)
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 cache_dir = os.path.join(state_dict, model_name)
