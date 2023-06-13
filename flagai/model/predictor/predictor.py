@@ -351,7 +351,7 @@ class Predictor:
         elif "aquila" in self.class_name.lower():
             return aquila_generate(self.tokenizer, self.model,
                                   [text], out_max_length,
-                                  temperature, top_p, prompts_tokens=prompts_tokens)
+                                  temperature, top_k, top_p, prompts_tokens=prompts_tokens)
 
         else:
             print("Unsupported decoding mode")
