@@ -9,6 +9,7 @@ def aquila_generate(
         prompts: List[str],
         max_gen_len: int,
         temperature: float = 0.8,
+        top_k: int = 30,
         top_p: float = 0.95,
         prompts_tokens: List[List[int]] = None,
     ) -> List[str]:
@@ -38,7 +39,11 @@ def aquila_generate(
             logits = model.forward(tokens[:, prev_pos:cur_pos], prev_pos)["logits"]
             #print(logits.shape)
             if temperature > 0:
-                probs = torch.softmax(logits / temperature, dim=-1)
+                logits /= temperature
+                indices_to_remove = logits < torch.topk(
+                    logits, top_k)[0][..., -1, None]
+                logits[indices_to_remove] = -float('Inf')
+                probs = torch.softmax(logits, dim=-1)
                 next_token = sample_top_p(probs, top_p)
             else:
                 next_token = torch.argmax(logits, dim=-1)
