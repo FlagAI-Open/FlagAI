@@ -1,8 +1,8 @@
 import os
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
 from flagai.data.tokenizer import Tokenizer
+from flagai.model.predictor.predictor import Predictor
 import bminf
 
 state_dict = "./checkpoints_in/"
@@ -13,20 +13,18 @@ loader = AutoLoader(
     model_dir=state_dict,
     model_name=model_name,
     use_cache=True,
-    use_fp16=True)
+    fp16=True)
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 
 model.eval()
-model.half()
-
 model.cuda()
-
-predictor = Predictor(model, tokenizer)
-
+    
 texts = [
         "汽车EDR是什么",
         ]
+
+predictor = Predictor(model, tokenizer)
 
 for text in texts:
     print('-'*80)
