@@ -15,9 +15,9 @@ AquilaChat-7B is a conversational language model that supports Chinese-English d
 
 We also support [Huggingface](https://huggingface.co/BAAI). -->
 
-运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度200 token。
+最低硬件需求：运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度 2048 tokens。
 
-To run the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 200 tokens.
+Minimum hardware requirements for running the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 2048 tokens.
 
 AquilaChat模型主要为了验证基础模型能力，您可以根据自己需要对模型进行使用，修改和商业化，但必须遵守所有国家的法律法规，并且对任何第三方使用者提供Aquila系列模型的来源以及Aquila系列模型协议的副本。
 
