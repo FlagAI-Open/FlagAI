@@ -571,7 +571,7 @@ class EnvTrainer():
 
                 if lm_loss is not None:
                     if not isinstance(lm_loss, float):
-                        total_lm_loss += lm_loss.data.detach().float()
+                        total_lm_loss += lm_loss.data.detach().item()
                     else:
                         total_lm_loss += lm_loss
 

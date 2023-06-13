@@ -156,10 +156,7 @@ class AQUILAModel(BaseModel):
 
     def forward(self, input_ids: torch.Tensor, start_pos=0, labels=None, **kwargs):
         _bsz, seqlen = input_ids.shape
-        if self.config.checkpoint_activations:
-            h = checkpoint(create_custom_forward(self.tok_embeddings),input_ids)
-        else:
-            h = self.tok_embeddings(input_ids)
+        h = self.tok_embeddings(input_ids)
             
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
@@ -188,10 +185,8 @@ class AQUILAModel(BaseModel):
         
         h = self.norm(h)
         if labels is not None:
-            if self.config.checkpoint_activations:
-                h = checkpoint(create_custom_forward(self.output),h)
-            else:
-                h = self.output(h)
+            h = self.output(h)
+
             shift_logits = h[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
 
