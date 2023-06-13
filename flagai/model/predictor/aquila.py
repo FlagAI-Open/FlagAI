@@ -55,7 +55,8 @@ def aquila_generate(
                 input_text_mask[:, cur_pos], tokens[:, cur_pos], next_token
             )
             tokens[:, cur_pos] = next_token
-            prev_pos = cur_pos
+            if model.use_cache:
+                prev_pos = cur_pos
         decoded = []
         for i, t in enumerate(tokens.tolist()):
             # cut to max gen len
