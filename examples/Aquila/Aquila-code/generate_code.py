@@ -4,7 +4,7 @@
 import torch
 import os
 from flagai import mpu
-import sys;sys.path.append("/data2/yzd/workspace/FlagAI")
+import sys
 from flagai.auto_model.auto_loader import AutoLoader
 import random
 import numpy as np
@@ -18,6 +18,7 @@ device = "cuda"
 print(f"building model...")
 loader = AutoLoader("lm", model_name="aquilacode-7b-nv",
                     use_cache=True, 
+                    fp16=True, 
                     model_dir=model_dir)
 
 model = loader.get_model()
