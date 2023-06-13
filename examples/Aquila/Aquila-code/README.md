@@ -19,9 +19,9 @@ The Aquila language model inherits the architectural design advantages of GPT-3 
 
 We also support [Huggingface](https://huggingface.co/BAAI). -->
 
-运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度200 token。
+最低硬件需求：运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度 2048 tokens。
 
-To run the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 200 tokens.
+Minimum hardware requirements for running the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 2048 tokens.
 
 
 ## 模型细节/Model details
