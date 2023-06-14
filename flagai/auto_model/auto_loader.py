@@ -220,8 +220,6 @@ class AutoLoader:
             only_download_config=only_download_config,
             device=device,
             **kwargs)
-        if kwargs.get("use_fp16", None):
-            self.model.half()
         
         if model_type == "nlp":
             if brief_model_name in ["galactica",]:
