@@ -203,6 +203,8 @@ class AQUILAAttention(nn.Module):
             keys = keys.transpose(1, 2)
             values = values.transpose(1, 2)
             scores = torch.matmul(xq, keys.transpose(2, 3)) / math.sqrt(self.head_dim)
+            ## for corner cases, especially in the last layer and dtype of fp16
+            scores = torch.clamp(scores, min=-1024., max=1024.)
             if mask is not None:
                 scores = scores + mask  # (bs, n_local_heads, slen, cache_len + slen)
             scores = F.softmax(scores.float(), dim=-1).type_as(xq)
