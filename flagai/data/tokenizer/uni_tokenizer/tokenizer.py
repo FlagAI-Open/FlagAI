@@ -393,7 +393,7 @@ class Tokenizer(BaseTokenizer):
             except KeyError:
                 self.token_end_id = self.TokenToId("[SEP]")
 
-        print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
+        #print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
 
     def get_vocab(self):
         return self.text_tokenizer.get_vocab()

@@ -31,7 +31,7 @@ def aquila_generate(
 
         tokens = torch.full((bsz, total_len), 0).cuda().long()
         for k, t in enumerate(prompt_tokens):
-            tokens[k, : len(t)] = torch.tensor(t).long()
+            tokens[k, : len(t)] = t.clone().detach().long()
         input_text_mask = tokens != 0
         start_pos = min_prompt_size
         prev_pos = 0
