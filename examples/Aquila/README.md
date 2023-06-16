@@ -1,4 +1,98 @@
-# Aquila
+
+![Aquila_logo](./img/Aquila.PNG)
+
+
+
+# 悟道·天鹰（Aquila）
+
+悟道·天鹰（Aquila） 语言大模型是首个具备中英双语知识、支持商用许可协议、国内数据合规需求的开源语言大模型。
+- 🌟 支持开源商用许可。Aquila系列模型的源代码基于 Apache 2.0 协议，模型权重基于《智源Aquila系列模型许可协议》，使用者在满足许可限制的情况下，可用于商业目的。
+- ✍️ 具备中英文知识。Aquila系列模型在中英文高质量语料基础上从 0 开始训练，中文语料约占 40%，保证模型在预训练阶段就开始积累原生的中文世界知识，而非翻译而来的知识。
+- 👮‍♀️符合国内数据合规需求。Aquila系列模型的中文语料来自智源多年积累的中文数据集，包括来自1万多个站源的中文互联网数据（其中99%以上为国内站源），以及获得国内权威机构支持的高质量中文文献数据、中文书籍数据等。我们仍在持续积累高质量、多样化的数据集，并源源不断加入Aquila基础模型后续训练中。
+- 🎯持续迭代，持续开源开放。我们将不断完善训练数据、优化训练方法、提升模型性能，在更优秀的基础模型基座上，培育枝繁叶茂的“模型树”，持续开源开放更新的版本。
+
+
+悟道 · 天鹰 Aquila 模型的更多细节将在官方技术报告中呈现，预计 2023 年 6 月底发布。请关注官方渠道更新。包括 [FlagAI GitHub仓库](https://github.com/FlagAI-Open/FlagAI/)，[FlagAI 知乎账号](https://www.zhihu.com/people/95-22-20-18)、[FlagAI 官方技术交流群](https://github.com/FlagAI-Open/FlagAI/blob/master/wechat-qrcode.jpg)、智源研究院微信公众号、智源社区微信公众号。
+
+
+|   模型          |  模型类型    | 简介  |  文件路径   |   单独下载模型权重  |  状态   |  训练所用显卡   |                                   
+| :---------------- | :------- | :-- |:-- |   :-- | :-- | :-- | 
+| Aquila-7B         | 基础模型，70亿参数  |   Aquila 基础模型在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。   | Nvidia-A100  |  
+| AquilaChat-7B          |已发布  |    同上    | Nvidia-A100  | 
+| AquilaCode-7B-NV          |已发布  |    ✅   |   Nvidia-A100   | 
+| AquilaCode-7B-TS           |已发布 |   ✅    |  Tianshu-BI-V100   |
+| Aquila-33B          | **敬请期待**  |   ✅   | Nvidia-A100  |
+| AquilaChat-33B           |**敬请期待**  |    ✅    | Nvidia-A100  | 
+
+
+<table>
+  <tr>
+    <td>模型</td>
+    <td>模型类型</td>
+    <td>简介</td>
+    <td>文件路径</td>
+    <td>单独下载模型权重</td>
+    <td>状态</td>
+    <td>训练所用显卡</td>
+  </tr>
+  <tr>
+    <td>Aquila-7B</td>
+    <td>基础模型，70亿参数</td>
+    <td rowspan="2">Aquila 基础模型在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。</td>
+    <td>https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-pretrain</td>
+    <td>12</td>
+    <td>13</td>
+    <td>13</td>
+  </tr>
+  <tr>
+    <td>14</td>
+    <td>15</td>
+    <td>16</td>
+    <td>17</td>
+    <td>18</td>
+    <td>19</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>21</td>
+    <td rowspan="2">22</td>
+    <td>24</td>
+    <td>25</td>
+    <td>26</td>
+    <td>27</td>
+  </tr>
+  <tr>
+    <td>28</td>
+    <td>29</td>
+    <td>30</td>
+    <td>31</td>
+    <td>32</td>
+    <td>33</td>
+  </tr>
+  <tr>
+    <td>34</td>
+    <td>35</td>
+    <td rowspan="2">36</td>
+    <td>37</td>
+    <td>38</td>
+    <td>39</td>
+    <td>39</td>
+  </tr>
+  <tr>
+    <td>40</td>
+    <td>41</td>
+    <td rowspan="3">42</td>
+    <td>43</td>
+    <td>44</td>
+    <td>46</td>
+  </tr>
+
+
+</table>
+
+
+
+
 
 ## 简介/Overview
 Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed zero-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
