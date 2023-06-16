@@ -9,5 +9,5 @@ bmt_pre_load: True
 save_optim: True
 save_rng: True
 lora: False
-enable_sft_dataset_dir: '../datasets/'
-enable_sft_dataset_file: 'convo_v2.jsonl'
+enable_sft_dataset_dir: './data/'
+enable_sft_dataset_file: 'sft_samples.jsonl'
