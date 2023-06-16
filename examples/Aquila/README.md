@@ -40,9 +40,9 @@
     <td>基础模型，70亿参数</td>
     <td rowspan="2">Aquila 基础模型在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。</td>
     <td>https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-pretrain</td>
-    <td>12</td>
-    <td>13</td>
-    <td>13</td>
+    <td>http://model.baai.ac.cn/model-detail/100098</td>
+    <td>已发布</td>
+    <td>Nvidia-A100</td>
   </tr>
   <tr>
     <td>14</td>
