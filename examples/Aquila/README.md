@@ -30,8 +30,8 @@
     <td>模型</td>
     <td>模型类型</td>
     <td>简介</td>
-    <td>文件路径</td>
-    <td>单独下载模型权重</td>
+    <td style="width: 100px;">文件路径</td>
+    <td style="width: 100px;">单独下载模型权重</td>
     <td>状态</td>
     <td>训练所用显卡</td>
   </tr>
