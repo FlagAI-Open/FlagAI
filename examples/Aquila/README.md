@@ -17,12 +17,12 @@
 
 |   模型          |  模型类型    | 简介  |  文件路径   |   单独下载模型权重  |  状态   |  训练所用显卡   |                                   
 | :---------------- | :------- | :-- |:-- |   :-- | :-- | :-- | 
-| Aquila-7B         | 基础模型，70亿参数  |   Aquila 基础模型在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。   | Nvidia-A100  |  
-| AquilaChat-7B          |已发布  |    同上    | Nvidia-A100  | 
-| AquilaCode-7B-NV          |已发布  |    ✅   |   Nvidia-A100   | 
-| AquilaCode-7B-TS           |已发布 |   ✅    |  Tianshu-BI-V100   |
-| Aquila-33B          | **敬请期待**  |   ✅   | Nvidia-A100  |
-| AquilaChat-33B           |**敬请期待**  |    ✅    | Nvidia-A100  | 
+| Aquila-7B         | 基础模型，70亿参数  |   Aquila 基础模型在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。   | [./examples/Aquila/Aquila-pretrain](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-pretrain)  | [model.baai.ac.cn/model-detail/100098](http://model.baai.ac.cn/model-detail/100098) | 已发布 | Nvidia-A100 |
+| Aquila-33B          |已发布  |    同上    | Nvidia-A100  | 
+| AquilaChat-7B          |已发布  |    ✅   |   Nvidia-A100   | 
+| AquilaChat-33B           |已发布 |   ✅    |  Tianshu-BI-V100   |
+| AquilaCode-7B-NV          | **敬请期待**  |   ✅   | Nvidia-A100  |
+| AquilaCode-7B-TS           |**敬请期待**  |    ✅    | Nvidia-A100  | 
 
 
 <table>
