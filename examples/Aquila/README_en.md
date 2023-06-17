@@ -3,7 +3,7 @@
 
 
 
-# 悟道·天鹰（Aquila）
+# Aquila
 
 Aquila Language Model is the first open source language model that supports both Chinese and English knowledge, commercial license agreements, and compliance with domestic data regulations.
 
@@ -148,7 +148,7 @@ Currently, the minimum requirement for pre-training the 7B base model is to run 
     bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquila-7b aquila_experiment
     ```
 
-### 调整参数
+### Adjust the Parameters
 
 For the above examples, you can modify the following parameters to achieve different training and inference effects:：
 
@@ -163,8 +163,8 @@ For the above examples, you can modify the following parameters to achieve diffe
 | save_interval  | int   | The interval at which the model is saved, that is, how often the model is saved every few iterations of training. When the training time is long, the save interval can prevent all training results from being lost due to sudden interruptions or errors. |
 | log_interval   | int   | The interval at which logs are output, that is, how often log information is output every few iterations of training. |
 | lora           | int   | An integer value to enable LoRA optimization method during training. By default, it is set to 0 (no LoRA).|
-| enable_sft_dataset_dir | str | The directory of the training dataset. |
-| enable_sft_dataset_file | str | The file name of the training dataset. 
+| enable_sft_dataset_dir | str | The directory of the SFT training dataset. |
+| enable_sft_dataset_file | str | The file name of the SFT training dataset. 
 
 Complete parameter information can be found inhttps://github.com/FlagAI-Open/FlagAI/blob/master/flagai/env_args.py
 

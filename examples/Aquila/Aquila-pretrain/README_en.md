@@ -3,7 +3,7 @@
 
 
 
-# 悟道·天鹰（Aquila）
+# Aquila
 
 Aquila Language Model is the first open source language model that supports both Chinese and English knowledge, commercial license agreements, and compliance with domestic data regulations.
 
@@ -148,7 +148,7 @@ Currently, the minimum requirement for pre-training the 7B base model is to run 
     bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquila-7b aquila_experiment
     ```
 
-### 调整参数
+### Adjust the Parameters
 
 For the above examples, you can modify the following parameters to achieve different training and inference effects:：
 

@@ -3,7 +3,7 @@
 
 
 
-# 悟道·天鹰（Aquila）
+# Aquila
 
 Aquila Language Model is the first open source language model that supports both Chinese and English knowledge, commercial license agreements, and compliance with domestic data regulations.
 
@@ -130,7 +130,7 @@ Before successful training, you may see the following information in the log fil
 
 
 
-### 调整参数
+### Adjust the Parameters
 
 For the above examples, you can modify the following parameters to achieve different training and inference effects:：
 
