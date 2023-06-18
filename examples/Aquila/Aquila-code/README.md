@@ -88,8 +88,6 @@
   </tr>
 
 
-</table> -->
-
 ## 快速开始使用 Aquila-7B 基础模型
 
 ### 基础模型的环境准备
@@ -230,5 +228,5 @@ python generate_bminf.py
 
 ## 证书
 
-Aquila-7B和Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](../../../BAAI_Aquila_Model_License.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
+AquilaCode-7B-NV和AquilaCode-7B-TS开源模型使用 [智源Aquila系列模型许可协议](../../../BAAI_Aquila_Model_License.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
 

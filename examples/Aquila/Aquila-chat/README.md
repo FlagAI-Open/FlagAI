@@ -88,7 +88,7 @@
   </tr>
 
 
-</table> -->
+<!-- </table> --> -->
 
 ## 快速开始使用 AquilaChat-7B 对话模型
 
