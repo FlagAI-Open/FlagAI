@@ -25,67 +25,6 @@
 | AquilaCode-7B-TS           |基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在天数智芯芯片上完成训练  |    同上    | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  | [下载AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | 已发布  | Tianshu-BI-V100  | 
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
-<!-- <table>
-  <tr>
-    <td>模型</td>
-    <td>模型类型</td>
-    <td>简介</td>
-    <td style="width: 100px;">文件路径</td>
-    <td style="width: 100px;">单独下载模型权重</td>
-    <td>状态</td>
-    <td>训练所用显卡</td>
-  </tr>
-  <tr>
-    <td>Aquila-7B</td>
-    <td>基础模型，70亿参数</td>
-    <td rowspan="2">Aquila 基础模型在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。</td>
-    <td>https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-pretrain</td>
-    <td>http://model.baai.ac.cn/model-detail/100098</td>
-    <td>已发布</td>
-    <td>Nvidia-A100</td>
-  </tr>
-  <tr>
-    <td>14</td>
-    <td>15</td>
-    <td>16</td>
-    <td>17</td>
-    <td>18</td>
-    <td>19</td>
-  </tr>
-  <tr>
-    <td>20</td>
-    <td>21</td>
-    <td rowspan="2">22</td>
-    <td>24</td>
-    <td>25</td>
-    <td>26</td>
-    <td>27</td>
-  </tr>
-  <tr>
-    <td>28</td>
-    <td>29</td>
-    <td>30</td>
-    <td>31</td>
-    <td>32</td>
-    <td>33</td>
-  </tr>
-  <tr>
-    <td>34</td>
-    <td>35</td>
-    <td rowspan="2">36</td>
-    <td>37</td>
-    <td>38</td>
-    <td>39</td>
-    <td>39</td>
-  </tr>
-  <tr>
-    <td>40</td>
-    <td>41</td>
-    <td rowspan="3">42</td>
-    <td>43</td>
-    <td>44</td>
-    <td>46</td>
-  </tr>
 
 
 
