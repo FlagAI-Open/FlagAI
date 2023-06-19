@@ -30,7 +30,7 @@
 
 
 
-## 快速开始使用 Aquila-7B 基础模型
+## 快速开始使用 AquilaCode-7B 基础模型
 
 ### 基础模型的环境准备
 
@@ -48,46 +48,48 @@
     ```
     注：我们目前支持在Ubuntu, Mac和Mac上运行，详细环境依赖信息可参考 [FlagAI环境安装](../../../README.md#requirements-and-installation)
 
-3. 进入**Aquila-7B基础模型**目录
+3. 进入**AquilaCode-7B基础模型**目录
     ```
-    cd examples/Aquila/Aquila-pretrain
+    cd examples/Aquila/Aquila-code
     ```
-对于Aquila-7B模型，我们提供**模型推理**，**预训练**，**微调**三种使用方式：
+对于AquilaCode模型，我们提供**模型推理**，**预训练**，**微调**三种使用方式：
 
 ### 基础模型推理
 
 正常模型推理(显存资源消耗约为14.6GB)：
 ```
-python generate.py
+python generate_code.py
 ```
 使用[BMInf](https://github.com/OpenBMB/BMInf)进行低资源推理(可调整所用内存)
 ```
-python generate_bminf.py
+python generate_code_bminf.py
 ```
 默认参数下显存资源消耗为4.3GB，可通过memory_limit参数手动设置最大资源消耗，如下图所示(2 << 30 代表2GB)：
 ![bminf](../img/bminf.png)
 
-推理程序运行完毕之后，Aquila-7B模型会自动下载到`./checkpoints_in`里
+推理程序运行完毕之后，AquilaCode模型会自动下载到`./checkpoints_in`里
 
 <details><summary>示例输出如下：</summary>
 
 模型对于示例prompt"汽车EDR是什么"给出随机回复
 
-![aquila_generate](../img/aquila_generate.png)
+![aquila_generate](../img/code_generate.PNG)
 
 </details>
-注意：Aquila-7B基础模型用来做对话推理效果不如可监督微调后的AquilaChat-7B对话模型。
 
-### 基础模型微调-SFT
 
-1. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
-  
-    假设刚刚在Aquila-pretrain下运行了推理脚本，则可以运行
-    ```
-    cd ../Aquila-chat
-    mv ../Aquila-pretrain/checkpoints_in ./
-    ```
 
+
+
+</details>
+
+### 基础模型预训练
+
+目前7B基础模型预训练最低可在单张Nvidia-A100-80G上运行(需要调整batch_size)
+
+
+
+1. 进入预训练目录Aquila-pretrain
 2. 配置`hostfile`文件
     <details><summary>详情如下：</summary>
     以单机八卡为例
@@ -105,39 +107,24 @@ python generate_bminf.py
             ```
     
     </details>
-
-3. 启动训练脚本
-    ```
-    bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
-    ```
-    **如果想启动LoRA微调，上一步改为运行**
-    ```
-    bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
-    ```
-
-<details><summary>正确运行输出信息如下所示：</summary>
-
-首先会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件。
-
-![Screenshot](../img/info.jpg)
-
-成功训练之前能在日志里看到如下信息(具体参数可能不同)。
-
-![Screenshot](../img/info2.jpg)
-
-</details>
-
-### 基础模型预训练
-
-目前7B基础模型预训练最低可在单张Nvidia-A100-80G上运行(需要调整batch_size)
-
-1. 进入预训练目录Aquila-pretrain，[配置hostfile文件](#基础模型微调-sft)
    
-2. 启动训练脚本
+3. 启动训练脚本
 
     ```
-    bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquila-7b aquila_experiment
+    bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquilacode-7b-nv aquila_experiment
     ```
+    <details><summary>正确运行输出信息如下所示：</summary>
+
+    首先会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件。
+
+    ![Screenshot](../img/info.jpg)
+
+    成功训练之前能在日志里看到如下信息(具体参数可能不同)。
+
+    ![Screenshot](../img/info2.jpg)
+
+    </details>
+    
 
 ### 调整参数
 

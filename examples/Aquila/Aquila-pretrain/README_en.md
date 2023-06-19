@@ -51,7 +51,7 @@ The additional details of the Aquila model will be presented in the official tec
     cd FlagAI
     python setup.py install
     ```
-    注：我们目前支持在Ubuntu, Mac和Mac上运行，详细环境依赖信息可参考[FlagAI环境安装](../../../README.md#requirements-and-installation)
+    Note that we currently support running on Ubuntu, Mac, and Mac. For detailed environment dependency information, please refer to [FlagAI requirements and installation](../../../README.md#requirements-and-installation).
 
 3. Navigate to the **Aquila-7B Base Model** directory.
     ```

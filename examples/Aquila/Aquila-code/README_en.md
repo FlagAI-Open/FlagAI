@@ -51,7 +51,7 @@ The additional details of the Aquila model will be presented in the official tec
     cd FlagAI
     python setup.py install
     ```
-    注：我们目前支持在Ubuntu, Mac和Mac上运行，详细环境依赖信息可参考[FlagAI环境安装](../../../README.md#requirements-and-installation)
+    Note that we currently support running on Ubuntu, Mac, and Mac. For detailed environment dependency information, please refer to [FlagAI requirements and installation](../../../README.md#requirements-and-installation).
 
 3. Navigate to the **AquilaCode-7B Base Model** directory.
     ```
@@ -85,18 +85,13 @@ The model provides a random response to the sample prompt "what is car EDR".
 </details>
 Note: The AquilaCode-7B base model may not perform as well for dialogue reasoning tasks as the supervised fine-tuned AquilaChat-7B chat model.
 
-### Supervised Fine-tuning(SFT)
 
-1. Navigate to the chat model fine-tuning directory and prepare the pre-trained model that needs to be fine-tuned in the `checkpoints_in` directory.
-  
-    Assuming you have just run the inference script under `Aquila-pretrain`, you can run:
-    ```
-    cd ../Aquila-chat
-    mv ../Aquila-pretrain/checkpoints_in ./
-    ```
+### Pre-training of the base model
 
-2. Configure the `hostfile` file.
-3. 
+Currently, the minimum requirement for pre-training the 7B base model is to run on a single Nvidia-A100-80G card (batch_size needs to be adjusted).
+
+1. Enter the pre-training directory AquilaCode
+2. configure the hostfile file.
     <details><summary>Details are as follows:</summary>
 
     Taking a single machine with eight GPUs as an example:
@@ -114,39 +109,23 @@ Note: The AquilaCode-7B base model may not perform as well for dialogue reasonin
             ```
     
     </details>
-
-4. Run the training script:
-    ```
-    bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquilacode-7b-nv aquila_experiment
-    ```
-    If you want to start LoRA fine-tuning, change the previous step to run.
-    ```
-    bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquilacode-7b-nv aquila_experiment
-    ```
-
-<details><summary>The correct output information is shown below:</summary>
-
-The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
-
-![Screenshot](../img/info.jpg)
-
-Before successful training, you may see the following information in the log file with parameters that may differ:
-
-![Screenshot](../img/info2.jpg)
-
-</details>
-
-### Pre-training of the base model
-
-Currently, the minimum requirement for pre-training the 7B base model is to run on a single Nvidia-A100-80G card (batch_size needs to be adjusted).
-
-1. Enter the pre-training directory Aquila-pretrain and configure the [hostfile file](#基础模型微调-sft).
    
-2. Run the training script:
+3. Run the training script:
 
     ```
     bash dist_trigger_docker.sh hostfile Aquila-code.yaml aquilacode-7b-nv aquila_experiment
     ```
+    <details><summary>The correct output information is shown below:</summary>
+
+    The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+
+    ![Screenshot](../img/info.jpg)
+
+    Before successful training, you may see the following information in the log file with parameters that may differ:
+
+    ![Screenshot](../img/info2.jpg)
+
+    </details>
 
 ### Adjust the Parameters
 
