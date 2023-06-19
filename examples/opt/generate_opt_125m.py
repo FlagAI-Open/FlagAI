@@ -1,3 +1,4 @@
+import sys;sys.path.append("/mnt/yzd/git/FlagAI")
 from flagai.model.predictor.predictor import Predictor
 from flagai.auto_model.auto_loader import AutoLoader
 import torch

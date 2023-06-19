@@ -105,7 +105,9 @@ def trans_opt_to_gpt_config(opt_config_json):
 class OPTModel(GPT2Model):
 
     def __init__(self, config, **kwargs):
-        config = trans_opt_to_gpt_config(config)
+        
+        config = trans_opt_to_gpt_config(config.json_config)
+        import pdb;pdb.set_trace()
         super(OPTModel, self).__init__(config, **kwargs)
         self.transformer = OPTStack(self.config_gpt)
 
