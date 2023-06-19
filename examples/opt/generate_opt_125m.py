@@ -1,4 +1,6 @@
-import sys;sys.path.append("/mnt/yzd/git/FlagAI")
+# Copyright © 2023 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 from flagai.model.predictor.predictor import Predictor
 from flagai.auto_model.auto_loader import AutoLoader
 import torch
