@@ -117,7 +117,7 @@ Note: The Aquila-7B basic model may not perform as well for dialogue reasoning t
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
     ```
-    If you want to start LoRA fine-tuning, change the previous step to run.
+    **If you want to start LoRA fine-tuning(can be run on single V-100), change the previous step to run.**
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```

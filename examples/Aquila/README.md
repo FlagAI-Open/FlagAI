@@ -111,7 +111,7 @@ python generate_bminf.py
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
     ```
-    **如果想启动LoRA微调，上一步改为运行**
+    **如果想启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
