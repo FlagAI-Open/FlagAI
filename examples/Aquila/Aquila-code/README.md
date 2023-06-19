@@ -52,7 +52,7 @@
     ```
     cd examples/Aquila/Aquila-code
     ```
-对于AquilaCode模型，我们提供**模型推理**，**预训练**，**微调**三种使用方式：
+对于AquilaCode模型，我们提供**模型推理**，**预训练**两种使用方式：
 
 ### 基础模型推理
 

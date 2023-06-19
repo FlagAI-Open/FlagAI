@@ -52,7 +52,7 @@ The additional details of the Aquila model will be presented in the official tec
     cd examples/Aquila/Aquila-pretrain
     ```
 
-For the AquilaCode-7B model, we provide three ways of use: **model inference**, **pre-training**, and **fine-tuning**.
+For the AquilaCode-7B model, we provide two ways of use: **model inference** and **pre-training**.
 
 ### Base Model Inference
 
