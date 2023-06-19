@@ -68,7 +68,7 @@ class BaseModel(Module):
             torch.set_default_tensor_type(torch.cuda.HalfTensor)
             model = cls(change_json_to_cls(args), **kwargs)
             torch.set_default_tensor_type(torch.FloatTensor)
-        else :
+        else:
             model = cls(change_json_to_cls(args), **kwargs)
 
         return model
