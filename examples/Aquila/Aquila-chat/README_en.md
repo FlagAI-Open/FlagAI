@@ -7,7 +7,7 @@
 
 Aquila Language Model is the first open source language model that supports both Chinese and English knowledge, commercial license agreements, and compliance with domestic data regulations.
 
-- 🌟 **Supports open source commercial licenses**. The source code of the Aquila series models is based on the [Apache 2.0 agreement]((https://www.apache.org/licenses/LICENSE-2.0)), while the model weight is based on the [BAAI Aquila Model License Agreement](../../../BAAI_Aquila_Model_License.pdf). Users can use it for commercial purposes as long as they meet the licensing restrictions.
+- 🌟 **Supports open source commercial licenses**. The source code of the Aquila series models is based on the [Apache 2.0 agreement](https://www.apache.org/licenses/LICENSE-2.0), while the model weight is based on the [BAAI Aquila Model License Agreement](../../../BAAI_Aquila_Model_License.pdf). Users can use it for commercial purposes as long as they meet the licensing restrictions.
 
 - ✍️ **Possesses Chinese and English knowledge**. The Aquila series model is trained from scratch on a high-quality corpus of Chinese and English languages, with Chinese corpora accounting for about 40%, ensuring that the model accumulates native Chinese world knowledge during the pre-training phase, rather than translated knowledge.
 
