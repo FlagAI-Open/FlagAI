@@ -7,15 +7,15 @@
 
 Aquila Language Model is the first open source language model that supports both Chinese and English knowledge, commercial license agreements, and compliance with domestic data regulations.
 
-🌟 Supports open source commercial licenses. The source code of the Aquila series models is based on the Apache 2.0 agreement, while the model weight is based on the "Intelligence Source Aquila Series Model License Agreement". Users can use it for commercial purposes as long as they meet the licensing restrictions.
+- 🌟 **Supports open source commercial licenses**. The source code of the Aquila series models is based on the [Apache 2.0 agreement]((https://www.apache.org/licenses/LICENSE-2.0)), while the model weight is based on the [BAAI Aquila Model License Agreement](../../../BAAI_Aquila_Model_License.pdf). Users can use it for commercial purposes as long as they meet the licensing restrictions.
 
-✍️ Possesses Chinese and English knowledge. The Aquila series model is trained from scratch on a high-quality corpus of Chinese and English languages, with Chinese corpora accounting for about 40%, ensuring that the model accumulates native Chinese world knowledge during the pre-training phase, rather than translated knowledge.
+- ✍️ **Possesses Chinese and English knowledge**. The Aquila series model is trained from scratch on a high-quality corpus of Chinese and English languages, with Chinese corpora accounting for about 40%, ensuring that the model accumulates native Chinese world knowledge during the pre-training phase, rather than translated knowledge.
 
-👮‍♀️ Complies with domestic data regulations. The Chinese corpora of the Aquila series models come from Intelligence Source's accumulated Chinese datasets over the years, including Chinese internet data from over 10,000 sources (more than 99% of which are domestic sources), as well as high-quality Chinese literature and book data supported by authoritative domestic organizations. We will continue to accumulate high-quality and diverse datasets and incorporate them into the subsequent training of the Aquila base models.
+- 👮‍♀️ **Complies with domestic data regulations**. The Chinese corpora of the Aquila series models come from Intelligence Source's accumulated Chinese datasets over the years, including Chinese internet data from over 10,000 sources (more than 99% of which are domestic sources), as well as high-quality Chinese literature and book data supported by authoritative domestic organizations. We will continue to accumulate high-quality and diverse datasets and incorporate them into the subsequent training of the Aquila base models.
 
-🎯 Continuous improvements and open sourcing. We will continue to improve training data, optimize training methods, and enhance model performance, cultivate a flourishing "model tree" on a better base model foundation, and continuously update open-source versions.
+- 🎯 **Continuous improvements and open sourcing**. We will continue to improve training data, optimize training methods, and enhance model performance, cultivate a flourishing "model tree" on a better base model foundation, and continuously update open-source versions.
 
-The additional details of the Aquila model will be presented in the official technical report, which is expected to be released by the end of June 2023. Please stay tuned for updates on official channels, including the [FlagAI GitHub repository](https://github.com/FlagAI-Open/FlagAI/), [FlagAI's Zhihu account](https://www.zhihu.com/people/95-22-20-18), [FlagAI's official technical communication group](https://github.com/FlagAI-Open/FlagAI/blob/master/wechat-qrcode.jpg)), BAAI's WeChat official account, and BAAI's WeChat official account.
+The additional details of the Aquila model will be presented in the official technical report, which is expected to be released by the end of June 2023. Please stay tuned for updates on official channels, including the [FlagAI GitHub repository](https://github.com/FlagAI-Open/FlagAI/), [FlagAI's Zhihu account](https://www.zhihu.com/people/95-22-20-18) and [FlagAI's official technical communication group](https://github.com/FlagAI-Open/FlagAI/blob/master/wechat-qrcode.jpg).
 
 
 | Model              | Model Type               | Description                                                                                                                                                                                                                                                                                                                                                                                                     | File Path                                                                                                   | Standalone Model Download                                 | Status         | GPUs Used    |
@@ -126,9 +126,9 @@ Note: The Aquila-7B base model may not perform as well for dialogue reasoning ta
 
 <details><summary>The correct output information is shown below:</summary>
 
-he following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
 
-![Screenshot](../info.jpg)
+![Screenshot](../img/info.jpg)
 
 Before successful training, you may see the following information in the log file with parameters that may differ:
 
