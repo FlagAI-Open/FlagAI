@@ -33,7 +33,6 @@ The additional details of the Aquila model will be presented in the official tec
 
 
 
-<!-- </table>  -->
 
 ## Quick Start  AquilaChat-7B（Chat model）
 
