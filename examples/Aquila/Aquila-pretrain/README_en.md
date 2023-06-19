@@ -166,7 +166,7 @@ For the above examples, you can modify the following parameters to achieve diffe
 | enable_sft_dataset_dir | str | The directory of the SFT training dataset. |
 | enable_sft_dataset_file | str | The file name of the SFT training dataset. 
 
-Complete parameter information can be found inhttps://github.com/FlagAI-Open/FlagAI/blob/master/flagai/env_args.py
+Complete parameter information can be found in https://github.com/FlagAI-Open/FlagAI/blob/master/flagai/env_args.py
 
 🌟For inference tasks, the following parameters can be reset when executing the `aquila_generate` function in the `generate.py` file::
 

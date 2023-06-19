@@ -31,12 +31,6 @@ The additional details of the Aquila model will be presented in the official tec
  <br>If you have any question, please refer to the [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371) first. If you cannot solve them, please submit an [issue](https://github.com/FlagAI-Open/FlagAI/issues) directly.
 
 
-
-
-<!-- </table>  -->
-
-## Quick Start  AquilaCode-7B（Base model）
-
 ### Base Model Environment Setup
 
 1. Clone the FlagAI Github repository locally by running the following command:
@@ -95,18 +89,19 @@ Currently, the minimum requirement for pre-training the 7B base model is to run 
     <details><summary>Details are as follows:</summary>
 
     Taking a single machine with eight GPUs as an example:
+
     1. Check the IP address of the local machine:
-            ```
-            ifconfig eth0 | grep "inet " | awk '{print $2}'
-            ```
+        ```
+        ifconfig eth0 | grep "inet " | awk '{print $2}'
+        ```
     2. Fill in the `hostfile` with the following
-            ```
-            [上一步得到的ip地址] slots=8
-            ```
+        ```
+        [上一步得到的ip地址] slots=8
+        ```
     3. Confirm that the local machine can log in without a password by testing using the following command: 
-            ```
-            ssh localhost
-            ```
+        ```
+        ssh localhost
+        ```
     
     </details>
    
@@ -145,7 +140,7 @@ For the above examples, you can modify the following parameters to achieve diffe
 | enable_sft_dataset_dir | str | The directory of the SFT training dataset. |
 | enable_sft_dataset_file | str | The file name of the SFT training dataset. 
 
-Complete parameter information can be found inhttps://github.com/FlagAI-Open/FlagAI/blob/master/flagai/env_args.py
+Complete parameter information can be found in https://github.com/FlagAI-Open/FlagAI/blob/master/flagai/env_args.py
 
 🌟For inference tasks, the following parameters can be reset when executing the `aquila_generate` function in the `generate.py` file::
 
