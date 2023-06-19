@@ -1,167 +1,175 @@
-# Aquila
 
-## 简介/Overview
-Aquila语言大模型在技术上继承了GPT-3、LLaMA等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的tokenizer，升级了BMTrain并行训练方法，在Aquila的训练过程中实现了比Magtron+DeepSpeed zero-2将近８倍的训练效率。Aquila语言大模型是在中英文高质量语料基础上从０开始训练的，通过数据质量的控制、多种训练的优化方法，实现在更小的数据集、更短的训练时间，获得比其它开源模型更优的性能。也是首个支持中英双语知识、支持商用许可协议、符合国内数据合规需要的大规模开源语言模型。
-
-The Aquila language model inherits the architectural design advantages of GPT-3 and LLaMA, replacing a batch of more efficient underlying operator implementations and redesigning the tokenizer for Chinese-English bilingual support. It upgrades the BMTrain parallel training method, achieving nearly 8 times the training efficiency of Magtron+DeepSpeed ZeRO-2 in the training process of Aquila. The Aquila language model is trained from scratch on high-quality Chinese and English corpora. Through data quality control and various training optimization methods, it achieves better performance than other open-source models with smaller datasets and shorter training times. It is also the first large-scale open-source language model that supports Chinese-English-Knowledge, commercial licensing, and complies with domestic data regulations.
-
-
-<!-- 我们同时也支持[Huggingface平台](https://huggingface.co/BAAI)。
-
-We also support [Huggingface](https://huggingface.co/BAAI). -->
-
-最低硬件需求：运行Aquila-7B系列需要内存30G, 显存18G，生成最大长度 2048 tokens。
-
-Minimum hardware requirements for running the Aquila-7b series, you need at least 30GB of memory and 18GB of GPU memory, and the maximum length of text generated should be 2048 tokens.
-
-## 模型细节/Model details
-
-|   模型/Model          |  状态/State    | 能否商用/Commercial use?  |  所用显卡/GPU   |                                    
-| :---------------- | :------- | :-- |:-- |   
-| Aquila-7B         | 已发布  |   ✅   | Nvidia-A100  |  
-| AquilaChat-7B          |已发布  |    ✅    | Nvidia-A100  | 
-| AquilaCode-7B-NV          |已发布  |    ✅   |   Nvidia-A100   | 
-| AquilaCode-7B-TS           |已发布 |   ✅    |  Tianshu-BI-V100   |
-| Aquila-33B          | **敬请期待**  |   ✅   | Nvidia-A100  |
-| AquilaChat-33B           |**敬请期待**  |    ✅    | Nvidia-A100  | 
-
-我们使用了一系列更高效的底层算子来辅助模型训练，其中包括参考[flash-attention](https://github.com/HazyResearch/flash-attention)的方法并替换了一些中间计算，同时还使用了RMSNorm。在此基础上，我们升级了[BMtrain](https://github.com/OpenBMB/BMTrain)技术进行轻量化的并行训练，该技术采用了数据并行、ZeRO（零冗余优化器）、优化器卸载、检查点和操作融合、通信-计算重叠等方法来优化模型训练过程。
-
-Aquila模型所采用的tokenizer是由我们从头开始训练的，支持中英双语。我们在处理英文、中文以及代码数据时，采用了不同的分词器对一万个样本进行了抽取。随后，我们统计了每个样本的token数量，并将其记录在表格中。Aquila tokenizer与其他tokenizer的参数对比见下表:
-
-We used a series of more efficient low-level operators to assist with model training, including methods referenced from [flash-attention](https://github.com/HazyResearch/flash-attention) and replacing some intermediate calculations, as well as using RMSNorm. Building upon this foundation, we applied the [BMtrain](https://github.com/OpenBMB/BMTrain) for lightweight parallel training, which utilizes methods such as data parallelism, ZeRO (zero redundancy optimizer), optimizer offloading, checkpoint and operation fusion, and communication-computation overlap to optimize the model training process.
-
-The tokenizer used in the Aquila model was trained from scratch by us and supports both English and Chinese. We used different tokenizers to extract ten thousand data samples from English, Chinese, and code data respectively, obtained the count of tokens for each sample, and also included it in the table. The parameters of this tokenizer are compared to those of other tokenizers in the table below:
+![Aquila_logo](./img/Aquila.PNG)
 
 
 
-| 模型/Model | 词表大小/Vocab size | 说明/Note |英文平均tokens量/Avg tokens(English)| 中文平均tokens量/Avg tokens(Chinesse)|代码平均tokens量/Avg tokens(code)  |
-|  -----  | ----  | -----  | ----  | -----  | ----  | 
-| GPT2 | 50527 | bpe|1717 | 1764|2323 |
-| LlaMA | 32000 | sp(bpe)|1805| 1257|1970 |
-| Aquila | 100000 | bpe|1575 | 477|1679 |
+# 悟道·天鹰（Aquila）
+
+悟道·天鹰（Aquila） 语言大模型是首个具备中英双语知识、支持商用许可协议、国内数据合规需求的开源语言大模型。
+- 🌟 **支持开源商用许可**。Aquila系列模型的源代码基于 [Apache 2.0 协议](https://www.apache.org/licenses/LICENSE-2.0)，模型权重基于[《智源Aquila系列模型许可协议》](../../BAAI_Aquila_Model_License.pdf)，使用者在满足许可限制的情况下，可用于商业目的。
+- ✍️ **具备中英文知识**。Aquila系列模型在中英文高质量语料基础上从 0 开始训练，中文语料约占 40%，保证模型在预训练阶段就开始积累原生的中文世界知识，而非翻译而来的知识。
+- 👮‍♀️**符合国内数据合规需求**。Aquila系列模型的中文语料来自智源多年积累的中文数据集，包括来自1万多个站源的中文互联网数据（其中99%以上为国内站源），以及获得国内权威机构支持的高质量中文文献数据、中文书籍数据等。我们仍在持续积累高质量、多样化的数据集，并源源不断加入Aquila基础模型后续训练中。
+- 🎯**持续迭代**，持续开源开放。我们将不断完善训练数据、优化训练方法、提升模型性能，在更优秀的基础模型基座上，培育枝繁叶茂的“模型树”，持续开源开放更新的版本。
+
+**Read this in [English](./README_en.md).**
 
 
-## 训练数据集/Training data 
-Aquila预训练使用了Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), 悟道中文数据集、电子书、专利、百科、论坛, github数据等, 详情可见下图。
-
-The Aquila-7B model was pretrained on Pile，[RedPajama-Data-1T](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T), [Wikipedia](https://huggingface.co/datasets/wikipedia), [C4](https://huggingface.co/datasets/c4), Wudao Corpus、e-book、Patent, encyclopedia, forum, github etc. Details are given in the figure below.
-
-<!-- ![Screenshot](./img/data_dist.png) -->
-Aquila 系列模型的预训练数据不开源，但数据分布情况将在官方技术报告中展现（预计6月底发布，敬请期待）。
-
-The pre-training data of the Aquila series models are not open-sourced, but the data distribution will be presented in the official technical report (expected to be released by the end of June, stay tuned).
+悟道 · 天鹰 Aquila 模型的更多细节将在官方技术报告中呈现。请关注官方渠道更新。包括 [FlagAI GitHub仓库](https://github.com/FlagAI-Open/FlagAI/)，[FlagAI 知乎账号](https://www.zhihu.com/people/95-22-20-18)、[FlagAI 官方技术交流群](https://github.com/FlagAI-Open/FlagAI/blob/master/wechat-qrcode.jpg)、智源研究院微信公众号、智源社区微信公众号。
 
 
-## 使用方式/How to use
+|   模型          |  模型类型    | 简介  |  文件路径   |   单独下载模型权重  |  状态   |  训练所用显卡   |                                   
+| :---------------- | :------- | :-- |:-- |   :-- | :-- | :-- | 
+| Aquila-7B         | 基础模型，70亿参数  |   **Aquila 基础模型**在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。   | [./examples/Aquila/Aquila-pretrain](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-pretrain)  | [下载Aquila-7B](http://model.baai.ac.cn/model-detail/100098) | 已发布 | Nvidia-A100 |
+| Aquila-33B          |基础模型，70亿参数  |    同上    | ——  | ——  | **敬请期待** | Nvidia-A100 | 
+| AquilaChat-7B          |SFT model，基于 Aquila-7B 进行微调和强化学习  |    **AquilaChat 对话模型**支持流畅的文本对话及多种语言类生成任务，通过定义可扩展的特殊指令规范，实现 AquilaChat对其它模型和工具的调用，且易于扩展。 <br><br>例如，调用智源开源的 **[AltDiffusion](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion-m18) 多语言文图生成模型**，实现了流畅的文图生成能力。配合智源 **InstructFace 多步可控文生图模型**，轻松实现对人脸图像的多步可控编辑。  |   [./examples/Aquila/Aquila-chat](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-chat)  | [下载AquilaChat-7B](https://model.baai.ac.cn/model-detail/100101) | 已发布  | Nvidia-A100  | 
+| AquilaChat-33B           |SFT model，基于 Aquila-33B 进行微调和强化学习 |   同上    |   ——    |——  | **敬请期待** | Nvidia-A100 | 
+| AquilaCode-7B-NV          | 基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在英伟达芯片完成训练  |   AquilaCode-7B 以小数据集、小参数量，实现高性能，是目前支持中英双语的、性能最好的开源代码模型，经过了高质量过滤、使用有合规开源许可的训练代码数据进行训练。<br><br> AquilaCode-7B 分别在英伟达和国产芯片上完成了代码模型的训练。  | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  |[下载AquilaCode-7B-NV](https://model.baai.ac.cn/model-detail/100102)  | 已发布  | Nvidia-A100 | 
+| AquilaCode-7B-TS           |基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在天数智芯芯片上完成训练  |    同上    | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  | [下载AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | 已发布  | Tianshu-BI-V100  | 
 
-### 1. 预训练/Pre-training
-#### Step 1: 修改参数/Modify Parameters
+<br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
 
-* `cd /examples/aquila`
-* 配置`hostfile`文件, 参考[这里](../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_pretrain.py`
-* (可选) 在`Aquila-pretrain.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-pretrain.yaml`
 
-| 参数名 Parameter             | 类型 Type | 描述 Description                                        |
-|--------------------------------|------------|-------------------------------------------------------|
-| batch_size | int   | 每次迭代训练时，从数据集中抽取的样本数。一般来说，它越大，处理速度越快，但会占用更多的内存; The number of samples extracted from the dataset for each iteration during training. Generally, a larger batch size can speed up processing but may also consume more memory                    |
-| gradient_accumulation_steps | int   | 在更新模型权重之前，要对多个小批次进行梯度计算的次数。主要应用于GPU显存较小的情况下，可以使用小的batch_size，通过梯度累积达到与大batch_size相同的效果; The number of samples extracted from the dataset for each iteration during training. Generally, a larger batch size can speed up processing but may also consume more memoryimages                  |
-| lr | float   | 指控制模型更新参数时的步长或速率。学习率过高可能导致模型不收敛，而学习率过低则可能导致训练时间过长或者陷入局部最优解; The step size or rate at which the model updates its parameters during training. A high learning rate may cause the model not to converge, while a low learning rate may result in long training times or being stuck in a local optimum                  |
-| warm_up | float   | 初始学习率与原始学习率的比例; The ratio between the initial learning rate and the original learning rate
-| save_interval | int  | 模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失; The interval at which the model is saved, i.e., how many iterations the model is saved during training. When training takes a long time, saving intervals can prevent all training achievements from being lost due to sudden interruptions or errors.                    |
 
-* 我们的演示数据集放在`../indexed_dataset/data/demo_text_document`里。 如果想修改预训练数据集，可更改`aquila_pretrain.py`里的`data_prefix`参数; Our demo dataset is located in `../indexed_dataset/data/demo_text_document`. If you want to modify the pre-training dataset, you can change the data_prefix parameter in `aquila_pretrain.py`.
-#### Step 2: 启动训练/Start training
-对于Aquila-7B模型
+
+## 快速开始使用 Aquila-7B 基础模型
+
+### 基础模型的环境准备
+
+1. 在本地克隆FlagAI github仓库
+   
+    ```
+    git clone https://github.com/FlagAI-Open/FlagAI.git
+    ```
+
+2. 进入仓库，从源码安装FlagAI
+   
+    ```
+    cd FlagAI
+    python setup.py install
+    ```
+    注：我们目前支持在Ubuntu, Mac和Mac上运行，详细环境依赖信息可参考[FlagAI环境安装](../../README.md#requirements-and-installation)
+
+3. 进入**Aquila-7B基础模型**目录
+    ```
+    cd examples/Aquila/Aquila-pretrain
+    ```
+对于Aquila-7B模型，我们提供**模型推理**，**预训练**，**微调**三种使用方式：
+
+### 基础模型推理
+
+正常模型推理(显存资源消耗约为14.6GB)：
 ```
-bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquila-7b [实验名]
-```   
-
-对于Aquila-33B模型
+python generate.py
 ```
-bash dist_trigger_docker.sh hostfile Aquila-pretrain-33B.yaml aquila-33b [实验名]
-```   
+使用[BMInf](https://github.com/OpenBMB/BMInf)进行低资源推理(可调整所用内存)
+```
+python generate_bminf.py
+```
+默认参数下显存资源消耗为4.3GB，可通过memory_limit参数手动设置最大资源消耗，如下图所示(2 << 30 代表2GB)：
+![bminf](./img/bminf.png)
 
- 接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+推理程序运行完毕之后，Aquila-7B模型会自动下载到`./checkpoints_in`里
 
-![Screenshot](./img/info.jpg)
+<details><summary>示例输出如下：</summary>
 
-成功训练之前能看到如下信息(具体参数可能不同)； Before successful training, you may see the following information with parameters that may differ:
+模型对于示例prompt"汽车EDR是什么"给出随机回复
 
-![Screenshot](./img/info2.jpg)
+![aquila_generate](./img/aquila_generate.png)
+
+</details>
+注意：Aquila-7B基础模型用来做对话推理效果不如可监督微调后的AquilaChat-7B对话模型。
+
+### 基础模型微调-SFT
+
+1. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
   
-### 2. 可监督微调/Supervised Fine-tuning(SFT)
-#### Step 1: 修改参数/Modify Parameters
-* `cd /examples/aquila`
-* 配置`hostfile`文件, 参考[这里](../../doc_zh/TUTORIAL_8_ENVIRONMENT_SETUP.md#a配置hostfilehostfile-中的v100-1-与sshconfig-对应) ; Configure the `hostfile` file, refer to [here](../../docs/TUTORIAL_8_ENVIRONMENT_SETUP.md)
-* 配置`bmtrain_mgpu.sh`文件, 将`SCRIPT_FILE`改成`aquila_pretrain.py`; configure the `bmtrain_mgpu.sh` file, change `SCRIPT_FILE` to `aquila_pretrain.py`
-* (可选) 在`Aquila-pretrain.yaml`文件里更改参数 ; (optional) change parameters in `Aquila-pretrain.yaml`
+    假设刚刚在Aquila-pretrain下运行了推理脚本，则可以运行
+    ```
+    cd ./Aquila-chat
+    mv ./Aquila-pretrain/checkpoints_in ./
+    ```
 
+2. 配置`hostfile`文件
+    <details><summary>详情如下：</summary>
+    以单机八卡为例
+    1. 查看本机ip地址
+            ```
+            ifconfig eth0 | grep "inet " | awk '{print $2}'
+            ```
+    2. 在`hostfile`里填入
+            ```
+            [上一步得到的ip地址] slots=8
+            ```
+    3. 确认本机可以免密登录,可用如下指令测试
+            ```
+            ssh localhost
+            ```
+    
+    </details>
 
+3. 启动训练脚本
+    ```
+    bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
+    ```
+    **如果想启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
+    ```
+    bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
+    ```
 
-#### Step 2: 启动可监督微调/Start SFT
-```
-cd ../Aquila-chat/
-```
-对于Aquila-7B模型：
-```
-bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b [实验名 experiment name]
-```
-对于Aquila-33B模型:
-```
-bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-33b [实验名 experiment name]
-```
-接下来会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件；The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
+<details><summary>正确运行输出信息如下所示：</summary>
+
+首先会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件。
 
 ![Screenshot](./img/info.jpg)
 
-成功训练之前能在日志里看到如下信息(具体参数可能不同)； Before successful training, you may see the following information in the log file with parameters that may differ:
+成功训练之前能在日志里看到如下信息(具体参数可能不同)。
 
 ![Screenshot](./img/info2.jpg)
 
-### 3. 推理/Inference
+</details>
 
-```python
-import os
-import torch
-from flagai.auto_model.auto_loader import AutoLoader
-from flagai.model.predictor.predictor import Predictor
-from flagai.data.tokenizer import Tokenizer
-import bminf
+### 基础模型预训练
 
-state_dict = "./checkpoints_in/"
-model_name = 'aquila-7b' # 'aquila-33b'
+目前7B基础模型预训练最低可在单张Nvidia-A100-80G上运行(需要调整batch_size)
 
-loader = AutoLoader(
-    "lm",
-    model_dir=state_dict,
-    model_name=model_name,
-    use_cache=True)
-model = loader.get_model()
-tokenizer = loader.get_tokenizer()
+1. 进入预训练目录Aquila-pretrain，[配置hostfile文件](#基础模型微调-sft)
+   
+2. 启动训练脚本
 
-model.eval()
-model.half()
-model.cuda()
+    ```
+    bash dist_trigger_docker.sh hostfile Aquila-pretrain.yaml aquila-7b aquila_experiment
+    ```
 
-predictor = Predictor(model, tokenizer)
+### 调整参数
 
-text = "北京在哪儿?"
-text = f'{text}' 
-print(f"text is {text}")
-with torch.no_grad():
-    out = predictor.predict_generate_randomsample(text, out_max_length=200, temperature=0)
-    print(f"pred is {out}")
+对于以上示例，您可以通过修改下列参数来达到不同的训练和推理效果：
 
-```
+🌟执行预训练和微调任务前，可在训练脚本中的yaml文件里修改参数
 
+|   参数名          |  类型   | 描述  |                                  
+| :---------------- | :------- | :-- |   
+| batch_size         | int  |   每次迭代训练时，从数据集中抽取的样本数。一般来说，它越大，处理速度越快，但会占用更多的内存;   |
+| gradient_accumulation_steps          |int  |    在更新模型权重之前，要对多个小批次进行梯度计算的次数。主要应用于GPU显存较小的情况下，可以使用小的batch_size，通过梯度累积达到与大batch_size相同的效果;     |
+| lr          |float  |    指控制模型更新参数时的步长或速率。学习率过高可能导致模型不收敛，而学习率过低则可能导致训练时间过长或者陷入局部最优解;    |   
+| warm_up           |float |   初始学习率与原始学习率的比例;     | 
+| save_interval         | int  |   模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失;   | 
+| log_interval           |int  |    日志输出的间隔，即每训练多少个iteration输出一次日志信息    | 
+| lora           |int  |    日志输出的间隔，即每训练多少个iteration输出一次日志信息    | 
+| enable_sft_dataset_dir           |str  |    SFT训练数据集的目录息    | 
+| enable_sft_dataset_file           |str  |    SFT训练数据集的文件名    | 
 
+完整参数信息可参考https://github.com/FlagAI-Open/FlagAI/blob/master/flagai/env_args.py
 
+🌟对于推理任务，可在推理文件里执行`aquila_generate`函数时重设下列参数:
 
-## 证书/License
+|   参数名          |  类型   | 默认值  | 描述  |                                  
+| :---------------- | :------- | :-- |  :-- |   
+| temperature       | float  | 0.8  |   温度控制着模型生成新词时的随机性程度。在基于概率的语言模型中，每个词都有一个与之对应的概率分布，温度通过增加或减少这些概率分布来影响模型生成单词的随机性。较高的温度会使得模型更倾向于选择概率较小的单词，从而生成更多的“冒险”文本。相反，较低的温度会强制模型更加倾向于选择概率最大的单词，从而生成更加可预测的文本。常见的温度值范围为0.5-1.5。   |
+| topk         |int  | 30  |    Top-k控制着模型生成新词时的选择数量。在生成每个新词时，模型会预测出若干个可能的单词，Top-k参数会限制模型只选择概率最大的前k个单词中的一个来作为生成的单词。Top-k可以帮助稳定生成过程，防止模型随意选择概率很小的单词。     |
+| topp        |float  |0.95  |     跟Top-k类似，Top-p也是控制着模型生成新词时的选择数量。在生成每个新词时，模型会预测出若干个可能的单词，Top-p参数会限制模型只选择概率最高的一些候选单词，直到这些候选单词的总概率达到一个阈值（如0.9或0.8）。Top-p可以帮助避免产生不符合语境的单词。    |   
+| max_length           |int | 200  |   为了避免生成无限长的文本，我们需要限制生成的文本长度。Max_length参数控制生成文本的最大长度，一旦达到该长度，模型就会停止生成。Aquila系列模型的最大长度为2048个token。   | 
+
+## 证书
 
 Aquila-7B和Aquila-33B开源模型使用 [智源Aquila系列模型许可协议](../../BAAI_Aquila_Model_License.pdf), 原始代码基于[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)。
 
-
-Aquila-7B and Aquila-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](../../BAAI_Aquila_Model_License.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)

@@ -1,3 +1,6 @@
+# Copyright © 2023 BAAI. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
 import os
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
@@ -13,13 +16,13 @@ loader = AutoLoader(
     "lm",
     model_dir=state_dict,
     model_name=model_name,
-    use_cache=True)
+    use_cache=True,
+    fp16=True)
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 cache_dir = os.path.join(state_dict, model_name)
 
 model.eval()
-model.half()
 
 with torch.cuda.device(0):
     model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)
