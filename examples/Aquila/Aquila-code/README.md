@@ -46,7 +46,7 @@
     cd FlagAI
     python setup.py install
     ```
-    注：我们目前支持在Ubuntu, Mac和Mac上运行，详细环境依赖信息可参考 [FlagAI环境安装](../../../README.md#requirements-and-installation)
+    注：我们目前支持在Ubuntu, Mac和Mac上运行，详细环境依赖信息可参考 [FlagAI环境安装](../../../README_zh.md#quick-start)
 
 3. 进入**AquilaCode-7B基础模型**目录
     ```
