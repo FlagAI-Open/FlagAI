@@ -62,9 +62,13 @@ For the Aquila-7B model, we provide two ways of use: **model inference** and **f
 
 ### Chat Model Inference
 
-Normal model inference (which consumes approximately 14.6GB of GPU memory):
+Normal single-round model inference (which consumes approximately 14.6GB of GPU memory):
 ```
 python generate_chat.py
+```
+Normal multi-round model inference (which consumes approximately 14.6GB of GPU memory):
+```
+python generate_chat_multiround.py
 ```
 Low-resource inference using [BMInf](https://github.com/OpenBMB/BMInf) (memory usage can be adjusted):
 ```
