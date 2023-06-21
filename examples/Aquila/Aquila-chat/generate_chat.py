@@ -45,7 +45,7 @@ for text in texts:
     conv.append_message(conv.roles[1], None)
 
     tokens = tokenizer.encode_plus(f"{conv.get_prompt()}", None, max_length=None)['input_ids']
-    ## TODO for ICL inference using plain text
+    ## TODO for few-shot inference using plain text as inputs will get better results.
     ## tokens = tokenizer.encode_plus(f"{text}", None, max_length=None)['input_ids']
     tokens = tokens[1:-1]
 
