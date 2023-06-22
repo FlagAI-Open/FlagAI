@@ -60,7 +60,7 @@ def aquila_generate(
         for i, t in enumerate(tokens.tolist()):
             # cut to max gen len
             #t = t[: len(prompt_tokens[i]) + max_gen_len]
-            t = t[len(prompt_tokens[i]):max_gen_len]
+            t = t[len(prompt_tokens[i]):total_len]
             tt = []
             for j in t:
                 if token_end_id == j or token_unk == j:
