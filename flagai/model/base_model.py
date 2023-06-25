@@ -55,7 +55,7 @@ class BaseModel(Module):
             json.dump(config, jsonfile, indent=4)
 
     @classmethod
-    def init_from_json(cls, config_file='./config.json', **kwargs):
+    def init_from_json(cls, config_file='./config.json', device='cpu', **kwargs):
         with open(config_file, 'r', encoding='utf8') as js:
             args = json.load(js)
         for k in kwargs:
@@ -65,12 +65,14 @@ class BaseModel(Module):
         if 'use_cache' not in args:
             args['use_cache'] = False
         if "fp16" in kwargs and kwargs["fp16"] == True:
-            torch.set_default_tensor_type(torch.cuda.HalfTensor)
+            if device == "cpu":
+                torch.set_default_tensor_type(torch.HalfTensor)
+            else:
+                torch.set_default_tensor_type(torch.cuda.HalfTensor)
             model = cls(change_json_to_cls(args), **kwargs)
             torch.set_default_tensor_type(torch.FloatTensor)
         else:
             model = cls(change_json_to_cls(args), **kwargs)
-
         return model
 
     @classmethod
@@ -102,6 +104,7 @@ class BaseModel(Module):
                       only_download_config=False,
                       device="cpu",
                       **kwargs):
+        
         model_id = None
 
         raw_download_path = download_path
@@ -112,7 +115,7 @@ class BaseModel(Module):
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
 
         def load_local(checkpoint_path, only_download_config=False):
-            model = cls.init_from_json(config_path, **kwargs)
+            model = cls.init_from_json(config_path, device=device, **kwargs)
             model.to(device)
             if only_download_config:
                 return model 
