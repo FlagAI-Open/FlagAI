@@ -37,6 +37,7 @@ setup(
         'rouge-score == 0.1.2',
         'sacrebleu == 2.3.1',
         'jsonlines == 3.1.0',
-        'accelerate == 0.19.0'
+        'accelerate == 0.19.0',
+        'PyYAML == 5.4.1',
     ]
 )
