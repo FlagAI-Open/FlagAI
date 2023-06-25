@@ -162,6 +162,7 @@ class AutoLoader:
                  model_dir: str = "./checkpoints/",
                  only_download_config: bool = False,
                  device="cpu",
+                 lora=False,
                  **kwargs):
         """
         Args:
@@ -220,7 +221,34 @@ class AutoLoader:
             only_download_config=only_download_config,
             device=device,
             **kwargs)
-        
+        if lora:
+            from flagai.model.tools.lora import (
+                LoraConfig,
+                get_peft_model,
+                get_peft_model_state_dict,
+                prepare_model_for_int8_training,
+                set_peft_model_state_dict,
+            )
+            # Added for Lora
+
+            lora_config = LoraConfig(
+                r=8,
+                lora_alpha=16,
+                target_modules=[
+                        "wq",
+                        "wv",
+                    ],
+                lora_dropout=0.05,
+                bias="none",
+                task_type="CAUSAL_LM",
+            )
+
+            # 2. Prepare model
+            self.model = prepare_model_for_int8_training(self.model)
+            self.model = get_peft_model(self.model, lora_config)
+
+
+
         if model_type == "nlp":
             if brief_model_name in ["galactica",]:
                 self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
