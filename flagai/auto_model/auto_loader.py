@@ -163,6 +163,13 @@ class AutoLoader:
                  only_download_config: bool = False,
                  device="cpu",
                  lora=False,
+                 lora_r = 9,
+                 lora_alpha=64,
+                 target_modules=[
+                        "wq",
+                        "wv",
+                    ],
+                 lora_dropout = 0.05,
                  **kwargs):
         """
         Args:
@@ -221,6 +228,7 @@ class AutoLoader:
             only_download_config=only_download_config,
             device=device,
             **kwargs)
+            
         if lora:
             from flagai.model.tools.lora import (
                 LoraConfig,
@@ -230,15 +238,11 @@ class AutoLoader:
                 set_peft_model_state_dict,
             )
             # Added for Lora
-
             lora_config = LoraConfig(
-                r=8,
-                lora_alpha=16,
-                target_modules=[
-                        "wq",
-                        "wv",
-                    ],
-                lora_dropout=0.05,
+                r=lora_r,
+                lora_alpha=lora_alpha,
+                target_modules=target_modules,
+                lora_dropout=lora_dropout,
                 bias="none",
                 task_type="CAUSAL_LM",
             )
