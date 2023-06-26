@@ -83,25 +83,37 @@ python generate_chat_bminf.py
 
 ### 基础模型微调-SFT
 
-1. 配置`hostfile`文件
+1. 准备微调的初始模型(放在checkpoints_in里)
+
+2. 配置`hostfile`文件
     <details><summary>详情如下：</summary>
     以单机八卡为例
     1. 查看本机ip地址
+
             ```
             ifconfig eth0 | grep "inet " | awk '{print $2}'
             ```
+
     2. 在`hostfile`里填入
+
             ```
             [上一步得到的ip地址] slots=8
             ```
     3. 确认本机可以免密登录,可用如下指令测试
+
             ```
             ssh localhost
             ```
-    
+        如果不能免密登录，可以尝试以下方法配置免密
+
+            ```
+            ssh-keygen -t rsa  
+            cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+            service sshd restart
+            ```
     </details>
 
-2. 启动训练脚本
+3. 启动训练脚本
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquilachat-7b aquila_experiment
     ```
@@ -109,6 +121,7 @@ python generate_chat_bminf.py
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquilachat-7b aquila_experiment
     ```
+    注：lora训练出来的模型需要用generate_chat_lora.py来推理，并在autoloader加载模型时添加训练时用的lora参数
 
 <details><summary>正确运行输出信息如下所示：</summary>
 

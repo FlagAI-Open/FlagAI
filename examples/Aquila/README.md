@@ -81,7 +81,9 @@ python generate_bminf.py
 
 ### 基础模型微调-SFT
 
-1. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
+1. 准备微调的初始模型(放在checkpoints_in里)
+
+2. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
   
     假设刚刚在Aquila-pretrain下运行了推理脚本，则可以运行
     ```
@@ -89,25 +91,36 @@ python generate_bminf.py
     mv ./Aquila-pretrain/checkpoints_in ./
     ```
 
-2. 配置`hostfile`文件
+3. 配置`hostfile`文件
     <details><summary>详情如下：</summary>
     以单机八卡为例
     1. 查看本机ip地址
+
             ```
             ifconfig eth0 | grep "inet " | awk '{print $2}'
             ```
+
     2. 在`hostfile`里填入
+
             ```
             [上一步得到的ip地址] slots=8
             ```
     3. 确认本机可以免密登录,可用如下指令测试
+
             ```
             ssh localhost
             ```
-    
+        如果不能免密登录，可以尝试以下方法配置免密
+
+            ```
+            ssh-keygen -t rsa  
+            cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+            service sshd restart
+            ```
+
     </details>
 
-3. 启动训练脚本
+4. 启动训练脚本
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
     ```
@@ -115,7 +128,7 @@ python generate_bminf.py
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
-
+    注：lora训练出来的模型需要用generate_chat_lora.py来推理，并在autoloader加载模型时添加训练时用的lora参数。
 <details><summary>正确运行输出信息如下所示：</summary>
 
 首先会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件。
