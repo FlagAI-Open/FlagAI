@@ -163,6 +163,10 @@ Complete parameter information can be found inhttps://github.com/FlagAI-Open/Fla
 | topp           | float | 0.95          | Similar to Top-k, Top-p also controls the number of choices when the model generates new words. When generating each new word, the model predicts several possible words, and the Top-p parameter limits the model to select only some of the most likely candidate words until the total probability of these candidate words reaches a threshold (such as 0.9 or 0.8). Top-p can help avoid the generation of words that do not fit the context. |
 | max_length     | int   | 200           | To avoid generating infinite length text, we need to limit the length of the generated text. The max_length parameter controls the maximum length of the generated text. Once this length is reached, the model stops generating. The maximum length of the Aquila series models is 2048 tokens. |
 
+## Change Log
+- v0.5   
+md5 value：d927752ebc543b2e6ae37217403814ef
+
 ## License
 
 AquilaChat-7B and AquilaChat-33B open-source model is licensed under [ BAAI Aquila Model Licence Agreement](../../BAAI_Aquila_Model_License.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
