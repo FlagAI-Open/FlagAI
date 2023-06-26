@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
 import torch
+import sys;sys.path.append("/mnt/yzd/git/FlagAI")
 from torch.utils.data import Dataset
 import gc
 gc.collect()
@@ -84,7 +85,7 @@ if env_args.bmt_async_load:
 config_file = os.path.join(cache_dir, 'config.json')
 from flagai.model.aquila_model import AQUILAModel
 model = AQUILAModel.init_from_json(config_file=config_file)
-print('*'*20, "model", model)
+# print('*'*20, "model", model)
 
 #lora
 if env_args.lora:
@@ -98,7 +99,7 @@ if env_args.bmt_pre_load:
 
 trainer.pre_train(model)
 
-print('*'*20, "model", model, flush=True)
+# print('*'*20, "model", model, flush=True)
 
 assert env_args.enable_sft_dataset_dir is not None and \
         env_args.enable_sft_dataset_file is not None
@@ -116,7 +117,7 @@ def read_file(jsonl_file):
     with jsonlines.open(jsonl_file) as reader:
         for line in reader:
             conversations.append(line)
-    return conversations
+    return conversations[:1000]
 
 
 def _add_speaker_and_signal(header, source, get_conversation=True):

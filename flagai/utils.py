@@ -225,7 +225,7 @@ def save_checkpoint(iteration,
         tracker_filename = get_checkpoint_tracker_filename(save_dir)
         with open(tracker_filename, 'w') as f:
             f.write(str(iteration) + '\t' + str(best_iteration))
-    elif  env_type == 'bmtrain':
+    elif env_type == 'bmtrain':
         import bmtrain as bmt
         ensure_directory_exists(checkpoint_name)
         bmt.save(model, checkpoint_name)
