@@ -11,12 +11,11 @@ from flagai.data.tokenizer import Tokenizer
 state_dict = "./checkpoints_in"
 model_name = 'aquilachat-7b'
 
-loader = AutoLoader(
-    "lm",
-    model_dir=state_dict,
-    model_name=model_name,
-    use_cache=True,
-    fp16=True)
+loader = AutoLoader("lm",
+                    model_dir=state_dict,
+                    model_name=model_name,
+                    use_cache=True,
+                    fp16=True)
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 cache_dir = os.path.join(state_dict, model_name)
@@ -29,15 +28,15 @@ predictor = Predictor(model, tokenizer)
 
 ## multi-round cases
 history = [
-        "1+1=", #huam
-        "2",    #bot
-        ]
+    "1+1=",  #huam
+    "2",  #bot
+]
 texts = [
-        "北京为什么是中国的首都？",
-        ]
+    "北京为什么是中国的首都？",
+]
 
 for text in texts:
-    print('-'*80)
+    print('-' * 80)
     print(f"text is {text}")
 
     from cyg_conversation import default_conversation
@@ -48,10 +47,15 @@ for text in texts:
     conv.append_message(conv.roles[0], text)
     conv.append_message(conv.roles[1], None)
 
-    tokens = tokenizer.encode_plus(f"{conv.get_prompt()}", None, max_length=None)['input_ids']
+    tokens = tokenizer.encode_plus(f"{conv.get_prompt()}",
+                                   None,
+                                   max_length=None)['input_ids']
     tokens = tokens[:-1]
 
     with torch.no_grad():
-        out = aquila_generate(tokenizer, model, [text], max_gen_len:=200, top_p=0.95, prompts_tokens=[tokens])
+        out = aquila_generate(tokenizer,
+                              model, [text],
+                              max_gen_len := 200,
+                              top_p=0.95,
+                              prompts_tokens=[tokens])
         print(f"pred is {out}")
-
