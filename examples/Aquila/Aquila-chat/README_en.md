@@ -92,22 +92,30 @@ Note: The Aquila-7B basic model may not perform as well for dialogue reasoning t
 ### (Supervised Fine-tuning(SFT)
 
 1. Configure the `hostfile` file.
-2. 
+ 
     <details><summary>Details are as follows:</summary>
-
     Taking a single machine with eight GPUs as an example:
+
     1. Check the IP address of the local machine:
-            ```
-            ifconfig eth0 | grep "inet " | awk '{print $2}'
-            ```
+        ```
+        ifconfig eth0 | grep "inet " | awk '{print $2}'
+        ```
     2. Fill in the `hostfile` with the following
-            ```
-            [上一步得到的ip地址] slots=8
-            ```
+        ```
+        [ip address from last step] slots=8
+        ```
     3. Confirm that the local machine can log in without a password by testing using the following command: 
-            ```
-            ssh localhost
-            ```
+        ```
+        ssh localhost
+        ```
+
+        You can try the following command to log in without a password 
+
+        ```
+        ssh-keygen -t rsa  
+        cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+        service sshd restart
+        ```
     
     </details>
 
@@ -119,7 +127,7 @@ Note: The Aquila-7B basic model may not perform as well for dialogue reasoning t
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
-
+    The model trained using LoRa needs to be inferred using "generate_chat_lora.py", and the Lora parameters used during training should be added when loading the model in the autoloader.
 <details><summary>The correct output information is shown below:</summary>
 
 The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.

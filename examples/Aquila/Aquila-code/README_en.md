@@ -96,13 +96,20 @@ Currently, the minimum requirement for pre-training the 7B base model is to run 
         ```
     2. Fill in the `hostfile` with the following
         ```
-        [上一步得到的ip地址] slots=8
+        [ip address from last step] slots=8
         ```
     3. Confirm that the local machine can log in without a password by testing using the following command: 
         ```
         ssh localhost
         ```
-    
+
+        You can try the following command to log in without a password 
+
+        ```
+        ssh-keygen -t rsa  
+        cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+        service sshd restart
+        ```
     </details>
    
 3. Run the training script:

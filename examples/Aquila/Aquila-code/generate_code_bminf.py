@@ -25,8 +25,8 @@ model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 model.half()
 model.eval()
-model.cuda()
-model.to(device)
+with torch.cuda.device(0):
+    model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30) # n << 30 is equivalent to n GB memory limit
 
 vocab = tokenizer.get_vocab()
 

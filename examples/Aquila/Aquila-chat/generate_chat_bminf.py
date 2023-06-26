@@ -24,7 +24,7 @@ cache_dir = os.path.join(state_dict, model_name)
 model.eval()
 
 with torch.cuda.device(0):
-    model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)
+    model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)  # n << 30 is equivalent to n GB memory limit
 
 predictor = Predictor(model, tokenizer)
 
