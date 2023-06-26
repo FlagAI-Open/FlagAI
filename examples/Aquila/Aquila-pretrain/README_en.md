@@ -136,7 +136,7 @@ Before successful training, you may see the following information in the log fil
 
 </details>
 
-### Pre-training of the base model
+### Pre-training of the Base Model
 
 Currently, the minimum requirement for pre-training the 7B base model is to run on a single Nvidia-A100-80G card (batch_size needs to be adjusted).
 
@@ -176,6 +176,10 @@ Complete parameter information can be found in https://github.com/FlagAI-Open/Fl
 | topk           | int   | 30            | Top-k controls the number of choices when the model generates new words. When generating each new word, the model predicts several possible words, and the Top-k parameter limits the model to select only one of the top k words with the highest probability as the generated word. Top-k can help stabilize the generation process and prevent the model from randomly choosing words with very low probabilities. |
 | topp           | float | 0.95          | Similar to Top-k, Top-p also controls the number of choices when the model generates new words. When generating each new word, the model predicts several possible words, and the Top-p parameter limits the model to select only some of the most likely candidate words until the total probability of these candidate words reaches a threshold (such as 0.9 or 0.8). Top-p can help avoid the generation of words that do not fit the context. |
 | max_length     | int   | 200           | To avoid generating infinite length text, we need to limit the length of the generated text. The max_length parameter controls the maximum length of the generated text. Once this length is reached, the model stops generating. The maximum length of the Aquila series models is 2048 tokens. |
+
+## Change Log
+- v0.5   
+md5 value：13d39993743e66081640c6245da3db48
 
 ## License
 
