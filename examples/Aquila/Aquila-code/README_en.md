@@ -96,13 +96,20 @@ Currently, the minimum requirement for pre-training the 7B base model is to run 
         ```
     2. Fill in the `hostfile` with the following
         ```
-        [上一步得到的ip地址] slots=8
+        [ip address from last step] slots=8
         ```
     3. Confirm that the local machine can log in without a password by testing using the following command: 
         ```
         ssh localhost
         ```
-    
+
+        You can try the following command to log in without a password 
+
+        ```
+        ssh-keygen -t rsa  
+        cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+        service sshd restart
+        ```
     </details>
    
 3. Run the training script:
@@ -150,6 +157,10 @@ Complete parameter information can be found in https://github.com/FlagAI-Open/Fl
 | topk           | int   | 30            | Top-k controls the number of choices when the model generates new words. When generating each new word, the model predicts several possible words, and the Top-k parameter limits the model to select only one of the top k words with the highest probability as the generated word. Top-k can help stabilize the generation process and prevent the model from randomly choosing words with very low probabilities. |
 | topp           | float | 0.95          | Similar to Top-k, Top-p also controls the number of choices when the model generates new words. When generating each new word, the model predicts several possible words, and the Top-p parameter limits the model to select only some of the most likely candidate words until the total probability of these candidate words reaches a threshold (such as 0.9 or 0.8). Top-p can help avoid the generation of words that do not fit the context. |
 | max_length     | int   | 200           | To avoid generating infinite length text, we need to limit the length of the generated text. The max_length parameter controls the maximum length of the generated text. Once this length is reached, the model stops generating. The maximum length of the Aquila series models is 2048 tokens. |
+
+- v0.5   
+md5 value of AquilaCode-7B-NV：91115e72a7fc7f780b410696eae6259c
+md5 value of AquilaCode-7B-TS：5dae2486bc5a885279be87c13872cd5c
 
 ## License
 
