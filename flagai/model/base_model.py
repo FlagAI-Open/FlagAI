@@ -65,10 +65,10 @@ class BaseModel(Module):
         if 'use_cache' not in args:
             args['use_cache'] = False
         if "fp16" in kwargs and kwargs["fp16"] == True:
-            if device == "cpu":
-                torch.set_default_tensor_type(torch.HalfTensor)
-            else:
-                torch.set_default_tensor_type(torch.cuda.HalfTensor)
+            # if device == "cpu":
+            #     torch.set_default_tensor_type(torch.HalfTensor)
+            # else:
+            torch.set_default_tensor_type(torch.cuda.HalfTensor)
             model = cls(change_json_to_cls(args), **kwargs)
             torch.set_default_tensor_type(torch.FloatTensor)
         else:

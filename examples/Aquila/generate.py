@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
 import torch
+import sys;sys.path.append("/mnt/yzd/git/FlagAI/")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 from flagai.data.tokenizer import Tokenizer
@@ -16,7 +17,7 @@ loader = AutoLoader(
     model_dir=state_dict,
     model_name=model_name,
     use_cache=True,
-    fp16=True)
+    fp16=False)
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 
