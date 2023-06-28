@@ -1,0 +1,5 @@
+packaging
+PyYAML==5.4.1
+deepspeed==0.6.5
+flash-attn==1.0.2
+bminf
