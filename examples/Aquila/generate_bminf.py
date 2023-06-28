@@ -22,7 +22,8 @@ tokenizer = loader.get_tokenizer()
 
 model.eval()
 
-model.cuda()
+with torch.cuda.device(0):
+    model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)
 
 predictor = Predictor(model, tokenizer)
 

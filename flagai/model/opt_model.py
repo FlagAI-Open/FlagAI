@@ -23,6 +23,7 @@ from torch.nn import CrossEntropyLoss
 from flagai.model.layers.activations import ACT2FN
 from flagai.model.gpt2_model import GPT2Model, GPT2Stack, GPT2Config
 from torch.utils.checkpoint import checkpoint
+from flagai.model.base_model import change_json_to_cls
 
 OPT_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "facebook/opt-125m",
@@ -96,15 +97,16 @@ def trans_opt_to_gpt_config(opt_config_json):
         "word_embed_proj_dim": "n_embd",
         "do_layer_norm_before": "do_layer_norm_before",
     }
-    for k, v in opt_config_json.items():
+    for k, v in opt_config_json.json_config.items():
         if k in trans_key:
             trans_config_json[trans_key[k]] = v
 
-    return trans_config_json
+    return change_json_to_cls(trans_config_json)
 
 class OPTModel(GPT2Model):
 
     def __init__(self, config, **kwargs):
+        
         config = trans_opt_to_gpt_config(config)
         super(OPTModel, self).__init__(config, **kwargs)
         self.transformer = OPTStack(self.config_gpt)

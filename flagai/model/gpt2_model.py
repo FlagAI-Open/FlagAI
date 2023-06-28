@@ -264,9 +264,8 @@ class GPT2Model(BaseModel):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
         self.config = config.json_config
-
         # TODO Global Config
-        if type(config) is dict:
+        if type(self.config) is dict:
             init_method_std = self.config.get("initializer_range", 0.002)
             init_method = unscaled_init_method(init_method_std)
             output_layer_init_method = None
@@ -294,7 +293,6 @@ class GPT2Model(BaseModel):
             self.config_gpt = config_gpt
 
         self.parallel_output = True
-
         self.transformer = GPT2Stack(self.config_gpt)
         self.lm_head = nn.Linear(config_gpt.n_embd,
                                  config_gpt.vocab_size,

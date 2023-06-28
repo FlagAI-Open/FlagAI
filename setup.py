@@ -19,7 +19,7 @@ setup(
     install_requires=[
         'nltk==3.6.7',
         'sentencepiece==0.1.96',
-        'boto3==1.21.42',
+        'boto3==1.17.32',
         'pandas==1.3.5',
         'jieba==0.42.1',
         'scikit-learn==1.0.2',
