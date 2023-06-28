@@ -7,6 +7,7 @@ import torch
 import copy
 
 from_1_to_n_models = {
+    
     "gpt": {
         "wte.weight": 0,
         "attn.c_attn.weight": 30,
@@ -16,7 +17,66 @@ from_1_to_n_models = {
         "mlp.c_fc.bias": 0,
         "mlp.c_proj.weight": 1,
     },
+
+    "galactica_flagai": {
+        "wte.weight": 0,
+        "attn.c_attn.weight": 30,
+        "attn.c_attn.bias": 30,
+        "attn.c_proj.weight": 1,
+        "mlp.c_fc.weight": 0,
+        "mlp.c_fc.bias": 0,
+        "mlp.c_proj.weight": 1,
+        "lm_head.weight": 0
+    },
+    "opt_flagai": {
+        "wte.weight": 0,
+        "attn.c_attn.weight": 30,
+        "attn.c_attn.bias": 30,
+        "attn.c_proj.weight": 1,
+        "mlp.c_fc.weight": 0,
+        "mlp.c_fc.bias": 0,
+        "mlp.c_proj.weight": 1,
+        "lm_head.weight": 0,
+    },
+    "llama": {
+        "tok_embeddings.weight": 1,
+        "attention.wq.weight": 0,
+        "attention.wk.weight": 0,
+        "attention.wv.weight": 0,
+        "attention.wo.weight": 1,
+        "feed_forward.w1.weight": 0,
+        "feed_forward.w2.weight": 1,
+        "feed_forward.w3.weight": 0,
+        "output.weight": 0,
+        
+    },
+    "aquila": {
+        "tok_embeddings.weight": 1,
+        "attention.wq.weight": 0,
+        "attention.wk.weight": 0,
+        "attention.wv.weight": 0,
+        "attention.wo.weight": 1,
+        "feed_forward.w1.weight": 0,
+        "feed_forward.w2.weight": 1,
+        "feed_forward.w3.weight": 0,
+        "output.weight": 0,
+        
+    },
     "opt": {
+        "decoder.embed_tokens.weight": 0,
+        "self_attn.k_proj.weight": 0,
+        "self_attn.k_proj.bias": 0,
+        "self_attn.q_proj.weight": 0,
+        "self_attn.q_proj.bias": 0,
+        "self_attn.v_proj.weight": 0,
+        "self_attn.v_proj.bias": 0,
+
+        "self_attn.out_proj.weight": 1,
+        "fc1.weight": 0,
+        "fc1.bias": 0,
+        "fc2.weight": 1,
+    },
+    "galactica": {
         "decoder.embed_tokens.weight": 0,
         "self_attn.k_proj.weight": 0,
         "self_attn.k_proj.bias": 0,
@@ -318,6 +378,7 @@ def change_pytorch_model_mp_from_n_to_1(model_name_brief, checkpoint):
         filename for filename in filenames
         if filename.startswith("pytorch_model")
     ]
+    print(filenames)
 
     filenames = sorted(filenames)
     if 'pytorch_model.bin' in filenames:
@@ -358,52 +419,54 @@ def change_pytorch_model_mp_from_n_to_1(model_name_brief, checkpoint):
 
         for j in range(start+1, end):
             d_new = torch.load(filenames[j], map_location='cpu')
+
             if "module" in d_new:
                 d_new = d_new["module"]
+                # print(d_new)
 
-                for k, v in d_new.items():
-                    assert len(v.shape) < 3
-                    for keys in trans_keys:
-                        if keys in k:
-                            # find a key to concat
-                            dim = trans_keys[keys]
-                            if len(v.shape) == 2:
-                                if dim == 30:
-                                    size_1 = d[k].shape[0] // 3
-                                    size_2 = v.shape[0] // 3
-                                    target = d[k]
-                                    d[k] = torch.cat([
-                                        target[:size_1, :], v[:size_2, :],
-                                        target[size_1:size_1 * 2, :],
-                                        v[size_2:size_2 * 2, :], target[size_1 * 2:, :],
-                                        v[size_2 * 2:, :]
-                                    ], 0)
-                                    break
+            for k, v in d_new.items():
+                assert len(v.shape) < 3
+                for keys in trans_keys:
+                    if keys in k:
+                        # find a key to concat
+                        dim = trans_keys[keys]
+                        if len(v.shape) == 2:
+                            if dim == 30:
+                                size_1 = d[k].shape[0] // 3
+                                size_2 = v.shape[0] // 3
+                                target = d[k]
+                                d[k] = torch.cat([
+                                    target[:size_1, :], v[:size_2, :],
+                                    target[size_1:size_1 * 2, :],
+                                    v[size_2:size_2 * 2, :], target[size_1 * 2:, :],
+                                    v[size_2 * 2:, :]
+                                ], 0)
+                                break
 
-                                elif dim == 0:
-                                    d[k] = torch.cat([d[k], v], 0)
-                                    break
+                            elif dim == 0:
+                                d[k] = torch.cat([d[k], v], 0)
+                                break
 
-                                elif dim == 1:
-                                    d[k] = torch.cat([d[k], v], 1)
-                                    break
+                            elif dim == 1:
+                                d[k] = torch.cat([d[k], v], 1)
+                                break
 
-                            elif len(v.shape) == 1:
-                                if dim == 30:
-                                    size_1 = d[k].shape[0] // 3
-                                    size_2 = v.shape[0] // 3
-                                    target = d[k]
-                                    d[k] = torch.cat([
-                                        target[:size_1], v[:size_2], target[size_1:size_1 * 2],
-                                        v[size_2:size_2 * 2], target[size_1 * 2:],
-                                        v[size_2 * 2:]
-                                    ], 0)
+                        elif len(v.shape) == 1:
+                            if dim == 30:
+                                size_1 = d[k].shape[0] // 3
+                                size_2 = v.shape[0] // 3
+                                target = d[k]
+                                d[k] = torch.cat([
+                                    target[:size_1], v[:size_2], target[size_1:size_1 * 2],
+                                    v[size_2:size_2 * 2], target[size_1 * 2:],
+                                    v[size_2 * 2:]
+                                ], 0)
 
-                                    break
+                                break
 
-                                else :
-                                    d[k] = torch.cat([d[k], v], 0)
-                                    break
+                            else :
+                                d[k] = torch.cat([d[k], v], 0)
+                                break
 
         filename = os.path.join(new_checkpoint,
                                 "pytorch_model.bin")
