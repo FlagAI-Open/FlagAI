@@ -11,6 +11,7 @@ from flagai.model.predictor.predictor import Predictor
 # os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 
 os.environ["ENV_TYPE"] = "deepspeed+mpu"
+## set the number of gpus, need to be consistent with the nproc_per_node.
 model_parallel_size = 4
 world_size = model_parallel_size
 
@@ -70,7 +71,7 @@ model.eval()
 model.to(device)
 torch.distributed.barrier(group=mpu.get_model_parallel_group())
 
-text = """汽车EDR是什么"""
+text = """汽车EDR是什么？"""
 
 predictor = Predictor(model, tokenizer)
 out = predictor.predict_generate_randomsample(text, 
