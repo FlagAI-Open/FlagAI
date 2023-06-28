@@ -133,7 +133,7 @@ def covert_prompt_to_input_ids_with_history(text, history, tokenizer, max_token)
     conv.append_message(conv.roles[1], None)
     conv.append_message(conv.roles[0], text)
 
-    example = tokenizer.encode_plus(f"{conv.get_prompt()} ", None, max_length=None)['input_ids']
+    example = tokenizer.encode_plus(f"{conv.get_prompt()}", None, max_length=None)['input_ids']
 
     while(len(history) > 0 and (len(example) < max_token)):
         tmp = history.pop()
