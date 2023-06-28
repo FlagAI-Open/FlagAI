@@ -147,7 +147,7 @@ def covert_prompt_to_input_ids_with_history(text, history, tokenizer, max_token)
         conv.messages.pop()
     conv.messages = conv.messages[::-1]
     print('model in:', conv.get_prompt())
-    example = tokenizer.encode_plus(f"{conv.get_prompt()} ", None, max_length=None)['input_ids']
+    example = tokenizer.encode_plus(f"{conv.get_prompt()}", None, max_length=None)['input_ids']
     example = example[1:-1]
 
     return example
