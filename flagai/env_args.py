@@ -165,10 +165,10 @@ class EnvArgs:
         self.parser.add_argument('--bmt_loss_scale', default=bmt_loss_scale, type=float, help='loss scale in bmtrain')
         self.parser.add_argument('--bmt_loss_scale_steps', default=bmt_loss_scale_steps, type=int, help='loss scale steps in bmtrain')
 
-        self.parser.add_argument('--lora', default=lora, help='Use lora')
-        self.parser.add_argument('--lora_r', default=lora_r, help='lora r value')
-        self.parser.add_argument('--lora_alpha', default=lora_alpha, help='lora alpha value')
-        self.parser.add_argument('--lora_dropout', default=lora_dropout, help='lora dropout value')
+        self.parser.add_argument('--lora', default=lora, type=bool, help='Use lora')
+        self.parser.add_argument('--lora_r', default=lora_r, typp=int, help='lora r value')
+        self.parser.add_argument('--lora_alpha', default=lora_alpha, type=float, help='lora alpha value')
+        self.parser.add_argument('--lora_dropout', default=lora_dropout, type=float, help='lora dropout value')
         self.parser.add_argument('--lora_target_modules', default=lora_target_modules, help='lora_target_modules')
         
         ## TODO, Used in caller script, configs will be updated with yaml_config.
@@ -204,6 +204,14 @@ class EnvArgs:
         if args.env_type == "pytorch":
             # not need the "not_call_launch" parameter
             args.not_call_launch = True
-
+        for arg in vars(args):
+            # change string format list to back to python list object
+            value = getattr(args, arg)
+            if isinstance(value, str):
+                value = value.strip("'\"")
+                if value[0] == '[' and value[-1] == ']':
+                    value = value.strip("[] ").replace(" ", "")
+                    value = value.split(",")
+                    setattr(args,arg,value)
         return args
 
