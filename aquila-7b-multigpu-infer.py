@@ -60,7 +60,7 @@ set_random_seed(123)
 
 print(f"building model...")
 loader = AutoLoader("lm", 
-                    model_name="auila-7b",
+                    model_name="aquila-7b",
                     use_cache=True, 
                     fp16=True)
 
