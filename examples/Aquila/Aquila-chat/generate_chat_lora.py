@@ -7,7 +7,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 from flagai.data.tokenizer import Tokenizer
 import torch.nn as nn
-from flagai.model.tools.lora.prepare_lora import lora_transfer
+from flagai.model.predictor.aquila import aquila_generate
 state_dict = "./checkpoints_in/"
 model_name = 'aquila-7b'
 
@@ -17,13 +17,13 @@ loader = AutoLoader("lm",
                     model_name=model_name,
                     use_cache=True,
                     fp16=True,
-                    adapter_dir='./output')
+                    device='cuda',
+                    adapter_dir='path to adatper directory')
 model = loader.get_model()
 
 tokenizer = loader.get_tokenizer()
 
 model.eval()
-mode.half()
 model.cuda()
 
 predictor = Predictor(model, tokenizer)

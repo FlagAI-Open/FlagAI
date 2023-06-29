@@ -162,14 +162,6 @@ class AutoLoader:
                  model_dir: str = "./checkpoints/",
                  only_download_config: bool = False,
                  device="cpu",
-                 lora=False,
-                 lora_r = 9,
-                 lora_alpha=64,
-                 target_modules=[
-                        "wq",
-                        "wv",
-                    ],
-                 lora_dropout = 0.05,
                  **kwargs):
         """
         Args:
