@@ -8,6 +8,8 @@ from flagai.model.predictor.predictor import Predictor
 from flagai.data.tokenizer import Tokenizer
 import torch.nn as nn
 from flagai.model.predictor.aquila import aquila_generate
+
+
 state_dict = "./checkpoints_in/"
 model_name = 'aquila-7b'
 
@@ -18,7 +20,7 @@ loader = AutoLoader("lm",
                     use_cache=True,
                     fp16=True,
                     device='cuda',
-                    adapter_dir='path to adatper directory')
+                    adapter_dir='/mnt/yzd/git/FlagAI/examples/Aquila/Aquila-chat/checkpoints_out/aquila_experiment/2023062909')
 model = loader.get_model()
 
 tokenizer = loader.get_tokenizer()

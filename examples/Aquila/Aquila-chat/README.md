@@ -106,7 +106,7 @@ python generate_chat_bminf.py
             ```
             ssh localhost
             ```
-        如果不能免密登录，可以尝试以下方法配置免密
+        如果不能免密登录，可以尝试以下方法配置免密或者使用local_trigger_docker.sh来运行(如下一步所示)
 
             ```
             ssh-keygen -t rsa  
@@ -117,14 +117,14 @@ python generate_chat_bminf.py
 
 3. 启动训练脚本
     ```
-    bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquilachat-7b aquila_experiment
+    bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
     ```
     如果单机微调，可以不配置本机免密登录，而将dist_trigger_docker.sh改为local_trigger_docker.sh
     **如果想单台机器上启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
     ```
-    bash local_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquilachat-7b aquila_experiment
+    bash local_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
-    注：lora会训练出来一个adapter_config.json和adapter_model.bin文件，使用autoloader加载模型推理时需要将adpter文件的目录放到adapter_dir里
+    注：lora会训练出来一个adapter_config.json和adapter_model.bin文件，位置在输出目录下(与log文件同级)；推理请运行`Aquila-chat/generate_char_lora.py`文件，与普通推理的区别是autoloader加载模型推理时需要将adapter文件的目录放到adapter_dir参数里
 
 <details><summary>正确运行输出信息如下所示：</summary>
 
