@@ -654,6 +654,7 @@ class EnvTrainer():
                             if self.adapter_save:
                                 self.model.save_pretrained(save_directory=self.save_dir)
                             else:
+                                best_iteration = self.iteration
                                 save_checkpoint(self.iteration+1,
                                                 best_iteration+1,
                                                 self.model,
@@ -668,6 +669,7 @@ class EnvTrainer():
                     if self.adapter_save:
                         self.model.save_pretrained(save_directory=self.save_dir)
                     else:
+                        best_iteration = self.iteration
                         save_checkpoint(self.iteration+1,
                                         best_iteration+1,
                                         self.model,
