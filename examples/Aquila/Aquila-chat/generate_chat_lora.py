@@ -7,7 +7,6 @@ from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
 from flagai.model.predictor.aquila import aquila_generate
 from flagai.data.tokenizer import Tokenizer
-import bminf
 
 state_dict = "./checkpoints_in"
 model_name = 'aquilachat-7b'
@@ -16,15 +15,17 @@ loader = AutoLoader("lm",
                     model_dir=state_dict,
                     model_name=model_name,
                     use_cache=True,
-                    fp16=True)
+                    fp16=True,
+                    lora=True,
+                    lora_r=8,
+                    lora_alpha=64)
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
 cache_dir = os.path.join(state_dict, model_name)
 
 model.eval()
-
-with torch.cuda.device(0):
-    model = bminf.wrapper(model, quantization=False, memory_limit=2 << 30)  # n << 30 is equivalent to n GB memory limit
+model.half()
+model.cuda()
 
 predictor = Predictor(model, tokenizer)
 
@@ -48,6 +49,8 @@ for text in texts:
     tokens = tokenizer.encode_plus(f"{conv.get_prompt()}",
                                    None,
                                    max_length=None)['input_ids']
+    ## TODO for few-shot inference using plain text as inputs will get better results.
+    ## tokens = tokenizer.encode_plus(f"{text}", None, max_length=None)['input_ids']
     tokens = tokens[1:-1]
 
     with torch.no_grad():
