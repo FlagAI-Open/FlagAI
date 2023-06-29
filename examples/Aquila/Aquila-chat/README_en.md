@@ -28,7 +28,8 @@ The additional details of the Aquila model will be presented in the official tec
 | AquilaCode-7B-TS   | Base model, "text-code" generation model, further pre-trained based on Aquila-7B, trained on Horizon Robotics chips | Same as above                                                                                                                                                                                                                                                                                                                                                                                                             | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | Released        | Tianshu-BI-V100 |
 
 
-**[Change Log](../changelog.md)**
+We will continue to release improved versions of Aquila model as open source. You can start by deleting the `model_pytorch.bi`n file in the original directory and then download the new weights. Other usage methods remain unchanged. For more details, please refer to the **[Change Log](../changelog.md)**.
+
 
  <br>If you have any question, please refer to the [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371) first. If you cannot solve them, please submit an [issue](https://github.com/FlagAI-Open/FlagAI/issues) directly.
 
