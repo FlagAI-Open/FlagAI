@@ -39,5 +39,6 @@ setup(
         'jsonlines == 3.1.0',
         'accelerate == 0.19.0',
         'PyYAML == 5.4.1',
+        'peft == 0.3.0',
     ]
 )
