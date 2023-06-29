@@ -28,6 +28,8 @@ The additional details of the Aquila model will be presented in the official tec
 | AquilaCode-7B-TS   | Base model, "text-code" generation model, further pre-trained based on Aquila-7B, trained on Horizon Robotics chips | Same as above                                                                                                                                                                                                                                                                                                                                                                                                             | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | Released        | Tianshu-BI-V100 |
 
 
+**[Change Log](../changelog.md)**
+
  <br>If you have any question, please refer to the [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371) first. If you cannot solve them, please submit an [issue](https://github.com/FlagAI-Open/FlagAI/issues) directly.
 
 
@@ -92,22 +94,30 @@ Note: The Aquila-7B basic model may not perform as well for dialogue reasoning t
 ### (Supervised Fine-tuning(SFT)
 
 1. Configure the `hostfile` file.
-2. 
+ 
     <details><summary>Details are as follows:</summary>
-
     Taking a single machine with eight GPUs as an example:
+
     1. Check the IP address of the local machine:
-            ```
-            ifconfig eth0 | grep "inet " | awk '{print $2}'
-            ```
+        ```
+        ifconfig eth0 | grep "inet " | awk '{print $2}'
+        ```
     2. Fill in the `hostfile` with the following
-            ```
-            [上一步得到的ip地址] slots=8
-            ```
+        ```
+        [ip address from last step] slots=8
+        ```
     3. Confirm that the local machine can log in without a password by testing using the following command: 
-            ```
-            ssh localhost
-            ```
+        ```
+        ssh localhost
+        ```
+
+        You can try the following command to log in without a password 
+
+        ```
+        ssh-keygen -t rsa  
+        cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+        service sshd restart
+        ```
     
     </details>
 
@@ -119,7 +129,7 @@ Note: The Aquila-7B basic model may not perform as well for dialogue reasoning t
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
-
+    The model trained using LoRa needs to be inferred using "generate_chat_lora.py", and the Lora parameters used during training should be added when loading the model in the autoloader.
 <details><summary>The correct output information is shown below:</summary>
 
 The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
@@ -162,6 +172,10 @@ Complete parameter information can be found inhttps://github.com/FlagAI-Open/Fla
 | topk           | int   | 30            | Top-k controls the number of choices when the model generates new words. When generating each new word, the model predicts several possible words, and the Top-k parameter limits the model to select only one of the top k words with the highest probability as the generated word. Top-k can help stabilize the generation process and prevent the model from randomly choosing words with very low probabilities. |
 | topp           | float | 0.95          | Similar to Top-k, Top-p also controls the number of choices when the model generates new words. When generating each new word, the model predicts several possible words, and the Top-p parameter limits the model to select only some of the most likely candidate words until the total probability of these candidate words reaches a threshold (such as 0.9 or 0.8). Top-p can help avoid the generation of words that do not fit the context. |
 | max_length     | int   | 200           | To avoid generating infinite length text, we need to limit the length of the generated text. The max_length parameter controls the maximum length of the generated text. Once this length is reached, the model stops generating. The maximum length of the Aquila series models is 2048 tokens. |
+
+## Change Log
+- v0.5   
+md5 value：d927752ebc543b2e6ae37217403814ef
 
 ## License
 

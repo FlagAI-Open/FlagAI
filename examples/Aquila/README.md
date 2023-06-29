@@ -26,6 +26,9 @@
 | AquilaCode-7B-NV          | 基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在英伟达芯片完成训练  |   AquilaCode-7B 以小数据集、小参数量，实现高性能，是目前支持中英双语的、性能最好的开源代码模型，经过了高质量过滤、使用有合规开源许可的训练代码数据进行训练。<br><br> AquilaCode-7B 分别在英伟达和国产芯片上完成了代码模型的训练。  | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  |[下载AquilaCode-7B-NV](https://model.baai.ac.cn/model-detail/100102)  | 已发布  | Nvidia-A100 | 
 | AquilaCode-7B-TS           |基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在天数智芯芯片上完成训练  |    同上    | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  | [下载AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | 已发布  | Tianshu-BI-V100  | 
 
+
+**[变更日志](./changelog_zh.md)**
+
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
 
 
@@ -81,7 +84,9 @@ python generate_bminf.py
 
 ### 基础模型微调-SFT
 
-1. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
+1. 准备微调的初始模型(放在checkpoints_in里)
+
+2. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
   
     假设刚刚在Aquila-pretrain下运行了推理脚本，则可以运行
     ```
@@ -89,33 +94,45 @@ python generate_bminf.py
     mv ./Aquila-pretrain/checkpoints_in ./
     ```
 
-2. 配置`hostfile`文件
+3. 配置`hostfile`文件
     <details><summary>详情如下：</summary>
     以单机八卡为例
     1. 查看本机ip地址
+
             ```
             ifconfig eth0 | grep "inet " | awk '{print $2}'
             ```
+
     2. 在`hostfile`里填入
+
             ```
             [上一步得到的ip地址] slots=8
             ```
     3. 确认本机可以免密登录,可用如下指令测试
+
             ```
             ssh localhost
             ```
-    
+        如果不能免密登录，可以尝试以下方法配置免密
+
+            ```
+            ssh-keygen -t rsa  
+            cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+            service sshd restart
+            ```
+
     </details>
 
-3. 启动训练脚本
+4. 启动训练脚本
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
     ```
-    **如果想启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
+    如果单机微调，可以不配置本机免密登录，而将dist_trigger_docker.sh改为local_trigger_docker.sh
+    **如果想单台机器上启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
     ```
-    bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
+    bash local_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
-
+    注：lora训练出来的模型需要用generate_chat_lora.py来推理，并在autoloader加载模型时添加训练时用的lora参数。
 <details><summary>正确运行输出信息如下所示：</summary>
 
 首先会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件。

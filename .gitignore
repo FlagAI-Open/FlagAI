@@ -35,3 +35,4 @@ examples/glm_pretrain/data.lazy
 examples/glm_pretrain/examples/glm_pretrain/data.lazy
 examples/vit_cifar100/cifar100
 examples/vit_cifar100/data
+output/

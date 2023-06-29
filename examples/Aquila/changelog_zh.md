@@ -1,0 +1,10 @@
+- 2023/06/27 ：发布权重文件 v0.6，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
+  - Aquila-7B  md5: 395d01d9de3437e09aefd7d337a21aca
+  - AquilaChat-7B md5: f39e3eea73fddcce7845947f56a7717d
+  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
+  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
+- 2023/06/26：发布权重文件 v0.5，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
+  - Aquila-7B  md5: 13d39993743e66081640c6245da3db48
+  - AquilaChat-7B md5: d927752ebc543b2e6ae37217403814ef
+  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
+  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c

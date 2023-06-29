@@ -3,9 +3,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import os
 import torch
-import sys;sys.path.append("/mnt/yzd/git/FlagAI")
 from torch.utils.data import Dataset
 import gc
+
 gc.collect()
 torch.cuda.empty_cache()
 from flagai.auto_model.auto_loader import AutoLoader
@@ -16,6 +16,7 @@ import jsonlines
 import numpy as np
 import cyg_conversation as conversation_lib
 from flagai.model.tools.lora.prepare_lora import lora_transfer
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
@@ -62,35 +63,40 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
-print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}", flush=True)
+print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}",
+      flush=True)
 
 checkpoints = env_args.pre_load_dir
 
 model_name = env_args.model_name
 
-print('*'*20, "model_name", model_name, flush=True)
-
+print('*' * 20, "model_name", model_name, flush=True)
 
 cache_dir = os.path.join(checkpoints, model_name)
-print('*'*20, "cache_dir", cache_dir)
+print('*' * 20, "cache_dir", cache_dir)
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-print('*'*20, "tokenizer", tokenizer)
+print('*' * 20, "tokenizer", tokenizer)
 
 # avoid sync loading models in case of Mem OOM
 if env_args.bmt_async_load:
     import time
-    time.sleep(10*60*(trainer.local_rank%4))
-
+    time.sleep(10 * 60 * (trainer.local_rank % 4))
 
 config_file = os.path.join(cache_dir, 'config.json')
 from flagai.model.aquila_model import AQUILAModel
+
 model = AQUILAModel.init_from_json(config_file=config_file)
 # print('*'*20, "model", model)
 
 #lora
-if env_args.lora:
-    model = lora_transfer(model,env_args)
-    model.print_trainable_parameters()
+# if env_args.lora:
+model = lora_transfer(model, env_args)
+for name, param in model.named_parameters():
+    if 'tok_embeddings.weight' in name:
+        param.requires_grad = True
+
+
+model.print_trainable_parameters()
 
 ## bmt_pre_load
 checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
@@ -117,11 +123,10 @@ def read_file(jsonl_file):
     with jsonlines.open(jsonl_file) as reader:
         for line in reader:
             conversations.append(line)
-    return conversations[:1000]
+    return conversations
 
 
 def _add_speaker_and_signal(header, source, get_conversation=True):
-
     """Add speaker and start/end signal on each round."""
     BEGIN_SIGNAL = "### "
     END_SIGNAL = "\n"
@@ -131,30 +136,25 @@ def _add_speaker_and_signal(header, source, get_conversation=True):
         "human": conversation_lib.default_conversation.roles[0],  # human role
         "gpt": conversation_lib.default_conversation.roles[1],  # gpt role
     }
-    if "instruction" in source and source["instruction"] is not None and len(source["instruction"]) > 0:
+    if "instruction" in source and source["instruction"] is not None and len(
+            source["instruction"]) > 0:
         source["instruction"] = (
-            BEGIN_SIGNAL
-            + conversation_lib.default_conversation.roles[2]
-            + ": "
-            + source["instruction"]
-            + END_SIGNAL
-        )
+            BEGIN_SIGNAL + conversation_lib.default_conversation.roles[2] +
+            ": " + source["instruction"] + END_SIGNAL)
         if get_conversation:
             conversation += source["instruction"]
     for sentence in source["conversations"]:
         sentence_from = sentence["from"].lower()
-        sentence["value"] = (
-            BEGIN_SIGNAL
-            + roles.get(sentence_from, unknown_role)
-            + ": "
-            + sentence["value"]
-            + END_SIGNAL
-        )
+        sentence["value"] = (BEGIN_SIGNAL +
+                             roles.get(sentence_from, unknown_role) + ": " +
+                             sentence["value"] + END_SIGNAL)
         if get_conversation:
             conversation += sentence["value"]
     return conversation
 
+
 class ConversationDatasetV2(Dataset):
+
     def __init__(self, conversations, tokenizer, maxlen=512):
         super(ConversationDatasetV2, self).__init__()
         self.conversations = conversations
@@ -170,14 +170,18 @@ class ConversationDatasetV2(Dataset):
         chat_desc = source['chat_desc']
         instruction = source['instruction']
         conversations = source['conversations']
-        
+
         # chat_desc
-        example = self.tokenizer.encode_plus(f"{chat_desc}", None, max_length=None)['input_ids']
+        example = self.tokenizer.encode_plus(f"{chat_desc}",
+                                             None,
+                                             max_length=None)['input_ids']
         EOS_TOKEN = example[-1]
-        example = example[:-1] # remove eos
+        example = example[:-1]  # remove eos
         # instruction
-        instruction = self.tokenizer.encode_plus(f"{instruction}", None, max_length=None)['input_ids']
-        instruction = instruction[1:-1] # remove bos & eos
+        instruction = self.tokenizer.encode_plus(f"{instruction}",
+                                                 None,
+                                                 max_length=None)['input_ids']
+        instruction = instruction[1:-1]  # remove bos & eos
         example += instruction
 
         import copy
@@ -186,8 +190,10 @@ class ConversationDatasetV2(Dataset):
         for conversation in conversations:
             role = conversation['from']
             content = conversation['value']
-            content = self.tokenizer.encode_plus(f"{content}", None, max_length=None)['input_ids']
-            content = content[1:-1] # remove bos & eos
+            content = self.tokenizer.encode_plus(f"{content}",
+                                                 None,
+                                                 max_length=None)['input_ids']
+            content = content[1:-1]  # remove bos & eos
             example += content
             if role == 'gpt':
                 role_labels = copy.deepcopy(content)
@@ -218,23 +224,24 @@ class ConversationDatasetV2(Dataset):
 
     @staticmethod
     def collate_fn(batch):
+
         def padding(indice, max_length, pad_idx=0):
             pad_indice = [
-                item + [pad_idx] * max(0, max_length - len(item)) for item in indice
+                item + [pad_idx] * max(0, max_length - len(item))
+                for item in indice
             ]
             return torch.tensor(pad_indice)
 
         input_ids = [data["input_ids"] for data in batch]
         labels = [data["labels"] for data in batch]
         max_length = max_seq_len
-        input_ids = padding(input_ids, max_length)[:,:max_length]
-        labels = padding(labels, max_length, pad_idx=env_args.IGNORE_INDEX)[:,:max_length]
+        input_ids = padding(input_ids, max_length)[:, :max_length]
+        labels = padding(labels, max_length,
+                         pad_idx=env_args.IGNORE_INDEX)[:, :max_length]
 
-        data = {
-            "input_ids": input_ids,
-            "labels": labels
-        }
+        data = {"input_ids": input_ids, "labels": labels}
         return data
+
 
 conversations = read_file(jsonl_data)
 data_len = len(conversations)
@@ -243,20 +250,19 @@ train_size = data_len
 train_conversations = conversations[:train_size]
 
 train_dataset = ConversationDatasetV2(train_conversations,
-                                        tokenizer=tokenizer,
-                                        maxlen=max_seq_len)
+                                      tokenizer=tokenizer,
+                                      maxlen=max_seq_len)
 #print(f"train_dataset \n {train_dataset[0]}")
 
 valid_dataset = None
 if jsonl_data_val is not None:
     conversations_val = read_file(jsonl_data_val)
     valid_dataset = ConversationDatasetV2(conversations_val,
-                                            tokenizer=tokenizer,
-                                            maxlen=max_seq_len)
+                                          tokenizer=tokenizer,
+                                          maxlen=max_seq_len)
 
-trainer.do_train(
-    train_dataset=train_dataset,
-    valid_dataset=valid_dataset,
-    collate_fn=ConversationDatasetV2.collate_fn,
-    optimizer=None,
-    rank_split=False)
+trainer.do_train(train_dataset=train_dataset,
+                 valid_dataset=valid_dataset,
+                 collate_fn=ConversationDatasetV2.collate_fn,
+                 optimizer=None,
+                 rank_split=False)

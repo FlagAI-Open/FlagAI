@@ -140,6 +140,9 @@ class EnvTrainer():
         self.bmt_loss_scale = env_args.bmt_loss_scale
         self.bmt_loss_scale_steps = env_args.bmt_loss_scale_steps
 
+        # lora
+        self.adapter_save = env_args.lora
+
         self.warmup_start_lr = env_args.warmup_start_lr
 
         if self.env_type != 'pytorch':
@@ -506,7 +509,7 @@ class EnvTrainer():
         import sys
         sys.exit(0)
         '''
-
+        print("save directory is: ", self.save_dir)
         in_first_epoch = True
         for epoch in range(self.epochs):
             if self.env_type != 'pytorch':
@@ -648,18 +651,44 @@ class EnvTrainer():
                         if self.save_best is not None and self.save_best(best_score, eval_dict) != best_score:
                             best_score = self.save_best(best_score, eval_dict)
                             log_dist("saving best model with score {:.4f}".format(best_score))
-                            best_iteration = self.iteration
-                            save_checkpoint(self.iteration+1,
-                                            best_iteration+1,
-                                            self.model,
-                                            self.optimizer,
-                                            lr_scheduler,
-                                            save_optim=self.save_optim,
-                                            save_dir=self.save_dir,
-                                            save_rng=self.save_rng,
-                                            iteration_in_epoch=iteration_)
+                            if self.adapter_save:
+                                self.model.save_pretrained(save_directory=self.save_dir)
+                            else:
+                                save_checkpoint(self.iteration+1,
+                                                best_iteration+1,
+                                                self.model,
+                                                self.optimizer,
+                                                lr_scheduler,
+                                                save_optim=self.save_optim,
+                                                save_dir=self.save_dir,
+                                                save_rng=self.save_rng,
+                                                iteration_in_epoch=iteration_)
                 if self.save_dir and (self.iteration + 1) % self.save_interval == 0 and \
                         self.iteration != best_iteration:
+                    if self.adapter_save:
+                        self.model.save_pretrained(save_directory=self.save_dir)
+                    else:
+                        save_checkpoint(self.iteration+1,
+                                        best_iteration+1,
+                                        self.model,
+                                        self.optimizer,
+                                        lr_scheduler,
+                                        save_optim=self.save_optim,
+                                        save_dir=self.save_dir,
+                                        save_rng=self.save_rng,
+                                        iteration_in_epoch=iteration_)
+                self.iteration += 1
+
+            # at the end of each epoch.
+            in_first_epoch = False
+
+            # Checkpointing at the end of each epoch.
+            # self.iteration-1 as the exact iteration
+            if self.save_dir and (self.iteration-1) != best_iteration:
+                self.model.save_pretrained(save_directory=self.save_dir)
+                if self.adapter_save:
+                    self.model.save_pretrained(save_directory=self.save_dir)
+                else:
                     save_checkpoint(self.iteration+1,
                                     best_iteration+1,
                                     self.model,
@@ -669,23 +698,6 @@ class EnvTrainer():
                                     save_dir=self.save_dir,
                                     save_rng=self.save_rng,
                                     iteration_in_epoch=iteration_)
-                self.iteration += 1
-
-            # at the end of each epoch.
-            in_first_epoch = False
-
-            # Checkpointing at the end of each epoch.
-            # self.iteration-1 as the exact iteration
-            if self.save_dir and (self.iteration-1) != best_iteration:
-                save_checkpoint(self.iteration-1+1,
-                                best_iteration+1,
-                                self.model,
-                                self.optimizer,
-                                lr_scheduler,
-                                save_optim=self.save_optim,
-                                save_dir=self.save_dir,
-                                save_rng=self.save_rng,
-                                iteration_in_epoch=99999999999)
 
         # Evaluation #todo add train_args
         if ((self.epochs == 0) or (self.eval_interval and

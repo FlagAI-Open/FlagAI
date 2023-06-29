@@ -228,30 +228,6 @@ class AutoLoader:
             only_download_config=only_download_config,
             device=device,
             **kwargs)
-            
-        if lora:
-            from flagai.model.tools.lora import (
-                LoraConfig,
-                get_peft_model,
-                get_peft_model_state_dict,
-                prepare_model_for_int8_training,
-                set_peft_model_state_dict,
-            )
-            # Added for Lora
-            lora_config = LoraConfig(
-                r=lora_r,
-                lora_alpha=lora_alpha,
-                target_modules=target_modules,
-                lora_dropout=lora_dropout,
-                bias="none",
-                task_type="CAUSAL_LM",
-            )
-
-            # 2. Prepare model
-            self.model = prepare_model_for_int8_training(self.model)
-            self.model = get_peft_model(self.model, lora_config)
-
-
 
         if model_type == "nlp":
             if brief_model_name in ["galactica",]:

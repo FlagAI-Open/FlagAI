@@ -354,6 +354,10 @@ class Predictor:
                                   temperature, top_k, top_p, prompts_tokens=prompts_tokens)
 
         else:
+            print('**********',self.class_name.lower())
+            return aquila_generate(self.tokenizer, self.model,
+                                  [text], out_max_length,
+                                  temperature, top_k, top_p, prompts_tokens=prompts_tokens)
             print("Unsupported decoding mode")
             import os
             os._exit(0)

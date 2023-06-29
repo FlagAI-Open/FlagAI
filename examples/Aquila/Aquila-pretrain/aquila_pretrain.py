@@ -5,6 +5,7 @@ import os
 import torch
 from torch.utils.data import Dataset
 import gc
+
 gc.collect()
 torch.cuda.empty_cache()
 from flagai.auto_model.auto_loader import AutoLoader
@@ -12,7 +13,7 @@ from flagai.data.tokenizer import Tokenizer
 from flagai.env_args import EnvArgs
 from flagai.env_trainer_v1 import EnvTrainer
 from flagai.model.aquila_model import AQUILAModel
-from flagai.data.dataset.indexed_dataset.build_index_mappings import _build_train_valid_test_datasets,_build_train_valid_test_weighted_datasets
+from flagai.data.dataset.indexed_dataset.build_index_mappings import _build_train_valid_test_datasets, _build_train_valid_test_weighted_datasets
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -61,21 +62,22 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
-print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}", flush=True)
+print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}",
+      flush=True)
 checkpoints = env_args.pre_load_dir
 model_name = env_args.model_name
 
-print('*'*20, "model_name", model_name, flush=True)
+print('*' * 20, "model_name", model_name, flush=True)
 
 cache_dir = os.path.join(checkpoints, model_name)
-print('*'*20, "cache_dir", cache_dir)
+print('*' * 20, "cache_dir", cache_dir)
 tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-print('*'*20, "tokenizer", tokenizer)
+print('*' * 20, "tokenizer", tokenizer)
 
 # avoid sync loading models in case of Mem OOM
 if env_args.bmt_async_load:
     import time
-    time.sleep(10*60*(trainer.local_rank%4))
+    time.sleep(10 * 60 * (trainer.local_rank % 4))
 
 config_file = os.path.join(cache_dir, 'config.json')
 model = AQUILAModel.init_from_json(config_file=config_file)
@@ -87,7 +89,7 @@ if env_args.bmt_pre_load:
 
 trainer.pre_train(model)
 
-print('*'*20, "model", model, flush=True)
+print('*' * 20, "model", model, flush=True)
 
 ## Use Prebuilt DataSets
 data_prefix = '../../indexed_dataset/data/demo_text_document'
@@ -99,32 +101,31 @@ seed = 2023
 skip_warmup = True
 
 train_dataset, valid_dataset, _ = _build_train_valid_test_datasets(
-    data_prefix, data_impl, splits_string,
-    train_valid_test_num_samples,
+    data_prefix, data_impl, splits_string, train_valid_test_num_samples,
     seq_length, seed, skip_warmup)
 print("Total train_dataset: ", len(train_dataset), flush=True)
 print("Total valid_dataset: ", len(valid_dataset), flush=True)
 
+
 def collate_fn(batch):
+
     def padding(indice, max_length, pad_idx=tokenizer.token_end_id):
         pad_indice = [
-            item.tolist() + [pad_idx] * max(0, max_length - len(item.tolist())) for item in indice
+            item.tolist() + [pad_idx] * max(0, max_length - len(item.tolist()))
+            for item in indice
         ]
         return torch.tensor(pad_indice)
 
     input_ids = [data["input_ids"] for data in batch]
     max_length = max([len(t) for t in input_ids])
-    input_ids = padding(input_ids, max_length)[:,:seq_length]
+    input_ids = padding(input_ids, max_length)[:, :seq_length]
 
-    data = {
-        "input_ids": input_ids,
-        "labels": input_ids
-    }
+    data = {"input_ids": input_ids, "labels": input_ids}
     return data
 
-trainer.do_train(
-    train_dataset=train_dataset,
-    valid_dataset=None,
-    collate_fn=collate_fn,
-    optimizer=None,
-    rank_split=False)
+
+trainer.do_train(train_dataset=train_dataset,
+                 valid_dataset=None,
+                 collate_fn=collate_fn,
+                 optimizer=None,
+                 rank_split=False)
