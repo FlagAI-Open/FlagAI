@@ -1,13 +1,16 @@
-batch_size: 4
+batch_size: 1
 gradient_accumulation_steps: 4
 lr: 3.0e-4
 warm_up: 0.01
 
 bmt_cpu_offload: False
 bmt_pre_load: True
-
+save_interval: 3000
+log_interval: 1
+warm_up: 0.01
+warm_up_iters: 100
 save_optim: True
 save_rng: True
 lora: False
 enable_sft_dataset_dir: './data/'
-enable_sft_dataset_file: 'sft_samples.jsonl'
+enable_sft_dataset_file: 'convo_samples.jsonl'

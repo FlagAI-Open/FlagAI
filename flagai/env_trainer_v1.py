@@ -687,7 +687,6 @@ class EnvTrainer():
             # Checkpointing at the end of each epoch.
             # self.iteration-1 as the exact iteration
             if self.save_dir and (self.iteration-1) != best_iteration:
-                self.model.save_pretrained(save_directory=self.save_dir)
                 if self.adapter_save:
                     self.model.save_pretrained(save_directory=self.save_dir)
                 else:
