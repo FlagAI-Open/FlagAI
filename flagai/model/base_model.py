@@ -119,6 +119,9 @@ class BaseModel(Module):
             model.to(device)
             if only_download_config:
                 return model 
+            if 'adapter_dir' in kwargs:
+                from peft import PeftModel
+                model = PeftModel.from_pretrained(model, kwargs['adapter_dir'])
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
                 if os.path.exists(checkpoint_path):
                     model.load_weights(checkpoint_path)

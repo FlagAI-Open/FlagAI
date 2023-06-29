@@ -5,35 +5,35 @@ import os
 import torch
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.model.predictor.predictor import Predictor
-from flagai.model.predictor.aquila import aquila_generate
 from flagai.data.tokenizer import Tokenizer
+import torch.nn as nn
+from flagai.model.predictor.aquila import aquila_generate
 
-state_dict = "./checkpoints_in"
-model_name = 'aquilachat-7b'
+
+state_dict = "./checkpoints_in/"
+model_name = 'aquila-7b'
+
 
 loader = AutoLoader("lm",
                     model_dir=state_dict,
                     model_name=model_name,
                     use_cache=True,
                     fp16=True,
-                    lora=True,
-                    lora_r=8,
-                    lora_alpha=64)
+                    device='cuda',
+                    adapter_dir='directory of adapter files') # eg: /mnt/yzd/git/FlagAI/examples/Aquila/Aquila-chat/checkpoints_out/aquila_experiment/2023062909
 model = loader.get_model()
+
 tokenizer = loader.get_tokenizer()
-cache_dir = os.path.join(state_dict, model_name)
 
 model.eval()
-model.half()
 model.cuda()
 
 predictor = Predictor(model, tokenizer)
 
 texts = [
-    "北京为什么是中国的首都？",
-    "1+1=",
-    "为什么湘菜那么甜？",
-    "东三省和海南岛的区别？",
+    "Find the product of the numbers: 5 and 8",
+    "Provide five tips for effectively using tape measures",
+    "Create a resume for a job in web development.",
 ]
 
 for text in texts:

@@ -33,7 +33,7 @@ def bloom_model_postprocess_past_key_value(past_key_values):
 
 
 def prepare_model_for_int8_training(
-    model, output_embedding_layer_name="lm_head", use_gradient_checkpointing=True, layer_norm_names=["layer_norm"]
+    model, output_embedding_layer_name="output", use_gradient_checkpointing=True, layer_norm_names=["layer_norm"]
 ):
     r"""
     This method wraps the entire protocol for preparing a model before running a training. This includes:
@@ -49,26 +49,9 @@ def prepare_model_for_int8_training(
     for name, param in model.named_parameters():
         # freeze base model's layers
         param.requires_grad = False
-
-        if loaded_in_8bit:
-            # cast layer norm in fp32 for stability for 8bit models
-            if param.ndim == 1 and any(layer_norm_name in name for layer_norm_name in layer_norm_names):
-                param.data = param.data.to(torch.float32)
-
-    if loaded_in_8bit and use_gradient_checkpointing:
-        # For backward compatibility
-        if hasattr(model, "enable_input_require_grads"):
-            model.enable_input_require_grads()
-        else:
-
-            def make_inputs_require_grad(module, input, output):
-                output.requires_grad_(True)
-
-            model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
-
-        # enable gradient checkpointing for memory efficiency
-        model.gradient_checkpointing_enable()
-
+        if param.ndim == 1:
+            # cast the small parameters (e.g. layernorm) to fp32 for stability
+            param.data = param.data.to(torch.float32)
     if hasattr(model, output_embedding_layer_name):
         output_embedding_layer = getattr(model, output_embedding_layer_name)
         input_dtype = output_embedding_layer.weight.dtype
@@ -84,7 +67,11 @@ def prepare_model_for_int8_training(
                 return super().forward(x.to(input_dtype)).to(torch.float32)
 
         setattr(model, output_embedding_layer_name, CastOutputToFloat(output_embedding_layer))
-
+    model.tok_embeddings.weight.requires_grad = True
+    for name, param in model.named_parameters():
+        # all_param += param.numel()
+        if param.requires_grad:
+            print(name)
     return model
 
 

@@ -86,12 +86,17 @@ config_file = os.path.join(cache_dir, 'config.json')
 from flagai.model.aquila_model import AQUILAModel
 
 model = AQUILAModel.init_from_json(config_file=config_file)
-print('*' * 20, "model", model)
+# print('*'*20, "model", model)
 
 #lora
-if env_args.lora:
-    model = lora_transfer(model, env_args)
-    model.print_trainable_parameters()
+# if env_args.lora:
+model = lora_transfer(model, env_args)
+for name, param in model.named_parameters():
+    if 'tok_embeddings.weight' in name:
+        param.requires_grad = True
+
+
+model.print_trainable_parameters()
 
 ## bmt_pre_load
 checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
@@ -100,7 +105,7 @@ if env_args.bmt_pre_load:
 
 trainer.pre_train(model)
 
-print('*' * 20, "model", model, flush=True)
+# print('*'*20, "model", model, flush=True)
 
 assert env_args.enable_sft_dataset_dir is not None and \
         env_args.enable_sft_dataset_file is not None

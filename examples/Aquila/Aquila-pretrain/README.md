@@ -79,7 +79,7 @@ python generate_bminf.py
 
 ### 基础模型微调-SFT
 
-1. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
+1. 进入对话模型微调目录Aquila-chat, 并在checkpoints_in目录下准备好需要微调的预训练模型
   
     假设刚刚在Aquila-pretrain下运行了推理脚本，则可以运行
     ```
@@ -89,24 +89,27 @@ python generate_bminf.py
 
 2. 配置`hostfile`文件
     <details><summary>详情如下：</summary>
+
     以单机八卡为例
+
     1. 查看本机ip地址
 
-            ```
-            ifconfig eth0 | grep "inet " | awk '{print $2}'
-            ```
+        ```
+        ifconfig eth0 | grep "inet " | awk '{print $2}'
+        ```
 
     2. 在`hostfile`里填入
 
             ```
             [上一步得到的ip地址] slots=8
             ```
+        注：slots=8代表使用八张GPU, 如果单卡的情况下slots=1
     3. 确认本机可以免密登录,可用如下指令测试
 
             ```
             ssh localhost
             ```
-        如果不能免密登录，可以尝试以下方法配置免密
+        如果不能免密登录，可以尝试以下方法配置免密或者使用local_trigger_docker.sh来运行(如下一步所示)
 
             ```
             ssh-keygen -t rsa  
@@ -116,14 +119,17 @@ python generate_bminf.py
     
     </details>
 
-3. 启动训练脚本
+4. 启动训练脚本
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
     ```
-    **如果想启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
+    如果单机微调，可以不配置本机免密登录，而将dist_trigger_docker.sh改为local_trigger_docker.sh
+    
+    **如果想单台机器上启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
     ```
-    bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
+    bash local_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
+    注：lora会训练出来一个adapter_config.json和adapter_model.bin文件，位置在输出目录下(与log文件同级)；推理请运行`Aquila-chat/generate_chat_lora.py`文件，与普通推理的区别是autoloader加载模型推理时需要将adapter文件的目录放到adapter_dir参数里
 
 <details><summary>正确运行输出信息如下所示：</summary>
 

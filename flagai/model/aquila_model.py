@@ -96,8 +96,9 @@ class AQUILAModel(BaseModel):
             if hasattr(self.config, key):
                 setattr(self.config, key, config.json_config[key])
         config = self.config
-
+        
         self.use_cache = config.use_cache
+        print("***************use cache", self.use_cache)
         self.vocab_size = config.vocab_size
         self.n_layers = config.n_layers
 
