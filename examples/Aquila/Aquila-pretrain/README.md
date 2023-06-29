@@ -79,7 +79,7 @@ python generate_bminf.py
 
 ### 基础模型微调-SFT
 
-1. 进入对话模型微调目录, 并在checkpoints_in目录下准备好需要微调的预训练模型
+1. 进入对话模型微调目录Aquila-chat, 并在checkpoints_in目录下准备好需要微调的预训练模型
   
     假设刚刚在Aquila-pretrain下运行了推理脚本，则可以运行
     ```
