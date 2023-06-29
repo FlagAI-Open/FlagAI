@@ -17,8 +17,6 @@ loader = AutoLoader("lm",
                     use_cache=True,
                     fp16=True)
 model = loader.get_model()
-
-
 tokenizer = loader.get_tokenizer()
 
 model.eval()
@@ -28,9 +26,7 @@ model.cuda()
 predictor = Predictor(model, tokenizer)
 
 texts = [
-    "Find the product of the numbers: 5 and 8",
-    "Provide five tips for effectively using tape measures",
-    "Create a resume for a job in web development.",
+    "汽车EDR是什么",
 ]
 
 for text in texts:

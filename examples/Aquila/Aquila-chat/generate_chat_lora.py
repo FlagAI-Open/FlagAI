@@ -36,10 +36,25 @@ texts = [
 
 for text in texts:
     print('-' * 80)
-    text = f'{text}'
     print(f"text is {text}")
+
+    from cyg_conversation import default_conversation
+
+    conv = default_conversation.copy()
+    conv.append_message(conv.roles[0], text)
+    conv.append_message(conv.roles[1], None)
+
+    tokens = tokenizer.encode_plus(f"{conv.get_prompt()}",
+                                   None,
+                                   max_length=None)['input_ids']
+    ## TODO for few-shot inference using plain text as inputs will get better results.
+    ## tokens = tokenizer.encode_plus(f"{text}", None, max_length=None)['input_ids']
+    tokens = tokens[1:-1]
+
     with torch.no_grad():
-        out = predictor.predict_generate_randomsample(text,
-                                                      out_max_length=200,
-                                                      top_p=0.95)
+        out = aquila_generate(tokenizer,
+                              model, [text],
+                              max_gen_len := 200,
+                              top_p=0.95,
+                              prompts_tokens=[tokens])
         print(f"pred is {out}")

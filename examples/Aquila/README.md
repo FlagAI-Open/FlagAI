@@ -132,7 +132,7 @@ python generate_bminf.py
     ```
     bash local_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
-    注：lora训练出来的模型需要用generate_chat_lora.py来推理，并在autoloader加载模型时添加训练时用的lora参数。
+    注：lora会训练出来一个adapter_config.json和adapter_model.bin文件，使用autoloader加载模型推理时需要将adpter文件的目录放到adapter_dir里
 <details><summary>正确运行输出信息如下所示：</summary>
 
 首先会输出下列信息，注意`NODES_NUM`应该与节点数相等，`LOGFILE`是模型运行的日志文件。
