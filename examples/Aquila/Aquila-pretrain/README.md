@@ -123,9 +123,16 @@ python generate_bminf.py
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat.yaml aquila-7b aquila_experiment
     ```
-    如果单机微调，可以不配置本机免密登录，而将dist_trigger_docker.sh改为local_trigger_docker.sh
-    
-    **如果想单台机器上启动LoRA微调(可在单张V100上运行微调)，上一步改为运行**
+    其中各个参数含义如下：
+    ```
+    dist_trigger_docker.sh # 多机多卡运行的脚本文件，单机可选用local_trigger_docker.sh
+    hostfile                 host配置文件
+    Aquila-chat.yaml         模型参数配置文件
+    aquila-7b                模型名称，注意需要小写
+    aquila_experiment        实验名称，可自定义
+    ```
+
+    **如果启动LoRA微调(在单张V100上运行微调为例)，上一步改为运行**
     ```
     bash local_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
