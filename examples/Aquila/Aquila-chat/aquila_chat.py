@@ -5,7 +5,6 @@ import os
 import torch
 from torch.utils.data import Dataset
 import gc
-
 gc.collect()
 torch.cuda.empty_cache()
 from flagai.auto_model.auto_loader import AutoLoader
@@ -89,14 +88,14 @@ model = AQUILAModel.init_from_json(config_file=config_file)
 # print('*'*20, "model", model)
 
 #lora
-# if env_args.lora:
-model = lora_transfer(model, env_args)
-for name, param in model.named_parameters():
-    if 'tok_embeddings.weight' in name:
-        param.requires_grad = True
+if env_args.lora:
+    model = lora_transfer(model, env_args)
+    for name, param in model.named_parameters():
+        if 'tok_embeddings.weight' in name:
+            param.requires_grad = True
 
 
-model.print_trainable_parameters()
+    model.print_trainable_parameters()
 
 ## bmt_pre_load
 checkpoint_path = os.path.join(cache_dir, "pytorch_model.bin")
