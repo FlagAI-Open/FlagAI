@@ -66,15 +66,11 @@ print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}",
       flush=True)
 
 checkpoints = env_args.pre_load_dir
-
 model_name = env_args.model_name
 
 print('*' * 20, "model_name", model_name, flush=True)
-
 cache_dir = os.path.join(checkpoints, model_name)
 print('*' * 20, "cache_dir", cache_dir)
-tokenizer = Tokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-print('*' * 20, "tokenizer", tokenizer)
 
 # avoid sync loading models in case of Mem OOM
 if env_args.bmt_async_load:
@@ -82,10 +78,17 @@ if env_args.bmt_async_load:
     time.sleep(10 * 60 * (trainer.local_rank % 4))
 
 config_file = os.path.join(cache_dir, 'config.json')
-from flagai.model.aquila_model import AQUILAModel
+# from flagai.model.aquila_model import AQUILAModel
 
-model = AQUILAModel.init_from_json(config_file=config_file)
-# print('*'*20, "model", model)
+loader = AutoLoader("lm",
+                    model_dir='./checkpoints_in/',
+                    model_name=model_name,
+                    use_cache=False,
+                    fp16=True)
+model = loader.get_model()
+tokenizer = loader.get_tokenizer()
+# print('*' * 20, "tokenizer", tokenizer)
+print('*'*20, "model", model)
 
 #lora
 if env_args.lora:

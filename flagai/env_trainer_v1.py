@@ -698,7 +698,7 @@ class EnvTrainer():
                                     save_optim=self.save_optim,
                                     save_dir=self.save_dir,
                                     save_rng=self.save_rng,
-                                    iteration_in_epoch=iteration_)
+                                    iteration_in_epoch=99999999999)
 
         # Evaluation #todo add train_args
         if ((self.epochs == 0) or (self.eval_interval and
