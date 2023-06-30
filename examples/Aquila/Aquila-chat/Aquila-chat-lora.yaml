@@ -1,9 +1,9 @@
-batch_size: 1
+batch_size: 8
 gradient_accumulation_steps: 4
 lr: 2.0e-4
 warm_up: 0.01
 warm_up_iters: 100
-lora_r: 8
+lora_r: 16
 lora_alpha: 32
 epochs: 1000
 save_interval: 3000
