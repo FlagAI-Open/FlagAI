@@ -17,7 +17,7 @@ def lora_transfer(model, env_args):
         r=env_args.lora_r,
         lora_alpha=env_args.lora_alpha,
         target_modules=env_args.lora_target_modules,
-        lora_dropout=0.1,
+        lora_dropout=env_args.lora_dropout,
         bias="none",
         task_type="CAUSAL_LM",
     )
