@@ -83,7 +83,7 @@ if env_args.bmt_async_load:
 
 config_file = os.path.join(cache_dir, 'config.json')
 from flagai.model.aquila_model import AQUILAModel
-model = AQUILAModel.init_from_json(config_file=config_file)
+model = AQUILAModel.init_from_json(config_file=config_file, device=device, fp16=True) 
 print('*'*20, "model", model)
 
 #lora
