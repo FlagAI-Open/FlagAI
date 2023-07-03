@@ -53,6 +53,26 @@ def predict(tokenizer, model, text,
         convert_tokens = convert_tokens[:token_length]
         probs = probs[:token_length]
 
+    if "[UNK]" in out:
+        special_index = out.index("[UNK]")
+        out = out[:special_index]
+        token_length = len(tokenizer.encode_plus(out)["input_ids"][1:-1])
+        convert_tokens = convert_tokens[:token_length]
+        probs = probs[:token_length]
+
+    if "</s>" in out:
+        special_index = out.index("</s>")
+        out = out[: special_index]
+        token_length = len(tokenizer.encode_plus(out)["input_ids"][1:-1])
+        convert_tokens = convert_tokens[:token_length]
+        probs = probs[:token_length]
+
+    if len(out) > 0 and out[0] == " ":
+        out = out[1:]
+
+        convert_tokens = convert_tokens[1:]
+        probs = probs[1:]
+
     return out, convert_tokens, probs, model_in
 
 
