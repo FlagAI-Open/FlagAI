@@ -56,7 +56,14 @@ def get_args_list(env_args):
     for arg in args:
         if not arg.startswith("__") and not arg.startswith("_") and arg not in not_need_to_launch_args:
             args_list.append(f"--{arg}")
-            args_list.append(str(getattr(env_args, arg)))
+            if isinstance(getattr(env_args, arg), list):
+                # change list format param to string
+                # avoiding space in cmdline param like:
+                # --lora_target_modules ['wq', 'wv']
+                # this will interprete the wv as another cmdline param
+                args_list.append("'"+str(getattr(env_args, arg))+"'")
+            else:
+                args_list.append(str(getattr(env_args, arg)))
 
     print(f"args list is {args_list}")
     return args_list
