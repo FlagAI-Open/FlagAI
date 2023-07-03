@@ -40,5 +40,6 @@ setup(
         'accelerate == 0.19.0',
         'PyYAML == 5.4.1',
         'peft == 0.3.0',
+        'bminf == 2.0.1',
     ]
 )
