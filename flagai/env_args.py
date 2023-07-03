@@ -166,7 +166,7 @@ class EnvArgs:
         self.parser.add_argument('--bmt_loss_scale_steps', default=bmt_loss_scale_steps, type=int, help='loss scale steps in bmtrain')
 
         self.parser.add_argument('--lora', default=lora, type=str2bool, help='Use lora')
-        self.parser.add_argument('--lora_r', default=lora_r, typp=int, help='lora r value')
+        self.parser.add_argument('--lora_r', default=lora_r, type=int, help='lora r value')
         self.parser.add_argument('--lora_alpha', default=lora_alpha, type=float, help='lora alpha value')
         self.parser.add_argument('--lora_dropout', default=lora_dropout, type=float, help='lora dropout value')
         self.parser.add_argument('--lora_target_modules', default=lora_target_modules, help='lora_target_modules')
