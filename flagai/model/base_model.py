@@ -120,7 +120,7 @@ class BaseModel(Module):
             if only_download_config:
                 return model 
             if 'adapter_dir' in kwargs:
-                from peft import PeftModel
+                from flagai.model.tools.peft import PeftModel
                 model = PeftModel.from_pretrained(model, kwargs['adapter_dir'])
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
                 if os.path.exists(checkpoint_path):

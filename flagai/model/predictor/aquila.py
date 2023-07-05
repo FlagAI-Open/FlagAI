@@ -36,7 +36,7 @@ def aquila_generate(
         start_pos = min_prompt_size
         prev_pos = 0
         for cur_pos in range(start_pos, total_len):
-            logits = model.forward(tokens[:, prev_pos:cur_pos], prev_pos)["logits"]
+            logits = model.forward(input_ids=tokens[:, prev_pos:cur_pos], start_pos=prev_pos)["logits"]
             #print(logits.shape)
             if temperature > 0:
                 logits /= temperature

@@ -156,6 +156,7 @@ class AQUILAModel(BaseModel):
             self.layers = bmt.TransformerBlockList(blocks)
 
     def forward(self, input_ids: torch.Tensor, start_pos=0, labels=None, **kwargs):
+        
         _bsz, seqlen = input_ids.shape
         h = self.tok_embeddings(input_ids)
             
@@ -177,13 +178,15 @@ class AQUILAModel(BaseModel):
             for layer in self.layers:
                 layer.use_cache = self.use_cache
                 layer.start_pos = start_pos
+                
             h = self.layers(h, freqs_cis, mask)
         else:
             for layer in self.layers:
                 layer.use_cache = self.use_cache
                 layer.start_pos = start_pos
                 h = layer(h, freqs_cis, mask)
-        
+                
+        # import pdb;pdb.set_trace()
         h = self.norm(h)
         if labels is not None:
             h = self.output(h)

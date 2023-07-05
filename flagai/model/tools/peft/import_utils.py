@@ -1,7 +1,3 @@
-# flake8: noqa
-# There's no way to ignore "F401 '...' imported but unused" warnings in this
-# module, but to preserve other warnings. So, don't check this module at all
-
 # coding=utf-8
 # Copyright 2023-present the HuggingFace Inc. team.
 #
@@ -16,19 +12,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import importlib
 
-from .config import PeftConfig, PeftType, PromptLearningConfig, TaskType
-from .other import (
-    CONFIG_NAME,
-    WEIGHTS_NAME,
-    _set_trainable,
-    bloom_model_postprocess_past_key_value,
-    prepare_model_for_int8_training,
-    shift_tokens_right,
-    transpose,
-    _get_submodules,
-    _set_adapter,
-    _freeze_adapter,
-    ModulesToSaveWrapper,
-)
-from .save_and_load import get_peft_model_state_dict, set_peft_model_state_dict
+
+def is_bnb_available():
+    return importlib.util.find_spec("bitsandbytes") is not None
+
+
+def is_bnb_4bit_available():
+    if not is_bnb_available():
+        return False
+
+    import bitsandbytes as bnb
+
+    return hasattr(bnb.nn, "Linear4bit")

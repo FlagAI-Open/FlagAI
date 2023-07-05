@@ -19,8 +19,8 @@ loader = AutoLoader("lm",
                     model_name=model_name,
                     use_cache=True,
                     fp16=True,
-                    device='cuda',
-                    adapter_dir='directory of adapter files') # eg: /mnt/yzd/git/FlagAI/examples/Aquila/Aquila-chat/checkpoints_out/aquila_experiment/2023062909
+                    device='cuda:2',
+                    adapter_dir='/data2/yzd/FlagAI/examples/Aquila/Aquila-chat/checkpoints_out/aquila_experiment75new/2023070515/') # eg: /mnt/yzd/git/FlagAI/examples/Aquila/Aquila-chat/checkpoints_out/aquila_experiment/2023062909
 model = loader.get_model()
 
 tokenizer = loader.get_tokenizer()
@@ -32,8 +32,6 @@ predictor = Predictor(model, tokenizer)
 
 texts = [
     "Find the product of the numbers: 5 and 8",
-    "Provide five tips for effectively using tape measures",
-    "Create a resume for a job in web development.",
 ]
 
 for text in texts:

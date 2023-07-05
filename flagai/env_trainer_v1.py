@@ -526,7 +526,6 @@ class EnvTrainer():
 
             # For all the batches in the dataset.
             for iteration_, batch in enumerate(train_dataloader):
-
                 # skip batches when resume_dataset=True
                 iteration_in_epoch = 0
                 if in_first_epoch and self.resume_dataset and 'iteration_in_epoch' in self.sd:
