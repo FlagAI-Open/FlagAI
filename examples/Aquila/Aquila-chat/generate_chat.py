@@ -9,7 +9,7 @@ from flagai.model.predictor.aquila import aquila_generate
 from flagai.data.tokenizer import Tokenizer
 
 state_dict = "./checkpoints_in"
-model_name = 'aquilachat-7b'
+model_name = 'aquila-7b'
 
 loader = AutoLoader("lm",
                     model_dir=state_dict,

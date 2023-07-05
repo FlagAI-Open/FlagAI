@@ -14,7 +14,7 @@ from flagai.env_trainer_v1 import EnvTrainer
 import jsonlines
 import numpy as np
 import cyg_conversation as conversation_lib
-from flagai.model.tools.lora.prepare_lora import lora_transfer
+from flagai.model.tools.peft.prepare_lora import lora_transfer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
@@ -84,7 +84,7 @@ if env_args.bmt_async_load:
 config_file = os.path.join(cache_dir, 'config.json')
 from flagai.model.aquila_model import AQUILAModel
 model = AQUILAModel.init_from_json(config_file=config_file, device=device, fp16=True) 
-print('*'*20, "model", model)
+# print('*'*20, "model", model)
 
 #lora
 if env_args.lora:
@@ -98,7 +98,7 @@ if env_args.bmt_pre_load:
 
 trainer.pre_train(model)
 
-print('*'*20, "model", model, flush=True)
+# print('*'*20, "model", model, flush=True)
 
 assert env_args.enable_sft_dataset_dir is not None and \
         env_args.enable_sft_dataset_file is not None
@@ -116,7 +116,7 @@ def read_file(jsonl_file):
     with jsonlines.open(jsonl_file) as reader:
         for line in reader:
             conversations.append(line)
-    return conversations
+    return conversations[:100]
 
 
 def _add_speaker_and_signal(header, source, get_conversation=True):
@@ -246,6 +246,7 @@ train_dataset = ConversationDatasetV2(train_conversations,
                                         maxlen=max_seq_len)
 #print(f"train_dataset \n {train_dataset[0]}")
 
+print(len(train_dataset))
 valid_dataset = None
 if jsonl_data_val is not None:
     conversations_val = read_file(jsonl_data_val)

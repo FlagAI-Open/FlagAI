@@ -164,6 +164,7 @@ class AQUILAAttention(nn.Module):
             qkv = einops.rearrange(qkv, '... (three h d) -> ... three h d', three=3, d=self.head_dim)
             qkv = self.rotary_emb(qkv)
         else:
+            xq = self.wq(x)
             xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
             xq = xq.view(bsz, seqlen, self.n_local_heads, self.head_dim)
             xk = xk.view(bsz, seqlen, self.n_local_heads, self.head_dim)
