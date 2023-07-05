@@ -11,7 +11,7 @@ from flagai.model.predictor.aquila import aquila_generate
 
 
 state_dict = "./checkpoints_in/"
-model_name = 'aquila-7b'
+model_name = 'aquila-7b'  
 
 
 loader = AutoLoader("lm",
@@ -19,7 +19,7 @@ loader = AutoLoader("lm",
                     model_name=model_name,
                     use_cache=True,
                     fp16=True,
-                    device='cuda:2',
+                    device='cuda',
                     adapter_dir='/data2/yzd/FlagAI/examples/Aquila/Aquila-chat/checkpoints_out/aquila_experiment75new/2023070515/') # eg: /mnt/yzd/git/FlagAI/examples/Aquila/Aquila-chat/checkpoints_out/aquila_experiment/2023062909
 model = loader.get_model()
 
