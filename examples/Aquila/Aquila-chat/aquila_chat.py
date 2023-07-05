@@ -116,7 +116,7 @@ def read_file(jsonl_file):
     with jsonlines.open(jsonl_file) as reader:
         for line in reader:
             conversations.append(line)
-    return conversations[:100]
+    return conversations
 
 
 def _add_speaker_and_signal(header, source, get_conversation=True):
