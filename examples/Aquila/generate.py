@@ -14,6 +14,7 @@ model_name = 'aquila-7b'
 loader = AutoLoader("lm",
                     model_dir=state_dict,
                     model_name=model_name,
+                    device='cuda',
                     use_cache=True,
                     fp16=True)
 model = loader.get_model()

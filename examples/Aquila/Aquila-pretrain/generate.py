@@ -12,6 +12,7 @@ loader = AutoLoader("lm",
                     model_dir=state_dict,
                     model_name=model_name,
                     use_cache=True,
+                    device='cuda',
                     fp16=True)
 model = loader.get_model()
 tokenizer = loader.get_tokenizer()
