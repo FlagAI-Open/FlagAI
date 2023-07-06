@@ -5,6 +5,7 @@ warm_up: 0.01
 
 bmt_cpu_offload: False
 bmt_pre_load: True
+env_type: 'deepspeed+mpu'
 save_interval: 300
 log_interval: 10
 warm_up_iters: 100
