@@ -13,4 +13,4 @@ save_rng: True
 lora: False
 eps: 1.0e-8
 enable_sft_dataset_dir: './data/'
-enable_sft_dataset_file: 'sft_v0.9.4_train.jsonl'
+enable_sft_dataset_file: 'convo_samples.jsonl'
