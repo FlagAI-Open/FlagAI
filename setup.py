@@ -18,12 +18,12 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         'nltk==3.6.7',
-        'sentencepiece==0.1.96',
+        'sentencepiece>=0.1.96',
         'boto3==1.17.32',
         'pandas==1.3.5',
         'jieba==0.42.1',
         'scikit-learn==1.0.2',
-        'tensorboard==2.9.0',
+        'tensorboard>=2.9.0',
         'transformers>=4.20.1',
         'datasets>=2.0.0',
         'setuptools==66.0.0',
@@ -37,7 +37,7 @@ setup(
         'rouge-score',
         'sacrebleu==2.3.1',
         'jsonlines',
-        'accelerate==0.19.0',
+        'accelerate',
         'PyYAML==5.4.1',
         'safetensors',
     ]
