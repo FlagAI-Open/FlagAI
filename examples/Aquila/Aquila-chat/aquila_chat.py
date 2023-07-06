@@ -7,7 +7,6 @@ from torch.utils.data import Dataset
 import gc
 gc.collect()
 torch.cuda.empty_cache()
-import sys;sys.path.append("/data2/yzd/FlagAI/")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.tokenizer import Tokenizer
 from flagai.env_args import EnvArgs

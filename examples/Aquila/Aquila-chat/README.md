@@ -131,7 +131,7 @@ python generate_chat_bminf.py
     aquila-7b                模型名称，注意需要小写
     aquila_experiment        实验名称，可自定义
     ```
-
+    **如果启动deepspeed微调(在单张V100上运行微调为例)，上一步改为运行**
 
     **如果启动LoRA微调(在单张V100上运行微调为例)，上一步改为运行**
     ```
