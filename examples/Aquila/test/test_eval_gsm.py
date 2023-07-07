@@ -44,6 +44,7 @@ def parse_answer_file(answer_file):
     accuracy = 0
     last_number = 0
     should_find_answer = True
+    should_find_reference_answer = False
 
     for i, l in enumerate(lines):
         try:
@@ -52,14 +53,16 @@ def parse_answer_file(answer_file):
         except:
             pass
 
-        if l.startswith('####'):
+        if should_find_reference_answer and l.startswith('####'):
             reference_answer = l.split('####')[1].strip()
             if reference_answer == last_number:
                 accuracy += 1
         elif l.startswith('===== CASE'):
             should_find_answer = True
+            should_find_reference_answer = False
         elif l.startswith('Reference Answer'):
             should_find_answer = False
+            should_find_reference_answer = True
 
     print('Accuracy: ', accuracy / len(gsm8k_test['question']) * 100)
 
