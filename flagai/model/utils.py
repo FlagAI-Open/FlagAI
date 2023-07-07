@@ -64,11 +64,11 @@ def sqrt(x):
     return int(math.sqrt(x) + 1e-4)
 
 
-def normal_init_method(mean=0.0, std=0.02):
+def normal_init_method(mean=0.0, std=0.001):
 
     def init_(tensor):
         return torch.nn.init.normal_(tensor, mean=mean, std=std)
-
+    
     return init_
     
 

@@ -150,7 +150,6 @@ class CPM3bmtAttention(bmt.DistributedModule):
         Return:
             out (:obj:`torch.Tensor` of shape ``(batch, len_q, dim_model)``): The attention output.
         """
-
         batch_size = query.size(0)
         len_q = query.size(1)
         len_k = key_value.size(1)

@@ -79,8 +79,8 @@ class FP16_Module(nn.Module):
     def named_parameters(self, prefix: str = '', recurse: bool = True):
         return self.module.named_parameters(prefix=prefix, recurse=recurse)
 
-    def parameters(self):
-        return self.module.parameters()
+    def parameters(self, recurse: bool = True):
+        return self.module.parameters(recurse=recurse)
 
     def state_dict(self, destination=None, prefix='', keep_vars=False):
         return self.module.state_dict(destination, prefix, keep_vars)
@@ -187,7 +187,7 @@ class FP16_Optimizer(object):
     def __init__(self,
                  init_optimizer,
                  static_loss_scale=1.0,
-                 dynamic_loss_scale=False,
+                 dynamic_loss_scale=True,
                  dynamic_loss_args=None,
                  verbose=False):
         if not torch.cuda.is_available:

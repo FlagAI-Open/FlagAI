@@ -11,16 +11,13 @@
 **FlagAI飞智**是一个快速、易于使用和可扩展的大模型工具包。 我们的目标是支持在多模态的各种下游任务上训练、微调和部署大规模模型。
 <br><br>
 
-
-
 ## 为什么你需要 FlagAI?
-
 
 1. **可通过 API 快速下载模型**
       
     提供 API 方便你快速下载模型，并在给定（中/英文）文本上使用这些预训练模型，在从[SuperGLUE](https://super.gluebenchmark.com/)和[CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks收集的广泛使用的数据集上对它们进行微调。
      
-      FlagAI 现已支持 30+ 主流模型，包括多模态模型 [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 、文生图模型 [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)、最高百亿参数的 **[悟道GLM](/doc_zh/GLM.md)**，[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**[Galactica](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/galactica)**、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**、**Huggingface Transformers** 等。
+      FlagAI 现已支持 30+ 主流模型，包括语言模型[**Aquila**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila), 多模态模型 [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 、文生图模型 [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)、最高百亿参数的 **[悟道GLM](/doc_zh/GLM.md)**，[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**[Galactica](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/galactica)**、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**、**Huggingface Transformers** 等。
       
 2.  **仅用十行代码即可进行并行训练**
 
@@ -45,17 +42,20 @@
 
 | 工具名称           | 描述         | 样例                |
 |:-------------- |:---------- |:------------------------------------------------------ |
-| 	`GLM_custom_pvp` | 自定义 PET 模板   | [README.md](http:///examples/glm_custom_pvp/README.md) |
+| 	`GLM_custom_pvp` | 自定义 PET 模板   | [README.md](./examples/glm_custom_pvp/README.md) |
 | `GLM_ptuning`    | p-tuning 工具 | ——                                                     |
-| `BMInf-generate` | 推理加速    | [README.md](http:///examples/bminf_generate/README.md) |
+| `BMInf-generate` | 推理加速    | [README.md](./examples/bminf_generate/README.md) |
 
 ### 模型
 
 |    模型名称            | 任务      | 训练 | 微调 | 推理 | 样例           |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
+| Aquila      | 自然语言处理  | ✅  | ✅  | ✅  | [README.md](examples/Aquila/README.md) 
 | ALM          | 阿拉伯语文本生成   |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
-| AltCLIP       | 图文匹配    | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |                           
-| AltDiffusion    | 文生图     | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
+| AltCLIP       | 文图匹配 | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
+| AltCLIP-m18      | 文图匹配  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
+| AltDiffusion    | 文生图  | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
+| AltDiffusion-m18    | 文生图，支持 18 种语言   | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion-m18/README.md)   |
 | BERT-title-generation-english     | 英文标题生成  | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
 | CLIP           | 图文匹配    | ✅  | ❌  | ✅  | ——   |                                                                 
 | CPM3-finetune       | 文本续写    | ❌  | ✅  | ❌  | ——    |                                                                
@@ -131,19 +131,30 @@ git clone https://github.com/NVIDIA/apex
 cd apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
-- [可选] 使用 ZeRO 优化器，需要安装 [DEEPSPEED](https://github.com/microsoft/DeepSpeed)
+- [可选] 使用 ZeRO 优化器，需要安装 [DEEPSPEED](https://github.com/microsoft/DeepSpeed) (>= 0.7.7)
 ```
 git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # 检查deepspeed的状态
 ```
-- [可选] 开启BMTrain训练，需要安装 [BMTrain](https://github.com/OpenBMB/BMTrain)
+- [可选] 开启BMTrain训练，需要安装 [BMTrain](https://github.com/OpenBMB/BMTrain) ((>= 0.2.2))
 ```
 git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
 python setup.py install 
 ```
+
+- [可选] 开启BMInf低资源推理, 需要安装[BMInf](https://github.com/OpenBMB/BMInf)
+```
+pip install bminf
+
+```
+- [可选] 对于FlashAttention, 需要安装[Flash-attention](https://github.com/HazyResearch/flash-attention) （>=1.0.2）
+```
+pip install flash-attn
+```
+
 - [可选] 镜像构建，请参照 [Dockerfile](https://github.com/FlagAI-Open/FlagAI/blob/master/Dockerfile)
 - [提示] 单节点docker环境下，运行多卡数据并行需要设置host。 例如，docker节点 root@127.0.0.1，其端口 7110。
 ```
@@ -261,7 +272,8 @@ for text_pair in test_data:
 
 
 ## 动态
-
+- [9 June 2023] 支持 v1.7.0版本, 增加Aquila [#324](https://github.com/FlagAI-Open/FlagAI/pull/324);
+- [31 Mar 2023] 支持v1.6.3版本, 增加AltCLIP-m18模型 [#303](https://github.com/FlagAI-Open/FlagAI/pull/303) 以及 AltDiffusion-m18模型 [#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
 - [17 Mar 2023] 支持v1.6.2版本, 可以使用新的优化器 [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), 并增加了英文gpt模型GPT2-base-en; 
 - [2 Mar 2023] 支持v1.6.1版本, 增加Galactica模型 [#234](https://github.com/FlagAI-Open/FlagAI/pull/234), 大模型推理的低资源工具包BMInf [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), 以及P-tuning样例 [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
 - [12 Jan 2023] 发布v1.6.0版本, 新增支持并行训练库 [**BMTrain**](https://github.com/OpenBMB/BMTrain) 以及集成 [**Flash Attention**](https://github.com/HazyResearch/flash-attention) 到 Bert 和 Vit 模型提速端到端训练, 示例见 [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py)和 [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). 同时增加了基于对比搜索的文本生成方法 [**SimCTG**](https://github.com/yxuansu/SimCTG) 以及基于 AltDiffusion 进行 DreamBooth 个性化微调, 示例见 [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
@@ -275,12 +287,17 @@ for text_pair in test_data:
 ## 许可 LICENSE 
 
 
-FlagAI飞智大部分项目基于 [Apache 2.0 license](LICENSE)，但是请注意部分项目代码基于其他协议：
+FlagAI飞智大部分项目基于 [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)，但是请注意部分项目代码基于其他协议：
 
 * Megatron-LM 是基于协议 [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM 是基于协议 [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
 * AltDiffusion 是基于协议 [CreativeML Open RAIL-M license](https://huggingface.co/spaces/CompVis/stable-diffusion-license)
 
+## 平台支持
+
+<div  align="center">    
+<img src="./examples/Aquila/img/merged_platform.jpg" height = "100" align=center />
+</div>
 
 
 ## Misc

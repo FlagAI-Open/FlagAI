@@ -245,6 +245,7 @@ class ParallelEmbedding(torch.nn.Module):
                          self.embedding_dim_per_partition))
         if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
             self.weight.model_parallel = True
+    
         # And initialize.
         _initialize_affine_weight(self.weight,
                                   self.num_embeddings,

@@ -11,6 +11,7 @@ from typing import List, Union, Dict, Tuple, Any
 from flagai.model.predictor.gpt import gpt_random_sample_use_cache
 from flagai.model.predictor.simctg import contrastive_search
 from flagai.model.mm.Sampler import DDIMSampler, PLMSSampler
+from flagai.model.mm.dpm_solver import DPMSolverSampler
 import os
 from PIL import Image
 from tqdm import trange, tqdm
@@ -18,6 +19,7 @@ import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
 from torch.cuda.amp import autocast as autocast
+from .aquila import aquila_generate
 
 class Predictor:
     def __init__(self, model, tokenizer=None):
@@ -303,7 +305,8 @@ class Predictor:
                                       top_k: int = 30,
                                       top_p: float = 1.0,
                                       repetition_penalty: float = 1.0,
-                                      temperature: float = 1.0):
+                                      temperature: float = 1.0,
+                                      prompts_tokens=None):
         """
         Args:
         text: The input text.
@@ -345,11 +348,16 @@ class Predictor:
                                       input_max_length, out_max_length, top_k,
                                       top_p, repetition_penalty, temperature,
                                       device)
+        elif "aquila" in self.class_name.lower() or 'peft' in self.class_name.lower(): # a little bit hardcoded,fixed later
+            return aquila_generate(self.tokenizer, self.model,
+                                  [text], out_max_length,
+                                  temperature, top_k, top_p, prompts_tokens=prompts_tokens)
 
         else:
             print("Unsupported decoding mode")
             import os
             os._exit(0)
+
 
     def predict_generate_images(self,
                                 prompt: str,
@@ -370,7 +378,7 @@ class Predictor:
                                 scale: float = 7.5,
                                 from_file: str = None,
                                 seed: int = 34234,
-                                fp16: bool = False):
+                                negative_prompt=""):
         from torchvision.utils import make_grid
         from pytorch_lightning import seed_everything
         from flagai.model.predictor.utils import chunk, check_safety, get_safety_checker
@@ -433,8 +441,7 @@ class Predictor:
                     for prompts in tqdm(data, desc="data"):
                         uc = None
                         if scale != 1.0:
-                            uc = self.model.get_learned_conditioning(
-                                batch_size * [""])
+                            uc = self.model.get_learned_conditioning(batch_size * [negative_prompt])
                         if isinstance(prompts, tuple):
                             prompts = list(prompts)
                         c = self.model.get_learned_conditioning(prompts)
@@ -461,7 +468,6 @@ class Predictor:
 
                         x_checked_image_torch = torch.from_numpy(
                             x_checked_image).permute(0, 3, 1, 2)
-
                         prompt_count = 0
                         if not skip_save:
                             for x_sample in x_checked_image_torch:
@@ -496,8 +502,6 @@ class Predictor:
                     img.save(
                         os.path.join(outpath, f'grid-{grid_count:04}.png'))
                     grid_count += 1
-
-                toc = time.time()
 
         print(
             f"Your samples are ready and waiting for you here: \n{outpath} \n"

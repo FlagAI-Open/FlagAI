@@ -57,6 +57,7 @@ ALL_TASK = {
     "opt_seq2seq": ("flagai.model.opt_model", "OPTModel"),
     "opt_lm": ("flagai.model.opt_model", "OPTModel"),
     "galactica_lm": ("flagai.model.galactica_model", "GalacticaModel"),
+    "aquila_lm": ("flagai.model.aquila_model", "AQUILAModel",),
     "vit_classification": ("flagai.model.vision.vit", "VisionTransformer"),
     "clip_txt_img_matching": ("flagai.model.mm.clip_model", "CLIP"),
     "swinv1_classification": ("flagai.model.vision.swinv1", "SwinTransformer"),
@@ -65,6 +66,7 @@ ALL_TASK = {
     "cpm3_lm": ("flagai.model.cpm3_model", "CPM3"),
     "cpm3_train": ("flagai.model.cpm3_train_model", "CPM3"),
     "diffusion_text2img": ("flagai.model.mm.AltDiffusion", "LatentDiffusion"),
+    "diffusion_m18_text2img": ("flagai.model.mm.AltDiffusionM18", "LatentDiffusion"),
     "altclip_txt_img_matching": ("flagai.model.mm.AltCLIP", "AltCLIP"),
     "evaclip_txt_img_matching": ("flagai.model.mm.eva_clip_model", "EVA_CLIP"),
 }
@@ -97,6 +99,12 @@ MODEL_DICT = {
     "galactica-6.7b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-30b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
     "galactica-120b-en": ["flagai.model.galactica_model", "GalacticaModel", "galactica", "nlp", "flagai.data.tokenizer.galactica.galactica_tokenizer", "GalacticaTokenizer"],
+    "aquilachat-7b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquila-7b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquilachat-33b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquila-33b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquilacode-7b-nv": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
+    "aquilacode-7b-ts": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
     "vit-base-p16-224":
         ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":
@@ -121,7 +129,9 @@ MODEL_DICT = {
     "altdiffusion":
     ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "altdiffusion-m9":
-    ["flagai.model.mm.diffusion", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    ["flagai.model.mm.diffusionM18", "LatentDiffusion", "diffusion", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
+    "altdiffusion-m18":
+    ["flagai.model.mm.AltdiffusionM18", "LatentDiffusion", "diffusion_m18", "mm","flagai.model.mm.AltCLIP", "AltCLIPProcess"],
     "swinv1-base-patch4-window7-224":
         ["flagai.model.vision.swinv1", "SwinTransformer", "swinv1", "vision"],
     "swinv2-base-patch4-window8-256":
@@ -134,6 +144,8 @@ MODEL_DICT = {
     "altclip-xlmr-l": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
                        "AltCLIPProcess"],
     "altclip-xlmr-l-m9": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
+                          "AltCLIPProcess"],
+    "altclip-xlmr-l-m18": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
                           "AltCLIPProcess"],
     "altclip-bert-b": ["flagai.models.mm.AltCLIP", "AltCLIP", "altclip", "mm", "flagai.model.mm.AltCLIP",
                        "AltCLIPProcessBert"],
@@ -198,7 +210,6 @@ class AutoLoader:
                 f"For the model_name: {model_name}, these tasks are be supported: {tasks}"
             )
             return
-
         download_path = os.path.join(model_dir, raw_model_name)
         print("*" * 20, task_name, model_name)
         model_name_ = self.is_exist_finetuned_model(raw_model_name, task_name)
@@ -209,11 +220,9 @@ class AutoLoader:
             only_download_config=only_download_config,
             device=device,
             **kwargs)
-        if kwargs.get("use_fp16", None):
-            self.model.half()
 
         if model_type == "nlp":
-            if brief_model_name in ["galactica", ]:
+            if brief_model_name in ["galactica",]:
                 self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
                                                     MODEL_DICT[model_name][5])(download_path)
             else :
@@ -252,7 +261,6 @@ class AutoLoader:
                 return model_name_
             else :
                 return raw_model_name
-
         except:
             print("Model hub is not reachable.")
             return raw_model_name

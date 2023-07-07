@@ -8,7 +8,8 @@
 --------------------------------------------------------------------------------
 
 
-FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality. 
+FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensible toolkit for large-scale model. Our goal is to support training, fine-tuning, and deployment of large-scale models on various downstream tasks with multi-modality.
+
 
 
 ## Why should I use FlagAI?
@@ -18,7 +19,7 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
     FlagAI provides an API that allows you to quickly download pre-trained models and fine-tune them on a wide range of datasets collected from [SuperGLUE](https://super.gluebenchmark.com/) and [CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks for both Chinese and English text.
 
-    FlagAI now supports over 30 mainstream models, including multilingual text and image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP), text-to-image generation model [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion), [**WuDao GLM**](/docs/GLM.md) (with a maximum of 10 billion parameters), [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from **Huggingface Transformers**, etc.
+    FlagAI now supports over 30 mainstream models, including Language Model [**Aquila**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila), multilingual text and image representation model [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP), text-to-image generation model [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion), [**WuDao GLM**](/docs/GLM.md) (with a maximum of 10 billion parameters), [**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP), **OPT**, **BERT**, **RoBERTa**, **GPT2**, **T5**, **ALM**, and models from **Huggingface Transformers**, etc.
     
 
 2. **Parallel train with fewer than 10 lines of code**
@@ -55,9 +56,12 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 |   Model          |  Task    | Train | Finetune | Inference/Generate | Examples       |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
+| Aquila      | Natural Language Processing  | ✅  | ✅  | ✅  | [README.md](examples/Aquila/README.md) 
 | ALM          | Arabic Text Generation  |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
-| AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |                           
+| AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
+| AltCLIP-m18      | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
 | AltDiffusion    | Text-to-Image Generation    | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
+| AltDiffusion-m18    | Text-to-Image Generation,supporting 18 languages    | ❌  | ❌  | ✅  |[README.md](/examples/AltDiffusion-m18/README.md)   |
 | BERT-title-generation-english     | English Title Generation | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
 | CLIP           | Image-Text Matching    | ✅  | ❌  | ✅  | ——   |                                                                 
 | CPM3-finetune       | Text Continuation   | ❌  | ✅  | ❌  | ——    |                                                                
@@ -138,20 +142,30 @@ git clone https://github.com/NVIDIA/apex
 cd apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
-- [Optional] For ZeRO optimizers, install [DEEPSPEED](https://github.com/microsoft/DeepSpeed)
+- [Optional] For ZeRO optimizers, install [DEEPSPEED](https://github.com/microsoft/DeepSpeed) (>= 0.7.7)
 ```
 git clone https://github.com/microsoft/DeepSpeed
 cd DeepSpeed
 DS_BUILD_CPU_ADAM=1 DS_BUILD_AIO=1 DS_BUILD_UTILS=1 pip install -e .
 ds_report # check the deespeed status
 ```
-- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain)
+- [Optional] For BMTrain training, install [BMTrain](https://github.com/OpenBMB/BMTrain) (>= 0.2.2)
 ```
 git clone https://github.com/OpenBMB/BMTrain
 cd BMTrain
 python setup.py install
 ```
-- [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 7110
+- [Optional] For BMInf low-resource inference, install [BMInf](https://github.com/OpenBMB/BMInf)
+```
+pip install bminf
+
+```
+- [Optional] For Flash Attention, install [Flash-attention](https://github.com/HazyResearch/flash-attention) (>=1.0.2)
+```
+pip install flash-attn
+```
+
+- [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 711
 ```
 >>> vim ~/.ssh/config
 Host 127.0.0.1
@@ -270,7 +284,7 @@ for text_pair in test_data:
 
 ## LICENSE
 
-The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), however portions of the project are available under separate license terms:
+The majority of FlagAI is licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0), however portions of the project are available under separate license terms:
 
 * Megatron-LM is licensed under the [Megatron-LM license](https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE)
 * GLM is licensed under the [MIT license](https://github.com/THUDM/GLM/blob/main/LICENSE)
@@ -279,7 +293,8 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 
 
 ## News
-
+- [9 June 2023] release v1.7.0, Support Aquila [#324](https://github.com/FlagAI-Open/FlagAI/pull/324);
+- [31 Mar 2023] release v1.6.3, Support AltCLIP-m18 [#303](https://github.com/FlagAI-Open/FlagAI/pull/303) and AltDiffusion-m18 [#302](https://github.com/FlagAI-Open/FlagAI/pull/302); 
 - [17 Mar 2023] release v1.6.2, Support application of new optimizers [#266](https://github.com/FlagAI-Open/FlagAI/pull/266), and added a new gpt model name 'GPT2-base-en' for English; 
 - [2 Mar 2023] release v1.6.1, Support Galactica model [#234](https://github.com/FlagAI-Open/FlagAI/pull/234); BMInf, a low-resource inference package [#238](https://github.com/FlagAI-Open/FlagAI/pull/238), and examples for p-tuning [#227](https://github.com/FlagAI-Open/FlagAI/pull/238)
 - [12 Jan 2023] release v1.6.0, support a new parallel lib called [**BMTrain**](https://github.com/OpenBMB/BMTrain) and integate [**Flash Attention**](https://github.com/HazyResearch/flash-attention) to speedup training of BERT and ViT models, examples in [FlashAttentionBERT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/bert_title_generation_english/train_flash_atten.py) and [FlashAttentionViT](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/vit_cifar100/train_single_gpu_flash_atten.py). Also add the contrastive search based text generation method [**SimCTG**](https://github.com/yxuansu/SimCTG) and DreamBooth finetuning based on AltDiffusion, examples in [AltDiffusionNaruto](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/AltDiffusion/dreambooth.py). 
@@ -289,6 +304,12 @@ The majority of FlagAI is licensed under the [Apache 2.0 license](LICENSE), howe
 - [21 Jul 2022] release v1.2.0, ViTs are supported in [#71](https://github.com/FlagAI-Open/FlagAI/pull/71)
 - [29 Jun 2022] release v1.1.0, support OPTs downloading and inference/fine-tuning [#63](https://github.com/FlagAI-Open/FlagAI/pull/63)
 - [17 May 2022] made our first contribution in [#1](https://github.com/FlagAI-Open/FlagAI/pull/1)
+
+## Platforms supported
+
+<div  align="center">    
+<img src="./examples/Aquila/img/merged_platform.jpg" height = "100" align=center />
+</div>
 
 
 
