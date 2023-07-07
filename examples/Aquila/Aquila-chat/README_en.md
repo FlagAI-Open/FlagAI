@@ -28,7 +28,7 @@ The additional details of the Aquila model will be presented in the official tec
 | AquilaCode-7B-TS   | Base model, "text-code" generation model, further pre-trained based on Aquila-7B, trained on Horizon Robotics chips | Same as above | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | Released        | Tianshu-BI-V100 |
 
 
-We will continue to release improved versions of Aquila model as open source. You can start by deleting the `model_pytorch.bi`n file in the original directory and then download the new weights. Other usage methods remain unchanged. For more details, please refer to the **[Change Log](../changelog.md)**.
+We will continue to release improved versions of Aquila model as open source. You can start by deleting the model checkpoint file in the original directory and then download the new weights. Other usage methods remain unchanged. For more details, please refer to the **[Change Log](../changelog.md)**.
 
 
  <br>If you have any question, please refer to the [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371) first. If you cannot solve them, please submit an [issue](https://github.com/FlagAI-Open/FlagAI/issues) directly.
@@ -130,7 +130,7 @@ Note: The Aquila-7B basic model may not perform as well for dialogue reasoning t
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
-    The model trained using LoRa needs to be inferred using "generate_chat_lora.py", and the Lora parameters used during training should be added when loading the model in the autoloader.
+    Note: When training Lora, it will generate an `adapter_config.json` and `adapter_model.bin` file, located in the output directory (at the same level as the log file). For inference, please run the `Aquila-chat/generate_chat_lora.py` file. The difference compared to regular inference is that the autoloader, when loading the model for inference, requires specifying the directory of the adapter files in the `adapter_dir` parameter.
 <details><summary>The correct output information is shown below:</summary>
 
 The following information will be output. Note that `NODES_NUM` should be equal to the number of nodes, and `LOGFILE` is the log file for the model run.
@@ -159,7 +159,7 @@ For the above examples, you can modify the following parameters to achieve diffe
 | warm_up        | float | The ratio of the initial learning rate to the original learning rate. |
 | save_interval  | int   | The interval at which the model is saved, that is, how often the model is saved every few iterations of training. When the training time is long, the save interval can prevent all training results from being lost due to sudden interruptions or errors. |
 | log_interval   | int   | The interval at which logs are output, that is, how often log information is output every few iterations of training. |
-| lora           | int   | An integer value to enable LoRA optimization method during training. By default, it is set to 0 (no LoRA).|
+| lora           |bool   | Whether to enable LoRA optimization method during training. By default, it is set to False (no LoRA).|
 | enable_sft_dataset_dir | str | The directory of the SFT training dataset. |
 | enable_sft_dataset_file | str | The file name of the SFT training dataset. 
 
