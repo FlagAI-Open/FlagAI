@@ -26,7 +26,7 @@
 | AquilaCode-7B-NV          | 基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在英伟达芯片完成训练  |   AquilaCode-7B 以小数据集、小参数量，实现高性能，是目前支持中英双语的、性能最好的开源代码模型，经过了高质量过滤、使用有合规开源许可的训练代码数据进行训练。<br><br> AquilaCode-7B 分别在英伟达和国产芯片上完成了代码模型的训练。  | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  |[下载AquilaCode-7B-NV](https://model.baai.ac.cn/model-detail/100102)  | 已发布  | Nvidia-A100 | 
 | AquilaCode-7B-TS           |基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在天数智芯芯片上完成训练  |    同上    | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  | [下载AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | 已发布  | Tianshu-BI-V100  | 
 
-悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的 `model_pytorch.bin`，再下载新权重，其他使用方式不变。详情见：**[变更日志](../changelog_zh.md)** 。
+悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的`checkpoints_in/aquilachat-7b`，再下载新权重，其他使用方式不变。详情见：**[变更日志](../changelog_zh.md)**
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
 
@@ -131,7 +131,6 @@ python generate_chat_bminf.py
     aquila-7b                模型名称，注意需要小写
     aquila_experiment        实验名称，可自定义
     ```
-    **如果启动deepspeed微调(在单张V100上运行微调为例)，上一步改为运行**
 
     **如果启动LoRA微调(在单张V100上运行微调为例)，上一步改为运行**
     ```
@@ -166,7 +165,7 @@ python generate_chat_bminf.py
 | warm_up           |float |   初始学习率与原始学习率的比例;     | 
 | save_interval         | int  |   模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失;   | 
 | log_interval           |int  |    日志输出的间隔，即每训练多少个iteration输出一次日志信息    | 
-| lora           |int  |    日志输出的间隔，即每训练多少个iteration输出一次日志信息    | 
+| lora           |bool  |    是否启用lora微调   | 
 | enable_sft_dataset_dir           |str  |    SFT训练数据集的目录    | 
 | enable_sft_dataset_file           |str  |    SFT训练数据集的文件名    | 
 

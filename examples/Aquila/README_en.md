@@ -132,6 +132,7 @@ Note: The Aquila-7B basic model may not perform as well for dialogue reasoning t
     ```
     bash dist_trigger_docker.sh hostfile Aquila-chat-lora.yaml aquila-7b aquila_experiment
     ```
+    Note: When training Lora, it will generate an `adapter_config.json` and `adapter_model.bin` file, located in the output directory (at the same level as the log file). For inference, please run the `Aquila-chat/generate_chat_lora.py` file. The difference compared to regular inference is that the autoloader, when loading the model for inference, requires specifying the directory of the adapter files in the `adapter_dir` parameter.
 
 <details><summary>The correct output information is shown below:</summary>
 
@@ -171,7 +172,7 @@ For the above examples, you can modify the following parameters to achieve diffe
 | warm_up        | float | The ratio of the initial learning rate to the original learning rate. |
 | save_interval  | int   | The interval at which the model is saved, that is, how often the model is saved every few iterations of training. When the training time is long, the save interval can prevent all training results from being lost due to sudden interruptions or errors. |
 | log_interval   | int   | The interval at which logs are output, that is, how often log information is output every few iterations of training. |
-| lora           | int   | An integer value to enable LoRA optimization method during training. By default, it is set to 0 (no LoRA).|
+| lora           |bool   | Whether to enable LoRA optimization method during training. By default, it is set to False (no LoRA).|
 | enable_sft_dataset_dir | str | The directory of the SFT training dataset. |
 | enable_sft_dataset_file | str | The file name of the SFT training dataset. 
 
