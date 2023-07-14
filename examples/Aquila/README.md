@@ -34,7 +34,7 @@
   - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
   - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
 
-其中AquilaChat-7B v0.8 在 FlagEval 大模型评测中（ “主观+客观”）相比0.7的版本整体稍有提，其在Chinese-MMLU上提升10%左右，详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog.md) 。
+Aquila-7B v0.8 在 FlagEval 大模型评测中（ “客观”）相比0.7的版本在MMLU_Chinese、TruthfulQA、MMLU上分别提升10.07%，14.84%和7.94%。详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog.md) 。
 
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
