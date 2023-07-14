@@ -36,8 +36,6 @@ We will continue to release improved versions of Aquila model as open source. Yo
   - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
   - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
 
-In the FlagEval large model evaluation ("Subjective + Objective"), AquilaChat-7B v0.8 has shown a slight overall improvement compared to version 0.7. It achieved an improvement of around 10% on the Chinese-MMLU dataset. For detailed evaluation results, please refer to the website http://flageval.baai.ac.cn.
-For detailed version change history, see [Change Log](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog.md).
 
  <br>If you have any question, please refer to the [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371) first. If you cannot solve them, please submit an [issue](https://github.com/FlagAI-Open/FlagAI/issues) directly.
 
