@@ -26,7 +26,28 @@
 | AquilaCode-7B-NV          | 基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在英伟达芯片完成训练  |   AquilaCode-7B 以小数据集、小参数量，实现高性能，是目前支持中英双语的、性能最好的开源代码模型，经过了高质量过滤、使用有合规开源许可的训练代码数据进行训练。<br><br> AquilaCode-7B 分别在英伟达和国产芯片上完成了代码模型的训练。  | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  |[下载AquilaCode-7B-NV](https://model.baai.ac.cn/model-detail/100102)  | 已发布  | Nvidia-A100 | 
 | AquilaCode-7B-TS           |基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在天数智芯芯片上完成训练  |    同上    | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  | [下载AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | 已发布  | Tianshu-BI-V100  | 
 
-悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的 `model_pytorch.bin`，再下载新权重，其他使用方式不变。详情见：**[变更日志](../changelog_zh.md)** 。
+悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的`checkpoints_in/aquilachat-7b`，再下载新权重，其他使用方式不变。详情如下:
+
+- 2023/07/13 ：发布权重文件 v0.8，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
+  - Aquila-7B  md5: 18eac56434db0198494b22b321633785
+  - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c
+  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
+  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
+- 2023/07/07 ：发布权重文件 v0.7，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
+  - Aquila-7B  md5: 63819234d772435ed1b0b95a193c3d04
+  - AquilaChat-7B md5: 650924d045ba7c715c80f5be485dfe2e
+  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
+  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
+- 2023/06/27 ：发布权重文件 v0.6，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
+  - Aquila-7B  md5: 395d01d9de3437e09aefd7d337a21aca
+  - AquilaChat-7B md5: f39e3eea73fddcce7845947f56a7717d
+  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
+  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
+- 2023/06/26：发布权重文件 v0.5，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
+  - Aquila-7B  md5: 13d39993743e66081640c6245da3db48
+  - AquilaChat-7B md5: d927752ebc543b2e6ae37217403814ef
+  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
+  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
 
@@ -154,7 +175,7 @@ python generate_code_bminf.py
 | warm_up           |float |   初始学习率与原始学习率的比例;     | 
 | save_interval         | int  |   模型保存的间隔，即每训练多少个iteration保存一次模型。当训练时间较长时，保存间隔可以避免因突然中断或出现错误导致训练成果全部丢失;   | 
 | log_interval           |int  |    日志输出的间隔，即每训练多少个iteration输出一次日志信息    | 
-| lora           |int  |    日志输出的间隔，即每训练多少个iteration输出一次日志信息    | 
+| lora           |bool  |    是否启用lora微调   | 
 | enable_sft_dataset_dir           |str  |    SFT训练数据集的目录    | 
 | enable_sft_dataset_file           |str  |    SFT训练数据集的文件名    | 
 
