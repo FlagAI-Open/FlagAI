@@ -34,7 +34,7 @@
   - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
   - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
 
-历史版本变更详情见：[变更日志](https://huggingface.co/BAAI/AquilaChat-7B/blob/main/change_log.log) 。
+历史版本变更详情见：[变更日志](https://github.com/shunxing1234/FlagAI/blob/master/examples/Aquila/changelog.md) 。
 
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
