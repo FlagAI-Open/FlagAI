@@ -27,29 +27,16 @@ The additional details of the Aquila model will be presented in the official tec
 | AquilaCode-7B-TS   | Base model, "text-code" generation model, further pre-trained based on Aquila-7B, trained on Horizon Robotics chips | Same as above | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | Released        | Tianshu-BI-V100 |
 
 
-We will continue to release improved versions of Aquila model as open source. You can start by deleting the `model_pytorch.bi`n file in the original directory and then download the new weights. Other usage methods remain unchanged. For more details, please refer to the folloing change log:
+We will continue to release improved versions of Aquila model as open source. You can start by deleting the `checkpoints_in/aquila-7b` in the original directory and then download the new weights. Other usage methods remain unchanged. For more details, please refer to the folloing change log:
 
 - 2023/07/13 ：Released v0.8 checkpoint files，The latest weights of Aquila-7B and AquilaChat-7B have been open sourced, but there are no updates for the weights of AquilaCode.
-  - Aquila-7B  md5: 18eac56434db0198494b22b321633785
+  - Aquila-7B md5: 18eac56434db0198494b22b321633785
   - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c
   - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
   - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
-- 2023/07/07 ：Released v0.7 checkpoint files，The latest weights of Aquila-7B and AquilaChat-7B have been open sourced, but there are no updates for the weights of AquilaCode.
-  - Aquila-7B  md5: 63819234d772435ed1b0b95a193c3d04
-  - AquilaChat-7B md5: 650924d045ba7c715c80f5be485dfe2e
-  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
-  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
-- 2023/06/27 ：Released v0.6 checkpoint files，The latest weights of Aquila-7B and AquilaChat-7B have been open sourced, but there are no updates for the weights of AquilaCode.
-  - Aquila-7B  md5: 395d01d9de3437e09aefd7d337a21aca
-  - AquilaChat-7B md5: f39e3eea73fddcce7845947f56a7717d
-  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
-  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
-- 2023/06/26：Released v0.5 checkpoint files，The latest weights of Aquila-7B and AquilaChat-7B have been open sourced, but there are no updates for the weights of AquilaCode.
-  - Aquila-7B  md5: 13d39993743e66081640c6245da3db48
-  - AquilaChat-7B md5: d927752ebc543b2e6ae37217403814ef
-  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
-  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
 
+Aquila-7B v0.8 has shown improvements in the FlagEval large model evaluation ("Objective") compared to version 0.7. It achieved improvements of approximately 10.07% on MMLU_Chinese, 14.84% on TruthfulQA, and 7.94% on MMLU datasets. For detailed evaluation results, please refer to the website http://flageval.baai.ac.cn.
+For detailed version change history, see [Change Log](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog.md).
 
  <br>If you have any question, please refer to the [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371) first. If you cannot solve them, please submit an [issue](https://github.com/FlagAI-Open/FlagAI/issues) directly.
 

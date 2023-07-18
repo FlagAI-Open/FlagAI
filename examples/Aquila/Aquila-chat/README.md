@@ -29,7 +29,7 @@
 悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的`checkpoints_in/aquilachat-7b`，再下载新权重，其他使用方式不变。
 
 - 2023/07/13 ：发布权重文件 v0.8，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
-  - Aquila-7B  md5: 18eac56434db0198494b22b321633785
+  - Aquila-7B md5: 18eac56434db0198494b22b321633785
   - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c
   - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
   - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
