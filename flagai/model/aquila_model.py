@@ -186,7 +186,6 @@ class AQUILAModel(BaseModel):
                 layer.start_pos = start_pos
                 h = layer(h, freqs_cis, mask)
                 
-        # import pdb;pdb.set_trace()
         h = self.norm(h)
         if labels is not None:
             h = self.output(h)

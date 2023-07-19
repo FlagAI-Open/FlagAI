@@ -21,20 +21,20 @@
 | :---------------- | :------- | :-- |:-- |   :-- | :-- | :-- | 
 | Aquila-7B         | 基础模型，70亿参数  |   **Aquila 基础模型**在技术上继承了 GPT-3、LLaMA 等的架构设计优点，替换了一批更高效的底层算子实现、重新设计实现了中英双语的 tokenizer，升级了 BMTrain 并行训练方法，实现了比 Magtron+DeepSpeed ZeRO-2 将近８倍的训练效率。   | [./examples/Aquila/Aquila-pretrain](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-pretrain)  | [下载Aquila-7B](http://model.baai.ac.cn/model-detail/100098) | 已发布 | Nvidia-A100 |
 | Aquila-33B          |基础模型，330亿参数  |    同上    | ——  | ——  | **敬请期待** | Nvidia-A100 | 
-| AquilaChat-7B          |SFT model，基于 Aquila-7B 进行微调和强化学习  |    **AquilaChat 对话模型**支持流畅的文本对话及多种语言类生成任务，通过定义可扩展的特殊指令规范，实现 AquilaChat对其它模型和工具的调用，且易于扩展。 <br><br>例如，调用智源开源的 **[AltDiffusion](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion-m18) 多语言文图生成模型**，实现了流畅的文图生成能力。配合智源 **InstructFace 多步可控文生图模型**，轻松实现对人脸图像的多步可控编辑。  |   [./examples/Aquila/Aquila-chat](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-chat)  | [下载AquilaChat-7B](https://model.baai.ac.cn/model-detail/100101) | 已发布  | Nvidia-A100  | 
-| AquilaChat-33B           |SFT model，基于 Aquila-33B 进行微调和强化学习 |   同上    |   ——    |——  | **敬请期待** | Nvidia-A100 | 
-| AquilaCode-7B-NV          | 基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在英伟达芯片完成训练  |   AquilaCode-7B 以小数据集、小参数量，实现高性能，是目前支持中英双语的、性能最好的开源代码模型，经过了高质量过滤、使用有合规开源许可的训练代码数据进行训练。<br><br> AquilaCode-7B 分别在英伟达和国产芯片上完成了代码模型的训练。  | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  |[下载AquilaCode-7B-NV](https://model.baai.ac.cn/model-detail/100102)  | 已发布  | Nvidia-A100 | 
-| AquilaCode-7B-TS           |基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练，在天数智芯芯片上完成训练  |    同上    | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  | [下载AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | 已发布  | Tianshu-BI-V100  | 
+| AquilaChat-7B          |SFT 模型，基于 Aquila-7B 进行微调和强化学习  |    **AquilaChat 对话模型**支持流畅的文本对话及多种语言类生成任务，通过定义可扩展的特殊指令规范，实现 AquilaChat对其它模型和工具的调用，且易于扩展。 <br><br>例如，调用智源开源的 **[AltDiffusion](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion-m18) 多语言文图生成模型**，实现了流畅的文图生成能力。配合智源 **InstructFace 多步可控文生图模型**，轻松实现对人脸图像的多步可控编辑。  |   [./examples/Aquila/Aquila-chat](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-chat)  | [下载AquilaChat-7B](https://model.baai.ac.cn/model-detail/100101) | 已发布  | Nvidia-A100  | 
+| AquilaChat-33B           |SFT 模型，基于 Aquila-33B 进行微调和强化学习 |   同上    |   ——    |——  | **敬请期待** | Nvidia-A100 | 
+| AquilaCode-multi         | 基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练  |   AquilaCode 使用经过高质量过滤且有合规开源许可的代码数据进行训练，数据量约为其他开源代码生成模型的 10～40%。通过参考官方提供的操作指南，开发者可以利用 AquilaCode 模型来定制自己的代码助手。  | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  |[下载AquilaCode-7B-multi](https://model.baai.ac.cn/model-detail/100102)  | 已发布  | Nvidia-A100 | 
+| AquilaCode-py           |基础模型，“文本-代码”生成模型，基于 Aquila-7B继续预训练。  |    AquilaCode 使用经过高质量过滤且有合规开源许可的代码数据进行训练，数据量约为其他开源代码生成模型的 10～40%。通过参考官方提供的操作指南，开发者可以利用 AquilaCode 模型定制自己的代码助手。    | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code)  | [下载AquilaCode-py](https://model.baai.ac.cn/model-detail/100099)  | 已发布  | Nvidia-A100  |   
 
 悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的`checkpoints_in/aquilachat-7b`，再下载新权重，其他使用方式不变。
 
-- 2023/07/13 ：发布权重文件 v0.8，开源了 Aquila-7B、AquilaChat-7B 最新权重，AquilaCode 权重无更新。
+- 2023/07/19 ：发布权重文件 v0.9，开源了 AquilaCode-multi、AquilaCode-py。 AquilaChat-7B和Aquila-7B权重无更新, AquilaCode-7B-NV和AquilaCode-7B-TS权重暂时不会有更新计划。
   - Aquila-7B md5: 18eac56434db0198494b22b321633785
   - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c
-  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
-  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
+  - AquilaCode-multi md5：07cfce9440a0fa1ac2768b39d2cf4286
+  - AquilaCode-py md5：3faa85fc03d8fda70a73064f48d02d85
     
-其中AquilaChat-7B v0.8 在 FlagEval 大模型评测中（ “主观+客观”）相比0.7的版本整体稍有提，其在Chinese-MMLU上提升10%左右，详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog.md) 。
+其中AquilaChat-7B新版本模型在 FlagEval 大模型评测中（ “主观+客观”）相比0.7的版本整体稍有提，其在Chinese-MMLU上提升10%左右，详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog.md) 。
 
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~

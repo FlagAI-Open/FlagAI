@@ -1,3 +1,8 @@
+- 2023/07/19 ：Released v0.8 checkpoint files，AquilaCode-multi and AquilaCode-python have been released while AquilaCode-7B-NV and AquilaCode-7B-TS are temporarily not maintained. There are no updates for the weights of Aquila-7B and AquilaChat-7B.
+  - Aquila-7B md5: 18eac56434db0198494b22b321633785
+  - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c
+  - AquilaCode-multi md5：07cfce9440a0fa1ac2768b39d2cf4286
+  - AquilaCode-py md5：3faa85fc03d8fda70a73064f48d02d85
 - 2023/07/13 ：Released v0.8 checkpoint files，The latest weights of Aquila-7B and AquilaChat-7B have been open sourced, but there are no updates for the weights of AquilaCode.
   - Aquila-7B  md5: 18eac56434db0198494b22b321633785
   - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c

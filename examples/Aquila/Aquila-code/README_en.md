@@ -24,17 +24,17 @@ The additional details of the Aquila model will be presented in the official tec
 | Aquila-33B         | Base model, 33 billion parameters   | Same as above      | ——      | ——    | Coming soon                                               | Nvidia-A100   |
 | AquilaChat-7B      | SFT model, fine-tuned and RL based on Aquila-7B  | **AquilaChat Dialog Model** supports fluent text dialogue and multiple language generation tasks, and realizes the call of AquilaChat to other models and tools by defining an expandable special instruction specification, which is easy to extend. For example, calling the open source **[AltDiffusion](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion-m18) multimodal language image generation model** of Flagship Intelligence achieved smooth image generation capability. Together with Flagship Intelligence's **InstructFace multi-step controllable text-picture model**, it is easy to achieve multi-step controllable editing of human face images. | [./examples/Aquila/Aquila-chat](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-chat) | [Download AquilaChat-7B](https://model.baai.ac.cn/model-detail/100101) | Released    | Nvidia-A100   |
 | AquilaChat-33B     | SFT model, fine-tuned and RL based on Aquila-33B  | Same as above| ——   | ——   |Coming soon                                               | Nvidia-A100   |
-| AquilaCode-7B-NV   | Base model, "text-code" generation model, further pre-trained based on Aquila-7B, trained on Nvidia  | AquilaCode-7B achieves high performance with small data sets and parameters, and is currently the best open source code model that supports both Chinese and English, trained using training code data with compliant open source licenses after high-quality filtering. AquilaCode-7B has been trained on both Nvidia and domestic chips for code models. | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-7B-NV](https://model.baai.ac.cn/model-detail/100102) | Released | Nvidia-A100  |
-| AquilaCode-7B-TS   | Base model, "text-code" generation model, further pre-trained based on Aquila-7B, trained on Horizon Robotics chips | Same as above | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-7B-TS](https://model.baai.ac.cn/model-detail/100099)  | Released        | Tianshu-BI-V100 |
+| AquilaCode-multi  | Base model, "text-code" generation model, continue-pre-trained based on Aquila-7B.  | AquilaCode utilizes high-quality, filtered, and compliant open-source code data for training, with a dataset size of approximately 10-40% compared to other open-source code generation models. By following the provided official guidelines, developers can harness the power of the AquilaCode model to customize their own code assistant. | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-multi](https://model.baai.ac.cn/model-detail/100102) | Released | Nvidia-A100  |
+| AquilaCode-py   | Base model, "text-code" generation model, continue-pre-trained based on Aquila-7B, trained on Horizon Robotics chips | Same as above | [./examples/Aquila/Aquila-code](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila/Aquila-code) | [Download AquilaCode-py](https://model.baai.ac.cn/model-detail/100099)  | Released        | Nvidia-A100 |
 
 
 We will continue to release improved versions of Aquila model as open source. You can start by deleting the checkpoint file in the original directory and then download the new weights. Other usage methods remain unchanged. For more details, please refer to the folloing change log:
 
-- 2023/07/13 ：Released v0.8 checkpoint files，The latest weights of Aquila-7B and AquilaChat-7B have been open sourced, but there are no updates for the weights of AquilaCode.
+- 2023/07/19 ：Released v0.8 checkpoint files，AquilaCode-multi and AquilaCode-python have been released while AquilaCode-7B-NV and AquilaCode-7B-TS are temporarily not maintained. There are no updates for the weights of Aquila-7B and AquilaChat-7B.
   - Aquila-7B md5: 18eac56434db0198494b22b321633785
   - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c
-  - AquilaCode-7B-NV md5：91115e72a7fc7f780b410696eae6259c
-  - AquilaCode-7B-TS md5：5dae2486bc5a885279be87c13872cd5c
+  - AquilaCode-multi md5：07cfce9440a0fa1ac2768b39d2cf4286
+  - AquilaCode-py md5：3faa85fc03d8fda70a73064f48d02d85
 
 
  <br>If you have any question, please refer to the [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371) first. If you cannot solve them, please submit an [issue](https://github.com/FlagAI-Open/FlagAI/issues) directly.
@@ -77,7 +77,7 @@ Under default parameters, GPU memory consumption is approximately 4.3GB. You can
 
 ![bminf](../img/bminf.png)
 
-After running the inference program, the AquilaCode-7B-NV/the AquilaCode-7B-TS model will be automatically downloaded to ./`checkpoints_in`.
+After running the inference program, the AquilaCode-7B-multi/the AquilaCode-7B-TS model will be automatically downloaded to ./`checkpoints_in`.
 
 <details><summary>Example output:：</summary>
 
@@ -168,9 +168,9 @@ Complete parameter information can be found in https://github.com/FlagAI-Open/Fl
 | max_length     | int   | 200           | To avoid generating infinite length text, we need to limit the length of the generated text. The max_length parameter controls the maximum length of the generated text. Once this length is reached, the model stops generating. The maximum length of the Aquila series models is 2048 tokens. |
 
 - v0.5   
-md5 value of AquilaCode-7B-NV：91115e72a7fc7f780b410696eae6259c
+md5 value of AquilaCode-7B-multi：91115e72a7fc7f780b410696eae6259c
 md5 value of AquilaCode-7B-TS：5dae2486bc5a885279be87c13872cd5c
 
 ## License
 
-AquilaCode-7B-NV and AquilaCode-7B-TS open-source model is licensed under [ BAAI Aquila Model Licence Agreement](../../BAAI_Aquila_Model_License.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+AquilaCode-multiand AquilaCode-7B-TS open-source model is licensed under [ BAAI Aquila Model Licence Agreement](../../BAAI_Aquila_Model_License.pdf). The source code is under [Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0)
