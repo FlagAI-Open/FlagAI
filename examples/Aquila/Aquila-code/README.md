@@ -28,7 +28,7 @@
 
 悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的code模型路径，再下载新权重，其他使用方式不变。
 
-- 2023/07/19 ：发布权重文件 v0.9，开源了 AquilaCode-multi、AquilaCode-py。 AquilaChat-7B和Aquila-7B权重无更新, AquilaCode-7B-NV和AquilaCode-7B-TS权重暂时不会有更新计划。
+- 2023/07/21 ：发布权重文件 v0.9，开源了 AquilaCode-multi、AquilaCode-py。 AquilaChat-7B和Aquila-7B权重无更新, AquilaCode-7B-NV和AquilaCode-7B-TS权重暂时不会有更新计划。
   - Aquila-7B md5: 18eac56434db0198494b22b321633785
   - AquilaChat-7B md5: 465683009c8b536ef4cca85febb0227c
   - AquilaCode-multi md5：07cfce9440a0fa1ac2768b39d2cf4286
@@ -37,6 +37,8 @@
 AquilaCode-multi多语言模型支持多种编程语言高准确率生成，包括  Python/C++/Java/Javascript/Go 等。HumanEval（Python）评测结果 Pass@1、Pass@10、Pass@100 分别为 26/45.7/71.6，并在 HumanEval-X 多语言代码生成评测中显著领先于其他同参数等级的开源模型（2023.7.19）。
 
 AquilaCode-py单语言python版模型专注于 Python 代码生成，HumanEval 评测结果 Pass@1、Pass@10、Pass@100 分别为 28.8 / 50.6 / 76.9（2023.7.19）。
+
+历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog_zh.md) 。
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
 
