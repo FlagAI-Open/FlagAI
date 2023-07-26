@@ -34,7 +34,7 @@
   - AquilaCode-multi md5：07cfce9440a0fa1ac2768b39d2cf4286
   - AquilaCode-py md5：3faa85fc03d8fda70a73064f48d02d85
     
-其中AquilaChat-7B新版本模型在 FlagEval 大模型评测中（ “主观+客观”）相比0.7的版本整体稍有提，其在Chinese-MMLU上提升10%左右，详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog_zh.md) 。
+其中AquilaChat-7B新版本模型在 FlagEval 大模型评测中（ “主观+客观”）相比0.7的版本整体稍有提升，其在Chinese-MMLU上提升10%左右，详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog_zh.md) 。
 
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
@@ -44,7 +44,7 @@
 
 ### VScode上部署推理线上服务
 
-<br>具体部署流程见[FAQ](../vscode_inference_service.md)
+<br>具体部署流程见[vscode推理服务](../vscode_inference_service.md)
 
 ### 基础模型的环境准备
 
