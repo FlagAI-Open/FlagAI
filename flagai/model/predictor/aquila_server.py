@@ -82,21 +82,18 @@ def aquila_generate_by_ids_stream(
                     yield res_list
                     raise StopIteration  
 
-                tmp = tokenizer.decode(next_token.tolist())
-                if '�' in tmp:
+                if len(next_token_list) == 0:
+                    tmp = tokenizer.decode(next_token.tolist())
+                else :
                     next_token_list.append(next_token.cpu().numpy()[0])
                     tmp = tokenizer.decode(next_token_list)
-                    if any('�' != c for c in tmp):
-                   
-                        next_token_list = []
-                        res_list += tmp.replace("�", "")
-                        if len(res_list) >= 10:
-                            print(res_list)
-                            yield res_list
-                            res_list = ""
 
+                if '�' in tmp and len(next_token_list) < 5:
+                    if len(next_token_list) == 0:
+                        next_token_list.append(next_token.cpu().numpy()[0])
                 else:
                     #print(tmp)
+                    next_token_list = []
                     res_list += tmp
                     if len(res_list) >= 10:
                         print(res_list)
