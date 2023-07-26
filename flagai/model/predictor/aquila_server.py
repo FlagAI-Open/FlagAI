@@ -89,7 +89,7 @@ def aquila_generate_by_ids_stream(
                     if any('�' != c for c in tmp):
                    
                         next_token_list = []
-                        res_list += tmp
+                        res_list += tmp.replace("�", "")
                         if len(res_list) >= 10:
                             print(res_list)
                             yield res_list
