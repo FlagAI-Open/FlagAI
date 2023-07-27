@@ -92,7 +92,7 @@ def aquila_generate_by_ids_stream(
                     if len(next_token_list) == 0:
                         next_token_list.append(next_token.cpu().numpy()[0])
                 else:
-                    #print(tmp)
+                    tmp.replace("�", "")
                     next_token_list = []
                     res_list += tmp
                     if len(res_list) >= 10:
