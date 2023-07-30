@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import os
 from flagai.model.blocks.gpt2_block import GPT2Block
+from flagai.model.utils import scaled_init_method, divide, unscaled_init_method
 from flagai.model.layers.embeddings import VocabParallelEmbedding
 from flagai.model.utils import normal_init_method
 from flagai.model.base_model import BaseModel
@@ -51,6 +52,8 @@ class GPT2Config:
             checkpoint_activations=False,
             hidden_size=None,
             do_layer_norm_before=True,
+            init_method=None,
+            output_layer_init_method=None,
     ):
 
         self.do_layer_norm_before = do_layer_norm_before
@@ -83,6 +86,9 @@ class GPT2Config:
 
         self.bos_token_id = bos_token_id
         self.eos_token_id = eos_token_id
+
+        self.init_method = init_method
+        self.output_layer_init_method = output_layer_init_method
     
     def __getitem__(self, index):
         if hasattr(self, index):
@@ -107,7 +113,9 @@ class GPT2Stack(nn.Module):
                     mean=0.0, std=config.initializer_range))
         else:
             self.wte = nn.Embedding(config.vocab_size, config.n_embd)
+            config.init_method(self.wte.weight)
         self.wpe = nn.Embedding(config.n_positions, config.n_embd)
+        config.init_method(self.wpe.weight)
         self.drop = nn.Dropout(config.embd_pdrop)
         self.project_in = None
         self.project_out = None
@@ -255,8 +263,19 @@ class GPT2Model(BaseModel):
 
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
-        self.config = config
-        if type(config) is dict:
+        self.config = config.json_config
+        # TODO Global Config
+        if type(self.config) is dict:
+            init_method_std = self.config.get("initializer_range", 0.002)
+            init_method = unscaled_init_method(init_method_std)
+            output_layer_init_method = None
+            use_scaled_init_for_output_weights = \
+                self.config.get("use_scaled_init_for_output_weights", False)
+            num_layers = self.config["n_layer"]
+            if use_scaled_init_for_output_weights:
+                output_layer_init_method = scaled_init_method(
+                    0.0, init_method_std, num_layers)
+
             config_gpt = GPT2Config(
                 activation_function=self.config["activation_function"],
                 n_head=self.config["n_head"],
@@ -268,15 +287,17 @@ class GPT2Model(BaseModel):
                 checkpoint_activations=self.config["checkpoint_activations"],
                 hidden_size=self.config.get("hidden_size", None),
                 do_layer_norm_before=self.config.get("do_layer_norm_before", True),
+                init_method=init_method,
+                output_layer_init_method=output_layer_init_method,
             )
             self.config_gpt = config_gpt
 
         self.parallel_output = True
-
-        self.transformer = GPT2Stack(config_gpt)
+        self.transformer = GPT2Stack(self.config_gpt)
         self.lm_head = nn.Linear(config_gpt.n_embd,
                                  config_gpt.vocab_size,
                                  bias=False)
+        init_method(self.lm_head.weight)
 
 
     def _make_causal_mask(self, input_ids):
@@ -374,12 +395,9 @@ class GPT2Model(BaseModel):
             # ddp
             checkpoint = checkpoint["module"]
 
-        # checkpoint = self.transpose_weight(checkpoint)
-        try:
-            self.load_state_dict(checkpoint, strict=False)
-        except RuntimeError:
-            checkpoint = self.transpose_weight(checkpoint)
-            self.load_state_dict(checkpoint, strict=False)
+        checkpoint = self.transpose_weight(checkpoint)
+
+        self.load_state_dict(checkpoint, strict=False)
         return checkpoint
 
     def transpose_weight(self, checkponts):

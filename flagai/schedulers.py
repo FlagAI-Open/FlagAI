@@ -32,7 +32,7 @@ class AnnealingLR(_LRScheduler):
                  num_iters,
                  decay_style=None,
                  last_iter=-1,
-                 decay_ratio=0.5):
+                 decay_ratio=0.1):
         assert warmup_iter <= num_iters
         self.optimizer = optimizer
         self.start_lr = start_lr
@@ -130,3 +130,24 @@ def get_learning_rate_scheduler(optimizer, args):
                                decay_ratio=args.lr_decay_ratio)
 
     return lr_scheduler
+
+## A modified cosine learning rate schedule,
+## such that the final learning rate is equal to 10% of the maximal learning rate,
+## extended from bmtrain
+try:
+    import math
+    from bmtrain.lr_scheduler.warmup import WarmupLRScheduler
+    class Cosine10PP(WarmupLRScheduler):
+        def __init__(self, optimizer, start_lr, warmup_iter, end_iter, num_iter=0, warmup_start_lr=0.0) -> None:
+            self.warmup_start_lr = warmup_start_lr
+            super().__init__(optimizer, start_lr, warmup_iter, end_iter, num_iter)
+
+        def get_lr_warmup(self, num_iter) -> float:
+            return max(self.start_lr * num_iter / self.warmup_iter, self.warmup_start_lr)
+    
+        def get_lr_decay(self, num_iter) -> float:
+            min_lr = self.start_lr * 0.1
+            progress = (num_iter - self.warmup_iter) / max(1, (self.end_iter - self.warmup_iter))
+            return max(0.0, min_lr + (self.start_lr - min_lr) * 0.5 * (1.0 + math.cos(progress * math.pi)))
+except:
+    pass

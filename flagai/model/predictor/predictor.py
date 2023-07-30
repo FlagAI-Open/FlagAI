@@ -19,6 +19,7 @@ import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
 from torch.cuda.amp import autocast as autocast
+from .aquila import aquila_generate
 
 class Predictor:
     def __init__(self, model, tokenizer=None):
@@ -304,7 +305,8 @@ class Predictor:
                                       top_k: int = 30,
                                       top_p: float = 1.0,
                                       repetition_penalty: float = 1.0,
-                                      temperature: float = 1.0):
+                                      temperature: float = 1.0,
+                                      prompts_tokens=None):
         """
         Args:
         text: The input text.
@@ -346,6 +348,10 @@ class Predictor:
                                       input_max_length, out_max_length, top_k,
                                       top_p, repetition_penalty, temperature,
                                       device)
+        elif "aquila" in self.class_name.lower() or 'peft' in self.class_name.lower(): # a little bit hardcoded,fixed later
+            return aquila_generate(self.tokenizer, self.model,
+                                  [text], out_max_length,
+                                  temperature, top_k, top_p, prompts_tokens=prompts_tokens)
 
         else:
             print("Unsupported decoding mode")

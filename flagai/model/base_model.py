@@ -7,8 +7,29 @@ import json
 from typing import Union
 from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
 import os
+class ConfigObj:
 
+    def __init__(self):
+        self.json_config = None
 
+    def  __getitem__(self, key):
+        return getattr(self, key)
+    def __setitem__(self, key, value):
+        setattr(self, key, value)
+
+    def get(self, key, default=None):
+        return getattr(self, key, default)
+    
+        
+def change_json_to_cls(jsonobj):
+    obj = ConfigObj()
+    for key in jsonobj:
+        setattr(obj, key, jsonobj[key])
+
+    obj.json_config = jsonobj
+    
+    return obj
+    
 # The base model for models
 class BaseModel(Module):
 
@@ -27,17 +48,32 @@ class BaseModel(Module):
 
     def save_config(self, config_path='./config.json'):
         with open(config_path, 'w', encoding='utf8') as jsonfile:
-            json.dump(self.config, jsonfile, indent=4)
+            if isinstance(self.config, ConfigObj):
+                config = self.config.json_config
+            else :
+                config = self.config 
+            json.dump(config, jsonfile, indent=4)
 
     @classmethod
-    def init_from_json(cls, config_file='./config.json', **kwargs):
+    def init_from_json(cls, config_file='./config.json', device='cpu', **kwargs):
         with open(config_file, 'r', encoding='utf8') as js:
             args = json.load(js)
         for k in kwargs:
             args[k] = kwargs[k]
         if 'checkpoint_activations' not in args:
             args['checkpoint_activations'] = False
-        return cls(args, **kwargs)
+        if 'use_cache' not in args:
+            args['use_cache'] = False
+        if "fp16" in kwargs and kwargs["fp16"] == True:
+            if device == "cpu":
+                torch.set_default_tensor_type(torch.HalfTensor)
+            else:
+                torch.set_default_tensor_type(torch.cuda.HalfTensor)
+            model = cls(change_json_to_cls(args), **kwargs)
+            torch.set_default_tensor_type(torch.FloatTensor)
+        else:
+            model = cls(change_json_to_cls(args), **kwargs)
+        return model
 
     @classmethod
     def _load_state_dict_into_model(cls,
@@ -68,6 +104,7 @@ class BaseModel(Module):
                       only_download_config=False,
                       device="cpu",
                       **kwargs):
+        
         model_id = None
 
         raw_download_path = download_path
@@ -78,10 +115,13 @@ class BaseModel(Module):
         checkpoint_path = os.path.join(download_path, "pytorch_model.bin")
 
         def load_local(checkpoint_path, only_download_config=False):
-            model = cls.init_from_json(config_path, **kwargs)
+            model = cls.init_from_json(config_path, device=device, **kwargs)
             model.to(device)
             if only_download_config:
-                return model
+                return model 
+            if 'adapter_dir' in kwargs:
+                from flagai.model.tools.peft import PeftModel
+                model = PeftModel.from_pretrained(model, kwargs['adapter_dir'])
             if os.getenv('ENV_TYPE') != 'deepspeed+mpu':
                 if os.path.exists(checkpoint_path):
                     model.load_weights(checkpoint_path)
@@ -136,7 +176,6 @@ class BaseModel(Module):
                     checkpoint_path,
                 )
             return model
-
         yaml_path = os.path.join(download_path, "config.yaml")
         if os.path.exists(yaml_path):
             """
@@ -207,7 +246,7 @@ class BaseModel(Module):
                         os.path.join(download_path, "pytorch_model.bin"))
         if os.path.exists(yaml_path):
             return load_diffusion_local(yaml_path,only_download_config=only_download_config)
-        return load_local(checkpoint_path)
+        return load_local(checkpoint_path, only_download_config=only_download_config)
 
     @classmethod
     def download(cls,
@@ -225,9 +264,39 @@ class BaseModel(Module):
             model_files = eval(_get_model_files(model_name))
             print("model files:" + str(model_files))
             for file_name in model_files:
-                if not file_name.endswith("bin"):
+                if not file_name.endswith("bin") and not file_name.endswith("pth"):
                     _get_vocab_path(os.path.join(download_path, model_name), file_name, model_id)
                 else :
                     if only_download_config:
                         continue
                     _get_checkpoint_path(os.path.join(download_path, model_name), file_name, model_id)
+
+    def prepare_inputs_for_generation(
+        self, input_ids, past_key_values=None, attention_mask=None, inputs_embeds=None, **kwargs
+    ):
+        if past_key_values:
+            input_ids = input_ids[:, -1:]
+
+        position_ids = kwargs.get("position_ids", None)
+        if attention_mask is not None and position_ids is None:
+            # create position_ids on the fly for batch generation
+            position_ids = attention_mask.long().cumsum(-1) - 1
+            position_ids.masked_fill_(attention_mask == 0, 1)
+            if past_key_values:
+                position_ids = position_ids[:, -1].unsqueeze(-1)
+
+        # if `inputs_embeds` are passed, we only want to use them in the 1st generation step
+        if inputs_embeds is not None and past_key_values is None:
+            model_inputs = {"inputs_embeds": inputs_embeds}
+        else:
+            model_inputs = {"input_ids": input_ids}
+
+        model_inputs.update(
+            {
+                "position_ids": position_ids,
+                "past_key_values": past_key_values,
+                "use_cache": kwargs.get("use_cache"),
+                "attention_mask": attention_mask,
+            }
+        )
+        return model_inputs

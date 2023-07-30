@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import torch
-from misc.norm import norm
 import torch.nn as nn
 from .device import DEVICE
 from .config import MODEL_FP
@@ -25,10 +24,10 @@ class Img(nn.Module):
       return self.model.get_image_features(image)
 
 
-class ImgNorm(Img):
-
-  def forward(self, image):
-    return norm(super(ImgNorm, self).forward(image))
+# class ImgNorm(Img):
+#
+#   def forward(self, image):
+#     return norm(super(ImgNorm, self).forward(image))
 
 
 class Txt(nn.Module):
@@ -44,14 +43,13 @@ class Txt(nn.Module):
       return self.model.get_text_features(text, attention_mask=attention_mask)
 
 
-class TxtNorm(Txt):
-
-  def forward(self, text, attention_mask):
-    return norm(super(TxtNorm, self).forward(text, attention_mask))
-
+# class TxtNorm(Txt):
+#
+#   def forward(self, text, attention_mask):
+#     return norm(super(TxtNorm, self).forward(text, attention_mask))
 
 IMG = Img()
-IMG_NORM = ImgNorm()
+# IMG_NORM = ImgNorm()
 
 TXT = Txt()
-TXT_NORM = TxtNorm()
+# TXT_NORM = TxtNorm()
