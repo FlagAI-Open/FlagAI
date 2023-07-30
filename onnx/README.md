@@ -39,14 +39,10 @@ ONNX(Open Neural Network Exchange)，开放神经网络交换，用于在各种�
     * AltCLIP-XLMR-L
     * AltCLIP-XLMR-L-m9
 
-    运行后将生成 4 个 onnx 文件和很多权重文件
+    运行后将生成 2 个 onnx 文件和很多权重文件
 
     * onnx/AltCLIP-XLMR-L-m18/onnx/Img.onnx
-    * onnx/AltCLIP-XLMR-L-m18/onnx/ImgNorm.onnx
     * onnx/AltCLIP-XLMR-L-m18/onnx/Txt.onnx
-    * onnx/AltCLIP-XLMR-L-m18/onnx/TxtNorm.onnx
-
-    其中 Norm 代表输出归一化的向量，如果想把生成的文本向量和图片向量存入向量数据库，进行相似性搜索，请用归一化的向量。
 
     具体用见下文的 onnx 模型的测试脚本。
 
