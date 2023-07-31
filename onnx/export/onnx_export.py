@@ -3,7 +3,7 @@
 from PIL import Image
 from os import makedirs
 from os.path import join
-from misc.clip_model import TXT, IMG
+from misc.clip_model import TXT, IMG, TXT_NORM, IMG_NORM
 from misc.config import ONNX_FP, opset_version, IMG_DIR
 from misc.proc import transform, tokenizer
 import torch
