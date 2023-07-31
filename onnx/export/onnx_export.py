@@ -59,4 +59,4 @@ def export(txt, img):
 
 
 export(TXT, IMG)
-# export(TXT_NORM, IMG_NORM)
+export(TXT_NORM, IMG_NORM)
