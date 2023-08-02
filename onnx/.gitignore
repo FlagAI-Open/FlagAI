@@ -1,0 +1,9 @@
+.env
+.DS_Store
+__pycache__/
+
+/onnx/*
+!onnx/.keep
+
+dist/
+model/

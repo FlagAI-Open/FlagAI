@@ -6,7 +6,8 @@ from setuptools import find_packages, setup
 setup(
     name="flagai",
     version="v1.7.3",
-    description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP/CV/VL tasks.",
+    description=
+    "FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP/CV/VL tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="FlagAI-Open",
@@ -40,5 +41,4 @@ setup(
         'accelerate',
         'PyYAML==5.4.1',
         'safetensors',
-    ]
-)
+    ])
