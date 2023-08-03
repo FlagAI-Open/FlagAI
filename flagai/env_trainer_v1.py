@@ -156,7 +156,10 @@ class EnvTrainer():
             training_paras = get_args_list(env_args)
             self.rank = int(os.environ.get('RANK', 0))
             self.world_size = int(os.environ.get('WORLD_SIZE', 1))
-            self.local_rank = env_args.local_rank
+            # self.local_rank = env_args.local_rank
+            print(os.environ['LOCAL_RANK'])
+            self.local_rank = int(os.environ['LOCAL_RANK'])
+
             log_dist("not_call_launch: {}".format(self.not_call_launch))
             # Implement for AutoLaunch
             # >>> python train.py # will call get_dist_args()
@@ -196,7 +199,7 @@ class EnvTrainer():
             device = self.rank % torch.cuda.device_count()
             if self.local_rank is not None:
                 device = self.local_rank
-            torch.cuda.set_device(device)
+            torch.cuda.set_device(int(device))
             # Call the init process
             init_method = 'tcp://'
             self.master_ip = os.getenv('MASTER_ADDR', 'localhost')
