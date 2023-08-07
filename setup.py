@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="flagai",
-    version="v1.7.3",
+    version="v1.7.4",
     description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP/CV/VL tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
@@ -21,8 +21,8 @@ setup(
         'sentencepiece>=0.1.96',
         'boto3==1.17.32',
         'pandas>=1.3.5',
-        'jieba==0.42.1',
-        'scikit-learn==1.0.2',
+        'jieba>=0.42.1',
+        'scikit-learn>=1.0.2',
         'tensorboard>=2.9.0',
         'transformers>=4.20.1',
         'datasets>=2.0.0',
@@ -32,7 +32,7 @@ setup(
         'Pillow>=9.3.0',
         'einops>=0.3.0',
         'diffusers==0.7.2',
-        'pytorch-lightning==1.6.5',
+        'pytorch-lightning>=1.6.5',
         'taming-transformers-rom1504==0.0.6',
         'rouge-score',
         'sacrebleu>=2.3.1',
@@ -40,5 +40,6 @@ setup(
         'accelerate',
         'PyYAML==5.4.1',
         'safetensors',
+        'timm',
     ]
 )

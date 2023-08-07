@@ -1,4 +1,4 @@
-batch_size: 16
+batch_size: 1
 epochs: 5
 gradient_accumulation_steps: 1
 lr: 4.0e-5
@@ -16,5 +16,5 @@ enable_flash_attn_models: False
 eps: 1.0e-8
 lora: True
 
-enable_sft_dataset_dir: '/data2/yzd/FlagAI/convo_v2/'
-enable_sft_dataset_file: 'sft_train_english_alpaca.jsonl'
+enable_sft_dataset_dir: './data/'
+enable_sft_dataset_file: 'convo_samples.jsonl'

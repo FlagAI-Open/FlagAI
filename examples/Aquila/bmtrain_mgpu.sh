@@ -80,7 +80,7 @@ OPTS=" --batch_size $BATCH_SIZE \
 ## Trigger job on Each Node when bmt or ddp.
 
 mkdir -p $PRE_LOAD_DIR
-python -m torch.distributed.launch \
+torchrun \
        --nproc_per_node $GPU_NUM_PER_NODE \
        --nnodes $NODES_NUM \
        --node_rank $RANK \
