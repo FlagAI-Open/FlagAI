@@ -6,7 +6,7 @@ import torchvision.datasets as datasets
 from tqdm import tqdm
 from flagai.auto_model.auto_loader import AutoLoader
 
-data_path = "./imagenet2012/"
+data_path = "/data2/yzd/FlagAI/examples/swinv2/imagenet2012/"
 
 # swinv2 model_name support:
 # 1. swinv2-base-patch4-window16-256,

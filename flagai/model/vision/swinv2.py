@@ -159,7 +159,7 @@ class WindowAttention(nn.Module):
 
         # cosine attention
         attn = (F.normalize(q, dim=-1) @ F.normalize(k, dim=-1).transpose(-2, -1))
-        logit_scale = torch.clamp(self.logit_scale, max=torch.log(torch.tensor(1. / 0.01))).exp()
+        logit_scale = torch.clamp(self.logit_scale, max=torch.log(torch.tensor(1. / 0.01)).to(self.logit_scale.device)).exp()
         attn = attn * logit_scale
 
         relative_position_bias_table = self.cpb_mlp(self.relative_coords_table).view(-1, self.num_heads)
@@ -518,7 +518,8 @@ class SwinTransformerConfig:
                  patch_norm=True,
                  pretrained_window_sizes=[0, 0, 0, 0],
                  checkpoint_activations=False,
-                 num_classes=1000):
+                 num_classes=1000,
+                 **kwargs):
         self.num_classes = num_classes
         self.img_size = img_size
         self.patch_size = patch_size
@@ -566,7 +567,7 @@ class SwinTransformerV2(BaseModel):
 
     def __init__(self, config, num_classes=1000,  **kwargs):
         super().__init__(config, **kwargs)
-        swin_config = SwinTransformerConfig(**config)
+        swin_config = SwinTransformerConfig(**config.json_config)
 
         embed_dim = swin_config.embed_dim
         img_size = swin_config.img_size

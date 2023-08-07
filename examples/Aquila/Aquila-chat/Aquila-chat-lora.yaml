@@ -1,19 +1,18 @@
-batch_size: 4
+batch_size: 1
+epochs: 5
 gradient_accumulation_steps: 1
-lr: 3.0e-4
+lr: 4.0e-5
 warm_up: 0.01
-warm_up_iters: 200
-lora_r: 16
+lora_r: 8
 lora_alpha: 32
-epochs: 30000000
-save_interval: 300
-log_interval: 10
+save_interval: 200
+log_interval: 1
 bmt_cpu_offload: False
 bmt_pre_load: True
-
+bmt_lr_decay_style: 'cosine'
 save_optim: True
 save_rng: True
-
+enable_flash_attn_models: False
 eps: 1.0e-8
 lora: True
 

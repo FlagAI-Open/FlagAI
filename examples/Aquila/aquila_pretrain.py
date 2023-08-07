@@ -62,7 +62,7 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
-print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}",
+print(f"Trainer effective env_args={env_args} local_rank={os.environ['LOCAL_RANK']}",
       flush=True)
 checkpoints = env_args.pre_load_dir
 model_name = env_args.model_name
@@ -77,7 +77,7 @@ print('*' * 20, "tokenizer", tokenizer)
 # avoid sync loading models in case of Mem OOM
 if env_args.bmt_async_load:
     import time
-    time.sleep(10 * 60 * (trainer.local_rank % 4))
+    time.sleep(10 * 60 * (os.environ['LOCAL_RANK'] % 4))
 
 config_file = os.path.join(cache_dir, 'config.json')
 model = AQUILAModel.init_from_json(config_file=config_file)

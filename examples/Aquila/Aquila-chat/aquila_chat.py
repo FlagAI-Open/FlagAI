@@ -61,7 +61,7 @@ if not env_args.not_call_launch:
     import sys
     sys.exit(0)
 
-print(f"Trainer effective env_args={env_args} local_rank={trainer.local_rank}", flush=True)
+print(f"Trainer effective env_args={env_args} local_rank={os.environ['LOCAL_RANK']}", flush=True)
 
 checkpoints = env_args.pre_load_dir
 
@@ -78,7 +78,7 @@ print('*'*20, "tokenizer", tokenizer)
 # avoid sync loading models in case of Mem OOM
 if env_args.bmt_async_load:
     import time
-    time.sleep(10*60*(trainer.local_rank%4))
+    time.sleep(10*60*(os.environ['LOCAL_RANK']%4))
 
 
 config_file = os.path.join(cache_dir, 'config.json')
@@ -98,7 +98,7 @@ if env_args.bmt_pre_load:
 
 trainer.pre_train(model)
 
-# print('*'*20, "model", model, flush=True)
+print('*'*20, "model", model, flush=True)
 
 assert env_args.enable_sft_dataset_dir is not None and \
         env_args.enable_sft_dataset_file is not None
