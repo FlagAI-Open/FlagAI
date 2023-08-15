@@ -30,8 +30,8 @@ The additional details of the Aquila model will be presented in the official tec
 
 We will continue to release improved versions of Aquila model as open source. You can start by deleting the checkpoint file in the original directory and then download the new weights. Other usage methods remain unchanged. For more details, please refer to the folloing change log:
 
-- 2023/07/24 ：Released v0.8 checkpoint files，AquilaCode-multi and AquilaCode-python have been released while AquilaCode-7B-NV and AquilaCode-7B-TS are temporarily not maintained. There are no updates for the weights of Aquila-7B and AquilaChat-7B.
-  - Aquila-7B md5: 
+- 2023-08-15 ：Released v1.0 checkpoint files，AquilaCode-multi and AquilaCode-python have been released while AquilaCode-7B-NV and AquilaCode-7B-TS are temporarily not maintained. There are no updates for the weights of Aquila-7B and AquilaChat-7B.
+  - Aquila-7B md5: 5b56d31c8154c9184a38ff7bc6b4d887
   - AquilaChat-7B md5: 883e83286ee309dbb624016256e30d4c
   - AquilaCode-multi md5：07cfce9440a0fa1ac2768b39d2cf4286
   - AquilaCode-py md5：3faa85fc03d8fda70a73064f48d02d85

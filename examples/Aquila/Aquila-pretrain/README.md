@@ -28,13 +28,13 @@
 
 悟道·天鹰Aquila系列模型将持续开源更优版本，大家可以先删除原来目录下的`checkpoints_in/aquila-7b`，再下载新权重，其他使用方式不变。
 
-- 2023/07/24 ：发布权重文件 v1.0，开源了 AquilaCode-multi、AquilaCode-py。 AquilaChat-7B和Aquila-7B权重无更新, AquilaCode-7B-NV和AquilaCode-7B-TS权重暂时不会有更新计划。
-  - Aquila-7B md5: 
+- 2023-08-15 ：发布权重文件 v，开源了 AquilaCode-multi、AquilaCode-py。 AquilaChat-7B和Aquila-7B权重无更新, AquilaCode-7B-NV和AquilaCode-7B-TS权重暂时不会有更新计划。
+  - Aquila-7B md5: 5b56d31c8154c9184a38ff7bc6b4d887
   - AquilaChat-7B md5: 883e83286ee309dbb624016256e30d4c
   - AquilaCode-multi md5：07cfce9440a0fa1ac2768b39d2cf4286
   - AquilaCode-py md5：3faa85fc03d8fda70a73064f48d02d85
 
-Aquila-7B 新版本模型 在 FlagEval 大模型评测中（ “客观”）相比0.7的版本在MMLU_Chinese、TruthfulQA、MMLU上分别提升10.07%，14.84%和7.94%。详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog_zh.md) 。
+Aquila-7B 新版本模型在 FlagEval 大模型评测中（ “客观”）相比上一版在TruthfulQA中提升9.09%。详细评测结果请通过 http://flageval.baai.ac.cn 网站查看。历史版本变更详情见：[变更日志](https://github.com/FlagAI-Open/FlagAI/blob/master/examples/Aquila/changelog_zh.md) 。
 
 
 <br>如有使用问题请先查看 [FAQ](https://github.com/FlagAI-Open/FlagAI/issues/371)，若不能解决，请直接提交 [issue](https://github.com/FlagAI-Open/FlagAI/issues) ~
