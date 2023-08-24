@@ -18,4 +18,4 @@ eps: 1.0e-8
 lora: True
 
 enable_sft_dataset_dir: './data/'
-enable_sft_dataset_file: 'sft_v0.9.10_train_chinese.jsonl'
+enable_sft_dataset_file: 'convo_samples.jsonl'
