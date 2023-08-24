@@ -32,6 +32,7 @@ from flagai.data.tokenizer.uni_tokenizer.diffusion_bert_tokenizer import FullTok
 from typing import List, Union, Optional
 import unicodedata
 import json
+from flagai.data.tokenizer.uni_tokenizer.tokenization_utils import Trie
 
 
 def is_control(ch):
@@ -372,7 +373,6 @@ class Tokenizer(BaseTokenizer):
                 if tk not in self.command_name_map:
                     res = self.search_special(tk)
                     self.add_command_token(tk, res,self.tokenizer_class)
-
         self.command_name_map = {tok.name: tok for tok in self._command_tokens}
         self.command_token_map = {
             tok.token: tok
@@ -392,7 +392,8 @@ class Tokenizer(BaseTokenizer):
                 self.token_end_id = self.TokenToId("<|endoftext|>")
             except KeyError:
                 self.token_end_id = self.TokenToId("[SEP]")
-
+        
+        self.tokens_trie = Trie()
         #print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
 
     def get_vocab(self):
@@ -455,7 +456,7 @@ class Tokenizer(BaseTokenizer):
         return bool(ch) and (ch[0] == '[') and (ch[-1] == ']')
 
     def _encode(self, text):
-        tokens = self.text_tokenizer.tokenize(text)
+        tokens = self.tokenize(text)
         ids = self.text_tokenizer.convert_tokens_to_ids(tokens)
         return ids
 
@@ -484,7 +485,7 @@ class Tokenizer(BaseTokenizer):
         processed_text = text
         if process_fn is not None:
             processed_text = process_fn(processed_text)
-        tokens = self.text_tokenizer.tokenize(processed_text)
+        tokens = self.tokenize(processed_text)
         return tokens
 
     def IdToToken(self, id):
@@ -521,10 +522,10 @@ class Tokenizer(BaseTokenizer):
             tokens, self.command_token_map)
 
     def encode(self, text):
-        if hasattr(self.text_tokenizer, "encode"):
-            return self.text_tokenizer.encode(text)
+        # if hasattr(self.text_tokenizer, "encode"):
+        #     return self.text_tokenizer.encode(text)
         return self.convert_tokens_to_ids(
-            self.text_tokenizer.tokenize(text))
+            self.tokenize(text))
 
     def decode(self, ids):
         if hasattr(self.text_tokenizer, "decode"):
@@ -791,8 +792,14 @@ class Tokenizer(BaseTokenizer):
                                             sot_token=sot_token,
                                             eot_token=eot_token)
 
-    def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
-        tokens = self.text_tokenizer.tokenize(text)
+    def _create_trie(self, unique_no_split_tokens):
+        trie = Trie()
+        for token in unique_no_split_tokens:
+            trie.add(token)
+        self.tokens_trie = trie
+        
+    def _tokenize(self, text, maxlen=None, add_spatial_tokens=False):
+        tokens = self.tokenize(text, max_len=max_len, add_spatial_tokens=add_spatial_tokens)
 
         if add_spatial_tokens:
             tokens.insert(0, self.get_command_id('cls'))
@@ -802,6 +809,31 @@ class Tokenizer(BaseTokenizer):
             index = int(self.get_command_id('sep') is not None) + 1
             self.truncate_sequence(maxlen, tokens, pop_index=-index)
         return tokens
+
+    def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
+        tokens = self.tokens_trie.split(text)
+        # ["This is something", "<special_token_1>", "  else"]
+        for i, token in enumerate(tokens):
+            if token in self._command_token_tokens:
+                left = tokens[i - 1] if i > 0 else None
+                right = tokens[i + 1] if i < len(tokens) - 1 else None
+                # We strip left and right by default
+                if right:
+                    tokens[i + 1] = right.lstrip()
+                if left:
+                    tokens[i - 1] = left.rstrip()
+        # ["This is something", "<special_token_1>", "else"]
+        tokenized_text = []
+        for token in tokens:
+            # Need to skip eventual empty (fully stripped) tokens
+            if not token:
+                continue
+            if token in self._command_token_tokens:
+                tokenized_text.append(token)
+            else:
+                tokenized_text.extend(self._tokenize(token))
+        # ["This", " is", " something", "<special_token_1>", "else"]
+        return tokenized_text
 
     def search_special(self, name):
         if name == "cls":

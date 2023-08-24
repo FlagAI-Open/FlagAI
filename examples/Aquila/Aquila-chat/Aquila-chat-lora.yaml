@@ -1,12 +1,13 @@
-batch_size: 1
-epochs: 5
+batch_size: 4
+epochs: 10
 gradient_accumulation_steps: 1
 lr: 4.0e-5
 warm_up: 0.01
-lora_r: 8
+warm_up_iters: 200
+lora_r: 16
 lora_alpha: 32
-save_interval: 200
-log_interval: 1
+save_interval: 500
+log_interval: 10
 bmt_cpu_offload: False
 bmt_pre_load: True
 bmt_lr_decay_style: 'cosine'
@@ -17,4 +18,4 @@ eps: 1.0e-8
 lora: True
 
 enable_sft_dataset_dir: './data/'
-enable_sft_dataset_file: 'convo_samples.jsonl'
+enable_sft_dataset_file: 'sft_v0.9.10_train_chinese.jsonl'

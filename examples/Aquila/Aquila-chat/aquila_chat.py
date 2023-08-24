@@ -7,6 +7,7 @@ from torch.utils.data import Dataset
 import gc
 gc.collect()
 torch.cuda.empty_cache()
+import sys;sys.path.append("/data2/yzd/FlagAI")
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.tokenizer import Tokenizer
 from flagai.env_args import EnvArgs
@@ -38,6 +39,7 @@ env_args = EnvArgs(
     training_script=__file__,
 )
 env_args = env_args.parse_args()
+
 #env_args.wandb = False
 
 # overwrite
