@@ -42,8 +42,30 @@ class SentencePieceTokenizer(object):
         # vocab.update(self.added_tokens_encoder)
         return vocab
 
-    def tokenize(self, text):
-        return self.sp_model.EncodeAsPieces(text)
+    def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
+        split_tokens =  self.sp_model.EncodeAsPieces(text)
+        if maxlen is not None:
+            self.truncate_sequence(maxlen, split_tokens)
+        return split_tokens
+
+
+    def truncate_sequence(self,
+                          max_length,
+                          first_sequence,
+                          second_sequence=None,
+                          pop_index=-1):
+
+        if second_sequence is None:
+            second_sequence = []
+
+        while True:
+            total_length = len(first_sequence) + len(second_sequence)
+            if total_length <= max_length:
+                break
+            elif len(first_sequence) > len(second_sequence):
+                first_sequence.pop(pop_index)
+            else:
+                second_sequence.pop(pop_index)
 
     def convert_tokens_to_ids(self, tokens):
         return [self.sp_model.PieceToId(token) for token in tokens]

@@ -10,7 +10,7 @@ import torch.nn as nn
 from flagai.model.predictor.aquila import aquila_generate
 
 
-state_dict = "./checkpoints_in/lora/"
+state_dict = "./checkpoints_in/"
 model_name = 'aquilachat-7b'  
 
 
@@ -24,7 +24,6 @@ loader = AutoLoader("lm",
 model = loader.get_model()
 
 tokenizer = loader.get_tokenizer()
-
 model.eval()
 model.cuda()
 

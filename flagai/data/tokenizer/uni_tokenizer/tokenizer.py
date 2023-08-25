@@ -393,7 +393,7 @@ class Tokenizer(BaseTokenizer):
             except KeyError:
                 self.token_end_id = self.TokenToId("[SEP]")
         
-        self.tokens_trie = Trie()
+        self._create_trie(self._command_token_tokens)
         #print("All special tokens: ", str([(k, v.token, v.Id) for k,v in self.command_name_map.items()]))
 
     def get_vocab(self):
@@ -799,7 +799,7 @@ class Tokenizer(BaseTokenizer):
         self.tokens_trie = trie
         
     def _tokenize(self, text, maxlen=None, add_spatial_tokens=False):
-        tokens = self.tokenize(text, max_len=max_len, add_spatial_tokens=add_spatial_tokens)
+        tokens = self.text_tokenizer.tokenize(text, maxlen=maxlen, add_spatial_tokens=add_spatial_tokens)
 
         if add_spatial_tokens:
             tokens.insert(0, self.get_command_id('cls'))

@@ -137,7 +137,7 @@ class BPETokenizer(object):
         self.cache[token] = word
         return word
 
-    def tokenize(self, text):
+    def tokenize(self, text, maxlen=None, add_spatial_tokens=False):
         """ Tokenize a string. """
         bpe_tokens = []
         for token in re.findall(self.pat, text):
@@ -148,7 +148,28 @@ class BPETokenizer(object):
                                 for b in token.encode('utf-8'))
             bpe_tokens.extend(bpe_token
                               for bpe_token in self.bpe(token).split(' '))
+        if maxlen is not None:
+            self.truncate_sequence(maxlen, bpe_tokens)
         return bpe_tokens
+
+
+    def truncate_sequence(self,
+                          max_length,
+                          first_sequence,
+                          second_sequence=None,
+                          pop_index=-1):
+
+        if second_sequence is None:
+            second_sequence = []
+
+        while True:
+            total_length = len(first_sequence) + len(second_sequence)
+            if total_length <= max_length:
+                break
+            elif len(first_sequence) > len(second_sequence):
+                first_sequence.pop(pop_index)
+            else:
+                second_sequence.pop(pop_index)
 
     def convert_token_to_id(self, token):
         """ Converts a sequence of tokens into ids using the vocab. """
