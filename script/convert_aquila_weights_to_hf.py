@@ -290,15 +290,13 @@ def main():
     )
     parser.add_argument("--safe_serialization", type=bool, help="Whether or not to save using `safetensors`.")
     args = parser.parse_args()
-    if args.model_size != "tokenizer_only":
-        write_model(
-            model_path=args.output_dir,
-            input_base_path=os.path.join(args.input_dir, args.model_size),
-            model_size=args.model_size,
-            safe_serialization=args.safe_serialization,
-        )
-    spm_path = os.path.join(args.input_dir, "tokenizer.model")
-    write_tokenizer(args.output_dir, spm_path)
+    write_model(
+        model_path=args.output_dir,
+        input_base_path=os.path.join(args.input_dir, args.model_size),
+        model_size=args.model_size,
+        safe_serialization=args.safe_serialization,
+    )
+    
 
 
 if __name__ == "__main__":
