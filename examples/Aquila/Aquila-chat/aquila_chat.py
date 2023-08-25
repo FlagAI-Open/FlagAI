@@ -38,6 +38,7 @@ env_args = EnvArgs(
     training_script=__file__,
 )
 env_args = env_args.parse_args()
+
 #env_args.wandb = False
 
 # overwrite

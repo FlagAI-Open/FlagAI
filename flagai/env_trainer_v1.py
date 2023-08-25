@@ -676,7 +676,9 @@ class EnvTrainer():
                 if self.save_dir and (self.iteration + 1) % self.save_interval == 0 and \
                         self.iteration != best_iteration:
                     if self.adapter_save:
-                        self.model.save_pretrained(save_directory=self.save_dir)
+                        save_dir = self.save_dir+'/'+str(self.iteration)
+                        os.makedirs(save_dir,exist_ok=True)
+                        self.model.save_pretrained(save_directory=save_dir)
                     else:
                         best_iteration = self.iteration
                         save_checkpoint(self.iteration+1,
@@ -697,7 +699,9 @@ class EnvTrainer():
             # self.iteration-1 as the exact iteration
             if self.save_dir and (self.iteration-1) != best_iteration:
                 if self.adapter_save:
-                    self.model.save_pretrained(save_directory=self.save_dir)
+                    save_dir = self.save_dir+'/'+str(self.iteration)
+                    os.makedirs(save_dir,exist_ok=True)
+                    self.model.save_pretrained(save_directory=save_dir)
                 else:
                     save_checkpoint(self.iteration+1,
                                     best_iteration+1,
