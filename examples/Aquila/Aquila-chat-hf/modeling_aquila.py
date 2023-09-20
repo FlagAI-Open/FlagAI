@@ -346,7 +346,7 @@ class AquilaAttention(nn.Module):
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
         attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
-
+        attn_weights = torch.clamp(attn_weights, min=-1024., max=1024.)
         if attn_weights.size() != (bsz, self.num_heads, q_len, kv_seq_len):
             raise ValueError(
                 f"Attention weights should be of size {(bsz, self.num_heads, q_len, kv_seq_len)}, but is"
