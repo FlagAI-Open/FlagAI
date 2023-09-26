@@ -31,6 +31,17 @@ from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutpu
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import add_start_docstrings, add_start_docstrings_to_model_forward, logging, replace_return_docstrings
 from .configuration_aquila import AquilaConfig
+from transformers import (
+    LogitsProcessorList,
+    MinLengthLogitsProcessor,
+    TopKLogitsWarper,
+    TemperatureLogitsWarper,
+    TopPLogitsWarper,
+    StoppingCriteriaList,
+    MaxLengthCriteria,
+    BitsAndBytesConfig,
+)
+from .utils import *
 
 
 logger = logging.get_logger(__name__)
@@ -904,6 +915,113 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
                 tuple(past_state.index_select(0, beam_idx.to(past_state.device)) for past_state in layer_past),
             )
         return reordered_past
+
+    def predict(self, text, tokenizer=None,
+                max_gen_len=200, top_p=0.95,
+                seed=1234, topk=100,
+                temperature=0.9, 
+                sft=True, convo_template = "aquila-chat",
+                device = "cuda"):
+
+        vocab = tokenizer.get_vocab()
+        #device = device
+        id2word = {v:k for k, v in vocab.items()}
+
+
+        set_random_seed(seed)
+        if temperature == 0:
+            topk = 1
+            temperature = 1.0
+        if sft:
+            tokens = covert_prompt_to_input_ids_with_history(text, history=[], tokenizer=tokenizer, max_token=2048, convo_template=convo_template)
+            tokens = torch.tensor(tokens)[None,].to(device)
+        else :
+            tokens = tokenizer.encode_plus(text)["input_ids"]
+            print(tokenizer.decode(tokens))
+            tokens = torch.tensor(tokens)[None,].to(device)
+        input_length = len(tokens[0])
+        with torch.no_grad():
+
+            # instantiate logits processors
+            logits_processor = LogitsProcessorList(
+                [
+                    MinLengthLogitsProcessor(1, eos_token_id=100007),
+                ]
+            )
+            # instantiate logits processors
+            logits_warper = LogitsProcessorList(
+                [
+                    TopPLogitsWarper(top_p),
+                    TopKLogitsWarper(topk),
+                    TemperatureLogitsWarper(temperature),
+                    
+                ]
+            )
+
+            stopping_criteria = StoppingCriteriaList([MaxLengthCriteria(max_length=input_length + max_gen_len)])
+            out = self.sample(
+                                tokens,
+                                logits_processor=logits_processor,
+                                logits_warper=logits_warper,
+                                stopping_criteria=stopping_criteria,
+                                return_dict_in_generate=True, 
+                                output_scores=True,
+                            )
+
+            
+            # print(out)
+            out_ids = out["sequences"][0][input_length:].cpu().numpy()
+
+            out_scores = out["scores"]
+
+            out_scores = torch.cat(out_scores, dim=0)
+            out_scores = torch.nn.functional.softmax(out_scores, dim=-1).cpu().numpy()
+
+            probs = []
+            for i in range(len(out_ids)):
+                probs.append(float(out_scores[i][out_ids[i]]))
+
+            # print(f"probs is {probs}")
+
+            convert_tokens = []
+            for t in out_ids:
+                if t == 100006:
+                    convert_tokens.append("[CLS]")
+                else :
+                    convert_tokens.append(id2word.get(t, "[unkonwn_token]"))
+
+            out_text = tokenizer.decode(out_ids.tolist())
+            
+
+            out = out_text
+
+        if "###" in out:
+            special_index = out.index("###")
+            out = out[: special_index]
+            token_length = len(tokenizer.encode_plus(out)["input_ids"])
+            convert_tokens = convert_tokens[:token_length]
+            probs = probs[:token_length]
+
+        if "[UNK]" in out:
+            special_index = out.index("[UNK]")
+            out = out[:special_index]
+            token_length = len(tokenizer.encode_plus(out)["input_ids"])
+            convert_tokens = convert_tokens[:token_length]
+            probs = probs[:token_length]
+
+        if "</s>" in out:
+            special_index = out.index("</s>")
+            out = out[: special_index]
+            token_length = len(tokenizer.encode_plus(out)["input_ids"])
+            convert_tokens = convert_tokens[:token_length]
+            probs = probs[:token_length]
+
+        if len(out) > 0 and out[0] == " ":
+            out = out[1:]
+
+            convert_tokens = convert_tokens[1:]
+            probs = probs[1:]
+        return out 
 
 @add_start_docstrings(
     """
