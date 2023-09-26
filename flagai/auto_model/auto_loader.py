@@ -108,8 +108,6 @@ MODEL_DICT = {
     "aquilacode-7b-ts": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
     "aquilacode-multi": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
     "aquilacode-python": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
-    "aquila2-7b": ["flagai.model.aquila_model", "AQUILAModel", "aquila", "nlp"],
-    "aquila2chat-hf":["flagai.model.aquila2_model", "AQUILAModel", "aquila", "nlp"],
     "vit-base-p16-224":
         ["flagai.model.vision.vit", "VisionTransformer", "vit", "vision"],
     "vit-base-p16-384":
