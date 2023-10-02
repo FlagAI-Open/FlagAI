@@ -4,8 +4,9 @@
 import importlib
 import os
 import copy
-from flagai.model.file_utils import _get_model_id
-
+from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
+from flagai.model.aquila2.modeling_aquila import AquilaForCausalLM
+import torch
 
 class LazyImport(object):
 
@@ -16,7 +17,7 @@ class LazyImport(object):
     def __getattr__(self, name):
         mod = self.cache.get(self.mod_name)
         if not mod:
-            mod = importlib.import_module(self.mod_name)
+            mod = importlib.import_module(self.mod_name) 
             self.cache[self.mod_name] = mod
         return getattr(mod, name)
 
@@ -163,7 +164,12 @@ class AutoLoader:
                  model_name: str = "RoBERTa-base-ch",
                  model_dir: str = "./checkpoints/",
                  only_download_config: bool = False,
-                 device="cpu",
+                 device="cuda",
+                 torch_dtype=torch.float16,
+                 low_cpu_mem_usage=True,
+                 lora_dir=None,
+                 qlora_dir=None,
+                 quantization_config=None,
                  **kwargs):
         """
         Args:
@@ -194,66 +200,149 @@ class AutoLoader:
         raw_model_name = copy.deepcopy(model_name)
         model_name = model_name.lower()
 
-        if model_name not in MODEL_DICT:
+        if model_name not in MODEL_DICT and task_name != "aquila2":
             print(f"The model_name: {model_name} is not be supported")
             print(f"All supported models are {list(MODEL_DICT.keys())}")
             return
+        if task_name == "aquila2":
+            download_path = os.path.join(model_dir, model_name)
+            
+            if not os.path.exists(download_path):
+                # Try to download from ModelHub
+                try:
+                    model_id = _get_model_id(model_name)
+                except:
+                    raise FileNotFoundError("Model name not found in local path and ModelHub")
+                if model_id and model_id != "null":
+                    model_files = eval(_get_model_files(model_name))
+                    print("model files:" + str(model_files))
+                    for file_name in model_files:
+                        if not file_name.endswith("bin"):
+                            _get_vocab_path(download_path, file_name, model_id)
 
-        brief_model_name = MODEL_DICT[model_name][2]
-        model_type = MODEL_DICT[model_name][3]
-        # The dir to save config, vocab and model.
+                    if os.path.exists(
+                            os.path.join(download_path, 'config.json')):
+                        if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+                            model_parallel_size = int(os.getenv("MODEL_PARALLEL_SIZE"))
+                            if model_parallel_size > 1:
+                                # if gpus == nums_of_modelhub_models
+                                # can load
+                                # else need to download the pytorch_model.bin and to recut.
+                                model_hub_parallel_size = 0
+                                for f in model_files:
+                                    if "pytorch_model_" in f:
+                                        model_hub_parallel_size += 1
+                        else:
+                            model_parallel_size = 1
 
-        self.model_name = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
-        if self.model_name is None:
-            print(f"For the model_name: {model_name}, task_name: {task_name} \
-                is not be supported.")
-            tasks = self.get_task_name(brief_model_name)
-            print(
-                f"For the model_name: {model_name}, these tasks are be supported: {tasks}"
-            )
-            return
-        download_path = os.path.join(model_dir, raw_model_name)
-        print("*" * 20, task_name, model_name)
-        model_name_ = self.is_exist_finetuned_model(raw_model_name, task_name)
-        self.model = getattr(LazyImport(self.model_name[0]),
-                             self.model_name[1]).from_pretrain(
-            download_path=model_dir,
-            model_name=model_name_,
-            only_download_config=only_download_config,
-            device=device,
-            **kwargs)
+                        if "pytorch_model_01.bin" in model_files and model_parallel_size > 1 and model_hub_parallel_size == model_parallel_size:
+                            # Only to download the model slices(megatron-lm).
+                            for file_to_load in model_files:
+                                if "pytorch_model_" in file_to_load:
+                                    _get_checkpoint_path(download_path, file_to_load,
+                                                        model_id)
 
-        if model_type == "nlp":
-            if brief_model_name in ["galactica",]:
-                self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
-                                                    MODEL_DICT[model_name][5])(download_path)
-            else :
-                tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
-                                        "Tokenizer")
-                self.tokenizer = tokenizer_class.from_pretrained(
-                    model_name, cache_dir=download_path)
+                        elif 'pytorch_model.bin' in model_files:
+                            checkpoint_path = _get_checkpoint_path(
+                                download_path, 'pytorch_model.bin', model_id)
+                        else:
+                            checkpoint_merge = {}
+                            # maybe multi weights files
+                            for file_to_load in model_files:
+                                if "pytorch_model-0" in file_to_load:
+                                    _get_checkpoint_path(download_path, file_to_load,
+                                                        model_id)            
 
-        elif model_type == "mm":
-            if model_name.startswith("altdiffusion"):
-                self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
-                                MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
-                self.tokenizer = self.process.tokenizer
-                self.model.tokenizer = self.tokenizer
-            elif "altclip" not in model_name:
-                from flagai.data.tokenizer.clip.tokenizer import ClipTokenizer
-                self.tokenizer = ClipTokenizer(bpe_path=os.path.join(download_path, 'bpe_simple_vocab_16e6.txt.gz'))
-                self.transform = None
-            else:
-                
-                self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
-                                       MODEL_DICT[model_name][5]).from_pretrained(
-                    os.path.join(model_dir, raw_model_name))
-                self.transform = self.process.feature_extractor
-                self.tokenizer = self.process.tokenizer
+            if qlora_dir:
+                from transformers import BitsAndBytesConfig
+                quantization_config=BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=torch_dtype,
+                )
 
+
+            model = AquilaForCausalLM.from_pretrained(download_path,
+                                                    low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
+                                                    quantization_config=quantization_config)
+            
+            model.eval()
+            # from accelerate import load_checkpoint_and_dispatch
+            # model = load_checkpoint_and_dispatch(
+            #                 model, model_dir+model_name, device_map="balanced", no_split_module_classes=["LlamaDecoderLayer"])
+            if not qlora_dir:
+                model.to(device)
+            if lora_dir:
+                from flagai.model.tools.peft import PeftModel
+                model = PeftModel.from_pretrained(model, lora_dir)
+                print("lora modules loaded")
+            if qlora_dir:
+                from flagai.model.tools.peft import PeftModel
+                model = PeftModel.from_pretrained(model, qlora_dir)
+                print("Qlora modules loaded")
+            from transformers import AutoTokenizer
+            tokenizer = AutoTokenizer.from_pretrained(model_dir+model_name)
+            self.model = model 
+            self.tokenizer = tokenizer 
         else:
-            self.tokenizer = None
-            self.transform = None
+            brief_model_name = MODEL_DICT[model_name][2]
+            model_type = MODEL_DICT[model_name][3]
+            # The dir to save config, vocab and model.
+
+            self.model_name = ALL_TASK.get(f"{brief_model_name}_{task_name}", None)
+            if self.model_name is None:
+                print(f"For the model_name: {model_name}, task_name: {task_name} \
+                    is not be supported.")
+                tasks = self.get_task_name(brief_model_name)
+                print(
+                    f"For the model_name: {model_name}, these tasks are be supported: {tasks}"
+                )
+                return
+            download_path = os.path.join(model_dir, raw_model_name)
+            print("*" * 20, task_name, model_name)
+            model_name_ = self.is_exist_finetuned_model(raw_model_name, task_name)
+            self.model = getattr(LazyImport(self.model_name[0]),
+                                self.model_name[1]).from_pretrain(
+                download_path=model_dir,
+                model_name=model_name_,
+                only_download_config=only_download_config,
+                device=device,
+                **kwargs)
+
+            if model_type == "nlp":
+                if brief_model_name in ["galactica",]:
+                    self.tokenizer = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                                        MODEL_DICT[model_name][5])(download_path)
+                # elif 'Aquila2-7b' in model_name:
+
+                else :
+                    tokenizer_class = getattr(LazyImport("flagai.data.tokenizer"),
+                                            "Tokenizer")
+                    self.tokenizer = tokenizer_class.from_pretrained(
+                        model_name, cache_dir=download_path)
+
+            elif model_type == "mm":
+                if model_name.startswith("altdiffusion"):
+                    self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                    MODEL_DICT[model_name][5]).from_pretrained(os.path.join(model_dir, raw_model_name))
+                    self.tokenizer = self.process.tokenizer
+                    self.model.tokenizer = self.tokenizer
+                elif "altclip" not in model_name:
+                    from flagai.data.tokenizer.clip.tokenizer import ClipTokenizer
+                    self.tokenizer = ClipTokenizer(bpe_path=os.path.join(download_path, 'bpe_simple_vocab_16e6.txt.gz'))
+                    self.transform = None
+                else:
+                    
+                    self.process = getattr(LazyImport(MODEL_DICT[model_name][4]),
+                                        MODEL_DICT[model_name][5]).from_pretrained(
+                        os.path.join(model_dir, raw_model_name))
+                    self.transform = self.process.feature_extractor
+                    self.tokenizer = self.process.tokenizer
+
+            else:
+                self.tokenizer = None
+                self.transform = None
 
     def is_exist_finetuned_model(self, raw_model_name, task_name):
         try:
