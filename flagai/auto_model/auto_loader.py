@@ -266,8 +266,11 @@ class AutoLoader:
                     bnb_4bit_compute_dtype=torch_dtype,
                 )
             if inference_mode:
-                model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
-                                                        quantization_config=quantization_config)
+                if qlora_dir:
+                    model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
+                                                            quantization_config=quantization_config)
+                else:
+                    model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,)           
                 model.eval()
                 if not qlora_dir:
                     model.to(device)
