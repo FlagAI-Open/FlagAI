@@ -1,7 +1,7 @@
 import random
 import numpy as np 
 import torch 
-from fastchat.conversation import get_conv_template
+from flagai.model.aquila2.conversation import get_conv_template
 
 def set_random_seed(seed):
     """Set random seed for reproducability."""

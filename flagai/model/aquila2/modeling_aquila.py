@@ -1025,7 +1025,7 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
 
 @add_start_docstrings(
     """
-    The LLaMa Model transformer with a sequence classification head on top (linear layer).
+    The Aquila Model transformer with a sequence classification head on top (linear layer).
 
     [`AquilaForSequenceClassification`] uses the last token in order to do the classification, as other causal models
     (e.g. GPT-2) do.

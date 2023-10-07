@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="flagai",
-    version="v1.7.5",
+    version="v1.8.0",
     description="FlagAI aims to help researchers and developers to freely train and test large-scale models for NLP/CV/VL tasks.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
@@ -24,7 +24,7 @@ setup(
         'jieba>=0.42.1',
         'scikit-learn>=1.0.2',
         'tensorboard>=2.9.0',
-        'transformers>=4.20.1',
+        'transformers>=4.31.0',
         'datasets>=2.0.0',
         'setuptools==66.0.0',
         'protobuf==3.19.6',
