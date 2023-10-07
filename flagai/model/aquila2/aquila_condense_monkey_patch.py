@@ -1,10 +1,13 @@
-# Code adapted from https://huggingface.co/kaiokendev/superhot-13b-8k-no-rlhf-test/blob/main/llama_rope_scaled_monkey_patch.py
+"""
+Copied from https://github.com/lm-sys/FastChat.
+Later we will contribute our changes into it.
+"""
 
 from functools import partial
 
 import torch
 import transformers
-import transformers.models.llama.modeling_llama
+import flagai.model.aquila2.modeling_aquila
 
 
 class CondenseRotaryEmbedding(torch.nn.Module):
@@ -65,7 +68,7 @@ class CondenseRotaryEmbedding(torch.nn.Module):
         )
 
 
-def replace_llama_with_condense(ratio):
-    transformers.models.llama.modeling_llama.LlamaRotaryEmbedding = partial(
+def replace_aquila_with_condense(ratio):
+    flagai.model.aquila2.modeling_aquila.AquilaRotaryEmbedding = partial(
         CondenseRotaryEmbedding, ratio=ratio
     )
