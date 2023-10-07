@@ -44,7 +44,7 @@ def forward(
 ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
     if output_attentions:
         warnings.warn(
-            "Output attentions is not supported for patched `LlamaAttention`, returning `None` instead."
+            "Output attentions is not supported for patched `AquilaAttention`, returning `None` instead."
         )
 
     bsz, q_len, _ = hidden_states.size()
