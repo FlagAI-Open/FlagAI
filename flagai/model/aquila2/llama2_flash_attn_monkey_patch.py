@@ -163,7 +163,7 @@ def replace_llama_attn_with_flash_attn():
 
 
 def test():
-    from fastchat.train.llama_flash_attn_monkey_patch import forward as fastchat_forward
+    from flagai.model.aquila2.llama_flash_attn_monkey_patch import forward as fastchat_forward
     from transformers.models.llama.configuration_llama import LlamaConfig
 
     config = LlamaConfig(

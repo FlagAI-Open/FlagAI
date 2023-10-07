@@ -1,6 +1,11 @@
 
 import os
-from flagai.model.aquila2.conversation import Conversation, get_conv_template
+import sys 
+if sys.version_info >= (3, 9):
+    from functools import cache
+else:
+    from functools import lru_cache as cache
+from typing import Dict, List, Optional
 from transformers import (
     AutoConfig,
     AutoModel,
@@ -11,7 +16,7 @@ from transformers import (
     LlamaForCausalLM,
     T5Tokenizer,
 )
-from typing import Dict, List, Optional
+from flagai.model.aquila2.conversation import Conversation, get_conv_template
 from flagai.model.aquila2.llama_condense_monkey_patch import (
     replace_llama_with_condense,
 )
@@ -129,20 +134,7 @@ class AquilaChatAdapter(BaseModelAdapter):
         else:
             return get_conv_template("aquila")
         
-# Note: the registration order matters.
-# The one registered earlier has a higher matching priority.
-# register_model_adapter(PeftModelAdapter)
-# register_model_adapter(StableLMAdapter)
-# register_model_adapter(BardAdapter)
-# register_model_adapter(ChatGPTAdapter)
-# register_model_adapter(ClaudeAdapter)
-# register_model_adapter(FalconAdapter)
-# register_model_adapter(Llama2Adapter)
-# register_model_adapter(QwenChatAdapter)
 register_model_adapter(AquilaChatAdapter)
-# register_model_adapter(Lamma2ChineseAdapter)
-# register_model_adapter(OpenLLaMaOpenInstructAdapter)
-
 
 # After all adapters, try the default base adapter.
 register_model_adapter(BaseModelAdapter)
