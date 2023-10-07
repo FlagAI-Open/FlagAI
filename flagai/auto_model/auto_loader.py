@@ -266,6 +266,8 @@ class AutoLoader:
                 model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
                                                         quantization_config=quantization_config)
                 model.eval()
+                if not qlora_dir:
+                    model.to(device)
             else:
                 # Set RoPE scaling factor
                 import transformers 
@@ -285,8 +287,8 @@ class AutoLoader:
                                                         **kwargs)
 
 
-            if not qlora_dir:
-                model.to(device)
+            #if not quantization_config:
+            #    model.to(device)
             if lora_dir:
                 from flagai.model.tools.peft import PeftModel
                 model = PeftModel.from_pretrained(model, lora_dir)
