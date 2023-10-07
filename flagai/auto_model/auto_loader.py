@@ -4,6 +4,9 @@
 import importlib
 import os
 import copy
+from transformers import AutoTokenizer
+import transformers 
+import math 
 from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
 import torch
 
@@ -268,10 +271,16 @@ class AutoLoader:
                 model.eval()
                 if not qlora_dir:
                     model.to(device)
+                if lora_dir:
+                    from flagai.model.tools.peft import PeftModel
+                    model = PeftModel.from_pretrained(model, lora_dir)
+                    print("lora modules loaded")
+                if qlora_dir:
+                    from flagai.model.tools.peft import PeftModel
+                    model = PeftModel.from_pretrained(model, qlora_dir)
+                    print("Qlora modules loaded")
             else:
                 # Set RoPE scaling factor
-                import transformers 
-                import math 
                 config = transformers.AutoConfig.from_pretrained(
                     download_path,
                     cache_dir=kwargs['cache_dir'],
@@ -286,18 +295,6 @@ class AutoLoader:
                 model = AquilaForCausalLM.from_pretrained(download_path,
                                                         **kwargs)
 
-
-            #if not quantization_config:
-            #    model.to(device)
-            if lora_dir:
-                from flagai.model.tools.peft import PeftModel
-                model = PeftModel.from_pretrained(model, lora_dir)
-                print("lora modules loaded")
-            if qlora_dir:
-                from flagai.model.tools.peft import PeftModel
-                model = PeftModel.from_pretrained(model, qlora_dir)
-                print("Qlora modules loaded")
-            from transformers import AutoTokenizer
             tokenizer = AutoTokenizer.from_pretrained(download_path)
             self.model = model 
             self.tokenizer = tokenizer 
