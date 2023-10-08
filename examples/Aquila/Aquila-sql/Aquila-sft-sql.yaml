@@ -1,0 +1,31 @@
+# comments
+epochs: 3
+batch_size: 4
+save_interval: 2000
+fp16: True
+
+# lr
+lr: 9.65e-6
+warm_up: 0.1
+weight_decay: 0.1
+adam_beta1: 0.9
+adam_beta2: 0.95
+gradient_accumulation_steps: 1
+
+# bmtrain
+bmt_lr_decay_style: "linear"
+bmt_cpu_offload: False
+bmt_pre_load: True
+
+# flash-attn
+enable_flash_attn_models: True
+
+# sft_dataset
+pretrain_data: False
+enable_sft_conversations_dataset_v2: True
+enable_sft_dataset_dir: "./data"
+enable_sft_dataset_file: "sql_generate_from_spider_wikisql_train_weighted.jsonl"
+
+# save_optim: True
+save_optim: False
+save_rng: False
