@@ -1,0 +1,1973 @@
+########## argument param ##########
+gold: ../evaluation_result/2023100523--retrain-ep2-bsz1x8x4-wikisql-spider_1182-flash2flagai_v2_eval/cspider_gold.txt
+pred: ../evaluation_result/2023100523--retrain-ep2-bsz1x8x4-wikisql-spider_1182-flash2flagai_v2_eval/cspider_predict.txt
+db: ../data_collection/database
+table: ../data_collection/data/CSpider/tables.json
+etype: all
+plug_value: False
+keep_distinct: False
+progress_bar_for_each_datapoint: False
+##################################################
+glist: 1
+pred: 1
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+extra pred: select stadium.name , stadium.capacity from stadium join concert on stadium.stadium_id = concert.stadium_id where concert.year > 2013 group by stadium.stadium_id order by count ( * ) desc limit 1
+extra gold: SELECT T2.name ,  T2.capacity FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id WHERE T1.year  >=  2014 GROUP BY T2.stadium_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+hard pred: select country from singer where age < 30 intersect select country from singer where age > 40
+hard gold: SELECT country FROM singer WHERE age  >  40 INTERSECT SELECT country FROM singer WHERE age  <  30
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+medium pred: select concert.concert_name , concert.theme , count ( * ) from concert join singer_in_concert on concert.concert_id = singer_in_concert.concert_id group by concert.concert_name , concert.theme
+medium gold: SELECT T2.concert_name ,  T2.theme ,  count(*) FROM singer_in_concert AS T1 JOIN concert AS T2 ON T1.concert_id  =  T2.concert_id GROUP BY T2.concert_id
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+medium pred: select concert.concert_name , concert.theme , count ( * ) from concert join singer_in_concert on concert.concert_id = singer_in_concert.concert_id group by concert.concert_name , concert.theme
+medium gold: SELECT T2.concert_name ,  T2.theme ,  count(*) FROM singer_in_concert AS T1 JOIN concert AS T2 ON T1.concert_id  =  T2.concert_id GROUP BY T2.concert_id
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+medium pred: select singer.name , count ( * ) from singer_in_concert join singer on singer_in_concert.singer_id = singer.singer_id group by singer.name
+medium gold: SELECT T2.name ,  count(*) FROM singer_in_concert AS T1 JOIN singer AS T2 ON T1.singer_id  =  T2.singer_id GROUP BY T2.singer_id
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+medium pred: select singer.name , count ( * ) from singer_in_concert join singer on singer_in_concert.singer_id = singer.singer_id group by singer.name
+medium gold: SELECT T2.name ,  count(*) FROM singer_in_concert AS T1 JOIN singer AS T2 ON T1.singer_id  =  T2.singer_id GROUP BY T2.singer_id
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+hard pred: select singer.name from artist join singer_in_concert on artist.artist_id = singer_in_concert.artist_id join concert on concert.concert_id = singer_in_concert.concert_id where concert.year = 2014
+hard gold: SELECT T2.name FROM singer_in_concert AS T1 JOIN singer AS T2 ON T1.singer_id  =  T2.singer_id JOIN concert AS T3 ON T1.concert_id  =  T3.concert_id WHERE T3.year  =  2014
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+hard pred: select name from singer where song_release_year = 2014
+hard gold: SELECT T2.name FROM singer_in_concert AS T1 JOIN singer AS T2 ON T1.singer_id  =  T2.singer_id JOIN concert AS T3 ON T1.concert_id  =  T3.concert_id WHERE T3.year  =  2014
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+hard pred: select count ( * ) from stadium join concert on stadium.stadium_id = concert.stadium_id where stadium.capacity = ( select max ( capacity ) from stadium )
+hard gold: SELECT count(*) FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id ORDER BY T2.Capacity DESC LIMIT 1
+
+db is:[../data_collection/database/concert_singer/concert_singer.sqlite]
+hard pred: select count ( * ) from stadium join concert on stadium.stadium_id = concert.stadium_id where stadium.capacity = ( select max ( capacity ) from stadium )
+hard gold: SELECT count(*) FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id ORDER BY T2.Capacity DESC LIMIT 1
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+medium pred: select weight from pets where pet_age = ( select min ( pet_age ) from pets )
+medium gold: SELECT weight FROM pets ORDER BY pet_age LIMIT 1
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+hard pred: select count ( * ) from student join has_pet on student.stuid = has_pet.stuid join pets on has_pet.petid = pets.petid where student.sex = '女'
+hard gold: SELECT count(*) FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T2.petid  =  T3.petid WHERE T1.sex  =  '女' AND T3.pettype  =  '狗'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+hard pred: select count ( * ) from student where sex = '女'
+hard gold: SELECT count(*) FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T2.petid  =  T3.petid WHERE T1.sex  =  '女' AND T3.pettype  =  '狗'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select student.fname from student join has_pet on student.stuid = has_pet.stuid where has_pet.petid in ( select petid from pets where pettype = '猫' union select petid from pets where pettype = '狗' )
+extra gold: SELECT DISTINCT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫' OR T3.pettype  =  '狗'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select student.fname from student join has_pet on student.stuid = has_pet.stuid where has_pet.petid in ( select pets.petid from pets join pet_type on pets.petid = pet_type.petid where pet_type.pettype = '猫' union select pets.petid from pets join pet_type on pets.petid = pet_type.petid where pet_type.pettype = '狗' )
+extra gold: SELECT DISTINCT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫' OR T3.pettype  =  '狗'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select student.fname from student join has_pet on student.stuid = has_pet.stuid where has_pet.petid in ( select pets.petid from pets join pet_type on pets.petid = pet_type.petid where pet_type.pettype = '猫' intersect select pets.petid from pets join pet_type on pets.petid = pet_type.petid where pet_type.pettype = '狗' )
+extra gold: SELECT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫' INTERSECT SELECT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '狗'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select student.fname from student join has_pet on student.stuid = has_pet.stuid where has_pet.petid = pets.petid where pets.pettype = '猫' intersect select student.fname from student join has_pet on student.stuid = has_pet.stuid where has_pet.petid = pets.petid where pets.pettype = '狗'
+extra gold: SELECT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫' INTERSECT SELECT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '狗'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select major , age from student where stuid not in ( select stuid from has_pet )
+extra gold: SELECT major ,  age FROM student WHERE stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫')
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select major , age from student where stuid not in ( select stuid from has_pet join pets on has_pet.petid = pets.petid where pets.pettype = '猫' )
+extra gold: SELECT major ,  age FROM student WHERE stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫')
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+hard pred: select stuid from student except select stuid from has_pet
+hard gold: SELECT stuid FROM student EXCEPT SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+hard pred: select stuid from student except select stuid from has_pet
+hard gold: SELECT stuid FROM student EXCEPT SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select student.fname , student.age from student join has_pet on student.stuid = has_pet.stuid where has_pet.petid in ( select petid from pets where pettype = '狗' except select petid from pets where pettype = '猫' )
+extra gold: SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '狗' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫')
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select fname from student where stuid in ( select stuid from has_pet where petid in ( select petid from pets where pettype = '猫' ) except select stuid from has_pet where petid in ( select petid from pets where pettype = '狗' ) )
+extra gold: SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '狗' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  '猫')
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+medium pred: select stuid from student where lname = '琳' intersect select stuid from has_pet
+medium gold: SELECT T2.petid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid WHERE T1.Lname  =  '琳'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+medium pred: select stuid from student where lname = '琳' intersect select stuid from has_pet join pets on has_pet.petid = pets.petid
+medium gold: SELECT T2.petid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid WHERE T1.Lname  =  '琳'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+medium pred: select count ( * ) , student.fname , student.lname from student join has_pet on student.stuid = has_pet.stuid group by student.stuid having count ( * ) >= 1
+medium gold: SELECT count(*) ,  T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid GROUP BY T1.stuid
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+hard pred: select student.lname from student join has_pet on student.stuid = has_pet.stuid where has_pet.petid in ( select pets.petid from pets join pet_type on pets.petid = pet_type.petid where pet_type.pettype = '猫' and pets.pet_age = 3 )
+hard gold: SELECT T1.lname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pet_age  =  3 AND T3.pettype  =  '猫'
+
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+db is:[../data_collection/database/pets_1/pets_1.sqlite]
+extra pred: select avg ( age ) from student where stuid not in ( select stuid from has_pet )
+extra gold: SELECT avg(age) FROM student WHERE stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid)
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select model from cars_data order by horsepower asc limit 1
+hard gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select car_makers.maker from cars_data join model_list on cars_data.id = model_list.id join car_makers on model_list.maker = car_makers.id where cars_data.year = 1970
+extra gold: SELECT DISTINCT T1.Maker FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker JOIN CAR_NAMES AS T3 ON T2.model  =  T3.model JOIN CARS_DATA AS T4 ON T3.MakeId  =  T4.id WHERE T4.year  =  '1970';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select distinct car_makers.maker from car_makers join model_list on car_makers.id = model_list.maker where model_list.year = '1970'
+extra gold: SELECT DISTINCT T1.Maker FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker JOIN CAR_NAMES AS T3 ON T2.model  =  T3.model JOIN CARS_DATA AS T4 ON T3.MakeId  =  T4.id WHERE T4.year  =  '1970';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select car_makers.fullname , cars_data.year from car_makers join cars_data on car_makers.id = cars_data.id order by cars_data.year asc limit 1
+extra gold: SELECT T2.Make ,  T1.Year FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T1.Year  =  (SELECT min(YEAR) FROM CARS_DATA);
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select distinct model_list.model from model_list join car_names on model_list.modelid = car_names.model where car_names.year > 1980
+hard gold: SELECT DISTINCT T1.model FROM MODEL_LIST AS T1 JOIN CAR_NAMES AS T2 ON T1.model  =  T2.model JOIN CARS_DATA AS T3 ON T2.MakeId  =  T3.id WHERE T3.year  >  1980;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select distinct model from model_list where modelid not in ( select modelid from car_names where year > 1980 )
+hard gold: SELECT DISTINCT T1.model FROM MODEL_LIST AS T1 JOIN CAR_NAMES AS T2 ON T1.model  =  T2.model JOIN CARS_DATA AS T3 ON T2.MakeId  =  T3.id WHERE T3.year  >  1980;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select continents.continent , count ( * ) from continents join car_makers on continents.contid = car_makers.country group by continents.continent
+hard gold: SELECT T1.Continent ,  count(*) FROM CONTINENTS AS T1 JOIN COUNTRIES AS T2 ON T1.ContId  =  T2.continent JOIN car_makers AS T3 ON T2.CountryId  =  T3.Country GROUP BY T1.Continent;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select continents.continent , count ( * ) from continents join car_makers on continents.contid = car_makers.country group by continents.continent
+hard gold: SELECT T1.Continent ,  count(*) FROM CONTINENTS AS T1 JOIN COUNTRIES AS T2 ON T1.ContId  =  T2.continent JOIN car_makers AS T3 ON T2.CountryId  =  T3.Country GROUP BY T1.Continent;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+medium pred: select count ( * ) , car_makers.fullname from car_makers join model_list on car_makers.id = model_list.maker group by car_makers.id
+medium gold: SELECT Count(*) ,  T2.FullName ,  T2.id FROM MODEL_LIST AS T1 JOIN CAR_MAKERS AS T2 ON T1.Maker  =  T2.Id GROUP BY T2.id;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select count ( * ) from car_makers where country = '美国'
+hard gold: SELECT count(*) FROM MODEL_LIST AS T1 JOIN CAR_MAKERS AS T2 ON T1.Maker  =  T2.Id JOIN COUNTRIES AS T3 ON T2.Country  =  T3.CountryId WHERE T3.CountryName  =  '美国';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select count ( * ) from car_makers join countries on car_makers.country = countries.countryid where countries.countryname = '美国'
+hard gold: SELECT count(*) FROM MODEL_LIST AS T1 JOIN CAR_MAKERS AS T2 ON T1.Maker  =  T2.Id JOIN COUNTRIES AS T3 ON T2.Country  =  T3.CountryId WHERE T3.CountryName  =  '美国';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+easy pred: select avg ( mpg ) , cylinders from cars_data where cylinders = 4 group by cylinders
+easy gold: SELECT avg(mpg) FROM CARS_DATA WHERE Cylinders  =  4;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+easy pred: select avg ( mpg ) , cylinders from cars_data group by cylinders having count ( * ) >= 4
+easy gold: SELECT avg(mpg) FROM CARS_DATA WHERE Cylinders  =  4;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select min ( weight ) from cars_data where cylinders = 8 and year = 1974
+hard gold: SELECT Weight FROM CARS_DATA WHERE Cylinders  =  4 AND YEAR  =  1974 ORDER BY Weight ASC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select min ( weight ) from cars_data where year = 1974 and cylinders = 8
+hard gold: SELECT Weight FROM CARS_DATA WHERE Cylinders  =  4 AND YEAR  =  1974 ORDER BY Weight ASC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select countries.countryname from countries join car_makers on countries.countryid = car_makers.country group by countries.countryname having count ( * ) >= 3
+extra gold: SELECT T1.CountryName FROM COUNTRIES AS T1 JOIN CONTINENTS AS T2 ON T1.Continent  =  T2.ContId JOIN CAR_MAKERS AS T3 ON T1.CountryId  =  T3.Country WHERE T2.Continent  =  '欧洲' GROUP BY T1.CountryName HAVING count(*)  >=  3;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select countries.countryname from countries join car_makers on countries.countryid = car_makers.country where car_makers.id >= 3 and countries.continent = continents.contid and continents.continent = '欧洲'
+extra gold: SELECT T1.CountryName FROM COUNTRIES AS T1 JOIN CONTINENTS AS T2 ON T1.Continent  =  T2.ContId JOIN CAR_MAKERS AS T3 ON T1.CountryId  =  T3.Country WHERE T2.Continent  =  '欧洲' GROUP BY T1.CountryName HAVING count(*)  >=  3;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select max ( cars_data.horsepower ) , car_names.maker from cars_data join car_names on cars_data.id = car_names.makeid group by car_names.maker
+extra gold: SELECT T2.horsepower ,  T1.Make FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.cylinders  =  3 ORDER BY T2.horsepower DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select max ( horsepower ) , car_names.make from cars_data join car_names on cars_data.id = car_names.makeid where cars_data.cylinders = 3 group by car_names.make
+extra gold: SELECT T2.horsepower ,  T1.Make FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.cylinders  =  3 ORDER BY T2.horsepower DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select model from cars_data order by mpg desc limit 1
+hard gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.mpg DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select model from cars_data order by mpg desc limit 1
+hard gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.mpg DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+medium pred: select avg ( cars_data.edispl ) from cars_data join car_names on cars_data.id = car_names.makeid where car_names.make = '吉利'
+medium gold: SELECT avg(T2.edispl) FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T1.Model  =  '吉利';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+medium pred: select avg ( edispl ) from cars_data join car_names on cars_data.id = car_names.makeid where car_names.make = '吉利'
+medium gold: SELECT avg(T2.edispl) FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T1.Model  =  '吉利';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+medium pred: select distinct model_list.model from car_makers join model_list on car_makers.id = model_list.maker where car_makers.maker = '一汽'
+medium gold: SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  '一汽';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select car_names.model from car_makers join car_names on car_makers.id = car_names.makeid where car_makers.fullname = '上汽' or cars_data.weight > 3500
+extra gold: SELECT DISTINCT T2.Model FROM CAR_NAMES AS T1 JOIN MODEL_LIST AS T2 ON T1.Model  =  T2.Model JOIN CAR_MAKERS AS T3 ON T2.Maker  =  T3.Id JOIN CARS_DATA AS T4 ON T1.MakeId  =  T4.Id WHERE T3.FullName  =  '上汽' OR T4.weight  >  3500;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select distinct model_list.model from model_list join car_makers on model_list.maker = car_makers.id where car_makers.fullname = '上汽' or cars_data.weight > 3500
+extra gold: SELECT DISTINCT T2.Model FROM CAR_NAMES AS T1 JOIN MODEL_LIST AS T2 ON T1.Model  =  T2.Model JOIN CAR_MAKERS AS T3 ON T2.Maker  =  T3.Id JOIN CARS_DATA AS T4 ON T1.MakeId  =  T4.Id WHERE T3.FullName  =  '上汽' OR T4.weight  >  3500;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+medium pred: select year from cars_data where weight < 4000 intersect select year from cars_data where weight > 3000
+medium gold: SELECT DISTINCT T1.Year FROM CARS_DATA AS T1 WHERE T1.Weight  >  3000 AND T1.weight  <  4000;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select min ( cylinders ) from cars_data join car_names on cars_data.id = car_names.makeid where car_names.make = '吉利'
+extra gold: SELECT T1.cylinders FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Model  =  '吉利' ORDER BY T1.accelerate ASC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select count ( * ) from cars_data join car_names on cars_data.id = car_names.makeid where car_names.make = '吉利' and cars_data.accelerate = ( select min ( accelerate ) from cars_data join car_names on cars_data.id = car_names.makeid where car_names.make = '吉利' )
+extra gold: SELECT T1.cylinders FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Model  =  '吉利' ORDER BY T1.accelerate ASC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select count ( * ) from cars_data where accelerate > ( select max ( accelerate ) from cars_data )
+hard gold: SELECT COUNT(*) FROM CARS_DATA WHERE Accelerate  >  ( SELECT Accelerate FROM CARS_DATA ORDER BY Horsepower DESC LIMIT 1 );
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select count ( * ) from cars_data where accelerate > ( select max ( accelerate ) from cars_data )
+hard gold: SELECT COUNT(*) FROM CARS_DATA WHERE Accelerate  >  ( SELECT Accelerate FROM CARS_DATA ORDER BY Horsepower DESC LIMIT 1 );
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+easy pred: select count ( * ) from car_makers where countryid in ( select countryid from car_makers group by countryid having count ( * ) > 2 )
+easy gold: SELECT COUNT(*) FROM ( SELECT T1.CountryId ,  COUNT(*) FROM COUNTRIES AS T1 JOIN CAR_MAKERS AS T2 ON T1.CountryId  =  T2.Country GROUP BY T1.CountryId HAVING count(*)  >  2 );
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+easy pred: select count ( * ) from ( select country from car_makers group by country having count ( * ) > 2 )
+easy gold: SELECT COUNT(*) FROM ( SELECT T1.CountryId ,  COUNT(*) FROM COUNTRIES AS T1 JOIN CAR_MAKERS AS T2 ON T1.CountryId  =  T2.Country GROUP BY T1.CountryId HAVING count(*)  >  2 );
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select car_names.model from cars_data join car_names on cars_data.id = car_names.makeid where cars_data.cylinders = 4
+extra gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Cylinders  =  4 ORDER BY T2.horsepower DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select max ( horsepower ) from cars_data where cylinders = 4
+extra gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Cylinders  =  4 ORDER BY T2.horsepower DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select car_makers.id , car_makers.fullname from car_makers join cars_data on car_makers.id = cars_data.id where cars_data.cylinders > 3
+extra gold: SELECT T2.MakeId ,  T2.Make FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T1.Horsepower  >  (SELECT min(Horsepower) FROM CARS_DATA) AND T1.Cylinders  <=  3;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select car_names.makeid , car_names.make from car_names join cars_data on car_names.makeid = cars_data.id where cars_data.cylinders < 4
+extra gold: SELECT T2.MakeId ,  T2.Make FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T1.Horsepower  >  (SELECT min(Horsepower) FROM CARS_DATA) AND T1.Cylinders  <=  3;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select max ( mpg ) , cylinders from cars_data where cylinders = 8 or year < 1980 group by cylinders
+extra gold: SELECT mpg FROM CARS_DATA WHERE Cylinders  =  8 OR YEAR  <  1980 ORDER BY mpg DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select max ( mpg ) from cars_data where cylinders = '8' or year < 1980
+extra gold: SELECT mpg FROM CARS_DATA WHERE Cylinders  =  8 OR YEAR  <  1980 ORDER BY mpg DESC LIMIT 1;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select model_list.model from cars_data join model_list on cars_data.id = model_list.id where cars_data.weight < 3500 and model_list.maker != ( select id from car_makers where country = '广汽' )
+extra gold: SELECT DISTINCT T1.model FROM MODEL_LIST AS T1 JOIN CAR_NAMES AS T2 ON T1.Model  =  T2.Model JOIN CARS_DATA AS T3 ON T2.MakeId  =  T3.Id JOIN CAR_MAKERS AS T4 ON T1.Maker  =  T4.Id WHERE T3.weight  <  3500 AND T4.FullName != '广汽';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select model_list.model from model_list join car_makers on model_list.maker = car_makers.id where car_makers.fullname != '广汽' and cars_data.weight < 3500
+extra gold: SELECT DISTINCT T1.model FROM MODEL_LIST AS T1 JOIN CAR_NAMES AS T2 ON T1.Model  =  T2.Model JOIN CARS_DATA AS T3 ON T2.MakeId  =  T3.Id JOIN CAR_MAKERS AS T4 ON T1.Maker  =  T4.Id WHERE T3.weight  <  3500 AND T4.FullName != '广汽';
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select countryname from countries where countryid not in ( select country from car_makers )
+hard gold: SELECT CountryName FROM countries EXCEPT SELECT T1.CountryName FROM countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.countryId  =  T2.Country;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+hard pred: select countryname from countries where countryid not in ( select country from car_makers )
+hard gold: SELECT CountryName FROM countries EXCEPT SELECT T1.CountryName FROM countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.countryId  =  T2.Country;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select model_list.maker , car_makers.fullname from car_makers join model_list on car_makers.id = model_list.maker group by model_list.maker having count ( * ) >= 2 intersect select makeid , car_makers.fullname from car_names join model_list on car_names.model = model_list.model group by makeid having count ( * ) >= 3
+extra gold: SELECT T1.Id ,  T1.Maker FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id HAVING count(*)  >=  2 INTERSECT SELECT T1.Id ,  T1.Maker FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker JOIN CAR_NAMES AS T3 ON T2.model  =  T3.model GROUP BY T1.Id HAVING count(*)  >  3;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select car_makers.id , car_makers.maker from car_makers join model_list on car_makers.id = model_list.maker group by car_makers.id having count ( * ) >= 2 intersect select car_makers.id , car_makers.maker from car_makers join model_list on car_makers.id = model_list.maker group by car_makers.id having count ( * ) > 3
+extra gold: SELECT T1.Id ,  T1.Maker FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id HAVING count(*)  >=  2 INTERSECT SELECT T1.Id ,  T1.Maker FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker JOIN CAR_NAMES AS T3 ON T2.model  =  T3.model GROUP BY T1.Id HAVING count(*)  >  3;
+
+db is:[../data_collection/database/car_1/car_1.sqlite]
+extra pred: select countries.countryid , countries.countryname from countries join car_makers on countries.countryid = car_makers.country group by countries.countryid having count ( * ) > 3 union select car_makers.country from car_makers join countries on car_makers.country = countries.countryid where car_makers.fullname = 'rophy'
+extra gold: SELECT T1.countryId ,  T1.CountryName FROM Countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.CountryId  =  T2.Country GROUP BY T1.countryId HAVING count(*)  >  3 UNION SELECT T1.countryId ,  T1.CountryName FROM Countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.CountryId  =  T2.Country JOIN MODEL_LIST AS T3 ON T2.Id  =  T3.Maker WHERE T3.Model  =  '荣威';
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+easy pred: select count ( * ) from airports join flights on airports.airportcode = flights.sourceairport where airports.city = '长沙'
+easy gold: SELECT count(*) FROM FLIGHTS WHERE SourceAirport  =  "长沙"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+easy pred: select count ( * ) from airports join flights on airports.airportcode = flights.sourceairport where airports.city = '长沙'
+easy gold: SELECT count(*) FROM FLIGHTS WHERE SourceAirport  =  "长沙"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+easy pred: select count ( * ) from airports join flights on airports.airportcode = flights.destairport where airports.city = '天津'
+easy gold: SELECT count(*) FROM FLIGHTS WHERE DestAirport  =  "天津"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+easy pred: select count ( * ) from airports join flights on airports.airportcode = flights.destairport where airports.city = '天津'
+easy gold: SELECT count(*) FROM FLIGHTS WHERE DestAirport  =  "天津"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+hard pred: select count ( * ) from airports join flights on airports.airportcode = flights.sourceairport and airports.airportcode = flights.destairport where airports.city = '哈尔滨' and airports.city = '西安'
+hard gold: SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.DestAirport  =  T2.AirportCode JOIN AIRPORTS AS T3 ON T1.SourceAirport  =  T3.AirportCode WHERE T2.City  =  "西安" AND T3.City  =  "哈尔滨"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+medium pred: select count ( * ) from airports join flights on airports.airportcode = flights.sourceairport where airports.city = '浦东' and flights.airline = '南方航空'
+medium gold: SELECT count(*) FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T2.Airline  =  T1.uid WHERE T1.Airline  =  "南方航空" AND T2.SourceAirport  =  "浦东"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+medium pred: select count ( * ) from flights join airlines on flights.airline = airlines.uid where airports.airportcode = flights.sourceairport and airlines.airline = '南方航空' and airports.city = '浦东'
+medium gold: SELECT count(*) FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T2.Airline  =  T1.uid WHERE T1.Airline  =  "南方航空" AND T2.SourceAirport  =  "浦东"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+hard pred: select count ( * ) from airlines join flights on airlines.uid = flights.airline where airlines.airline = '南方航空' and flights.destairport = '哈尔滨'
+hard gold: SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.DestAirport  =  T2.AirportCode JOIN AIRLINES AS T3 ON T3.uid  =  T1.Airline WHERE T2.City  =  "哈尔滨" AND T3.Airline  =  "南方航空"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+hard pred: select count ( * ) from airlines join flights on airlines.airline = flights.airline where airlines.abbreviation = '南方航空' and airports.airportname = '哈尔滨'
+hard gold: SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.DestAirport  =  T2.AirportCode JOIN AIRLINES AS T3 ON T3.uid  =  T1.Airline WHERE T2.City  =  "哈尔滨" AND T3.Airline  =  "南方航空"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+extra pred: select city from airports group by city order by count ( * ) desc limit 1
+extra gold: SELECT T1.City FROM AIRPORTS AS T1 JOIN FLIGHTS AS T2 ON T1.AirportCode  =  T2.DestAirport GROUP BY T1.City ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+extra pred: select city from airports group by city order by count ( * ) desc limit 1
+extra gold: SELECT T1.City FROM AIRPORTS AS T1 JOIN FLIGHTS AS T2 ON T1.AirportCode  =  T2.SourceAirport GROUP BY T1.City ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+extra pred: select sourceairport from flights group by sourceairport order by count ( * ) asc limit 1
+extra gold: SELECT T1.AirportCode FROM AIRPORTS AS T1 JOIN FLIGHTS AS T2 ON T1.AirportCode  =  T2.DestAirport OR T1.AirportCode  =  T2.SourceAirport GROUP BY T1.AirportCode ORDER BY count(*) LIMIT 1
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+extra pred: select abbreviation , country from airlines order by count ( * ) asc limit 1
+extra gold: SELECT T1.Abbreviation ,  T1.Country FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline GROUP BY T1.Airline ORDER BY count(*) LIMIT 1
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+medium pred: select airlines.airline from airlines join flights on airlines.uid = flights.airline where flights.sourceairport = ( select airportcode from airports where city = '浦东' )
+medium gold: SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline WHERE T2.SourceAirport  =  "浦东"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+medium pred: select airlines.airline from airlines join flights on airlines.airline = flights.airline group by airlines.airline having count ( * ) >= 10
+medium gold: SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline GROUP BY T1.Airline HAVING count(*)  >  10
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+medium pred: select airlines.airline from airlines join flights on airlines.airline = flights.airline group by airlines.airline having count ( * ) >= 10
+medium gold: SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline GROUP BY T1.Airline HAVING count(*)  >  10
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+easy pred: select flightno from airports join flights on airports.airportcode = flights.sourceairport where airports.city = '长沙'
+easy gold: SELECT FlightNo FROM FLIGHTS WHERE SourceAirport  =  "长沙"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+easy pred: select flightno from airports join flights on airports.airportcode = flights.sourceairport where airports.city = '长沙'
+easy gold: SELECT FlightNo FROM FLIGHTS WHERE DestAirport  =  "长沙"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+hard pred: select flightno from airports join flights on airports.airportcode = flights.sourceairport where airports.city = '哈尔滨' or airports.city = '长春'
+hard gold: SELECT count(*) FROM Flights AS T1 JOIN Airports AS T2 ON T1.DestAirport  =  T2.AirportCode WHERE T2.city  =  "哈尔滨" OR T2.city  =  "长春"
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+hard pred: select airportname from airports where airportcode not in ( select destairport from flights ) and airportcode not in ( select sourceairport from flights )
+hard gold: SELECT AirportName FROM Airports WHERE AirportCode NOT IN (SELECT SourceAirport FROM Flights UNION SELECT DestAirport FROM Flights)
+
+db is:[../data_collection/database/flight_2/flight_2.sqlite]
+hard pred: select airportname from airports except select airports.airportname from airports join flights on airports.airportcode = flights.sourceairport union select airports.airportname from airports join flights on airports.airportcode = flights.destairport
+hard gold: SELECT AirportName FROM Airports WHERE AirportCode NOT IN (SELECT SourceAirport FROM Flights UNION SELECT DestAirport FROM Flights)
+
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+medium pred: select district , count ( * ) from shop group by district
+medium gold: SELECT count(*) ,  LOCATION FROM shop GROUP BY LOCATION
+
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+medium pred: select shop.manager_name , shop.district from shop join employee on shop.manager_name = employee.name join evaluation on employee.employee_id = evaluation.employee_id group by shop.manager_name order by sum ( shop.number_products ) desc limit 1
+medium gold: SELECT manager_name ,  district FROM shop ORDER BY number_products DESC LIMIT 1
+
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+medium pred: select shop.name , count ( * ) from shop join hiring on shop.shop_id = hiring.shop_id group by shop.shop_id
+medium gold: SELECT count(*) ,  t2.name FROM hiring AS t1 JOIN shop AS t2 ON t1.shop_id  =  t2.shop_id GROUP BY t2.name
+
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+medium pred: select shop.name , count ( * ) from shop join hiring on shop.shop_id = hiring.shop_id group by shop.shop_id
+medium gold: SELECT count(*) ,  t2.name FROM hiring AS t1 JOIN shop AS t2 ON t1.shop_id  =  t2.shop_id GROUP BY t2.name
+
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+hard pred: select district from shop group by district having min ( number_products ) < 3000 intersect select district from shop group by district having max ( number_products ) > 10000
+hard gold: SELECT district FROM shop WHERE Number_products  <  3000 INTERSECT SELECT district FROM shop WHERE Number_products  >  10000
+
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+hard pred: select district from shop where number_products > 1000 intersect select district from shop where number_products < 3000
+hard gold: SELECT district FROM shop WHERE Number_products  <  3000 INTERSECT SELECT district FROM shop WHERE Number_products  >  10000
+
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/employee_hire_evaluation/employee_hire_evaluation.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select documents.document_id , templates.template_id , documents.document_description from documents join templates on documents.template_id = templates.template_id where documents.document_name = '罗超的简历'
+medium gold: SELECT document_id ,  template_id ,  Document_Description FROM Documents WHERE document_name  =  "罗超的简历"
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select count ( * ) from templates where template_type_code = 'PPT'
+medium gold: SELECT count(*) FROM Documents AS T1 JOIN Templates AS T2 ON T1.Template_ID  =  T2.Template_ID WHERE T2.Template_Type_Code  =  'PPT'
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select documents.template_id , count ( * ) from documents join templates on documents.template_id = templates.template_id group by documents.template_id
+medium gold: SELECT template_id ,  count(*) FROM Documents GROUP BY template_id
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select templates.template_id , templates.version_number , templates.template_type_code from templates join ref_template_types on templates.template_type_code = ref_template_types.template_type_code
+medium gold: SELECT template_id ,  version_number ,  template_type_code FROM Templates
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select templates.template_id , templates.version_number , templates.template_type_code from templates join ref_template_types on templates.template_type_code = ref_template_types.template_type_code
+medium gold: SELECT template_id ,  version_number ,  template_type_code FROM Templates
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+easy pred: select distinct template_type_code from ref_template_types
+easy gold: SELECT DISTINCT template_type_code FROM Templates
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+easy pred: select count ( * ) from ref_template_types join templates on ref_template_types.template_type_code = templates.template_type_code where ref_template_types.template_type_description = '简历'
+easy gold: SELECT count(*) FROM Templates WHERE template_type_code  =  "简历"
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select ref_template_types.template_type_code , count ( * ) from ref_template_types join templates on ref_template_types.template_type_code = templates.template_type_code group by ref_template_types.template_type_code
+medium gold: SELECT template_type_code ,  count(*) FROM Templates GROUP BY template_type_code
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+hard pred: select ref_template_types.template_type_code from ref_template_types join templates on ref_template_types.template_type_code = templates.template_type_code group by ref_template_types.template_type_code order by count ( * ) desc limit 1
+hard gold: SELECT template_type_code FROM Templates GROUP BY template_type_code ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select min ( version_number ) , template_type_code from templates group by template_type_code
+medium gold: SELECT min(Version_Number) ,  template_type_code FROM Templates
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select version_number , template_type_code from templates order by version_number asc limit 1
+medium gold: SELECT min(Version_Number) ,  template_type_code FROM Templates
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select template_type_code , count ( * ) from documents group by template_type_code
+medium gold: SELECT T1.template_type_code ,  count(*) FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id GROUP BY T1.template_type_code
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select template_type_code , count ( * ) from documents group by template_type_code
+medium gold: SELECT T1.template_type_code ,  count(*) FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id GROUP BY T1.template_type_code
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+extra pred: select ref_template_types.template_type_code from ref_template_types join documents on ref_template_types.template_type_code = documents.template_type_code group by ref_template_types.template_type_code order by count ( * ) desc limit 1
+extra gold: SELECT T1.template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id GROUP BY T1.template_type_code ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+extra pred: select template_type_code from templates group by template_type_code order by count ( * ) desc limit 1
+extra gold: SELECT T1.template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id GROUP BY T1.template_type_code ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select template_id from templates where template_type_code = '演示'
+medium gold: SELECT T2.template_id FROM Ref_template_types AS T1 JOIN Templates AS T2 ON T1.template_type_code  = T2.template_type_code WHERE T1.template_type_description  =  "演示"
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select template_id from templates where template_type_code = '演示'
+medium gold: SELECT T2.template_id FROM Ref_template_types AS T1 JOIN Templates AS T2 ON T1.template_type_code  = T2.template_type_code WHERE T1.template_type_description  =  "演示"
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+easy pred: select other_details from paragraphs where paragraph_text like '韩文'
+easy gold: SELECT Other_Details FROM Paragraphs WHERE paragraph_text  =  '韩文'
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+easy pred: select other_details from paragraphs where paragraph_text like '韩文'
+easy gold: SELECT Other_Details FROM Paragraphs WHERE paragraph_text  =  '韩文'
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+medium pred: select paragraph_text from paragraphs where document_id in ( select document_id from documents where document_name = '客户评论' )
+medium gold: SELECT T1.paragraph_text FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_id  =  T2.document_id WHERE T2.document_name  =  "顾客评价"
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+easy pred: select document_id from paragraphs group by document_id having count ( * ) = 1 or count ( * ) = 2
+easy gold: SELECT document_id FROM Paragraphs GROUP BY document_id HAVING count(*) BETWEEN 1 AND 2
+
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+medium pred: select teacher.name , count ( * ) from course_arrange join teacher on course_arrange.teacher_id = teacher.teacher_id group by course_arrange.teacher_id
+medium gold: SELECT T2.Name ,  COUNT(*) FROM course_arrange AS T1 JOIN teacher AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T2.Name
+
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+medium pred: select teacher.name , count ( * ) from course_arrange join teacher on course_arrange.teacher_id = teacher.teacher_id group by course_arrange.teacher_id
+medium gold: SELECT T2.Name ,  COUNT(*) FROM course_arrange AS T1 JOIN teacher AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T2.Name
+
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+medium pred: select teacher.name from course_arrange join teacher on course_arrange.teacher_id = teacher.teacher_id group by course_arrange.teacher_id having count ( * ) >= 2
+medium gold: SELECT T2.Name FROM course_arrange AS T1 JOIN teacher AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T2.Name HAVING COUNT(*)  >=  2
+
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+medium pred: select teacher.name from course_arrange join teacher on course_arrange.teacher_id = teacher.teacher_id group by course_arrange.teacher_id having count ( * ) >= 2
+medium gold: SELECT T2.Name FROM course_arrange AS T1 JOIN teacher AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T2.Name HAVING COUNT(*)  >=  2
+
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/course_teach/course_teach.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+easy pred: select avg ( age ) from visitor where level_of_membership < 4
+easy gold: SELECT avg(age) FROM visitor WHERE Level_of_membership  <=  4
+
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+hard pred: select name from museum where open_year > 2010 order by num_of_staff asc limit 1
+hard gold: SELECT name FROM museum WHERE num_of_staff  >  (SELECT min(num_of_staff) FROM museum WHERE open_year  >  2010)
+
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+extra pred: select visit.visitor_id , visitor.name , visitor.level_of_membership from visit join visitor on visit.visitor_id = visitor.id join museum on visit.museum_id = museum.museum_id group by visit.visitor_id order by sum ( visit.total_spent ) desc limit 1
+extra gold: SELECT t2.visitor_id ,  t1.name ,  t1.Level_of_membership FROM visitor AS t1 JOIN visit AS t2 ON t1.id  =  t2.visitor_id GROUP BY t2.visitor_id ORDER BY sum(t2.Total_spent) DESC LIMIT 1
+
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+hard pred: select visitor.name , visitor.age from visitor join visit on visitor.id = visit.visitor_id group by visit.visitor_id order by count ( * ) desc limit 1
+hard gold: SELECT t1.name ,  t1.age FROM visitor AS t1 JOIN visit AS t2 ON t1.id  =  t2.visitor_id ORDER BY t2.num_of_ticket DESC LIMIT 1
+
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+extra pred: select count ( * ) from visitor where id not in ( select visitor_id from visit join museum on visit.museum_id = museum.museum_id where museum.open_year = 2010 )
+extra gold: SELECT count(*) FROM visitor WHERE id NOT IN (SELECT t2.visitor_id FROM museum AS t1 JOIN visit AS t2 ON t1.Museum_ID  =  t2.Museum_ID WHERE t1.open_year  >  2010)
+
+db is:[../data_collection/database/museum_visit/museum_visit.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+easy pred: select avg ( rank ) from rankings join matches on rankings.player_id = matches.winner_id
+easy gold: SELECT avg(winner_rank) FROM matches
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+easy pred: select max ( loser_rank ) from matches
+easy gold: SELECT min(loser_rank) FROM matches
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+easy pred: select max ( loser_rank ) from matches
+easy gold: SELECT min(loser_rank) FROM matches
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+extra pred: select players.first_name , players.last_name , players.country_code from players join matches on players.player_id = matches.winner_id where matches.tourney_name = 'WTA锦标赛' intersect select players.first_name , players.last_name , players.country_code from players join matches on players.player_id = matches.loser_id where matches.tourney_name = '澳大利亚とい'
+extra gold: SELECT T1.country_code ,  T1.first_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  'WTA 锦标赛' INTERSECT SELECT T1.country_code ,  T1.first_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  '澳网'
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select first_name , country_code from players order by birth_date desc limit 1
+medium gold: SELECT first_name ,  country_code FROM players ORDER BY birth_date LIMIT 1
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select first_name , country_code from players order by birth_date desc limit 1
+medium gold: SELECT first_name ,  country_code FROM players ORDER BY birth_date LIMIT 1
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+hard pred: select players.first_name , players.country_code from players join rankings on players.player_id = rankings.player_id group by players.player_id order by count ( * ) desc limit 1
+hard gold: SELECT T1.country_code ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id ORDER BY T2.tours DESC LIMIT 1
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+hard pred: select players.first_name , players.country_code from players join rankings on players.player_id = rankings.player_id group by players.player_id order by count ( * ) desc limit 1
+hard gold: SELECT T1.country_code ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id ORDER BY T2.tours DESC LIMIT 1
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+hard pred: select matches.winner_name , matches.winner_rank_points from matches join players on matches.winner_id = players.player_id group by matches.winner_id order by count ( * ) desc limit 1
+hard gold: SELECT winner_name ,  winner_rank_points FROM matches GROUP BY winner_name ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+hard pred: select matches.winner_name from matches join players on matches.winner_id = players.player_id where players.country_code = '澳大利亚' order by rank_points desc limit 1
+hard gold: SELECT winner_name FROM matches WHERE tourney_name  =  '澳网' ORDER BY winner_rank_points DESC LIMIT 1
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+hard pred: select winner_name from matches join players on matches.winner_id = players.player_id where matches.tourney_name = '澳大利亚锦标赛' order by winner_rank_points desc limit 1
+hard gold: SELECT winner_name FROM matches WHERE tourney_name  =  '澳网' ORDER BY winner_rank_points DESC LIMIT 1
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select players.first_name , avg ( rankings.ranking_points ) from players join rankings on players.player_id = rankings.player_id group by players.first_name
+medium gold: SELECT avg(ranking) ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.first_name
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select players.first_name , sum ( rankings.ranking_points ) from players join rankings on players.player_id = rankings.player_id group by players.player_id
+medium gold: SELECT sum(ranking_points) ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.first_name
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select count ( * ) , ranking_date from rankings group by ranking_date
+medium gold: SELECT sum(tours) ,  ranking_date FROM rankings GROUP BY ranking_date
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select count ( * ) , ranking_date from rankings group by ranking_date
+medium gold: SELECT sum(tours) ,  ranking_date FROM rankings GROUP BY ranking_date
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select players.first_name , players.player_id from matches join players on matches.winner_id = players.player_id group by players.player_id order by count ( * ) desc limit 3
+medium gold: SELECT DISTINCT winner_name ,  winner_rank FROM matches ORDER BY winner_age LIMIT 3
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select winner_name , winner_rank from matches order by winner_age desc limit 3
+medium gold: SELECT DISTINCT winner_name ,  winner_rank FROM matches ORDER BY winner_age LIMIT 3
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select count ( * ) from ( select matches.winner_id from matches join players on matches.winner_id = players.player_id where players.hand = '左' and matches.tourney_name = 'WTA锦标赛' )
+medium gold: SELECT count(DISTINCT winner_name) FROM matches WHERE tourney_name  =  'WTA 锦标赛' AND winner_hand  =  '左'
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+medium pred: select count ( * ) from matches join players on matches.winner_id = players.player_id where matches.tourney_name = 'WTA锦标赛' and players.first_name = '左' and players.last_name = '撇'
+medium gold: SELECT count(DISTINCT winner_name) FROM matches WHERE tourney_name  =  'WTA 锦标赛' AND winner_hand  =  '左'
+
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/wta_1/wta_1.sqlite]
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+medium pred: select name , date , result from battle
+medium gold: SELECT name ,  date FROM battle
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+medium pred: select max ( killed ) , min ( killed ) , id from death group by id
+medium gold: SELECT max(killed) ,  min(killed) FROM death
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+medium pred: select death.killed from death join ship on death.caused_by_ship_id = ship.id where ship.tonnage = 'T'
+medium gold: SELECT T1.killed ,  T1.injured FROM death AS T1 JOIN ship AS t2 ON T1.caused_by_ship_id  =  T2.id WHERE T2.tonnage  =  't'
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+medium pred: select name , result from battle where Bulgariaian commander != '博瑞尔'
+medium gold: SELECT name ,  RESULT FROM battle WHERE bulgarian_commander != '博瑞尔'
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+hard pred: select battle.id , battle.name from death join ship on death.caused_by_ship_id = ship.id group by death.caused_by_ship_id having sum ( death.killed ) > 10
+hard gold: SELECT T1.id ,  T1.name FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle JOIN death AS T3 ON T2.id  =  T3.caused_by_ship_id GROUP BY T1.id HAVING sum(T3.killed)  >  10
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+extra pred: select ship.id , ship.name from ship join death on ship.id = death.caused_by_ship_id group by ship.id order by sum ( death.injured ) desc limit 1
+extra gold: SELECT T2.id ,  T2.name FROM death AS T1 JOIN ship AS t2 ON T1.caused_by_ship_id  =  T2.id GROUP BY T2.id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+extra pred: select count ( * ) from ship where tonnage != '225'
+extra gold: SELECT count(*) FROM battle WHERE id NOT IN ( SELECT lost_in_battle FROM ship WHERE tonnage  =  '225' );
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+extra pred: select battle.name , battle.date from battle join ship on battle.id = ship.lost_in_battle where ship.name = '远征号' or ship.name = '长征号'
+extra gold: SELECT T1.name ,  T1.date FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.name  =  '远征' INTERSECT SELECT T1.name ,  T1.date FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.name  =  '长征号'
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+extra pred: select name , result , Bulgarian_commander from battle where id not in ( select lost_in_battle from ship where location = '英吉利海峡' )
+extra gold: SELECT name ,  RESULT ,  bulgarian_commander FROM battle EXCEPT SELECT T1.name ,  T1.result ,  T1.bulgarian_commander FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.location  =  '英吉利海峡'
+
+db is:[../data_collection/database/battle_death/battle_death.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select departments.department_name from departments join degree_programs on departments.department_id = degree_programs.department_id group by departments.department_id order by count ( * ) desc limit 1
+extra gold: SELECT T2.department_name ,  T1.department_id FROM Degree_Programs AS T1 JOIN Departments AS T2 ON T1.department_id  =  T2.department_id GROUP BY T1.department_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+easy pred: select count ( distinct department_id ) from departments
+easy gold: SELECT count(DISTINCT department_id) FROM Degree_Programs
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+medium pred: select courses.course_name , courses.course_id from courses join student_enrolment_courses on courses.course_id = student_enrolment_courses.course_id group by courses.course_id having count ( * ) <= 2
+medium gold: SELECT T1.course_name ,  T1.course_id FROM Courses AS T1 JOIN Sections AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_id HAVING count(*)  <=  2
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+medium pred: select courses.course_name , courses.course_id from courses join sections on courses.course_id = sections.course_id group by courses.course_id having count ( * ) < 2
+medium gold: SELECT T1.course_name ,  T1.course_id FROM Courses AS T1 JOIN Sections AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_id HAVING count(*)  <=  2
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+medium pred: select students.first_name , students.middle_name , students.last_name , students.student_id from student_enrolment join students on student_enrolment.student_id = students.student_id group by student_enrolment.student_id having count ( * ) = 2 intersect select students.first_name , students.middle_name , students.last_name , students.student_id from student_enrolment join students on student_enrolment.student_id = students.student_id group by student_enrolment.student_id having count ( * ) > 2
+medium gold: SELECT T1.first_name ,  T1.middle_name ,  T1.last_name ,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id HAVING count(*)  =  2
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select degree_program_id from student_enrolment group by degree_program_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_summary_name ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select degree_programs.degree_summary_name from degree_programs join student_enrolment on degree_programs.degree_program_id = student_enrolment.degree_program_id group by student_enrolment.degree_program_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_summary_name ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select students.student_id , students.first_name , students.middle_name , students.last_name , count ( * ) from students join student_enrolment on students.student_id = student_enrolment.student_id group by students.student_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.student_id ,  T1.first_name ,  T1.middle_name ,  T1.last_name ,  count(*) ,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select students.first_name , students.middle_name , students.last_name , students.student_id , count ( * ) from students join student_enrolment on students.student_id = student_enrolment.student_id group by students.student_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.student_id ,  T1.first_name ,  T1.middle_name ,  T1.last_name ,  count(*) ,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+hard pred: select semester_name from semesters except select semesters.semester_name from semesters join student_enrolment on semesters.semester_id = student_enrolment.semester_id
+hard gold: SELECT semester_name FROM Semesters WHERE semester_id NOT IN( SELECT semester_id FROM Student_Enrolment )
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select courses.course_name from courses join student_enrolment_courses on courses.course_id = student_enrolment_courses.course_id group by courses.course_id order by count ( * ) desc limit 1
+extra gold: SELECT  T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select courses.course_name from courses join student_enrolment_courses on courses.course_id = student_enrolment_courses.course_id group by courses.course_id order by count ( * ) desc limit 1
+extra gold: SELECT  T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select last_name from students where state_province_county = '湖北' except select students.last_name from students join student_enrolment on students.student_id = student_enrolment.student_id where student_enrolment.degree_program_id != ' variables '
+extra gold: SELECT T1.last_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id  =  T2.address_id WHERE T2.state_province_county  =  '湖北' EXCEPT SELECT DISTINCT T3.last_name FROM Students AS T3 JOIN Student_Enrolment AS T4 ON T3.student_id  =  T4.student_id
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select students.last_name from addresses join students on addresses.address_id = students.permanent_address_id where addresses.state_province_county = '湖北' except select students.last_name from addresses join student_enrolment on addresses.address_id = student_enrolment.student_id
+extra gold: SELECT T1.last_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id  =  T2.address_id WHERE T2.state_province_county  =  '湖北' EXCEPT SELECT DISTINCT T3.last_name FROM Students AS T3 JOIN Student_Enrolment AS T4 ON T3.student_id  =  T4.student_id
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+medium pred: select transcript_date , transcript_id from transcripts group by transcript_date , transcript_id having count ( * ) >= 2
+medium gold: SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id HAVING count(*)  >=  2
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+medium pred: select first_name , middle_name , last_name from students where date_first_registered = ( select min ( date_first_registered ) from students )
+medium gold: SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+medium pred: select first_name , middle_name , last_name from students where date_left = ( select min ( date_left ) from students )
+medium gold: SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_left ASC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+medium pred: select other_details from transcripts order by transcript_date asc limit 1
+medium gold: SELECT transcript_date ,  other_details FROM Transcripts ORDER BY transcript_date ASC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select transcript_date , transcript_id from transcripts group by transcript_date order by count ( * ) asc limit 1
+extra gold: SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id ORDER BY count(*) ASC LIMIT 1
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+easy pred: select distinct permanent_address_id , current_address_id from students
+easy gold: SELECT count(DISTINCT current_address_id) FROM Students
+
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+db is:[../data_collection/database/student_transcripts_tracking/student_transcripts_tracking.sqlite]
+extra pred: select students.first_name from addresses join students on addresses.address_id = students.permanent_address_id where addresses.country = '海地' or students.cell_mobile_number = '09700166582'
+extra gold: SELECT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.permanent_address_id  =  T2.address_id WHERE T2.country  =  '海地' UNION SELECT first_name FROM Students WHERE cell_mobile_number  =  '09700166582'
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+medium pred: select title , directed_by from cartoon
+medium gold: SELECT title ,  Directed_by FROM Cartoon ORDER BY Original_air_date
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+easy pred: select tv_channel.content from tv_channel join tv_series on tv_channel.id = tv_series.channel where tv_series.series_name = '潜伏'
+easy gold: SELECT Content FROM TV_Channel WHERE series_name = "潜伏";
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+easy pred: select tv_channel.package_option from tv_channel join tv_series on tv_channel.id = tv_series.channel where tv_series.series_name = '潜伏'
+easy gold: SELECT Package_Option FROM TV_Channel WHERE series_name = "潜伏";
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+easy pred: select tv_channel.package_option from tv_channel join tv_series on tv_channel.id = tv_series.channel where tv_series.series_name = '潜伏'
+easy gold: SELECT Package_Option FROM TV_Channel WHERE series_name = "潜伏";
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+hard pred: select language , count ( * ) from tv_channel group by language order by count ( * ) desc limit 1
+hard gold: SELECT LANGUAGE ,  count(*) FROM TV_Channel GROUP BY LANGUAGE ORDER BY count(*) ASC LIMIT 1;
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+easy pred: select episode from tv_series order by weekly_rank asc
+easy gold: SELECT Episode FROM TV_series ORDER BY rating
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+medium pred: select rating , count ( * ) from tv_series group by rating order by count ( * ) desc limit 3
+medium gold: SELECT Episode ,  Rating FROM TV_series ORDER BY Rating DESC LIMIT 3;
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+medium pred: select production_code , channel from cartoon order by original_air_date desc limit 1
+medium gold: SELECT production_code ,  channel FROM cartoon ORDER BY original_air_date LIMIT 1
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+medium pred: select production_code , channel from cartoon order by original_air_date desc limit 1
+medium gold: SELECT production_code ,  channel FROM cartoon ORDER BY original_air_date LIMIT 1
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+hard pred: select country from tv_channel except select country from cartoon where written_by = '白英'
+hard gold: SELECT country FROM TV_Channel EXCEPT SELECT T1.country FROM TV_Channel AS T1 JOIN cartoon AS T2 ON T1.id = T2.Channel WHERE T2.written_by  =  '白英'
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+easy pred: select id from tv_channel group by id having count ( * ) > 2
+easy gold: SELECT id FROM tv_channel GROUP BY country HAVING count(*)  >  2
+
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+db is:[../data_collection/database/tvshow/tvshow.sqlite]
+hard pred: select package_option from tv_channel except select tv_channel.package_option from tv_channel join cartoon on tv_channel.id = cartoon.channel where cartoon.directed_by = '黄伟明'
+hard gold: SELECT package_option FROM TV_Channel WHERE id NOT IN (SELECT channel FROM cartoon WHERE directed_by  =  '黄伟明')
+
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+easy pred: select earnings from poker_player order by money_rank desc
+easy gold: SELECT Earnings FROM poker_player ORDER BY Earnings DESC
+
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+easy pred: select final_table_made from poker_player where earnings < 200000
+easy gold: SELECT max(Final_Table_Made) FROM poker_player WHERE Earnings  <  200000
+
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+medium pred: select people.name from people join poker_player on people.people_id = poker_player.people_id order by count ( * ) asc
+medium gold: SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Final_Table_Made
+
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/poker_player/poker_player.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+medium pred: select votes.vote_id , votes.phone_number , area_code_state.state from area_code_state join votes on area_code_state.state = votes.state
+medium gold: SELECT vote_id ,  phone_number ,  state FROM votes
+
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+easy pred: select created from votes where state = '浙江' order by created desc limit 1
+easy gold: SELECT max(created) FROM votes WHERE state  =  "浙江"
+
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+extra pred: select contestant_number , contestant_name from votes order by count ( * ) asc limit 1
+extra gold: SELECT T1.contestant_number , T1.contestant_name FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number  =  T2.contestant_number GROUP BY T1.contestant_number ORDER BY count(*) ASC LIMIT 1
+
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+extra pred: select area_code from votes group by area_code order by count ( * ) desc limit 1
+extra gold: SELECT T1.area_code FROM area_code_state AS T1 JOIN votes AS T2 ON T1.state  =  T2.state GROUP BY T1.area_code ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+medium pred: select votes.created , area_code_state.state , votes.phone_number from area_code_state join votes on area_code_state.state = votes.state join contestants on votes.contestant_number = contestants.contestant_number where contestants.contestant_name = '王伟'
+medium gold: SELECT T2.created ,  T2.state ,  T2.phone_number FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number  =  T2.contestant_number WHERE T1.contestant_name  =  "王伟"
+
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+extra pred: select area_code from votes join contestants on votes.contestant_number = contestants.contestant_number where contestants.contestant_name = '王伟' intersect select area_code from votes join contestants on votes.contestant_number = contestants.contestant_number where contestants.contestant_name = '王芳'
+extra gold: SELECT T3.area_code FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number  =  T2.contestant_number JOIN area_code_state AS T3 ON T2.state  =  T3.state WHERE T1.contestant_name  =  "王伟" INTERSECT SELECT T3.area_code FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number  =  T2.contestant_number JOIN area_code_state AS T3 ON T2.state  =  T3.state WHERE T1.contestant_name  =  "王芳"
+
+db is:[../data_collection/database/voter_1/voter_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select region from city where name = '温州市'
+medium gold: SELECT Region FROM country AS T1 JOIN city AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Name  =  "温州市"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.name = '阿鲁巴'
+extra gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "阿鲁巴" ORDER BY Percentage DESC LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+easy pred: select avg ( country.lifeexpectancy ) from country join countrylanguage on country.code = countrylanguage.countrycode where country.region = '非洲'
+easy gold: SELECT avg(LifeExpectancy) FROM country WHERE Region  =  "非洲"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select name from country where lifeexpectancy = ( select min ( lifeexpectancy ) from country where region = '亚洲' )
+hard gold: SELECT Name FROM country WHERE Continent  =  "亚洲" ORDER BY LifeExpectancy LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select max ( gnp ) , count ( * ) from country where continent = '亚洲'
+medium gold: SELECT sum(Population) ,  max(GNP) FROM country WHERE Continent  =  "亚洲"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select sum ( surfacearea ) from country where continent = '亚洲' intersect select sum ( surfacearea ) from country where continent = '欧洲'
+medium gold: SELECT sum(SurfaceArea) FROM country WHERE Continent  =  "亚洲" OR Continent  =  "欧洲"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+easy pred: select count ( * ) from city where district = '西湖'
+easy gold: SELECT sum(Population) FROM city WHERE District  =  "西湖"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select avg ( gnp ) , avg ( population ) from country where governmentform = '美国endezvous'
+medium gold: SELECT avg(GNP) ,  sum(population) FROM country WHERE GovernmentForm  =  "美国属地"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select avg ( gnp ) , avg ( population ) from country where governmentform = '美国ucks'
+medium gold: SELECT avg(GNP) ,  sum(population) FROM country WHERE GovernmentForm  =  "美国属地"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( * ) from countrylanguage join country on countrylanguage.countrycode = country.code where country.name = '阿鲁巴'
+medium gold: SELECT COUNT(T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "阿鲁巴"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( * ) from countrylanguage join country on countrylanguage.countrycode = country.code where country.name = '阿鲁巴'
+medium gold: SELECT COUNT(T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "阿鲁巴"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( * ) from countrylanguage join country on countrylanguage.countrycode = country.code where country.name = '阿富汗'
+medium gold: SELECT COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "阿富汗" AND IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( * ) from countrylanguage join country on countrylanguage.countrycode = country.code where country.name = '阿富汗'
+medium gold: SELECT COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "阿富汗" AND IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select country.name from country join countrylanguage on country.code = countrylanguage.countrycode group by country.code order by count ( * ) desc limit 1
+extra gold: SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select country.name from country join countrylanguage on country.code = countrylanguage.countrycode group by country.code order by count ( * ) desc limit 1
+extra gold: SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select continent from countrylanguage group by continent order by count ( * ) desc limit 1
+extra gold: SELECT T1.Continent FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Continent ORDER BY COUNT(*) DESC LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select continent from countrylanguage group bycontinent order by count ( * ) desc limit 1
+extra gold: SELECT T1.Continent FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Continent ORDER BY COUNT(*) DESC LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+easy pred: select count ( * ) from country where name = '荷兰' intersect select count ( * ) from country where name = '英语'
+easy gold: SELECT COUNT(*) FROM (SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" INTERSECT SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "荷兰语")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+easy pred: select count ( * ) from country where code in ( select countrycode from countrylanguage where language = '英语' intersect select countrycode from countrylanguage where language = '荷兰语' )
+easy gold: SELECT COUNT(*) FROM (SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" INTERSECT SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "荷兰语")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = '英语' intersect select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = '法语'
+extra gold: SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" AND T2.IsOfficial  =  "T" INTERSECT SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "法语" AND T2.IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = '英语' intersect select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = '法语'
+extra gold: SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" AND T2.IsOfficial  =  "T" INTERSECT SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "法语" AND T2.IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( * ) from country where continent = '汉语'
+medium gold: SELECT COUNT( DISTINCT Continent) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "汉语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select region from countrylanguage where language = '英语' or language = '荷兰语'
+hard gold: SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" OR T2.Language  =  "荷兰语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select region from countrylanguage where language = '荷兰语' or language = '英语'
+hard gold: SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" OR T2.Language  =  "荷兰语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select country.localname from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.official = '英语' or countrylanguage.official = '荷兰语'
+extra gold: SELECT * FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" AND IsOfficial  =  "T" UNION SELECT * FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "荷兰语" AND IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.official = '英语' or countrylanguage.official = '荷兰语'
+extra gold: SELECT * FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" AND IsOfficial  =  "T" UNION SELECT * FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "荷兰语" AND IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.governmentform = '共和制' group by country.code having count ( * ) = 1
+hard gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.GovernmentForm  =  "共和制" GROUP BY T2.Language HAVING COUNT(*)  =  1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.governmentform = '共和制'
+hard gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.GovernmentForm  =  "共和制" GROUP BY T2.Language HAVING COUNT(*)  =  1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select city.name from city join countrylanguage on city.countrycode = countrylanguage.countrycode where countrylanguage.language = '英语' group by city.name order by count ( * ) desc limit 1
+extra gold: SELECT T1.Name ,  T1.Population FROM city AS T1 JOIN countrylanguage AS T2 ON T1.CountryCode  =  T2.CountryCode WHERE T2.Language  =  "英语" ORDER BY T1.Population DESC LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select name , population , lifeexpectancy from country where continent = '亚洲'
+hard gold: SELECT Name ,  Population ,  LifeExpectancy FROM country WHERE Continent  =  "亚洲" ORDER BY SurfaceArea DESC LIMIT 1
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select avg ( lifeexpectancy ) from country where name not in ( select countrycode from countrylanguage where isofficial = '英语' )
+extra gold: SELECT avg(LifeExpectancy) FROM country WHERE Name NOT IN (SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" AND T2.IsOfficial  =  "T")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select avg ( country.lifeexpectancy ) from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language != '英语'
+extra gold: SELECT avg(LifeExpectancy) FROM country WHERE Name NOT IN (SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语" AND T2.IsOfficial  =  "T")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select count ( * ) from city where countrycode not in ( select code from countrylanguage where language = '英语' )
+extra gold: SELECT sum(Population) FROM country WHERE Name NOT IN (SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select count ( * ) from country where code not in ( select countrycode from countrylanguage where language = '英语' )
+extra gold: SELECT sum(Population) FROM country WHERE Name NOT IN (SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "英语")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.headofstate = '布什'
+medium gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.HeadOfState  =  "Beatrix" AND T2.IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.headofstate = '布什'
+medium gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.HeadOfState  =  "Beatrix" AND T2.IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( * ) from countrylanguage join country on countrylanguage.countrycode = country.code where country.indepyear < 1930 group by country.code
+medium gold: SELECT count(DISTINCT T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE  IndepYear  <  1930 AND T2.IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( distinct countrylanguage.language ) from country join countrylanguage on country.code = countrylanguage.countrycode where country.indepyear < 1930
+medium gold: SELECT count(DISTINCT T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE  IndepYear  <  1930 AND T2.IsOfficial  =  "T"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select name from country where surfacearea > ( select max ( surfacearea ) from country where continent = '欧洲' )
+hard gold: SELECT Name FROM country WHERE SurfaceArea  >  (SELECT min(SurfaceArea) FROM country WHERE Continent  =  "欧洲")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select name from country where surfacearea > ( select max ( surfacearea ) from country where continent = '欧洲' )
+hard gold: SELECT Name FROM country WHERE SurfaceArea  >  (SELECT min(SurfaceArea) FROM country WHERE Continent  =  "欧洲")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select name from country where continent = '亚洲' and population > ( select max ( population ) from country where continent = '非洲' )
+extra gold: SELECT Name FROM country WHERE Continent  =  "亚洲"  AND population  >  (SELECT min(population) FROM country WHERE Continent  =  "非洲")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select countrycode from countrylanguage where language != '英语'
+hard gold: SELECT CountryCode FROM countrylanguage EXCEPT SELECT CountryCode FROM countrylanguage WHERE LANGUAGE  =  "英语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select code from country except select countrycode from countrylanguage where language = '英语'
+hard gold: SELECT CountryCode FROM countrylanguage EXCEPT SELECT CountryCode FROM countrylanguage WHERE LANGUAGE  =  "英语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+easy pred: select countrycode from countrylanguage except select countrycode from countrylanguage where language = '英语'
+easy gold: SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE != "英语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select countrycode from country where governmentform != '共和制' or language != '英语'
+hard gold: SELECT Code FROM country WHERE GovernmentForm != "共和制" EXCEPT SELECT CountryCode FROM countrylanguage WHERE LANGUAGE  =  "英语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select code from country where governmentform != '熙' and continent = '亚洲'
+hard gold: SELECT Code FROM country WHERE GovernmentForm != "共和制" EXCEPT SELECT CountryCode FROM countrylanguage WHERE LANGUAGE  =  "英语"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select name from city where countrycode = '欧洲' except select name from city join countrylanguage on city.countrycode = countrylanguage.countrycode where countrylanguage.language = '英语'
+extra gold: SELECT DISTINCT T2.Name FROM country AS T1 JOIN city AS T2 ON T2.CountryCode  =  T1.Code WHERE T1.Continent  =  "欧洲" AND T1.Name NOT IN (SELECT T3.Name FROM country AS T3 JOIN countrylanguage AS T4 ON T3.Code  =  T4.CountryCode WHERE T4.IsOfficial  =  "T" AND T4.Language  =  "英语")
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select distinct city.name from city join country on city.countrycode = country.code join countrylanguage on country.code = countrylanguage.countrycode where country.continent = '亚洲' and countrylanguage.language = '中文'
+hard gold: SELECT DISTINCT T3.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode JOIN city AS T3 ON T1.Code  =  T3.CountryCode WHERE T2.IsOfficial  =  "T" AND T2.Language  =  "中文" AND T1.Continent  =  "亚洲"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select distinct city.name from city join countrylanguage on city.countrycode = countrylanguage.countrycode join country on countrylanguage.countrycode = country.code where country.continent = '亚洲' and countrylanguage.language = '中文'
+hard gold: SELECT DISTINCT T3.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode JOIN city AS T3 ON T1.Code  =  T3.CountryCode WHERE T2.IsOfficial  =  "T" AND T2.Language  =  "中文" AND T1.Continent  =  "亚洲"
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select country.name , count ( * ) from country join countrylanguage on country.code = countrylanguage.countrycode group by country.code having count ( * ) >= 3
+medium gold: SELECT COUNT(T2.Language) ,  T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name HAVING COUNT(*)  >  2
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select country.name , count ( * ) from country join countrylanguage on country.code = countrylanguage.countrycode group by country.code having count ( * ) > 2
+medium gold: SELECT COUNT(T2.Language) ,  T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name HAVING COUNT(*)  >  2
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select governmentform , avg ( population ) from country group by governmentform having avg ( population ) > 72
+medium gold: SELECT sum(Population) ,  GovernmentForm FROM country GROUP BY GovernmentForm HAVING avg(LifeExpectancy)  >  72
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select avg ( lifeexpectancy ) , avg ( population ) , continent from country group by continent having avg ( lifeexpectancy ) < 72
+medium gold: SELECT sum(Population) ,  avg(LifeExpectancy) ,  Continent FROM country GROUP BY Continent HAVING avg(LifeExpectancy)  <  72
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select count ( * ) , avg ( lifeexpectancy ) , continent from country group by continent having avg ( lifeexpectancy ) < 72
+medium gold: SELECT sum(Population) ,  avg(LifeExpectancy) ,  Continent FROM country GROUP BY Continent HAVING avg(LifeExpectancy)  <  72
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select name , region from country order by surfacearea desc limit 5
+medium gold: SELECT Name ,  SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+hard pred: select sum ( country.population ) , avg ( country.surfacearea ) from country where continent = '北美'
+hard gold: SELECT sum(Population) ,  avg(SurfaceArea) FROM country WHERE Continent  =  "北美" AND SurfaceArea  >  3000
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select language , max ( percentage ) from countrylanguage group by countrycode
+medium gold: SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select countrycode , language from countrylanguage group by countrycode order by count ( * ) desc limit 1
+medium gold: SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select count ( * ) from countrylanguage where language = '西班牙语'
+extra gold: SELECT count(*) ,   max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  "西班牙语" GROUP BY CountryCode
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+extra pred: select count ( * ) from countrylanguage where language = '西班牙语'
+extra gold: SELECT count(*) ,   max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  "西班牙语" GROUP BY CountryCode
+
+db is:[../data_collection/database/world_1/world_1.sqlite]
+medium pred: select countrycode from countrylanguage where language = '西班牙语'
+medium gold: SELECT CountryCode ,  max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  "西班牙语" GROUP BY CountryCode
+
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+easy pred: select name from conductor order by age desc
+easy gold: SELECT Name FROM conductor ORDER BY Age ASC
+
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+extra pred: select conductor.name from performance join orchestra on performance.orchestra_id = orchestra.orchestra_id join conductor on orchestra.conductor_id = conductor.conductor_id group by conductor.name order by count ( * ) desc limit 1
+extra gold: SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID GROUP BY T2.Conductor_ID ORDER BY COUNT(*) DESC LIMIT 1
+
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+medium pred: select year_of_founded from orchestra group by year_of_founded having count ( * ) > 1
+medium gold: SELECT Year_of_Founded FROM orchestra AS T1 JOIN performance AS T2 ON T1.Orchestra_ID  =  T2.Orchestra_ID GROUP BY T2.Orchestra_ID HAVING COUNT(*)  >  1
+
+db is:[../data_collection/database/orchestra/orchestra.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+easy pred: select count ( distinct grade ) from highschooler
+easy gold: SELECT grade FROM Highschooler
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+medium pred: select count ( * ) , highschooler.name from highschooler join friend on highschooler.id = friend.student_id group by highschooler.name
+medium gold: SELECT student_id ,  count(*) FROM Friend GROUP BY student_id
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select highschooler.name from highschooler join friend on highschooler.id = friend.student_id where highschooler.name = '小军'
+hard gold: SELECT T3.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id JOIN Highschooler AS T3 ON T1.friend_id  =  T3.id WHERE T2.name  =  "小军"
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select highschooler.name from highschooler join friend on highschooler.id = friend.student_id where highschooler.name = '小军'
+hard gold: SELECT T3.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id JOIN Highschooler AS T3 ON T1.friend_id  =  T3.id WHERE T2.name  =  "小军"
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select id from highschooler except select id from friend
+hard gold: SELECT id FROM Highschooler EXCEPT SELECT student_id FROM Friend
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select name from highschooler where id not in ( select student_id from friend )
+hard gold: SELECT name FROM Highschooler EXCEPT SELECT T2.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select name from highschooler where id not in ( select student_id from friend )
+hard gold: SELECT name FROM Highschooler EXCEPT SELECT T2.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select distinct highschooler.id from highschooler join friend on highschooler.id = friend.student_id join likes on friend.friend_id = likes.student_id
+hard gold: SELECT student_id FROM Friend INTERSECT SELECT liked_id FROM Likes
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select student_id from friend intersect select student_id from likes
+hard gold: SELECT student_id FROM Friend INTERSECT SELECT liked_id FROM Likes
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select highschooler.name from highschooler join friend on highschooler.id = friend.student_id join likes on friend.friend_id = likes.student_id where friend.student_id != likes.student_id
+hard gold: SELECT T2.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id INTERSECT SELECT T2.name FROM Likes AS T1 JOIN Highschooler AS T2 ON T1.liked_id  =  T2.id
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+medium pred: select highschooler.name from highschooler join likes on highschooler.id = like.student_id group by like.student_id having count ( * ) >= 2
+medium gold: SELECT T2.name FROM Likes AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id GROUP BY T1.student_id HAVING count(*)  >=  2
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select highschooler.name from highschooler join friend on highschooler.id = friend.student_id where friend.friend_id in ( select student_id from likes group by student_id having count ( * ) >= 2 ) and highschooler.grade > 5
+hard gold: SELECT T2.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id WHERE T2.grade  >  5 GROUP BY T1.student_id HAVING count(*)  >=  2
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select avg ( highschooler.grade ) from highschooler join friend on highschooler.id = friend.student_id
+hard gold: SELECT avg(grade) FROM Highschooler WHERE id IN (SELECT T1.student_id FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id)
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+hard pred: select avg ( grade ) from highschooler where id in ( select student_id from friend )
+hard gold: SELECT avg(grade) FROM Highschooler WHERE id IN (SELECT T1.student_id FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id)
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+extra pred: select min ( grade ) from highschooler where id not in ( select student_id from friend )
+extra gold: SELECT min(grade) FROM Highschooler WHERE id NOT IN (SELECT T1.student_id FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id)
+
+db is:[../data_collection/database/network_1/network_1.sqlite]
+extra pred: select min ( grade ) from highschooler where id not in ( select student_id from friend )
+extra gold: SELECT min(grade) FROM Highschooler WHERE id NOT IN (SELECT T1.student_id FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id)
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+hard pred: select avg ( dogs.age ) from dogs join treatments on dogs.dog_id = treatments.dog_id
+hard gold: SELECT avg(age) FROM Dogs WHERE dog_id IN ( SELECT dog_id FROM Treatments )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+hard pred: select avg ( dogs.age ) from dogs join treatments on dogs.dog_id = treatments.dog_id
+hard gold: SELECT avg(age) FROM Dogs WHERE dog_id IN ( SELECT dog_id FROM Treatments )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select professionals.professional_id , professionals.last_name , professionals.cell_number from professionals join treatments on professionals.professional_id = treatments.professional_id where professionals.state = '印第安纳州' group by professionals.professional_id having count ( * ) >= 2
+extra gold: SELECT professional_id ,  last_name ,  cell_number FROM Professionals WHERE state  =  "Indiana" UNION SELECT T1.professional_id ,  T1.last_name ,  T1.cell_number FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >  2
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select professionals.professional_id , professionals.last_name , professionals.home_phone from professionals join treatments on professionals.professional_id = treatments.professional_id where professionals.state = '印第安纳州' group by professionals.professional_id having count ( * ) > 2
+extra gold: SELECT professional_id ,  last_name ,  cell_number FROM Professionals WHERE state  =  "Indiana" UNION SELECT T1.professional_id ,  T1.last_name ,  T1.cell_number FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >  2
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+hard pred: select name from dogs except select dogs.name from dogs join treatments on dogs.dog_id = treatments.dog_id where treatments.cost_of_treatment > 1000
+hard gold: SELECT name FROM Dogs WHERE dog_id NOT IN( SELECT dog_id FROM Treatments GROUP BY dog_id HAVING sum(cost_of_treatment)  >  1000 )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+hard pred: select dogs.name from dogs join treatments on dogs.dog_id = treatments.dog_id where treatments.cost_of_treatment > 1000
+hard gold: SELECT name FROM Dogs WHERE dog_id NOT IN( SELECT dog_id FROM Treatments GROUP BY dog_id HAVING sum(cost_of_treatment)  >  1000 )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+hard pred: select first_name from professionals union select first_name from owners except select first_name from dogs
+hard gold: SELECT first_name FROM Professionals UNION SELECT first_name FROM Owners EXCEPT SELECT name FROM Dogs
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+hard pred: select first_name from professionals union select first_name from owners
+hard gold: SELECT first_name FROM Professionals UNION SELECT first_name FROM Owners EXCEPT SELECT name FROM Dogs
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select owners.owner_id , owners.first_name , owners.last_name fromowners join dogs on owners.owner_id = dogs.owner_id group by owners.owner_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.owner_id ,  T2.first_name ,  T2.last_name FROM Dogs AS T1 JOIN Owners AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select owners.owner_id , owners.first_name , owners.last_name fromowners join dogs on owners.owner_id = dogs.owner_id group by owners.owner_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.owner_id ,  T2.first_name ,  T2.last_name FROM Dogs AS T1 JOIN Owners AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select owners.owner_id , owners.last_name fromowners join dogs on owners.owner_id = dogs.owner_id join treatments on dogs.dog_id = treatments.dog_id group by owners.owner_id order by sum ( treatments.cost_of_treatment ) desc limit 1
+extra gold: SELECT T1.owner_id ,  T1.last_name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id JOIN Treatments AS T3 ON T2.dog_id  =  T3.dog_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select dogs.owner_id , owners.last_name from owners join dogs on owners.owner_id = dogs.owner_id join treatments on dogs.dog_id = treatments.dog_id group by dogs.owner_id order by sum ( treatments.treatment_id ) desc limit 1
+extra gold: SELECT T1.owner_id ,  T1.last_name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id JOIN Treatments AS T3 ON T2.dog_id  =  T3.dog_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select owners.owner_id , owners.zip_code fromowners join dogs on owners.owner_id = dogs.owner_id group by owners.owner_id order by sum ( treatments.cost_of_treatment ) desc limit 1
+extra gold: SELECT T1.owner_id ,  T1.zip_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id JOIN Treatments AS T3 ON T2.dog_id  =  T3.dog_id GROUP BY T1.owner_id ORDER BY sum(T3.cost_of_treatment) DESC LIMIT 1
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select first_name , last_name from professionals where cost_of_treatment < ( select avg ( cost_of_treatment ) from treatments )
+extra gold: SELECT DISTINCT T1.first_name ,  T1.last_name FROM Professionals AS T1 JOIN Treatments AS T2 WHERE cost_of_treatment  <  ( SELECT avg(cost_of_treatment) FROM Treatments )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+medium pred: select owners.first_name , owners.last_name , dogs.size_code fromowners join dogs on owners.owner_id = dogs.owner_id
+medium gold: SELECT T1.first_name ,  T1.last_name ,  T2.size_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select dogs.name , treatments.date_of_treatment from dogs join treatments on dogs.dog_id = treatments.dog_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.name ,  T2.date_of_treatment FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id WHERE T1.breed_code  =  ( SELECT breed_code FROM Dogs GROUP BY breed_code ORDER BY count(*) ASC LIMIT 1 )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select dogs.name , treatments.date_of_treatment from dogs join treatments on dogs.dog_id = treatments.dog_id group by dogs.dog_id order by count ( * ) desc limit 1
+extra gold: SELECT T1.name ,  T2.date_of_treatment FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id WHERE T1.breed_code  =  ( SELECT breed_code FROM Dogs GROUP BY breed_code ORDER BY count(*) ASC LIMIT 1 )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+medium pred: select date_departed , date_arrived from dogs where dog_id in ( select dog_id from treatments where treatment_type_code = '住院' ) intersect select date_departed , date_arrived from dogs where dog_id in ( select dog_id from treatments where treatment_type_code = '出院' )
+medium gold: SELECT DISTINCT T1.date_arrived ,  T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select owners.last_name from dogs join owners on dogs.owner_id = owners.owner_id order by dogs.age asc limit 1
+extra gold: SELECT T1.last_name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T2.age  =  ( SELECT max(age) FROM Dogs )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+easy pred: select count ( * ) from treatments join dogs on treatments.dog_id = dogs.dog_id
+easy gold: SELECT count(DISTINCT dog_id) FROM Treatments
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+medium pred: select max ( cost_of_treatment ) from treatments
+medium gold: SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select count ( * ) from dogs join treatments on dogs.dog_id = treatments.dog_id
+extra gold: SELECT count(*) FROM Dogs WHERE dog_id NOT IN ( SELECT dog_id FROM Treatments )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+extra pred: select owner_id from owners except select owner_id from dogs
+extra gold: SELECT count(*) FROM Owners WHERE owner_id NOT IN ( SELECT owner_id FROM Dogs )
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+easy pred: select age from dogs order by date_arrived desc limit 1
+easy gold: SELECT max(age) FROM Dogs
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+easy pred: select age from dogs order by date_arrived desc limit 1
+easy gold: SELECT max(age) FROM Dogs
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+medium pred: select charge_type , sum ( charge_amount ) from charges group by charge_type
+medium gold: SELECT charge_type ,  charge_amount FROM Charges
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+medium pred: select charge_type , sum ( charge_amount ) from charges group by charge_type
+medium gold: SELECT charge_type ,  charge_amount FROM Charges
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+easy pred: select charge_amount from charges order by charge_amount desc limit 1
+easy gold: SELECT max(charge_amount) FROM Charges
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+easy pred: select max ( charge_amount ) from charges where charge_type = '最贵'
+easy gold: SELECT max(charge_amount) FROM Charges
+
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/dog_kennels/dog_kennels.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+medium pred: select nationality , max ( net_worth_millions ) from singer group by nationality
+medium gold: SELECT Citizenship ,  max(Net_Worth_Millions) FROM singer GROUP BY Citizenship
+
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+medium pred: select singer.name from song join singer on song.singer_id = singer.singer_id group by song.singer_id having count ( * ) > 1
+medium gold: SELECT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name HAVING COUNT(*)  >  1
+
+db is:[../data_collection/database/singer/singer.sqlite]
+medium pred: select singer.name from song join singer on song.singer_id = singer.singer_id group by song.singer_id having count ( * ) > 1
+medium gold: SELECT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name HAVING COUNT(*)  >  1
+
+db is:[../data_collection/database/singer/singer.sqlite]
+medium pred: select singer.name , sum ( song.sales ) from song join singer on song.singer_id = singer.singer_id group by song.singer_id
+medium gold: SELECT T1.Name ,  sum(T2.Sales) FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name
+
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/singer/singer.sqlite]
+db is:[../data_collection/database/real_estate_properties/real_estate_properties.sqlite]
+easy pred: select count ( * ) from ref_feature_types
+easy gold: SELECT count(*) FROM Other_Available_Features
+
+db is:[../data_collection/database/real_estate_properties/real_estate_properties.sqlite]
+db is:[../data_collection/database/real_estate_properties/real_estate_properties.sqlite]
+medium pred: select ref_property_types.property_type_description from properties join ref_property_types on properties.property_type_code = ref_property_types.property_type_code
+medium gold: SELECT T2.property_type_description FROM Properties AS T1 JOIN Ref_Property_Types AS T2 ON T1.property_type_code  =  T2.property_type_code GROUP BY T1.property_type_code
+
+db is:[../data_collection/database/real_estate_properties/real_estate_properties.sqlite]
+hard pred: select property_name from properties where room_count > 1 and property_type_code = '房子' or property_type_code = '公寓'
+hard gold: SELECT property_name FROM Properties WHERE property_type_code  =  "房子" UNION SELECT property_name FROM Properties WHERE property_type_code  =  "公寓" AND room_count  >  1
+
+                     easy                 medium               hard                 extra                all
+count                228                  423                  161                  157                  969
+=====================   EXECUTION ACCURACY     =====================
+execution            0.895                0.853                0.689                0.535                0.784
+
+====================== EXACT MATCHING ACCURACY =====================
+exact match          0.816                0.757                0.509                0.408                0.673
+
+---------------------PARTIAL MATCHING ACCURACY----------------------
+select               0.942                0.909                0.980                0.846                0.919
+select(no AGG)       0.978                0.928                0.993                0.868                0.941
+where                0.860                0.862                0.597                0.620                0.770
+where(no OP)         0.892                0.868                0.688                0.746                0.819
+group(no Having)     0.864                0.786                0.846                0.794                0.804
+group                0.818                0.748                0.821                0.794                0.777
+order                0.682                0.838                0.891                0.889                0.849
+and/or               1.000                0.979                0.962                0.922                0.972
+IUEN                 0.000                0.000                0.613                0.625                0.540
+keywords             0.897                0.923                0.811                0.770                0.871
+---------------------- PARTIAL MATCHING RECALL ----------------------
+select               0.921                0.894                0.894                0.732                0.874
+select(no AGG)       0.956                0.913                0.907                0.752                0.896
+where                0.842                0.867                0.541                0.494                0.722
+where(no OP)         0.874                0.873                0.624                0.596                0.768
+group(no Having)     0.950                0.798                0.892                0.720                0.801
+group                0.900                0.760                0.865                0.720                0.774
+order                0.833                0.803                0.745                0.727                0.765
+and/or               1.000                1.000                0.974                0.972                0.992
+IUEN                 0.000                0.000                0.475                0.455                0.466
+keywords             0.917                0.913                0.720                0.662                0.827
+---------------------- PARTIAL MATCHING F1 --------------------------
+select               0.931                0.901                0.935                0.785                0.896
+select(no AGG)       0.967                0.920                0.948                0.805                0.918
+where                0.851                0.865                0.568                0.550                0.745
+where(no OP)         0.883                0.871                0.654                0.662                0.792
+group(no Having)     0.905                0.792                0.868                0.755                0.802
+group                0.857                0.754                0.842                0.755                0.775
+order                0.750                0.820                0.812                0.800                0.805
+and/or               1.000                0.989                0.968                0.946                0.982
+IUEN                 1.000                1.000                0.535                0.526                0.500
+keywords             0.907                0.918                0.763                0.712                0.848
