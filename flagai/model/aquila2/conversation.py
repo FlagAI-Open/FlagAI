@@ -210,6 +210,21 @@ register_conv_template(
     )
 )
 
+register_conv_template(
+    Conversation(
+        name="aquila-legacy",
+        system_message="A chat between a curious human and an artificial intelligence assistant. "
+        "The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n",
+        roles=("### Human: ", "### Assistant: ", "System"),
+        messages=(),
+        offset=0,
+        sep_style=SeparatorStyle.NO_COLON_TWO,
+        sep="\n",
+        sep2="",
+        stop_str=["</s>", "[UNK]"],
+    )
+)
+
 if __name__ == "__main__":
     print("aquila template:")
     conv = get_conv_template("aquila")
@@ -240,3 +255,14 @@ if __name__ == "__main__":
     print(conv.get_prompt())
 
     print("\n")
+
+    print("aquila-legacy template:")
+    conv = get_conv_template("aquila-legacy")
+    conv.append_message(conv.roles[0], "Hello!")
+    conv.append_message(conv.roles[1], "Hi!")
+    conv.append_message(conv.roles[0], "How are you?")
+    conv.append_message(conv.roles[1], None)
+    print(conv.get_prompt())
+
+    print("\n")
+
