@@ -211,12 +211,9 @@ class AutoLoader:
             from flagai.model.aquila2.modeling_aquila import AquilaForCausalLM
             download_path = os.path.join(model_dir, model_name)
 
-            if not torch_dtype:  
-                if model_name.lower() == "aquilachat2-34b":
-                    torch_dtype = torch.bfloat16
-                else:
-                    torch_dtype = torch.float16
-                    
+            if not torch_dtype and '34b' in model_name.lower():
+                torch_dtype = torch.bfloat16
+
             if not os.path.exists(download_path):
                 # Try to download from ModelHub
                 try:
