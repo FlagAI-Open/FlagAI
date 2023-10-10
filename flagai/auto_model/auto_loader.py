@@ -261,9 +261,10 @@ class AutoLoader:
                             for file_to_load in model_files:
                                 if "pytorch_model-0" in file_to_load:
                                     _get_checkpoint_path(download_path, file_to_load,
-                                                        model_id)            
-
-            if qlora_dir:
+                                                        model_id)  
+            if 'quantization_config' in kwargs:
+                quantization_config = kwargs['quantization_config']
+            elif qlora_dir:
                 from transformers import BitsAndBytesConfig
                 quantization_config=BitsAndBytesConfig(
                     load_in_4bit=True,
@@ -271,14 +272,14 @@ class AutoLoader:
                     bnb_4bit_quant_type="nf4",
                     bnb_4bit_compute_dtype=torch_dtype,
                 )
+            else:
+                quantization_config = None
             if inference_mode:
-                if qlora_dir:
-                    model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
-                                                            quantization_config=quantization_config)
-                else:
-                    model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,)           
+
+                model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
+                                                        quantization_config=quantization_config)           
                 model.eval()
-                if not qlora_dir:
+                if not quantization_config:
                     model.to(device)
                 if lora_dir:
                     from flagai.model.tools.peft import PeftModel
