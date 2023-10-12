@@ -920,13 +920,23 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
                 max_gen_len=200, top_p=0.95,
                 seed=1234, topk=100,
                 temperature=0.9, 
-                sft=True, convo_template = "aquila-chat",
-                device = "cuda"):
+                sft=True, convo_template = "",
+                device = "cuda",
+                model_name="AquilaChat2-7B",
+                **kwargs):
 
         vocab = tokenizer.get_vocab()
-        #device = device
+
         id2word = {v:k for k, v in vocab.items()}
 
+        
+
+        template_map = {"AquilaChat2-7B": "aquila-v1",
+                        "AquilaChat2-34B": "aquila-legacy",
+                        "AquilaChat2-7B-16K": "aquila",
+                        "AquilaChat2-34B-16K": "aquila-v1"}
+        if not convo_template:
+            convo_template=template_map.get(model_name, "aquila-chat")
 
         set_random_seed(seed)
         if temperature == 0:

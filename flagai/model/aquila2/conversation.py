@@ -162,6 +162,8 @@ def get_conversation_template(model_path: str) -> Conversation:
         return get_conv_template("aquila-v1")
     elif "aquila-chat" in model_path:
         return get_conv_template("aquila-chat")
+    elif "aquila-legacy" in model_path:
+        return get_conv_template("aquila-legacy")
     else:
         return get_conv_template("aquila")
 
@@ -179,6 +181,21 @@ register_conv_template(
         sep="###",
         sep2="",
         stop_str=["###", "</s>", "[UNK]"],
+    )
+)
+
+register_conv_template(
+    Conversation(
+        name="aquila-legacy",
+        system_message="A chat between a curious human and an artificial intelligence assistant. "
+        "The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n",
+        roles=("### Human: ", "### Assistant: ", "System"),
+        messages=(),
+        offset=0,
+        sep_style=SeparatorStyle.NO_COLON_TWO,
+        sep="\n",
+        sep2="</s>",
+        stop_str=["</s>", "[UNK]"],
     )
 )
 
