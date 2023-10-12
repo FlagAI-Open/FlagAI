@@ -227,20 +227,6 @@ register_conv_template(
     )
 )
 
-register_conv_template(
-    Conversation(
-        name="aquila-legacy",
-        system_message="A chat between a curious human and an artificial intelligence assistant. "
-        "The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n",
-        roles=("### Human: ", "### Assistant: ", "System"),
-        messages=(),
-        offset=0,
-        sep_style=SeparatorStyle.NO_COLON_TWO,
-        sep="\n",
-        sep2="",
-        stop_str=["</s>", "[UNK]"],
-    )
-)
 
 if __name__ == "__main__":
     print("aquila template:")
