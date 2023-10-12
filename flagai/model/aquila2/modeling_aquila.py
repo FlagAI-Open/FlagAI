@@ -921,19 +921,24 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
                 seed=1234, topk=100,
                 temperature=0.9, 
                 sft=True, convo_template = "aquila-chat",
-                device = "cuda"):
+                device = "cuda",
+                model_name="",
+                **kwargs):
 
         vocab = tokenizer.get_vocab()
-        #device = device
-        id2word = {v:k for k, v in vocab.items()}
 
+        id2word = {v:k for k, v in vocab.items()}
+        template_map = {"AquilaChat2-7B": "aquila-v1",
+                        "AquilaChat2-34B": "aquila-legacy",
+                        "AquilaChat2-7B-16K": "aquila",
+                        "AquilaChat2-34B-16K": "aquila-v1"}
 
         set_random_seed(seed)
         if temperature == 0:
             topk = 1
             temperature = 1.0
         if sft:
-            tokens = covert_prompt_to_input_ids_with_history(text, history=[], tokenizer=tokenizer, max_token=2048, convo_template=convo_template)
+            tokens = covert_prompt_to_input_ids_with_history(text, history=[], tokenizer=tokenizer, max_token=2048, convo_template=template_map[model_name])
             tokens = torch.tensor(tokens)[None,].to(device)
         else :
             tokens = tokenizer.encode_plus(text)["input_ids"]
