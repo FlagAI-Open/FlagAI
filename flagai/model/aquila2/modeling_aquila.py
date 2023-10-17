@@ -923,6 +923,7 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
                 sft=True, convo_template = "",
                 device = "cuda",
                 model_name="AquilaChat2-7B",
+                history=[],
                 **kwargs):
 
         vocab = tokenizer.get_vocab()
@@ -943,7 +944,7 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
             topk = 1
             temperature = 1.0
         if sft:
-            tokens = covert_prompt_to_input_ids_with_history(text, history=[], tokenizer=tokenizer, max_token=2048, convo_template=convo_template)
+            tokens = covert_prompt_to_input_ids_with_history(text, history=history, tokenizer=tokenizer, max_token=2048, convo_template=convo_template)
             tokens = torch.tensor(tokens)[None,].to(device)
         else :
             tokens = tokenizer.encode_plus(text)["input_ids"]
@@ -1031,6 +1032,11 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
 
             convert_tokens = convert_tokens[1:]
             probs = probs[1:]
+
+        # Update history
+        history.insert(0, ('USER', text))
+        history.insert(0, ('ASSISTANT', out))
+
         return out 
 
 @add_start_docstrings(
