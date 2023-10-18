@@ -436,7 +436,7 @@ def predict(model, text, tokenizer=None,
         probs = probs[1:]
 
     # Update history
-    history.insert(0, ('USER', text))
     history.insert(0, ('ASSISTANT', out))
+    history.insert(0, ('USER', text))
 
     return out 
