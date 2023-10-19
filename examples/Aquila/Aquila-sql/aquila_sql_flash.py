@@ -50,7 +50,7 @@ env_args = env_args.parse_args()
 if env_args.yaml_config:
     import yaml
     file_data = open(env_args.yaml_config, 'r', encoding="utf-8").read()
-    data = yaml.load_all(file_data)
+    data = yaml.load_all(file_data, Loader=yaml.SafeLoader)
     delattr(env_args, 'yaml_config')
     arg_dict = env_args.__dict__
     for subdata in data:
