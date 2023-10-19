@@ -27,7 +27,7 @@ setup(
         'transformers>=4.31.0',
         'datasets>=2.0.0',
         'setuptools>=66.0.0',
-        'protobuf==3.19.6',
+        'protobuf>=3.19.6',
         'ftfy',
         'Pillow>=9.3.0',
         'einops>=0.3.0',
@@ -38,7 +38,7 @@ setup(
         'sacrebleu>=2.3.1',
         'jsonlines',
         'accelerate',
-        'PyYAML==5.4.1',
+        'PyYAML>=5.4.1',
         'safetensors',
         'timm',
     ]
