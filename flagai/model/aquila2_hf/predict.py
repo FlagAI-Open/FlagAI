@@ -344,7 +344,7 @@ def predict(model, text, tokenizer=None,
     template_map = {"AquilaChat2-7B": "aquila-v1",
                     "AquilaChat2-34B": "aquila-legacy",
                     "AquilaChat2-7B-16K": "aquila",
-                    "AquilaChat2-34B-16K": "aquila-v1"}
+                    "AquilaChat2-34B-16K": "aquila"}
     if not convo_template:
         convo_template=template_map.get(model_name, "aquila-chat")
 
