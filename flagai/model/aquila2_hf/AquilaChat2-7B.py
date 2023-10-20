@@ -3,7 +3,7 @@ import torch
 device = torch.device("cuda:0")
 model_info = "BAAI/AquilaChat2-7B"
 tokenizer = AutoTokenizer.from_pretrained(model_info, trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained(model_info, trust_remote_code=True, torch_dtype=torch.bfloat16)
+model = AutoModelForCausalLM.from_pretrained(model_info, trust_remote_code=True, torch_dtype=torch.half)
 model.eval()
 model.to(device)
 text = "请给出10个要到北京旅游的理由。"
