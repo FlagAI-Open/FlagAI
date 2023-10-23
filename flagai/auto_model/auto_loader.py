@@ -305,9 +305,11 @@ class AutoLoader:
                         math.ceil(model_max_length / orig_ctx_len))
                     config.rope_scaling = {"type": "linear", "factor": scaling_factor}
                 config.use_cache = False
-                model = AquilaForCausalLM.from_pretrained(download_path,
+                model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage,
                                                         **kwargs)
-
+                # from accelerate import load_checkpoint_and_dispatch
+                # model = load_checkpoint_and_dispatch(
+                #     model, download_path, device_map="auto", no_split_module_classes=["AquilaDecoderLayer"])
             tokenizer = AutoTokenizer.from_pretrained(download_path)
             self.model = model 
             self.tokenizer = tokenizer 
