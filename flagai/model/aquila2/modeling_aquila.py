@@ -923,7 +923,7 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
                 sft=True, convo_template = "",
                 device = "cuda",
                 model_name="AquilaChat2-7B",
-                history=[],
+                history=None,
                 **kwargs):
 
         vocab = tokenizer.get_vocab()
@@ -1033,9 +1033,10 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
             convert_tokens = convert_tokens[1:]
             probs = probs[1:]
 
-        # Update history
-        history.insert(0, ('ASSISTANT', out))
-        history.insert(0, ('USER', text))
+        if isinstance(history, list):
+          # Update history
+          history.insert(0, ('ASSISTANT', out))
+          history.insert(0, ('USER', text))
 
         return out 
 

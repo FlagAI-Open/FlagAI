@@ -310,6 +310,9 @@ def covert_prompt_to_input_ids_with_history(text, history, tokenizer, max_token,
 
     example = tokenizer.encode_plus(f"{conv.get_prompt()} ", None, max_length=None)['input_ids']
 
+    if history is None or not isinstance(history, list):
+      history = []
+
     while(len(history) > 0 and (len(example) < max_token)):
         tmp = history.pop()
         if tmp[0] == 'ASSISTANT':
@@ -333,7 +336,7 @@ def predict(model, text, tokenizer=None,
             sft=True, convo_template = "",
             device = "cuda",
             model_name="AquilaChat2-7B",
-            history=[],
+            history=None,
             **kwargs):
 
     vocab = tokenizer.get_vocab()
@@ -435,8 +438,9 @@ def predict(model, text, tokenizer=None,
         convert_tokens = convert_tokens[1:]
         probs = probs[1:]
 
-    # Update history
-    history.insert(0, ('ASSISTANT', out))
-    history.insert(0, ('USER', text))
+    if isinstance(history, list):
+        # Update history
+        history.insert(0, ('ASSISTANT', out))
+        history.insert(0, ('USER', text))
 
     return out 
