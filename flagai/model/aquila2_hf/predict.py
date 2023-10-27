@@ -330,9 +330,9 @@ def covert_prompt_to_input_ids_with_history(text, history, tokenizer, max_token,
     return example
 
 def predict(model, text, tokenizer=None,
-            max_gen_len=200, top_p=0.95,
-            seed=1234, topk=100,
-            temperature=0.9, 
+            max_gen_len=200, top_p=0.9,
+            seed=123, topk=15,
+            temperature=1.0, 
             sft=True, convo_template = "",
             device = "cuda",
             model_name="AquilaChat2-7B",
