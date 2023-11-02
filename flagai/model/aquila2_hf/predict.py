@@ -185,6 +185,8 @@ def get_conversation_template(model_path: str) -> Conversation:
     """Get the default conversation template."""
     if "aquila-v1" in model_path:
         return get_conv_template("aquila-v1")
+    elif "aquila-v2" in model_path:
+        return get_conv_template("aquila-v2")
     elif "aquila-chat" in model_path:
         return get_conv_template("aquila-chat")
     elif "aquila-legacy" in model_path:
@@ -252,6 +254,21 @@ register_conv_template(
     )
 )
 
+register_conv_template(
+    Conversation(
+        name="aquila-v2",
+        system_message="A chat between a curious human and an artificial intelligence assistant. "
+        "The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n",
+        roles=("<|startofpiece|>", "<|endofpiece|>", ""),
+        messages=(),
+        offset=0,
+        sep_style=SeparatorStyle.NO_COLON_TWO,
+        sep="",
+        sep2="</s>",
+        stop_str=["</s>", "<|endoftext|>"],
+    )
+)
+
 
 if __name__ == "__main__":
     print("aquila template:")
@@ -293,6 +310,17 @@ if __name__ == "__main__":
     print(conv.get_prompt())
 
     print("\n")
+
+    print("aquila-v2 template:")
+    conv = get_conv_template("aquila-v2")
+    conv.append_message(conv.roles[0], "Hello!")
+    conv.append_message(conv.roles[1], "Hi!")
+    conv.append_message(conv.roles[0], "How are you?")
+    conv.append_message(conv.roles[1], None)
+    print(conv.get_prompt())
+
+    print("\n")
+
 
 def set_random_seed(seed):
     """Set random seed for reproducability."""
