@@ -76,8 +76,8 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 | GLM-pretrain         | Pre-Train    | ✅  | ❌  | ❌  | ——   |                                                                 
 | GLM-seq2seq        | Generation    | ✅  | ❌  | ✅  | ——     |                                                               
 | GLM-superglue      | Classification  | ✅  | ❌  | ❌  | ——     |                                                               
-| GPT-2-text-writting      | Text Continuation   | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_18_GPT2_WRITING.md)        |
-| GPT2-text-writting                | Text Continuation   | ❌  | ❌  | ✅  | —— |                                                                   
+| GPT-2-text-writing      | Text Continuation   | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_18_GPT2_WRITING.md)        |
+| GPT2-text-writing                | Text Continuation   | ❌  | ❌  | ✅  | —— |                                                                   
 | GPT2-title-generation             | Title Generation   | ❌  | ❌  | ✅  | ——  |                                                                  
 | OPT                               | Text Continuation   | ❌  | ❌  | ✅  | [README.md](/examples/opt/README.md) |                                  
 | RoBERTa-base-ch-ner               | Named Entity Recognition| ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
