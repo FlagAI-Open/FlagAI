@@ -265,7 +265,7 @@ register_conv_template(
         sep_style=SeparatorStyle.NO_COLON_TWO,
         sep="",
         sep2="</s>",
-        stop_str=["</s>", "<|endoftext|>"],
+        stop_str=["</s>", "<|endoftext|>", "<|startofpiece|>", "<|endofpiece|>"],
     )
 )
 
@@ -374,6 +374,7 @@ def predict(model, text, tokenizer=None,
     
     template_map = {"AquilaChat2-7B": "aquila-v1",
                     "AquilaChat2-34B": "aquila-legacy",
+                    "AquilaChat2-70B": "aquila-v2",
                     "AquilaChat2-7B-16K": "aquila",
                     "AquilaChat2-34B-16K": "aquila"}
     if not convo_template:

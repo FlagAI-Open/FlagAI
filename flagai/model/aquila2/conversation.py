@@ -240,7 +240,7 @@ register_conv_template(
         sep_style=SeparatorStyle.NO_COLON_TWO,
         sep="",
         sep2="</s>",
-        stop_str=["</s>", "<|endoftext|>"],
+        stop_str=["</s>", "<|endoftext|>", "<|startofpiece|>", "<|endofpiece|>"],
     )
 )
 
