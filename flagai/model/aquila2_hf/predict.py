@@ -385,7 +385,7 @@ def predict(model, text, tokenizer=None,
         topk = 1
         temperature = 1.0
     if sft:
-        tokens = covert_prompt_to_input_ids_with_history(text, history=history, tokenizer=tokenizer, max_token=2048, convo_template=convo_template)
+        tokens = covert_prompt_to_input_ids_with_history(text, history=history, tokenizer=tokenizer, max_token=20480, convo_template=convo_template)
         tokens = torch.tensor(tokens)[None,].to(device)
     else :
         tokens = tokenizer.encode_plus(text)["input_ids"]
