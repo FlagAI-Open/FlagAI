@@ -4,8 +4,10 @@
 import importlib
 import os
 import copy
+from transformers import AutoTokenizer
+import transformers 
+import math 
 from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
-from flagai.model.aquila2.modeling_aquila import AquilaForCausalLM
 import torch
 
 class LazyImport(object):
@@ -169,7 +171,9 @@ class AutoLoader:
                  low_cpu_mem_usage=True,
                  lora_dir=None,
                  qlora_dir=None,
-                 quantization_config=None,
+                 inference_mode=True,
+                 model_max_length=None,
+                 all_devices=False,
                  **kwargs):
         """
         Args:
@@ -205,8 +209,12 @@ class AutoLoader:
             print(f"All supported models are {list(MODEL_DICT.keys())}")
             return
         if task_name == "aquila2":
+            from flagai.model.aquila2.modeling_aquila import AquilaForCausalLM
             download_path = os.path.join(model_dir, model_name)
-            
+
+            if not torch_dtype and '34b' in model_name.lower():
+                torch_dtype = torch.bfloat16
+
             if not os.path.exists(download_path):
                 # Try to download from ModelHub
                 try:
@@ -251,9 +259,10 @@ class AutoLoader:
                             for file_to_load in model_files:
                                 if "pytorch_model-0" in file_to_load:
                                     _get_checkpoint_path(download_path, file_to_load,
-                                                        model_id)            
-
-            if qlora_dir:
+                                                        model_id)  
+            if 'quantization_config' in kwargs:
+                quantization_config = kwargs['quantization_config']
+            elif qlora_dir:
                 from transformers import BitsAndBytesConfig
                 quantization_config=BitsAndBytesConfig(
                     load_in_4bit=True,
@@ -261,28 +270,47 @@ class AutoLoader:
                     bnb_4bit_quant_type="nf4",
                     bnb_4bit_compute_dtype=torch_dtype,
                 )
+            else:
+                quantization_config = None
+            if inference_mode:
 
-
-            model = AquilaForCausalLM.from_pretrained(download_path,
-                                                    low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
-                                                    quantization_config=quantization_config)
-            
-            model.eval()
-            # from accelerate import load_checkpoint_and_dispatch
-            # model = load_checkpoint_and_dispatch(
-            #                 model, model_dir+model_name, device_map="balanced", no_split_module_classes=["LlamaDecoderLayer"])
-            if not qlora_dir:
-                model.to(device)
-            if lora_dir:
-                from flagai.model.tools.peft import PeftModel
-                model = PeftModel.from_pretrained(model, lora_dir)
-                print("lora modules loaded")
-            if qlora_dir:
-                from flagai.model.tools.peft import PeftModel
-                model = PeftModel.from_pretrained(model, qlora_dir)
-                print("Qlora modules loaded")
-            from transformers import AutoTokenizer
-            tokenizer = AutoTokenizer.from_pretrained(model_dir+model_name)
+                model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype,
+                                                        quantization_config=quantization_config)           
+                model.eval()
+                if not quantization_config:
+                    if all_devices is True:
+                      from accelerate import load_checkpoint_and_dispatch
+                      model = load_checkpoint_and_dispatch(
+                          model, download_path, device_map="balanced", no_split_module_classes=["AquilaDecoderLayer"])
+                    else:
+                      model.to(device)
+                if lora_dir:
+                    from flagai.model.tools.peft import PeftModel
+                    model = PeftModel.from_pretrained(model, lora_dir)
+                    print("lora modules loaded")
+                if qlora_dir:
+                    from flagai.model.tools.peft import PeftModel
+                    model = PeftModel.from_pretrained(model, qlora_dir)
+                    print("Qlora modules loaded")
+            else:
+                # Set RoPE scaling factor
+                config = transformers.AutoConfig.from_pretrained(
+                    download_path,
+                    cache_dir=kwargs['cache_dir'],
+                    trust_remote_code=True,
+                )
+                orig_ctx_len = getattr(config, "max_position_embeddings", None)
+                if orig_ctx_len and model_max_length > orig_ctx_len:
+                    scaling_factor = float(
+                        math.ceil(model_max_length / orig_ctx_len))
+                    config.rope_scaling = {"type": "linear", "factor": scaling_factor}
+                config.use_cache = False
+                model = AquilaForCausalLM.from_pretrained(download_path,low_cpu_mem_usage=low_cpu_mem_usage,
+                                                        **kwargs)
+                # from accelerate import load_checkpoint_and_dispatch
+                # model = load_checkpoint_and_dispatch(
+                #     model, download_path, device_map="auto", no_split_module_classes=["AquilaDecoderLayer"])
+            tokenizer = AutoTokenizer.from_pretrained(download_path)
             self.model = model 
             self.tokenizer = tokenizer 
         else:

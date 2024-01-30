@@ -1,7 +1,7 @@
 import random
 import numpy as np 
 import torch 
-from fastchat.conversation import get_conv_template
+from flagai.model.aquila2.conversation import get_conv_template
 
 def set_random_seed(seed):
     """Set random seed for reproducability."""
@@ -20,6 +20,9 @@ def covert_prompt_to_input_ids_with_history(text, history, tokenizer, max_token,
     conv.append_message(conv.roles[0], text)
 
     example = tokenizer.encode_plus(f"{conv.get_prompt()} ", None, max_length=None)['input_ids']
+
+    if history is None or not isinstance(history, list):
+      history = []
 
     while(len(history) > 0 and (len(example) < max_token)):
         tmp = history.pop()

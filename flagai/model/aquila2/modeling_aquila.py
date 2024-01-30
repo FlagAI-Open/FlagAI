@@ -357,7 +357,7 @@ class AquilaAttention(nn.Module):
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
         attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
-        attn_weights = torch.clamp(attn_weights, min=-1024., max=1024.)
+        #attn_weights = torch.clamp(attn_weights, min=-1024., max=1024.)
         if attn_weights.size() != (bsz, self.num_heads, q_len, kv_seq_len):
             raise ValueError(
                 f"Attention weights should be of size {(bsz, self.num_heads, q_len, kv_seq_len)}, but is"
@@ -917,23 +917,35 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
         return reordered_past
 
     def predict(self, text, tokenizer=None,
-                max_gen_len=200, top_p=0.95,
-                seed=1234, topk=100,
-                temperature=0.9, 
-                sft=True, convo_template = "aquila-chat",
-                device = "cuda"):
+                max_gen_len=200, top_p=0.9,
+                seed=123, topk=15,
+                temperature=1.0, 
+                sft=True, convo_template = "",
+                device = "cuda",
+                model_name="AquilaChat2-7B",
+                history=None,
+                **kwargs):
 
         vocab = tokenizer.get_vocab()
-        #device = device
+
         id2word = {v:k for k, v in vocab.items()}
 
+        
+
+        template_map = {"AquilaChat2-7B": "aquila-v1",
+                        "AquilaChat2-34B": "aquila-legacy",
+                        "AquilaChat2-70B-Expr": "aquila-v2",
+                        "AquilaChat2-7B-16K": "aquila",
+                        "AquilaChat2-34B-16K": "aquila"}
+        if not convo_template:
+            convo_template=template_map.get(model_name, "aquila-chat")
 
         set_random_seed(seed)
         if temperature == 0:
             topk = 1
             temperature = 1.0
         if sft:
-            tokens = covert_prompt_to_input_ids_with_history(text, history=[], tokenizer=tokenizer, max_token=2048, convo_template=convo_template)
+            tokens = covert_prompt_to_input_ids_with_history(text, history=history, tokenizer=tokenizer, max_token=20480, convo_template=convo_template)
             tokens = torch.tensor(tokens)[None,].to(device)
         else :
             tokens = tokenizer.encode_plus(text)["input_ids"]
@@ -1021,11 +1033,17 @@ class AquilaForCausalLM(AquilaPreTrainedModel):
 
             convert_tokens = convert_tokens[1:]
             probs = probs[1:]
+
+        if isinstance(history, list):
+          # Update history
+          history.insert(0, ('ASSISTANT', out))
+          history.insert(0, ('USER', text))
+
         return out 
 
 @add_start_docstrings(
     """
-    The LLaMa Model transformer with a sequence classification head on top (linear layer).
+    The Aquila Model transformer with a sequence classification head on top (linear layer).
 
     [`AquilaForSequenceClassification`] uses the last token in order to do the classification, as other causal models
     (e.g. GPT-2) do.

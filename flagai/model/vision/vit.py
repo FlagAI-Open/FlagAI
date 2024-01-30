@@ -228,6 +228,7 @@ class VisionTransformer(BaseModel):
         super().__init__(config)
         embed_layer=PatchEmbed
         block_fn=Block
+        config = config.json_config
         vit_config = VitConfig(**config)
         vit_config.num_classes = num_classes
         # config = vit_config
