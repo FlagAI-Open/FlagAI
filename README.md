@@ -1,3 +1,4 @@
+[<img src="flagopen.jpeg">](https://flagopen.baai.ac.cn/)
 ![FlagAI](logo.png)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6052/badge)](https://bestpractices.coreinfrastructure.org/projects/6052)
 [![Python application](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml/badge.svg)](https://github.com/FlagAI-Open/FlagAI/actions/workflows/python-app.yml)
