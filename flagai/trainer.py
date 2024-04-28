@@ -701,7 +701,7 @@ class Trainer():
                     optimizer.zero_grad()
                 else:
                     optimizer.step()
-                    # optimizer.zero_grad()
+                    optimizer.zero_grad()
                 self.accumulate_count = 0
             else:
                 self.accumulate_count += 1
@@ -775,7 +775,7 @@ class Trainer():
                         optimizer.zero_grad()
                     else:
                         optimizer.step()
-                        # model.zero_grad()
+                        model.zero_grad()
 
                     self.accumulate_count = 0
                 else:
