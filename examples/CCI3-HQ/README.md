@@ -38,3 +38,7 @@ For Mixed Dataset Experiment all evaluation metrics are averaged.
 For Chinese Dataset Experiment only chinese evaluation metrics are averaged.
 ![Chinese Dataset Experiment](./chinese_dataset_metrics.png)
 
+## References
+1. https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu
+2. https://huggingface.co/HuggingFaceFW/fineweb-edu-classifier
+
