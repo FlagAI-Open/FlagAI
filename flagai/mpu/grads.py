@@ -24,7 +24,10 @@ import sys
 if torch.__version__ >= "2" and sys.platform != "win32":
     from torch import inf
 else:
-    from torch._six import inf
+    try:
+        from torch._six import inf
+    except:
+        from torch import inf
 
 from .initialize import get_model_parallel_group
 from .initialize import get_model_parallel_rank
