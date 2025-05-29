@@ -1,0 +1,43 @@
+{
+    "dataset_config_name": [
+        "en"
+    ],
+    "delta_type": "prefix",
+    "do_eval": true,
+    "do_test": true,
+    "do_train": true,
+    "eval_dataset_config_name": [
+        "en"
+    ],
+    "eval_dataset_name": "stsb",
+    "eval_steps": 100,
+    "evaluation_strategy": "steps",
+    "greater_is_better": true,
+    "learning_rate": 0.0003,
+    "load_best_model_at_end": true,
+    "max_source_length": 128,
+    "metric_for_best_model": "eval_accuracy",
+    "model_name_or_path": "roberta-base",
+    "num_train_epochs": 20,
+    "output_dir": "outputs/prefix/roberta-base/stsb",
+    "overwrite_output_dir": true,
+    "per_device_eval_batch_size": 32,
+    "per_device_train_batch_size": 32,
+    "predict_with_generate": true,
+    "push_to_hub": true,
+    "save_steps": 100,
+    "save_strategy": "steps",
+    "save_total_limit": 1,
+    "seed": 42,
+    "task_name": "stsb",
+    "test_dataset_config_name": [
+        "en"
+    ],
+    "test_dataset_name": "stsb",
+    "tokenizer_name": "roberta-base",
+    "unfrozen_modules": [
+        "deltas",
+        "classifier"
+    ],
+    "warmup_steps": 0
+}

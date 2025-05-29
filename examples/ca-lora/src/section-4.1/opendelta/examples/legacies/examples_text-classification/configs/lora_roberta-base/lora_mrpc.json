@@ -1,0 +1,48 @@
+{
+    "dataset_config_name": [
+        "en"
+    ],
+    "delta_lr": 0.0004,
+    "delta_type": "lora",
+    "do_eval": true,
+    "do_test": true,
+    "do_train": true,
+    "eval_dataset_config_name": [
+        "en"
+    ],
+    "eval_dataset_name": "mrpc",
+    "evaluation_strategy": "epoch",
+    "greater_is_better": true,
+    "metric_for_best_model": "eval_accuracy",
+    "learning_rate": 0.0004,
+    "load_best_model_at_end": true,
+    "lora_alpha": 8,
+    "lora_rank": 8,
+    "max_source_length": 512,
+    "model_name": "roberta",
+    "model_name_or_path": "roberta-base",
+    "non_linearity": "gelu_new",
+    "num_train_epochs": 30,
+    "output_dir": "outputs/lora/roberta-base/v2/mrpc",
+    "per_device_eval_batch_size": 100,
+    "per_device_train_batch_size": 16,
+    "predict_with_generate": true,
+    "save_strategy": "epoch",
+    "save_total_limit": 1,
+    "split_validation_test": true,
+    "task_name": "mrpc",
+    "test_dataset_config_name": [
+        "en"
+    ],
+    "test_dataset_name": "mrpc",
+    "tokenizer_name": "roberta-base",
+    "unfrozen_modules": [
+        "classifier",
+        "deltas",
+        "layer_norm"
+    ],
+    "warmup_ratio": 0.06,
+    "weight_decay": 0.1,
+    "overwrite_output_dir": true,
+    "push_to_hub": false
+}

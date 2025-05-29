@@ -1,0 +1,27 @@
+openai==0.27.6
+pandas==2.0.3
+tqdm==4.65.0
+torch==2.0.0
+tqdm==4.65.0
+sentencepiece==0.1.97
+icetk==0.0.4 # ChatGLM
+cpm_kernels==1.0.11  # ChatGLM
+transformers==4.29.0
+datasets==2.10.1
+bitsandbytes==0.37.2  # Load 8bit
+accelerate==0.17.1  # Load 8bit
+numpy==1.24.2
+peft==0.3.0
+tiktoken==0.3.3  # OpenAI tokenizer
+openai==0.27.6
+einops==0.6.1
+# ChatRWKV
+rwkv==0.7.3
+torchvision==0.15.1
+safetensors==0.3.1
+# LM-Eval
+sacrebleu==2.3.1
+protobuf==3.20.3
+pycountry==22.3.5
+rouge-score==0.1.2
+pytablewriter==1.0.0

@@ -1,0 +1,29 @@
+{ "distillation": {
+    "ce_scale": 0,
+    "ce_temp": 1,
+      
+    "mse_hidn_scale": 0,
+    "mse_hidn_module": [],
+    "mse_hidn_proj": false,
+      
+    "mse_att_scale": 0,
+    "mse_att_module": []
+  },
+
+  "pruning": {
+    "is_pruning": false,
+    "pruning_mask_path": "",
+    "pruned_module": [],
+    "mask_method": "m4n2_1d/m4n2_2d"
+  },
+
+  "quantization": {
+    "is_quant": true,
+    "quantized_module": []
+  },
+
+  "MoEfication": {
+    "is_moefy": false,
+    "first_FFN_module": []
+  }  
+}

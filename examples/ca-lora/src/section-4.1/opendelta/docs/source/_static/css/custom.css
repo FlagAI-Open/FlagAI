@@ -1,0 +1,268 @@
+/* a, */
+.wy-menu-vertical header,
+.wy-menu-vertical p.caption,
+.wy-nav-top .fa-bars,
+.wy-menu-vertical a:hover,
+
+/* Colors and text decoration.
+ For example, :black:`text in black` or :blink:`text blinking` in rST. */
+
+ /* .black {
+    color: black;
+}
+
+.gray {
+    color: gray;
+}
+
+.grey {
+    color: gray;
+}
+
+.silver {
+    color: silver;
+}
+
+.white {
+    color: white;
+}
+
+.maroon {
+    color: maroon;
+}
+
+.red {
+    color: red;
+}
+
+.magenta {
+    color: magenta;
+}
+
+.fuchsia {
+    color: fuchsia;
+}
+
+.pink {
+    color: pink;
+}
+
+.orange {
+    color: rgba(218, 135, 12, 0.897);
+} */
+
+/* .string {
+	color: rgb(172, 51, 44);
+} */
+
+/* .yellow {
+    color: yellow;
+}
+
+.lime {
+    color: lime;
+}
+
+.green {
+    color: green;
+}
+
+.olive {
+    color: olive;
+}
+
+.teal {
+    color: teal;
+}
+
+.cyan {
+    color: cyan;
+}
+
+.aqua {
+    color: aqua;
+}
+
+.blue {
+    color: blue;
+}
+
+.navy {
+    color: navy;
+}
+
+.purple {
+    color: purple;
+}
+
+.under {
+    text-decoration: underline;
+}
+
+.over {
+    text-decoration: overline;
+}
+
+.blink {
+    text-decoration: blink;
+}
+
+.line {
+    text-decoration: line-through;
+}
+
+.strike {
+    text-decoration: line-through;
+}
+
+.it {
+    font-style: italic;
+}
+
+.ob {
+    font-style: oblique;
+}
+
+.small {
+    font-size: small;
+}
+
+.large {
+    font-size: large;
+}
+
+.smallpar {
+    font-size: small;
+} */
+
+a:link {
+	color: rgb(141, 99, 224)
+}
+
+a:visited {
+	color: rgb(141, 99, 224)
+}
+
+a:hover {
+	color: rgb(147, 47, 218)
+}
+.rst-content code.literal
+{
+	color: rgb(172, 49, 42) !important; 
+	/* #5360f0 */
+}
+
+.rst-content tt.literal
+{
+	color: #f06b53 !important; 
+}
+/* #a153f0  */
+/* inspired by sphinx press theme */
+.wy-menu.wy-menu-vertical li.toctree-l1.current > a {
+	border-left: solid 15px rgb(150, 92, 232) !important;
+	text-indent: -15px;
+	border-top: none;
+	border-bottom: none;
+}
+
+.wy-menu.wy-menu-vertical li.toctree-l1.current > ul {
+	border-left: solid 15px #ddcaf7 !important;
+}
+/* inspired by sphinx press theme */
+
+.wy-nav-side {
+	color: unset !important;
+	background: unset !important;
+	border-right: solid 1px #ccc !important;
+}
+
+.wy-side-nav-search,
+.wy-nav-top,
+.wy-menu-vertical li,
+.wy-menu-vertical li a:hover,
+.wy-menu-vertical li a
+{
+	background: unset !important;
+}
+
+.wy-menu-vertical li.current a {
+	border-right: unset !important;
+}
+
+.wy-side-nav-search div,
+.wy-menu-vertical a {
+	color: #404040 !important;
+}
+
+.wy-menu-vertical button.toctree-expand {
+	color: #333 !important;
+}
+
+.wy-nav-content {
+	max-width: unset;
+}
+
+.rst-content {
+	max-width: 900px;
+}
+
+.wy-nav-content .icon-home:before {
+	content: "Docs";
+}
+
+.wy-side-nav-search .icon-home:before {
+	content: "";
+}
+
+dl.field-list {
+	display: block !important;
+}
+
+dl.field-list > dt:after {
+	content: "" !important;
+}
+
+dl.field-list > dt {
+	display: table;
+	padding-left: 6px !important;
+	padding-right: 6px !important;
+	margin-bottom: 4px !important;
+	padding-bottom: 1px !important;
+	background: rgb(252, 237, 208);
+	border-left: solid 2px rgb(231, 181, 134);
+}
+
+
+dl.py.class>dt
+{
+	color: rgba(17, 16, 17, 0.822) !important;
+	background: rgb(247, 234, 252) !important;
+	border-top: solid 2px #b620d0 !important;
+}
+
+dl.py.method>dt
+{
+	background: rgb(250, 239, 241) !important;
+	border-left: solid 2px rgb(199, 83, 106) !important;
+}
+
+dl.py.attribute>dt,
+dl.py.property>dt
+{
+	background: rgba(194, 233, 248, 0.1) !important;
+	border-left: solid 2px #58b5cc !important;
+}
+
+.fa-plus-square-o::before, .wy-menu-vertical li button.toctree-expand::before,
+.fa-minus-square-o::before, .wy-menu-vertical li.current > a button.toctree-expand::before, .wy-menu-vertical li.on a button.toctree-expand::before
+{
+	content: "";
+}
+
+.rst-content .viewcode-back,
+.rst-content .viewcode-link
+{
+	font-size: 120%;
+}
+
+
