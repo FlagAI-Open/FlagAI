@@ -16,9 +16,14 @@ model = loader.get_model()
 model.eval()
 model.to(device)
 predictor = Predictor(model)
-prompt = "Daenerys Targaryen as a mermeid with a piercing gaze wearing an enchanted bikini in an underwater magical forest, highly detailed face, realistic face, beautiful detailed eyes, fantasy art, in the style of artgerm, illustration, epic, fantasy, intricate, hyper detailed, artstation, concept art, smooth, sharp focus, ray tracing, vibrant, photorealistic"
-negative_prompt = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, extra head, extra legs,fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
+prompt = "สาวสวย"
+# negative_prompt = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, extra head, extra legs,fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
 seed = 553124
-predictor.predict_generate_images(
-    prompt=prompt,negative_prompt=negative_prompt,seed=seed
-)
+
+result = predictor.predict_generate_images(
+    prompt=prompt,
+    # negative_prompt=negative_prompt,
+    outpath="./AltDiffusionOutputs",
+    ddim_steps=50,
+    seed=seed)
+print(type(result), result)
