@@ -83,7 +83,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             elif isinstance(layer, SpatialTransformer):
                 x = layer(x, context)
             else:
-                x = layer(x.half())
+                x = layer(x.half())  # 让自动混合精度控制数据精度 x = layer(x.half())
         return x
 
 
