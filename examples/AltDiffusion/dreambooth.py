@@ -21,9 +21,9 @@ with_prior_preservation = False
 class_data_dir = "Mix"
 class_prompt = "男孩"
 prior_loss_weight = 1.0
-num_class_images = 10
-resolution = 512
-center_crop = True
+num_class_images = 4
+resolution = 128
+center_crop = False
 
 train_text_encoder = False
 train_only_unet = True
