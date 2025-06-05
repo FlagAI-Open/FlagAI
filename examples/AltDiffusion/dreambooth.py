@@ -14,7 +14,7 @@ from flagai.auto_model.auto_loader import AutoLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-instance_data_dir = "/home/hangyi/PycharmProjects/FlagAI/examples/AltDiffusion/instance_images"
+instance_data_dir = "examples/AltDiffusion/instance_images"
 instance_prompt = "<鸣人>男孩"
 
 with_prior_preservation = False
