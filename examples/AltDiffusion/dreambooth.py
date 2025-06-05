@@ -29,7 +29,7 @@ train_text_encoder = False
 train_only_unet = True
 
 num_train_epochs = 10
-batch_size = 1
+batch_size = 2
 learning_rate = 5e-6
 adam_beta1 = 0.9
 adam_beta2 = 0.999
