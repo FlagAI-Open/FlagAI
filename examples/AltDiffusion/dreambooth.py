@@ -28,7 +28,7 @@ center_crop = False
 train_text_encoder = False
 train_only_unet = True
 
-num_train_epochs = 100
+num_train_epochs = 10
 batch_size = 1
 learning_rate = 5e-6
 adam_beta1 = 0.9
@@ -240,5 +240,5 @@ for epoch in range(num_train_epochs):
         scaler.update()                # Update scaler
         optimizer.zero_grad()
 
-checkpoint_path = './checkpoints/DreamBooth/AltDiffusion-m18/model.ckpt'
+checkpoint_path = './checkpoints/AltDiffusion-m18/model.ckpt'
 torch.save(model.state_dict(), checkpoint_path)
