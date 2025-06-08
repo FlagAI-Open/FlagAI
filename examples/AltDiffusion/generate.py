@@ -18,7 +18,7 @@ model.eval()
 model.to(device)
 predictor = Predictor(model)
 predictor.predict_generate_images(
-    prompt="Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation",
+    prompt="男孩",
     # negative_prompt=negative_prompt,
     # outpath="./AltDiffusionOutputs",
     ddim_steps=20
