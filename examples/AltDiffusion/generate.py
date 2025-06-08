@@ -18,7 +18,7 @@ model.eval()
 model.to(device)
 predictor = Predictor(model)
 predictor.predict_generate_images(
-    prompt="男孩",
+    prompt="<鸣人>男孩",
     # negative_prompt=negative_prompt,
     # outpath="./AltDiffusionOutputs",
     ddim_steps=20
