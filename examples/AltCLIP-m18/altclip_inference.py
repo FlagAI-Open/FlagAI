@@ -6,7 +6,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(
     task_name="txt_img_matching",
-    model_name="AltCLIP-XLMR-L-m18",   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_name="AltCLIP-XLMR-L-m18",  # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
     model_dir="./checkpoints"
 )
 
@@ -23,11 +23,11 @@ def inference():
     image = Image.open("./examples/AltCLIP-m18//dog.jpeg")
     image = transform(image)
     image = torch.tensor(image["pixel_values"]).to(device)
-    tokenizer_out = tokenizer(["a rat", "a dog", "a cat"], 
-                                padding=True,
-                                truncation=True,
-                                max_length=77,
-                                return_tensors='pt')
+    tokenizer_out = tokenizer(["a rat", "a dog", "a cat"],
+                              padding=True,
+                              truncation=True,
+                              max_length=77,
+                              return_tensors='pt')
 
     text = tokenizer_out["input_ids"].to(device)
     attention_mask = tokenizer_out["attention_mask"].to(device)
@@ -38,5 +38,5 @@ def inference():
 
     print(text_probs.cpu().numpy()[0].tolist())
 
-if __name__=="__main__":
+if __name__ == "__main__":
     inference()

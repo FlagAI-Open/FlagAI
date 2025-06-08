@@ -515,6 +515,7 @@ class LatentDiffusion(DDPM):
     def to(self, device):
         self.device = device
         self.cond_stage_model.to(device)
+        # self.logvar = self.logvar.to(dtype=torch.float16)  # Move logvar to the same device
         super().to(device)
 
     def __init__(self,
@@ -531,7 +532,7 @@ class LatentDiffusion(DDPM):
                  tokenizer=None,
                  *args,
                  **kwargs):
-        self.device = "cpu"
+        self.device = "cpu"  # original: cpu
         self.tokenizer = tokenizer
         self.num_timesteps_cond = default(num_timesteps_cond, 1)
         self.scale_by_std = scale_by_std
@@ -1266,8 +1267,9 @@ class LatentDiffusion(DDPM):
             x_recon = fold(o) / normalization
 
         else:
-            with autocast():            
-                x_recon = self.model(x_noisy, t, **cond)
+            # from torch import autocast
+            with autocast():
+                    x_recon = self.model(x_noisy, t, **cond)
 
         if isinstance(x_recon, tuple) and not return_ids:
             return x_recon[0]
@@ -1319,7 +1321,11 @@ class LatentDiffusion(DDPM):
 
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
 
-        logvar_t = self.logvar[t].to(self.device)
+        logvar_t = self.logvar.to(t.device)[t]  # logvar_t = self.logvar[t].to(self.device)
+        print(f"self.logvar device: {self.logvar.device}, t device: {t.device}, self.device: {self.device}")
+        print("self.logvar dtype:", self.logvar.dtype)
+        print("t dtype:", t.dtype)
+
         loss = loss_simple / torch.exp(logvar_t) + logvar_t
         # loss = loss_simple / torch.exp(self.logvar) + self.logvar
         if self.learn_logvar:

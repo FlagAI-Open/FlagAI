@@ -15,8 +15,9 @@ from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise
 from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
 from torch.cuda.amp import autocast as autocast
+from flagai.model.mm.modules.distributions.distributions import DiagonalGaussianDistribution
+from flagai.model.mm.modules.ema import LitEma
 import pytorch_lightning as pl
-from torch.cuda.amp import autocast as autocast
 
 
 __conditioning_keys__ = {
