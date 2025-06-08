@@ -17,11 +17,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # =============== 训练参数配置 ===============
 instance_data_dir = "./instance_images"  # 实例图片目录
-instance_prompt = "<鸣人>男孩"          # 实例提示词（包含特殊标识符）
+instance_prompt = "smile😁"          # 实例提示词（包含特殊标识符）
 
 with_prior_preservation = False      # 是否使用先验保留
 class_data_dir = "Mix"               # 类别图片目录
-class_prompt = "男孩"                 # 类别提示词
+class_prompt = "smile"                 # 类别提示词
 prior_loss_weight = 1.0              # 先验损失权重
 num_class_images = 4                 # 类别图片数量
 resolution = 128                     # 图片分辨率

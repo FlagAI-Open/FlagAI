@@ -18,8 +18,12 @@ model.eval()
 model.to(device)
 predictor = Predictor(model)
 predictor.predict_generate_images(
-    prompt="<鸣人>男孩",
+    prompt="smile😁",
     # negative_prompt=negative_prompt,
     # outpath="./AltDiffusionOutputs",
-    ddim_steps=20
+    ddim_steps=20,
+    plms=True,
+    skip_grid=True,      # or False if you want a grid image
+    ddim_step=50,        # adjust as needed
 )
+
