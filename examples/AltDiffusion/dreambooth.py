@@ -234,7 +234,7 @@ for epoch in range(num_train_epochs):
         optimizer.zero_grad()         # 清零梯度
 
 # =============== 保存训练好的模型 ===============
-checkpoint_path = './checkpoints/AltDiffusion-m18/model.ckpt'
+checkpoint_path = './checkpoints/AltDiffusion-m18-new-trained/model.ckpt'
 # 确保目录存在
 os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
 torch.save(model.state_dict(), checkpoint_path)
