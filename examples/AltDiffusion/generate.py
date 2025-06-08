@@ -24,6 +24,5 @@ predictor.predict_generate_images(
     ddim_steps=20,
     plms=True,
     skip_grid=True,      # or False if you want a grid image
-    ddim_step=50,        # adjust as needed
 )
 
