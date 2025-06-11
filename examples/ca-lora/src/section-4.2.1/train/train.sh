@@ -1,1 +1,0 @@
-python qlora_CA-LoRA.py -learning_rate 0.0001 --model_name_or_path /cdgm0705/llama-13b-hf/skyline2006_llama-13b --per_device_train_batch_size 4 --max_steps 2000 --save_steps 2000 
