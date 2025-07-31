@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+
+/data/
+!/data/k-shot/checksum
+/log.lock
+/.idea/
+
+/result/
+/result

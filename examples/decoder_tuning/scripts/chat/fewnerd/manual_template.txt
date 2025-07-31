@@ -1,0 +1,1 @@
+USER: {"placeholder": "text_a"} {"meta": "entity"} is {"mask"}\n ASSISTANT: {"mask"}

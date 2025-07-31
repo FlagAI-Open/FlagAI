@@ -1,0 +1,176 @@
+$def with (content)
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.collapsible {
+  color: white;
+  cursor: pointer;
+  text-align: left;
+  font-size: 15px;
+}
+
+.button_inline {
+  background-color: #333;
+  border: none;
+  outline: none;
+  padding: 0%;
+  margin: 0%;
+}
+
+.selectable {
+  margin: 2px;
+}
+
+.collapsible:hover, .selectable:hover {
+  background-color: #222;
+}
+
+.active.selectable {
+  outline: 1px dashed yellow;
+}
+
+.content {
+  padding: 0px;
+  display: none;
+  overflow: hidden;
+}
+
+.button_inline {
+    display: inline;
+}
+
+.expandable {
+  color: pink;
+}
+
+.expandable-sibling {
+  display: none;
+}
+
+</style>
+</head>
+<body style="line-height: 105%;background-color:#333; color:white">
+
+<button id="submit" style="float:right">submit</button>
+
+$:content
+
+<script>
+function uncompress(o, nolast=false) {
+  const parts = o.split(".");
+  let res = ['root'];
+  let mix = [false];
+  parts.splice(0,1);
+  parts.forEach(function(part, index, __) {
+    let curres = [part];
+    let curmix = [true];
+    if (index == parts.length-1 && nolast) {}
+    else {
+      if (part.includes("-")) {
+        let nums = part.split('-');
+        for (var num = parseInt(nums[0]); num <= parseInt(nums[1]); ++num)
+          curres.push(num.toString());
+      } else if (part.includes(',')) {
+        curres = curres.concat(part.split(","));
+      } else {
+        curmix[0] = false;
+      }
+      while (curmix.length < curres.length) curmix.push(false);
+    }
+
+    let tmpres = Array.from(res); res = [];
+    let tmpmix = Array.from(mix); mix = [];
+    for (var i = 0; i < tmpres.length; ++i)
+    for (var j = 0; j < curres.length; ++j) {
+      res.push(tmpres[i] + '.' + curres[j]);
+      mix.push(tmpmix[i] | curmix[j]);
+    }
+  });
+  return {
+    "idlist": res,
+    "mixlist": mix
+  };
+}
+
+var i;
+var coll = document.getElementsByClassName("collapsible");
+
+function perform_unzip(o) {
+  let obj = uncompress(o.nextElementSibling.id);
+  idlist = obj["idlist"];
+  idlist.forEach(function(id, _, __) {
+    let elm = document.getElementById(id).previousElementSibling;
+    if (elm.innerHTML == "[+]") elm.innerHTML = "[-]";
+    else elm.innerHTML = "[+]";
+    let content = elm.nextElementSibling;
+    while (!content.classList.contains("content")) content = content.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    perform_unzip(this);
+  });
+}
+
+var coll = document.getElementsByClassName("selectable");
+let array = [];
+
+function perform_select(o) {
+  let obj = uncompress(o.id);
+  idlist = obj["idlist"];
+  mixlist = obj["mixlist"];
+  idlist.forEach(function(id, index, __) {
+    let elm = document.getElementById(id);
+    elm.classList.toggle("active");
+    if (!mixlist[index]) {
+      if (o.classList.contains("active")) array.push(id);
+      else array.splice(array.indexOf(id), 1);
+    }
+  });
+  array.sort();
+}
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    perform_select(this);
+  });
+}
+
+var coll = document.getElementsByClassName("expandable");
+
+function perform_expand(o) {
+  let obj = uncompress(o.previousElementSibling.id, true);
+  idlist = obj["idlist"];
+  idlist.forEach(function(id, _, __) {
+    let elm = document.getElementById(id).parentElement;
+    elm.style.display = "none"
+    elm.nextElementSibling.style.display = "block"
+  });
+}
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("dblclick", function() {
+    perform_expand(this);
+  });
+}
+
+var submit = document.getElementById("submit");
+submit.addEventListener("click", function() {
+    const Http = new XMLHttpRequest();
+    const url='/submit/?name='+array.join("&name=");
+    Http.open("GET", url);
+    Http.send();
+    alert("Now go back to your console")
+});
+</script>
+
+</body>
+</html>

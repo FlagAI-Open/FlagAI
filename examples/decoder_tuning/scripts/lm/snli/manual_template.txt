@@ -1,0 +1,1 @@
+{"placeholder": "text_a"} {"placeholder": "text_b"} Does the first sentence entail the second sentece? {"mask"}

@@ -1,0 +1,51 @@
+{
+    "backbone_model": "bart",
+    "dataset_config_name": [
+        "en"
+    ],
+    "datasets_load_from_disk": true,
+    "datasets_saved_path": "/mnt/sfs_turbo/hsd/huggingface_datasets/saved_to_disk/",
+    "delta_type": "soft_prompt",
+    "do_eval": true,
+    "do_test": true,
+    "do_train": true,
+    "eval_dataset_config_name": [
+        "en"
+    ],
+    "eval_dataset_name": "superglue-boolq",
+    "eval_steps": 500,
+    "evaluation_strategy": "steps",
+    "gradient_accumulation_steps":1,
+    "greater_is_better": true,
+    "learning_rate": 0.1,
+    "load_best_model_at_end": true,
+    "max_source_length": 256,
+    "metric_for_best_model": "average_metrics",
+    "model_name_or_path": "/mnt/sfs_turbo/hsd/plm_cache/bart-large",
+    "model_path_public": "bart-large",
+    "num_train_epochs": 50,
+    "output_dir": "outputs/soft_prompt/bart-large/superglue-boolq",
+    "overwrite_output_dir": true,
+    "per_device_eval_batch_size": 32,
+    "per_device_train_batch_size": 32,
+    "predict_with_generate": true,
+    "push_to_dc": true,
+    "push_to_hf": false,
+    "save_steps": 500,
+    "save_strategy": "steps",
+    "save_total_limit": 1,
+    "seed": 42,
+    "soft_token_num":100,
+    "split_validation_test": true,
+    "task_name": "superglue-boolq",
+    "test_dataset_config_name": [
+        "en"
+    ],
+    "test_dataset_name": "superglue-boolq",
+    "tokenizer_name": "/mnt/sfs_turbo/hsd/plm_cache/bart-large",
+    "token_init": true,
+    "unfrozen_modules": [
+        "deltas"
+    ],
+    "warmup_steps": 0
+}
