@@ -1,10 +1,17 @@
+from typing import Tuple, Any, Optional, Union
+
 from transformers.models.clip.modeling_clip import *
 import torch.nn as nn
 import torch
-from transformers.models.clip.modeling_clip import CLIPOutput
-from transformers import CLIPProcessor
+from transformers.models.clip.modeling_clip import CLIPOutput, CLIPVisionTransformer, clip_loss
+from transformers import CLIPProcessor, CLIPConfig, CLIPVisionConfig
 import os
+
+from transformers.models.clip.modeling_flax_clip import CLIP_VISION_INPUTS_DOCSTRING, CLIP_INPUTS_DOCSTRING
+from transformers.utils import add_start_docstrings_to_model_forward, replace_return_docstrings
+
 from flagai.model.base_model import BaseModel
+from dataclasses import dataclass
 
 from .modeling_berts import BertSeriesConfig, RobertaSeriesConfig, BertSeriesModelWithTransformation, RobertaSeriesModelWithTransformation
 

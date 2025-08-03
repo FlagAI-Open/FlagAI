@@ -9,7 +9,7 @@ from flagai.model.predictor.predictor import Predictor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 loader = AutoLoader(task_name="text2img", #contrastive learning
-                    model_name="AltDiffusion-m9",
+                    model_name="AltDiffusion-m18",  # use m18 to do the experiment
                     model_dir="./checkpoints",
                     fp16=False)
 
@@ -18,5 +18,11 @@ model.eval()
 model.to(device)
 predictor = Predictor(model)
 predictor.predict_generate_images(
-    "Anime portrait of natalie portman as an anime girl by stanley artgerm lau, wlop, rossdraws, james jean, andrei riabovitchev, marc simonetti, and sakimichan, trending on artstation"
+    prompt="smile😁",
+    # negative_prompt=negative_prompt,
+    # outpath="./AltDiffusionOutputs",
+    ddim_steps=20,
+    plms=True,
+    skip_grid=True,      # or False if you want a grid image
 )
+
