@@ -11,7 +11,7 @@ from torchvision.datasets import (
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-dataset_root = "./clip_benchmark_datasets"
+dataset_root = "./data"
 dataset_name = "cifar10"
 
 batch_size = 4
