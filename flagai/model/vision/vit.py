@@ -225,10 +225,12 @@ class VisionTransformer(BaseModel):
             norm_layer: (nn.Module): normalization layer
             act_layer: (nn.Module): MLP activation layer
         """
+        config = config.json_config
         super().__init__(config)
         embed_layer=PatchEmbed
         block_fn=Block
-        config = config.json_config
+        if 'use_cache' in config:
+            del config['use_cache']
         vit_config = VitConfig(**config)
         vit_config.num_classes = num_classes
         # config = vit_config

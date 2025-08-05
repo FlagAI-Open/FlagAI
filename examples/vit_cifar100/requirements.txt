@@ -1,0 +1,5 @@
+pillow
+antlr4
+pytorch-lightning==1.9.0
+taming-transformers==0.0.6
+transformers==4.30.0
