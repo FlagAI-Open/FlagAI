@@ -11,6 +11,7 @@ import itertools
 from pathlib import Path
 
 import torch
+from torch.cuda.amp import autocast as autocast
 from torch.utils.data import Dataset
 from PIL import Image
 from torchvision import transforms
@@ -34,7 +35,7 @@ center_crop = True
 train_text_encoder = False
 train_only_unet = True
 
-num_train_epochs = 500
+num_train_epochs = 10
 batch_size = 4
 learning_rate = 5e-6
 adam_beta1 = 0.9
@@ -197,20 +198,23 @@ for epoch in range(num_train_epochs):
         if with_prior_preservation:
             x, x_prior = torch.chunk(x, 2, dim=0)
             c, c_prior = torch.chunk(c, 2, dim=0)
-            loss, _ = model(x, c)
+            with autocast():
+                loss, _ = model(x, c)
             prior_loss, _ = model(x_prior, c_prior)
             loss = loss + prior_loss_weight * prior_loss
         else:
-            loss, _ = model(x, c)
+            with autocast():
+                loss, _ = model(x, c)
 
         print('*'*20, "loss=", str(loss.detach().item()))
 
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
+        with autocast():
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
 
 ## mkdir ./checkpoints/DreamBooth and copy ./checkpoints/AltDiffusion to ./checkpoints/DreamBooth/AltDiffusion
 ## overwrite model.ckpt for latter usage
-chekpoint_path = './checkpoints/DreamBooth/AltDiffusion/model.ckpt'
+chekpoint_path = './checkpoints/AltDiffusion/dreambooth_model.ckpt'
 torch.save(model.state_dict(), chekpoint_path)
 
