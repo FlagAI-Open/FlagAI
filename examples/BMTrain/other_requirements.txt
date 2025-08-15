@@ -1,0 +1,6 @@
+tqdm
+cpm_kernels>=1.0.11
+jieba
+tensorboard
+setuptools_rust
+transformers

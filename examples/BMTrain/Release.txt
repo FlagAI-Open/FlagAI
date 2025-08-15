@@ -1,0 +1,9 @@
+## What's Changed
+* Using pytorch's hook mechanism to refactor ZeRO, checkpoint, pipeline, communication implementation by @zkh2016 in #128 #159
+* Add Bf16 support by @Achazwl in #136 
+* Tensor parallel implementation by @Achazwl @zkh2016 @MayDomine in #153 
+* Async save state_dict by @zkh2016 in #171
+* `AdamOffloadOptimizer` can save whole gathered state by @MayDomine in #184
+* New test for new version's bmtrain by @Achazwl @JerryYin777 @MayDomine
+**Full Changelog**: https://github.com/OpenBMB/BMTrain/compare/0.2.3...1.0.0
+

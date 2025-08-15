@@ -1,0 +1,89 @@
+name: Build wheels in docker and archive 
+
+on:
+  workflow_call:
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: true
+      DOCKERHUB_USERNAME:
+        required: true
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['37', '38', '39', '310', '311']
+
+  
+    steps:
+
+    - name: Check the disk space and clear unnecessary library
+      run: |
+        rm -rf /home/runner/work/BMTrain/BMTrain/dist
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        df -hl   
+        
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Pull Docker image
+      run: docker pull pytorch/manylinux-cuda113:latest
+
+    - name: Run Docker image and execute script
+      run: |
+        version=${{ matrix.python-version }}
+        docker run -e BUILD_DOCKER_ENV=1 -e CUDACXX=/usr/local/cuda-11.3/bin/nvcc -e PATH="/opt/rh/devtoolset-9/root/usr/bin:$PATH" -e LD_LIBRARY_PATH="/opt/rh/devtoolset-9/root/usr/lib64:/opt/rh/devtoolset-9/root/usr/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH" -v ${{ github.workspace }}:/workspace/BMTrain -i pytorch/manylinux-cuda113:latest /bin/bash -c "cd /workspace/BMTrain;/opt/python/cp${version}*/bin/pip install build; /opt/python/cp${version}*/bin/python -m build .;for file in dist/*-linux_x86_64.whl; do mv \"\$file\" \"\${file//-linux_x86_64/-manylinux2014_x86_64}\"; done"
+
+    - name: Upload wheels as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheels_py${{ matrix.python-version }}
+        path: dist/*.whl
+
+    - name: Upload source distribution (only once)
+      if: matrix.python-version == '37'  # Only upload source distribution once
+      uses: actions/upload-artifact@v4
+      with:
+        name: source_dist
+        path: dist/*.tar.gz
+    
+  archive:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Download all wheels
+      uses: actions/download-artifact@v4
+      with:
+        path: wheels
+        pattern: wheels_py*
+
+    - name: Download source distribution
+      uses: actions/download-artifact@v4
+      with:
+        path: source_dist
+        name: source_dist
+
+    - name: Combine all wheels into a single directory
+      run: |
+        mkdir -p dist
+        find wheels -name '*.whl' -exec mv {} dist/ \;
+        find source_dist -name '*.tar.gz' -exec mv {} dist/ \;
+
+    - name: Archive distribution files
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: |
+          dist/*.tar.gz
+          dist/*.whl
+        overwrite: true

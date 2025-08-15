@@ -1,0 +1,10 @@
+auto_sync_up 0
+local_options -var
+local_path /Users/tachicoma/projects/CPM.cu
+remote_host sa.km
+remote_options -var
+remote_or_local remote
+remote_path /home/sunao/cpm.cu
+remote_port 0
+rsync_flags ["--max-size=100m"]
+backend rsync

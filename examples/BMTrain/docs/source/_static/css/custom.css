@@ -1,0 +1,124 @@
+a,
+.wy-menu-vertical header,
+.wy-menu-vertical p.caption,
+.wy-nav-top .fa-bars,
+.wy-menu-vertical a:hover,
+
+.rst-content code.literal, .rst-content tt.literal
+
+{
+	color: #315EFE  !important; 
+}
+
+/* inspired by sphinx press theme */
+.wy-menu.wy-menu-vertical li.toctree-l1.current > a {
+	border-left: solid 8px #315EFE  !important;
+	border-top: none;
+	border-bottom: none;
+}
+
+.wy-menu.wy-menu-vertical li.toctree-l1.current > ul {
+	border-left: solid 8px #315EFE  !important;
+}
+/* inspired by sphinx press theme */
+
+.wy-nav-side {
+	color: unset !important;
+	background: unset !important;
+	border-right: solid 1px #ccc !important;
+}
+
+.wy-side-nav-search,
+.wy-nav-top,
+.wy-menu-vertical li,
+.wy-menu-vertical li a:hover,
+.wy-menu-vertical li a
+{
+	background: unset !important;
+}
+
+.wy-menu-vertical li.current a {
+	border-right: unset !important;
+}
+
+.wy-side-nav-search div,
+.wy-menu-vertical a {
+	color: #404040 !important;
+}
+
+.wy-menu-vertical button.toctree-expand {
+	color: #333 !important;
+}
+
+.wy-nav-content {
+	max-width: unset;
+}
+
+.rst-content {
+	max-width: 900px;
+}
+
+.wy-nav-content .icon-home:before {
+	content: "Docs";
+}
+
+.wy-side-nav-search .icon-home:before {
+	content: "";
+}
+
+dl.field-list {
+	display: block !important;
+}
+
+dl.field-list > dt:after {
+	content: "" !important;
+}
+
+:root {
+    --dark-blue: #3260F7;
+    --light-blue: rgba(194, 233, 248, 0.1) ;
+}
+  
+dl.field-list > dt {
+	display: table;
+	padding-left: 6px !important;
+	padding-right: 6px !important;
+	margin-bottom: 4px !important;
+	padding-bottom: 1px !important;
+	background: var(--light-blue);
+	border-left: solid 2px var(--dark-blue);
+}
+
+
+dl.py.class>dt
+{
+	color: rgba(17, 16, 17, 0.822) !important;
+	background: var(--light-blue) !important;
+	border-top: solid 2px var(--dark-blue) !important;
+}
+
+dl.py.method>dt
+{
+	background: var(--light-blue) !important;
+	border-left: solid 2px var(--dark-blue) !important;
+}
+
+dl.py.attribute>dt,
+dl.py.property>dt
+{
+	background: var(--light-blue) !important;
+	border-left: solid 2px var(--dark-blue) !important;
+}
+
+.fa-plus-square-o::before, .wy-menu-vertical li button.toctree-expand::before,
+.fa-minus-square-o::before, .wy-menu-vertical li.current > a button.toctree-expand::before, .wy-menu-vertical li.on a button.toctree-expand::before
+{
+	content: "";
+}
+
+.rst-content .viewcode-back,
+.rst-content .viewcode-link
+{
+    color:#58b5cc;
+	font-size: 120%;
+}
