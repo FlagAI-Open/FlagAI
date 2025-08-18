@@ -1,0 +1,79 @@
+
+name: 🐞 Bug Report
+description: Report a bug/issue related to the PyTorch-based parallel model training toolkit
+title: "[BUG] <title>"
+labels: ["bug"]
+body:
+- type: checkboxes
+  attributes:
+    label: Is there an existing issue for this?
+    description: Please search to see if an issue already exists for the bug you encountered.
+    options:
+    - label: I have searched the existing issues
+      required: true
+- type: textarea
+  attributes:
+    label: Description of the Bug
+    description: Provide a clear and concise description of what the bug is.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Environment Information
+    description: |
+      Provide details about your environment.
+      Example:
+        - GCC version: 9.3.0
+        - Torch version: 1.9.0
+        - Linux system version: Ubuntu 20.04
+        - CUDA version: 11.4
+        - Torch's CUDA version (as per `torch.cuda.version()`): 11.3
+    value: |
+        - GCC version:
+        - Torch version:
+        - Linux system version:
+        - CUDA version:
+        - Torch's CUDA version (as per `torch.cuda.version()`):
+    render: markdown
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: To Reproduce
+    description: Provide the steps and details to reproduce the behavior.
+    placeholder: |
+      1. Describe your environment setup, including any specific version requirements.
+      2. Clearly state the steps you took to trigger the error, including the specific code you executed.
+      3. Identify the file and line number where the error occurred, along with the full traceback of the error. Make sure to have `NCCL_DEBUG=INFO` and `CUDA_LAUNCH_BLOCKING=True` set to get accurate debug information.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Expected Behavior
+    description: Describe what you expected to happen when you executed the code.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Screenshots
+    description: If applicable, please add screenshots to help explain your problem.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Additional Information
+    description: |
+      Provide any other relevant context or information about the problem here.
+      Links? References? Anything that will give us more context about the issue you are encountering!
+      Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+  validations:
+    required: false
+- type: checkboxes
+  attributes:
+    label: Confirmation
+    description: Please confirm that you have reviewed all of the above requirements and verified the information provided before submitting this issue.
+    options:
+      - label: I have reviewed and verified all the information provided in this report.
+  validations:
+    required: true
+
