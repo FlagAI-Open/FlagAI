@@ -1,0 +1,18 @@
+Last issue in FlagAI repo:
+
+Title: Add Aquila-chat requirements
+Number: 582
+Author: ftgreat
+State: closed
+Created at: 2025-08-05T14:13:02Z
+Closed at: 2025-08-05T14:13:20Z
+URL: https://github.com/FlagAI-Open/FlagAI/pull/582
+
+Description:
+Please describe here what the PR does.
+
+Checklist:
+- [ ] bug fixed
+- [ ] new feature provided
+- [ ] documentation updated
+- [ ] tests added
