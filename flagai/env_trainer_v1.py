@@ -485,6 +485,7 @@ class EnvTrainer():
                 loss_scale_steps = self.bmt_loss_scale_steps
             else:
                 loss_scale = None
+                loss_scale_steps = None
             optim_manager = bmt.optim.OptimManager(loss_scale=loss_scale,
                                                    loss_scale_steps=loss_scale_steps)
             optim_manager.add_optimizer(self.optimizer, lr_scheduler)
