@@ -204,11 +204,69 @@ class AutoLoader:
         raw_model_name = copy.deepcopy(model_name)
         model_name = model_name.lower()
 
-        if model_name not in MODEL_DICT and task_name != "aquila2":
+        if model_name not in MODEL_DICT and task_name != "aquila2" and task_name != "qwen3" and task_name != "llama3":
             print(f"The model_name: {model_name} is not be supported")
             print(f"All supported models are {list(MODEL_DICT.keys())}")
             return
-        if task_name == "aquila2":
+
+        if task_name == "qwen3" or task_name == "llama3":
+            # transformers >= 4.51.0
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            download_path = os.path.join(model_dir, model_name)
+
+            if not os.path.exists(download_path):
+                # Try to download from ModelHub
+                try:
+                    model_id = _get_model_id(model_name)
+                except:
+                    raise FileNotFoundError("Model name not found in local path and ModelHub")
+                if model_id and model_id != "null":
+                    model_files = eval(_get_model_files(model_name))
+                    print("model files:" + str(model_files))
+                    for file_name in model_files:
+                        if not file_name.endswith("bin"):
+                            _get_vocab_path(download_path, file_name, model_id)
+
+                    if os.path.exists(
+                            os.path.join(download_path, 'config.json')):
+                        if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+                            model_parallel_size = int(os.getenv("MODEL_PARALLEL_SIZE"))
+                            if model_parallel_size > 1:
+                                # if gpus == nums_of_modelhub_models
+                                # can load
+                                # else need to download the pytorch_model.bin and to recut.
+                                model_hub_parallel_size = 0
+                                for f in model_files:
+                                    if "pytorch_model_" in f:
+                                        model_hub_parallel_size += 1
+                        else:
+                            model_parallel_size = 1
+
+                        if "pytorch_model_01.bin" in model_files and model_parallel_size > 1 and model_hub_parallel_size == model_parallel_size:
+                            # Only to download the model slices(megatron-lm).
+                            for file_to_load in model_files:
+                                if "pytorch_model_" in file_to_load:
+                                    _get_checkpoint_path(download_path, file_to_load,
+                                                        model_id)
+
+                        elif 'pytorch_model.bin' in model_files:
+                            checkpoint_path = _get_checkpoint_path(
+                                download_path, 'pytorch_model.bin', model_id)
+                        else:
+                            checkpoint_merge = {}
+                            # maybe multi weights files
+                            for file_to_load in model_files:
+                                if "pytorch_model-0" in file_to_load:
+                                    _get_checkpoint_path(download_path, file_to_load,
+                                                        model_id)  
+
+            model = AutoModelForCausalLM.from_pretrained(download_path)
+            tokenizer = AutoTokenizer.from_pretrained(download_path)
+            if inference_mode:
+                model.eval()
+            self.model = model 
+            self.tokenizer = tokenizer 
+        elif task_name == "aquila2":
             from flagai.model.aquila2.modeling_aquila import AquilaForCausalLM
             download_path = os.path.join(model_dir, model_name)
 
