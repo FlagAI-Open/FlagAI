@@ -33,10 +33,9 @@ from torch.nn import LayerNorm
 print_rank_0 = print
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region
-    from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
-
-    from flagai.mpu.random import checkpoint
+    from megatron.core.tensor_parallel.mappings import copy_to_model_parallel_region, gather_from_model_parallel_region
+    from megatron.core.tensor_parallel.cross_entropy import vocab_parallel_cross_entropy
+    from megatron.core.tensor_parallel.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:

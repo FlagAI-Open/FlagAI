@@ -36,3 +36,19 @@ examples/glm_pretrain/examples/glm_pretrain/data.lazy
 examples/vit_cifar100/cifar100
 examples/vit_cifar100/data
 output/
+
+# macOS resource fork files
+._*
+.___*
+
+# Python cache files
+*.pyc
+*.pyo
+*.py[cod]
+*$py.class
+
+# Backup files
+*.bak
+*.backup
+*_backup.*
+*_old.*

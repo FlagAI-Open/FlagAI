@@ -8,6 +8,7 @@ from transformers import AutoTokenizer
 import transformers 
 import math 
 from flagai.model.file_utils import _get_model_id, _get_checkpoint_path, _get_vocab_path, _get_model_files
+from flagai.model.model_patcher import ModelPatcher, apply_model_patches
 import torch
 
 class LazyImport(object):
@@ -174,6 +175,7 @@ class AutoLoader:
                  inference_mode=True,
                  model_max_length=None,
                  all_devices=False,
+                 training_args=None,
                  **kwargs):
         """
         Args:
@@ -188,6 +190,9 @@ class AutoLoader:
             target_size: For the classification task, all labels size.
             inner_dim: For global pointer ner task, inner_dim is the
                        representation dim of start and end tokens.
+            training_args: TrainingArgs object or namespace with training configuration.
+                          If provided, model patches will be applied automatically based on
+                          training configuration (e.g., enable_flash_attn_models).
         Examples::
 
             # load BERT-base-ch model and tokenizer to do the two
@@ -199,10 +204,28 @@ class AutoLoader:
                                          model_dir="checkpoints",
                                          load_pretrain_params=True,
                                          class_num=2)
+            
+            # Load model with training_args to enable patches
+            >>> from flagai.training_args import TrainingArgs
+            >>> args = TrainingArgs(enable_flash_attn_models=True)
+            >>> auto_loader = AutoLoader(task_name="lm",
+                                         model_name="aquila2-7b",
+                                         training_args=args)
 
         """
         raw_model_name = copy.deepcopy(model_name)
         model_name = model_name.lower()
+        
+        # Apply model patches based on training_args before model initialization
+        # This ensures patches are applied before model classes are instantiated
+        self.model_patcher = None
+        if training_args is not None:
+            self.model_patcher = apply_model_patches(
+                training_args=training_args,
+                model_name=raw_model_name,
+                **kwargs
+            )
+            print(f"Applied model patches: {self.model_patcher.get_applied_patches()}")
 
         if model_name not in MODEL_DICT and task_name != "aquila2" and task_name != "qwen3" and task_name != "llama3":
             print(f"The model_name: {model_name} is not be supported")

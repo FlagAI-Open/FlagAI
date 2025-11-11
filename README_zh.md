@@ -111,7 +111,7 @@
 ### 安装环境
 
 * Python 版本 >= 3.8
-* PyTorch 版本 >= 1.8.0
+* PyTorch 版本 >= 2.9.0
 * [可选] 使用GPUs进行训练和测试, 你需要安装CUDA 和 NCCL
 
 - 通过`pip`安装:
@@ -151,10 +151,11 @@ python setup.py install
 pip install bminf
 
 ```
-- [可选] 对于FlashAttention, 需要安装[Flash-attention](https://github.com/HazyResearch/flash-attention) （>=1.0.2）
+- [可选] 对于FlashAttention, 需要安装[Flash-attention](https://github.com/HazyResearch/flash-attention) （>=3.0.0）
 ```
-pip install flash-attn
+pip install flash-attn --no-build-isolation
 ```
+注意：Flash Attention 3.0 需要 CUDA 11.7+ 和 PyTorch 2.9.0+。对于较旧的 GPU（Turing 架构），请使用 flash-attn 1.x 版本。
 
 - [可选] 镜像构建，请参照 [Dockerfile](https://github.com/FlagAI-Open/FlagAI/blob/master/Dockerfile)
 - [提示] 单节点docker环境下，运行多卡数据并行需要设置host。 例如，docker节点 root@127.0.0.1，其端口 7110。

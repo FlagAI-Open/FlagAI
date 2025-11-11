@@ -6,15 +6,15 @@ import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.trainer import Trainer
-from flagai.env_trainer_v1 import EnvTrainer
-from flagai.env_args import EnvArgs
+from flagai.cli_trainer import CLITrainer
+from flagai.training_args import TrainingArgs
 from examples.gpt3_pretrain.build_index_mappings import _build_train_valid_test_datasets
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
 # For example: python train_env_trainer.py --epochs=300 --batch_size=4 --env_type=pytorch
-env_args = EnvArgs(
+env_args = TrainingArgs(
     env_type="bmtrain",
     experiment_name="gpt2_base",
     batch_size=16,
@@ -36,7 +36,7 @@ env_args = EnvArgs(
 env_args = env_args.parse_args()
 env_args.wandb = False
 
-trainer = EnvTrainer(env_args)
+trainer = CLITrainer(env_args)
 
 # Trainer as Trigger
 if not env_args.not_call_launch:

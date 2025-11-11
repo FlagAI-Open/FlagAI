@@ -24,7 +24,10 @@ from typing import Dict, List, Optional
 import numpy as np
 import random
 import torch
-from flagai import mpu
+try:
+    from megatron.core import mpu
+except:
+    pass
 try:
     import deepspeed
 except:
@@ -377,7 +380,11 @@ def initialize_distributed(args):
 
     print("init distributed")
     # Set the model-parallel / data-parallel communicators.
-    mpu.initialize_model_parallel(args.model_parallel_size)
+    # Use latest megatron-core API: initialize_model_parallel(tensor_model_parallel_size, pipeline_model_parallel_size=1)
+    mpu.initialize_model_parallel(
+        tensor_model_parallel_size=args.model_parallel_size,
+        pipeline_model_parallel_size=1
+    )
     print("set model parallel")
     # Optional DeepSpeed Activation Checkpointing Features
     if hasattr(

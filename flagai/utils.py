@@ -22,7 +22,7 @@ import time
 import numpy as np
 import torch
 import subprocess
-from flagai import mpu
+from megatron.core import mpu
 from flagai.logger import log_dist
 import torch.distributed as dist
 
@@ -140,8 +140,9 @@ def get_checkpoint_name(checkpoints_path, iteration):
     d = '{:d}'.format(iteration)
     env_type = os.getenv("ENV_TYPE")
     if env_type == "deepspeed+mpu":
+        # Use latest megatron-core API: get_tensor_model_parallel_rank()
         filename = 'pytorch_model_{:02d}.bin'.format(
-            mpu.get_model_parallel_rank())
+            mpu.get_tensor_model_parallel_rank())
     else:
         filename = 'pytorch_model.bin'
     return os.path.join(checkpoints_path, d, filename)
@@ -212,7 +213,7 @@ def save_checkpoint(iteration,
         sd['rng_tracker_states'] = mpu.get_cuda_rng_tracker().get_states()
     if env_type == 'pytorch' or (env_type != 'deepspeed+mpu' and env_type != 'bmtrain'
                                  and dist.get_rank() == 0) or (
-                                    env_type == 'deepspeed+mpu'and mpu.get_model_parallel_src_rank() == 0):
+                                    env_type == 'deepspeed+mpu'and mpu.get_tensor_model_parallel_src_rank() == 0):
         ensure_directory_exists(checkpoint_name)
         config_path = os.path.join(save_dir, str(iteration), 'config.json')
 

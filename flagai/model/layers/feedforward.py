@@ -10,13 +10,27 @@ from torch.nn import init
 from .layer_norm import T5LayerNorm
 from .activations import gelu_impl, relu, gelu_new, ACT2FN
 import torch.nn.functional as F
-from flagai.mpu.initialize import get_model_parallel_rank
-from flagai.mpu.initialize import get_model_parallel_world_size
-from flagai.mpu.mappings import copy_to_model_parallel_region
-from flagai.mpu.mappings import gather_from_model_parallel_region
-from flagai.mpu.mappings import reduce_from_model_parallel_region
-from flagai.mpu.mappings import scatter_to_model_parallel_region
-from flagai.mpu.utils import divide
+# Use latest megatron-core API: get_tensor_model_parallel_rank, get_tensor_model_parallel_world_size
+if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
+    from megatron.core.parallel_state import get_tensor_model_parallel_rank as get_model_parallel_rank, get_tensor_model_parallel_world_size as get_model_parallel_world_size
+    from megatron.core.tensor_parallel.mappings import copy_to_model_parallel_region, gather_from_model_parallel_region, reduce_from_model_parallel_region, scatter_to_model_parallel_region
+    from megatron.core.utils import divide
+else:
+    # 定义占位符函数，避免导入错误
+    def get_model_parallel_rank():
+        return 0
+    def get_model_parallel_world_size():
+        return 1
+    def copy_to_model_parallel_region(input_):
+        return input_
+    def gather_from_model_parallel_region(input_):
+        return input_
+    def reduce_from_model_parallel_region(input_):
+        return input_
+    def scatter_to_model_parallel_region(input_):
+        return input_
+    def divide(numerator, denominator):
+        return numerator // denominator
 from flagai.model.utils import normal_init_method
 from flagai.model.layers.linear import CPM3Linear
 

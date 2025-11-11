@@ -32,7 +32,9 @@ setup(
         'Pillow>=9.3.0',
         'einops>=0.3.0',
         'diffusers>=0.7.2',
-        'pytorch-lightning>=1.6.5',
+        'torch==2.2.2',
+        'torchvision==0.17.2',
+        'torchaudio==2.2.2',
         'taming-transformers-rom1504==0.0.6',
         'rouge-score',
         'sacrebleu>=2.3.1',
@@ -41,5 +43,11 @@ setup(
         'PyYAML>=5.4.1',
         'safetensors',
         'timm',
-    ]
+        'packaging',
+    ],
+    extras_require={
+        'deepspeed': ['deepspeed>=0.18.2'],
+        'megatron': ['megatron-core==0.12.3'],
+        'all': ['deepspeed>=0.18.2', 'megatron-core==0.12.3'],
+    }
 )

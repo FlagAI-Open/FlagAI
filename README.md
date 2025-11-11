@@ -122,7 +122,7 @@ We provide many models which are trained to perform different tasks. You can loa
 
 ### Requirements and Installation
 * Python version >= 3.8
-* PyTorch version >= 1.8.0
+* PyTorch version >= 2.9.0
 * [Optional] For training/testing models on GPUs, you'll also need to install CUDA and NCCL
 
 - To install FlagAI with pip:
@@ -161,10 +161,11 @@ python setup.py install
 pip install bminf
 
 ```
-- [Optional] For Flash Attention, install [Flash-attention](https://github.com/HazyResearch/flash-attention) (>=1.0.2)
+- [Optional] For Flash Attention, install [Flash-attention](https://github.com/HazyResearch/flash-attention) (>=3.0.0)
 ```
-pip install flash-attn
+pip install flash-attn --no-build-isolation
 ```
+Note: Flash Attention 3.0 requires CUDA 11.7+ and PyTorch 2.9.0+. For older GPUs (Turing architecture), use flash-attn 1.x instead.
 
 - [Tips] For single-node docker environments, we need to set up ports for your ssh. e.g., root@127.0.0.1 with port 711
 ```

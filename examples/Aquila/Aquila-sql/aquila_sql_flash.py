@@ -15,15 +15,15 @@ import init_path
 
 from flagai.auto_model.auto_loader import AutoLoader
 from flagai.data.tokenizer import Tokenizer
-from flagai.env_args import EnvArgs
-from flagai.env_trainer_v1 import EnvTrainer
+from flagai.training_args import TrainingArgs
+from flagai.cli_trainer import CLITrainer
 import cyg_conversation as conversation_lib
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
 # For example: python train_env_trainer.py --epochs=300 --batch_size=4 --env_type=pytorch
-env_args = EnvArgs(
+env_args = TrainingArgs(
     env_type="bmtrain",
     experiment_name="aquila",
     model_name="llama-7b-en",
@@ -60,7 +60,7 @@ if env_args.yaml_config:
                     arg_dict[key].append(v)
             else:
                 arg_dict[key] = value
-trainer = EnvTrainer(env_args)
+trainer = CLITrainer(env_args)
 
 # Trainer as Trigger
 if not env_args.not_call_launch:

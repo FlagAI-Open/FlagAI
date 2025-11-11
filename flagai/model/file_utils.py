@@ -11,6 +11,13 @@ import torch
 from tqdm.auto import tqdm
 from flagai.logger import log_dist
 
+# Import download sources module
+try:
+    from flagai.model.download_sources import get_downloader, ModelDownloader
+except ImportError:
+    ModelDownloader = None
+    get_downloader = None
+
 is_bmt = 0
 try:
     import bmtrain as bmt
@@ -153,4 +160,76 @@ def _get_model_files(model_name):
     return requests.get('https://model.baai.ac.cn/api/searchModelFileByName', {
         'model_name': model_name
     }).text
+
+
+def _get_checkpoint_path_with_source(download_path, checkpoint_name, model_name, 
+                                     source=None, rank=0):
+    """
+    Download checkpoint with support for multiple sources.
+    
+    Args:
+        download_path: Directory to save the file
+        checkpoint_name: Name of the checkpoint file
+        model_name: Name of the model
+        source: Download source (defaults to environment variable or "baai_modelhub")
+        rank: Process rank for distributed downloads
+    
+    Returns:
+        Path to the downloaded file
+    """
+    if get_downloader is None:
+        # Fallback to original implementation
+        model_id = _get_model_id(model_name)
+        return _get_checkpoint_path(download_path, checkpoint_name, model_id, rank)
+    
+    downloader = get_downloader(source=source)
+    return downloader.download_file(model_name, checkpoint_name, download_path, rank)
+
+
+def _get_vocab_path_with_source(download_path, vocab_name, model_name,
+                                source=None, rank=0):
+    """
+    Download vocab file with support for multiple sources.
+    
+    Args:
+        download_path: Directory to save the file
+        vocab_name: Name of the vocab file
+        model_name: Name of the model
+        source: Download source (defaults to environment variable or "baai_modelhub")
+        rank: Process rank for distributed downloads
+    
+    Returns:
+        Path to the downloaded file
+    """
+    if get_downloader is None:
+        # Fallback to original implementation
+        model_id = _get_model_id(model_name)
+        return _get_vocab_path(download_path, vocab_name, model_id, rank)
+    
+    downloader = get_downloader(source=source)
+    return downloader.download_file(model_name, vocab_name, download_path, rank)
+
+
+def _get_config_path_with_source(download_path, config_name, model_name,
+                                 source=None, rank=0):
+    """
+    Download config file with support for multiple sources.
+    
+    Args:
+        download_path: Directory to save the file
+        config_name: Name of the config file
+        model_name: Name of the model
+        source: Download source (defaults to environment variable or "baai_modelhub")
+        rank: Process rank for distributed downloads
+    
+    Returns:
+        Path to the downloaded file
+    """
+    if get_downloader is None:
+        # Fallback to original implementation
+        model_id = _get_model_id(model_name)
+        return _get_config_path(download_path, config_name, model_id, rank)
+    
+    downloader = get_downloader(source=source)
+    return downloader.download_file(model_name, config_name, download_path, rank)
 

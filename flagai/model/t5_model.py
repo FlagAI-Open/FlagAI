@@ -32,8 +32,8 @@ from flagai.model.layers.attentions import T5Attention
 from flagai.model.layers.feedforward import T5DenseReluDense, T5DenseGatedGeluDense
 from flagai.data.tokenizer.t5.t5_tokenizer import T5JiebaTokenizer
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import copy_to_model_parallel_region
-    from flagai.mpu.random import checkpoint
+        from megatron.core.tensor_parallel.mappings import copy_to_model_parallel_region
+        from megatron.core.tensor_parallel.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:

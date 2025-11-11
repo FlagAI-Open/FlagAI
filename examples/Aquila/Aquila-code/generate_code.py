@@ -3,7 +3,10 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 import torch
 import os
-from flagai import mpu
+try:
+    from megatron.core import mpu
+except ImportError:
+    from flagai import mpu
 import sys
 from flagai.auto_model.auto_loader import AutoLoader
 import random

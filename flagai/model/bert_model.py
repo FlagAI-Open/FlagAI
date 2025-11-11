@@ -29,7 +29,7 @@ from torch import nn
 from typing import List
 import os
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu.random import checkpoint
+    from megatron.core.tensor_parallel.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:

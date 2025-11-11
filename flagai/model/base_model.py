@@ -142,12 +142,14 @@ class BaseModel(Module):
                             brief_model_name, download_path,
                             model_parallel_size)
 
-                from flagai import mpu
-                torch.distributed.barrier(group=mpu.get_model_parallel_group())
+                    from megatron.core import parallel_state as mpu
+                # Use latest megatron-core API: get_tensor_model_parallel_group()
+                torch.distributed.barrier(group=mpu.get_tensor_model_parallel_group())
 
                 if model_parallel_size > 1:
-                    from flagai.mpu import get_model_parallel_rank
-                    model_parallel_rank = get_model_parallel_rank()
+                    # Use latest megatron-core API: get_tensor_model_parallel_rank()
+                    from megatron.core.parallel_state import get_tensor_model_parallel_rank
+                    model_parallel_rank = get_tensor_model_parallel_rank()
                     checkpoint_path = os.path.join(
                         download_path,
                         "pytorch_model_{:02d}.bin".format(model_parallel_rank))

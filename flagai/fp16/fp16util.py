@@ -1,8 +1,5 @@
-# Copyright © 2022 BAAI. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License")
 # coding=utf-8
-# Copyright (c) 2019, NVIDIA CORPORATION.  All rights reserved.
+# Copyright (c) 2020, NVIDIA CORPORATION.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""FP16 utilities for mixed precision training."""
+
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -25,7 +24,6 @@ from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
 class tofp16(nn.Module):
     """
     Utility module that implements::
-
         def forward(self, input):
             return input.half()
     """
@@ -40,12 +38,9 @@ class tofp16(nn.Module):
 def BN_convert_float(module):
     """
     Utility function for network_to_half().
-
     Retained for legacy purposes.
     """
-    if isinstance(
-            module,
-            torch.nn.modules.batchnorm._BatchNorm) and module.affine is True:
+    if isinstance(module, torch.nn.modules.batchnorm._BatchNorm) and module.affine is True:
         module.float()
     for child in module.children():
         BN_convert_float(child)
@@ -55,7 +50,6 @@ def BN_convert_float(module):
 def network_to_half(network):
     """
     Convert model to half precision in a batchnorm-safe way.
-
     Retained for legacy purposes. It is recommended to use FP16Model.
     """
     return nn.Sequential(tofp16(), BN_convert_float(network.half()))
@@ -82,10 +76,11 @@ def convert_network(network, dtype):
     Converts a network's parameters and buffers to dtype.
     """
     for module in network.modules():
-        if isinstance(module, torch.nn.modules.batchnorm._BatchNorm
-                      ) and module.affine is True:
+        if isinstance(module, torch.nn.modules.batchnorm._BatchNorm) and module.affine is True:
             continue
         convert_module(module, dtype)
+        if isinstance(module, torch.nn.RNNBase) or isinstance(module, torch.nn.modules.rnn.RNNBase):
+            module.flatten_parameters()
     return network
 
 
@@ -93,7 +88,6 @@ class FP16Model(nn.Module):
     """
     Convert model to half precision in a batchnorm-safe way.
     """
-
     def __init__(self, network):
         super(FP16Model, self).__init__()
         self.network = convert_network(network, dtype=torch.half)
@@ -103,125 +97,248 @@ class FP16Model(nn.Module):
         return self.network(*inputs)
 
 
-def backwards_debug_hook(grad):
-    raise RuntimeError(
-        "master_params received a gradient in the backward pass!")
-
-
-def prep_param_lists(model, flat_master=False):
+class FP16_Module(nn.Module):
     """
-    Creates a list of FP32 master parameters for a given model, as in
-    `Training Neural Networks with Mixed Precision:  Real Examples`_.
-
-    Args:
-        model (torch.nn.Module): Existing Pytorch model
-        flat_master (bool, optional, default=False):  Flatten the master parameters into a single tensor, as a performance optimization.
-    Returns:
-        A tuple (``model_params``, ``master_params``). ``model_params`` is a list of the model's parameters for later use with :func:`model_grads_to_master_grads` and :func:`master_params_to_model_params`.  ``master_params`` is a list of FP32 master gradients.  If ``flat_master=True``, ``master_params`` will be a list with one element.
-
-    Example::
-
-        model_params, master_params = prep_param_lists(model)
-
-    .. warning::
-        Currently, if ``flat_master=True``, all the model's parameters must be the same type.  If the model has parameters of different types, use ``flat_master=False``, or use :class:`FP16_Optimizer`.
-
-    .. _`Training Neural Networks with Mixed Precision:  Real Examples`:
-        http://on-demand.gputechconf.com/gtc/2018/video/S81012/
+    FP16 wrapper module that converts inputs to fp16 and handles mixed precision training.
     """
-    model_params = [
-        param for param in model.parameters() if param.requires_grad
-    ]
+    def __init__(self, module):
+        super(FP16_Module, self).__init__()
+        self.module = module.half()
 
-    if flat_master:
-        # Give the user some more useful error messages
-        try:
-            # flatten_dense_tensors returns a contiguous flat array.
-            # http://pytorch.org/docs/master/_modules/torch/_utils.html
-            master_params = _flatten_dense_tensors(
-                [param.data for param in model_params]).float()
-        except:
-            print(
-                "Error in prep_param_lists:  model may contain a mixture of parameters "
-                "of different types.  Use flat_master=False, or use F16_Optimizer."
+    def forward(self, *inputs, **kwargs):
+        # Convert inputs to fp16
+        inputs = tuple(inp.half() if inp.is_floating_point() else inp for inp in inputs)
+        
+        # Forward through the module
+        outputs = self.module(*inputs, **kwargs)
+        
+        # Convert outputs back to fp32 if needed
+        if isinstance(outputs, torch.Tensor):
+            return outputs.float() if outputs.is_floating_point() else outputs
+        elif isinstance(outputs, (tuple, list)):
+            return type(outputs)(
+                out.float() if isinstance(out, torch.Tensor) and out.is_floating_point() else out
+                for out in outputs
             )
-            raise
-        master_params = torch.nn.Parameter(master_params)
-        master_params.requires_grad = True
-        # master_params.register_hook(backwards_debug_hook)
-        if master_params.grad is None:
-            master_params.grad = master_params.new(*master_params.size())
-        return model_params, [master_params]
-    else:
-        master_params = [
-            param.clone().float().detach() for param in model_params
-        ]
-        for param in master_params:
-            param.requires_grad = True
-        return model_params, master_params
+        else:
+            return outputs
+
+    def state_dict(self, destination=None, prefix='', keep_vars=False):
+        return self.module.state_dict(destination, prefix, keep_vars)
+
+    def load_state_dict(self, state_dict, strict=True):
+        return self.module.load_state_dict(state_dict, strict)
 
 
-def model_grads_to_master_grads(model_params,
-                                master_params,
-                                flat_master=False):
-    """
-    Copy model gradients to master gradients.
+class LossScaler:
+    def __init__(self, scale=1):
+        self.cur_scale = scale
 
-    Args:
-        model_params:  List of model parameters created by :func:`prep_param_lists`.
-        master_params:  List of FP32 master parameters created by :func:`prep_param_lists`.  If ``master_params`` was created with ``flat_master=True``, ``flat_master=True`` should also be supplied to :func:`model_grads_to_master_grads`.
-    """
-    if flat_master:
-        # The flattening may incur one more deep copy than is necessary.
-        master_params[0].grad.data.copy_(
-            _flatten_dense_tensors([p.grad.data for p in model_params]))
-    else:
-        for model, master in zip(model_params, master_params):
-            if model.grad is not None:
-                if master.grad is None:
-                    master.grad = Variable(
-                        master.data.new(*master.data.size()))
-                master.grad.data.copy_(model.grad.data)
+
+class DynamicLossScaler:
+    def __init__(self,
+                 init_scale=2**32,
+                 scale_factor=2.,
+                 scale_window=1000,
+                 min_scale=1,
+                 delayed_shift=1,
+                 consecutive_hysteresis=False):
+        self.cur_scale = init_scale
+        self.cur_iter = 0
+        self.last_overflow_iter = -1
+        self.scale_factor = scale_factor
+        self.scale_window = scale_window
+        self.min_scale = min_scale
+        self.delayed_shift = delayed_shift
+        self.cur_hysteresis = delayed_shift
+        self.consecutive_hysteresis = consecutive_hysteresis
+
+    def update_scale(self, overflow):
+        if overflow:
+            if self.consecutive_hysteresis:
+                self.cur_hysteresis = self.delayed_shift
             else:
-                master.grad = None
+                self.cur_hysteresis -= 1
+            if self.cur_hysteresis <= 0:
+                self.cur_scale = max(self.cur_scale / self.scale_factor, self.min_scale)
+                self.cur_hysteresis = self.delayed_shift
+                self.last_overflow_iter = self.cur_iter
+        else:
+            if (self.cur_iter - self.last_overflow_iter) >= self.scale_window:
+                self.cur_scale *= self.scale_factor
+                self.last_overflow_iter = self.cur_iter
+        self.cur_iter += 1
 
 
-def master_params_to_model_params(model_params,
-                                  master_params,
-                                  flat_master=False):
+class FP16_Optimizer:
     """
-    Copy master parameters to model parameters.
-
-    Args:
-        model_params:  List of model parameters created by :func:`prep_param_lists`.
-        master_params:  List of FP32 master parameters created by :func:`prep_param_lists`.  If ``master_params`` was created with ``flat_master=True``, ``flat_master=True`` should also be supplied to :func:`master_params_to_model_params`.
+    FP16 optimizer wrapper that handles loss scaling for mixed precision training.
     """
-    if flat_master:
-        for model, master in zip(
-                model_params,
-                _unflatten_dense_tensors(master_params[0].data, model_params)):
-            model.data.copy_(master)
-    else:
-        for model, master in zip(model_params, master_params):
-            model.data.copy_(master.data)
+    def __init__(self, optimizer, static_loss_scale=1.0, dynamic_loss_scale=False, 
+                 dynamic_loss_args=None):
+        self.optimizer = optimizer
+        self.dynamic_loss_scale = dynamic_loss_scale
+        
+        if dynamic_loss_scale:
+            if dynamic_loss_args is None:
+                dynamic_loss_args = {}
+            self.loss_scaler = DynamicLossScaler(**dynamic_loss_args)
+        else:
+            self.loss_scaler = LossScaler(static_loss_scale)
+            
+        # Create master parameters in FP32
+        self.master_params = []
+        self.model_params = []
+        
+        for param_group in self.optimizer.param_groups:
+            master_param_group = []
+            model_param_group = []
+            
+            for param in param_group['params']:
+                if param.requires_grad:
+                    # Create FP32 master parameter
+                    master_param = param.clone().float().detach()
+                    master_param.requires_grad = True
+                    
+                    master_param_group.append(master_param)
+                    model_param_group.append(param)
+                    
+            self.master_params.append(master_param_group)
+            self.model_params.append(model_param_group)
+            
+            # Replace parameter groups with master parameters
+            param_group['params'] = master_param_group
 
+    def zero_grad(self):
+        """Clear gradients of all optimized parameters."""
+        self.optimizer.zero_grad()
 
-# Backward compatibility fixes
+    def backward(self, loss):
+        """Backward pass with loss scaling."""
+        scaled_loss = loss * self.loss_scaler.cur_scale
+        scaled_loss.backward()
 
+    def step(self):
+        """Optimizer step with gradient unscaling and overflow checking."""
+        # Check for overflow
+        has_overflow = False
+        for master_group, model_group in zip(self.master_params, self.model_params):
+            for master_param, model_param in zip(master_group, model_group):
+                if master_param.grad is not None:
+                    if DynamicLossScaler._has_inf_or_nan(master_param.grad):
+                        has_overflow = True
+                        break
+            if has_overflow:
+                break
+        
+        # Update loss scale
+        if self.dynamic_loss_scale:
+            self.loss_scaler.update_scale(has_overflow)
+        
+        if has_overflow:
+            # Skip optimizer step on overflow
+            return
+        
+        # Unscale gradients and step optimizer
+        for master_group, model_group in zip(self.master_params, self.model_params):
+            for master_param, model_param in zip(master_group, model_group):
+                if master_param.grad is not None:
+                    master_param.grad.div_(self.loss_scaler.cur_scale)
+        
+        # Step optimizer
+        self.optimizer.step()
+        
+        # Copy master parameters back to model parameters
+        for master_group, model_group in zip(self.master_params, self.model_params):
+            for master_param, model_param in zip(master_group, model_group):
+                model_param.data.copy_(master_param.data)
 
-def to_python_float(t):
-    if hasattr(t, 'item'):
-        return t.item()
-    else:
-        return t[0]
+    def state_dict(self):
+        """Return the state dict of the wrapped optimizer."""
+        return {
+            'optimizer': self.optimizer.state_dict(),
+            'loss_scaler': self.loss_scaler.state_dict(),
+            'dynamic_loss_scale': self.dynamic_loss_scale
+        }
 
+    def load_state_dict(self, state_dict):
+        """Load the state dict into the wrapped optimizer."""
+        self.optimizer.load_state_dict(state_dict['optimizer'])
+        self.loss_scaler.load_state_dict(state_dict['loss_scaler'])
+        self.dynamic_loss_scale = state_dict['dynamic_loss_scale']
 
-TORCH_MAJOR = int(torch.__version__.split('.')[0])
-TORCH_MINOR = int(torch.__version__.split('.')[1])
+    @property
+    def param_groups(self):
+        """Return the parameter groups of the wrapped optimizer."""
+        return self.optimizer.param_groups
 
-if torch.cuda.is_available():
-    from flagai import mpu
-else:
-    import torch.nn.utils as mpu
+    def add_param_group(self, param_group):
+        """Add a parameter group to the wrapped optimizer."""
+        # Create FP32 master parameters for the new group
+        master_params = []
+        for param in param_group['params']:
+            if param.requires_grad:
+                master_param = param.clone().float().detach()
+                master_param.requires_grad = True
+                master_params.append(master_param)
+        param_group['params'] = master_params
+        self.optimizer.add_param_group(param_group)
+        # Append to internal lists
+        self.master_params.append(master_params)
+        self.model_params.append([p for p in param_group['params'] if p.requires_grad])
+        if overflow:
+            if self.consecutive_hysteresis:
+                self.cur_hysteresis = self.delayed_shift
+            else:
+                self.cur_hysteresis -= 1
+            if self.cur_hysteresis <= 0:
+                self.cur_scale = max(self.cur_scale / self.scale_factor, self.min_scale)
+                self.cur_hysteresis = self.delayed_shift
+                self.last_overflow_iter = self.cur_iter
+        else:
+            if (self.cur_iter - self.last_overflow_iter) >= self.scale_window:
+                self.cur_scale *= self.scale_factor
+                self.last_overflow_iter = self.cur_iter
+        self.cur_iter += 1
 
-clip_grad_norm = mpu.clip_grad_norm
+    @staticmethod
+    def _has_inf_or_nan(x):
+        try:
+            # if x is half, the .float() incurs a deep copy, but it's necessary if 
+            # Pytorch's .sum() creates a one-element tensor of the same type as x 
+            # (which is true for some recent version of pytorch).
+            cpu_sum = float(x.float().sum())
+            # More efficient version that can be used if .sum() returns a Python scalar
+            # cpu_sum = float(x.sum())
+        except RuntimeError as instance:
+            # We want to check if inst is actually a nan/inf exception.
+            # RuntimeError could come from a different source.
+            if "value cannot be converted" not in instance.args[0]:
+                raise
+            return True
+        else:
+            if cpu_sum == float('inf') or cpu_sum == -float('inf') or cpu_sum != cpu_sum:
+                return True
+            return False
+
+    def state_dict(self):
+        return {'cur_scale': self.cur_scale,
+                'cur_iter': self.cur_iter,
+                'last_overflow_iter': self.last_overflow_iter,
+                'scale_factor': self.scale_factor,
+                'scale_window': self.scale_window,
+                'min_scale': self.min_scale,
+                'delayed_shift': self.delayed_shift,
+                'cur_hysteresis': self.cur_hysteresis,
+                'consecutive_hysteresis': self.consecutive_hysteresis}
+
+    def load_state_dict(self, state_dict):
+        self.cur_scale = state_dict['cur_scale']
+        self.cur_iter = state_dict['cur_iter']
+        self.last_overflow_iter = state_dict['last_overflow_iter']
+        self.scale_factor = state_dict['scale_factor']
+        self.scale_window = state_dict['scale_window']
+        self.min_scale = state_dict['min_scale']
+        self.delayed_shift = state_dict['delayed_shift']
+        self.cur_hysteresis = state_dict['cur_hysteresis']
+        self.consecutive_hysteresis = state_dict['consecutive_hysteresis']

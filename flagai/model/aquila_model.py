@@ -7,7 +7,7 @@ from flagai.model.blocks.aquila_block import AQUILABlock, RMSNorm
 from flagai.model.layers.attentions import precompute_freqs_cis
 from flagai.model.utils import normal_init_method
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu.random import checkpoint
+        from megatron.core.tensor_parallel.random import checkpoint
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint
 else:

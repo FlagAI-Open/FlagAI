@@ -6,14 +6,14 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from flagai.auto_model.auto_loader import AutoLoader
-from flagai.env_trainer import EnvTrainer
-from flagai.env_args import EnvArgs
+from flagai.cli_trainer import CLITrainer
+from flagai.training_args import TrainingArgs
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # You can input all parameters by the command line.
 # For example: python train_env_trainer.py --epochs=300 --batch_size=4 --env_type=pytorch
-env_args = EnvArgs()
-trainer = EnvTrainer(env_args)
+env_args = TrainingArgs()
+trainer = CLITrainer(env_args)
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = cur_dir + '/data/train.src'

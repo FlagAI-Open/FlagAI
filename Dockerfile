@@ -21,8 +21,8 @@ RUN rm /usr/bin/python3 && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     python -m pip install --upgrade pip
 
-RUN pip install torch==1.13.0+cu117 torchvision==0.14.0+cu117 torchaudio==0.13.0 \
-    --extra-index-url https://download.pytorch.org/whl/cu117
+RUN pip install torch==2.9.0+cu118 torchvision==0.20.0+cu118 torchaudio==2.5.0+cu118 \
+    --extra-index-url https://download.pytorch.org/whl/cu118
 
 COPY requirements.txt  ${WORK_DID}/
 

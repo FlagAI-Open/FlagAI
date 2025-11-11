@@ -27,7 +27,7 @@ import torch
 import sys
 
 sys.path.append("../../../")
-from flagai import mpu
+    from megatron.core import mpu
 from flagai.data.dataset.block.lazy_loader import LazyWriter, LazyLoader, exists_lazy
 from flagai.data.dataset.block.corpora import WuDaoCorpus, PromptDataset
 

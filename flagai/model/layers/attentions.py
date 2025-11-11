@@ -44,9 +44,10 @@ except:
     pass
 
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu import get_model_parallel_world_size
-    from flagai.mpu import gather_from_model_parallel_region
-    from flagai.mpu import get_cuda_rng_tracker
+    # Use latest megatron-core API: get_tensor_model_parallel_world_size
+    from megatron.core.parallel_state import get_tensor_model_parallel_world_size as get_model_parallel_world_size
+    from megatron.core.tensor_parallel.mappings import gather_from_model_parallel_region
+    from megatron.core.tensor_parallel.random import get_cuda_rng_tracker
 elif os.getenv('ENV_TYPE') == 'bmtrain':
     pass
 
@@ -844,6 +845,7 @@ class ParallelSelfAttention(torch.nn.Module):
                  relative_encoding=False,
                  performer=False,
                  attention_scale=1.0):
+        global get_cuda_rng_tracker, checkpoint
         super(ParallelSelfAttention, self).__init__()
         self.performer = performer
         # Set output layer initialization if not provided.
@@ -905,10 +907,24 @@ class ParallelSelfAttention(torch.nn.Module):
             self.dense = Linear(hidden_size, hidden_size)
         self.output_dropout = torch.nn.Dropout(output_dropout_prob)
         if 'deepspeed' in os.getenv('env_type', ''):
-            if deepspeed.checkpointing.is_configured():
-                global get_cuda_rng_tracker, checkpoint
-                get_cuda_rng_tracker = deepspeed.checkpointing.get_cuda_rng_tracker
-                checkpoint = deepspeed.checkpointing.checkpoint
+            # 检查检查点配置
+            try:
+                from flagai.deepspeed_utils import is_activation_checkpointing_configured, get_checkpointing_functions
+                if is_activation_checkpointing_configured():
+                    checkpoint_func, get_cuda_rng_tracker_func, _ = get_checkpointing_functions()
+                    if checkpoint_func is not None:
+                        get_cuda_rng_tracker = get_cuda_rng_tracker_func
+                        checkpoint = checkpoint_func
+            except (ImportError, AttributeError):
+                # 如果模块不可用，使用直接导入
+                try:
+                    import deepspeed
+                    if hasattr(deepspeed, 'checkpointing') and hasattr(deepspeed.checkpointing, 'is_configured'):
+                        if deepspeed.checkpointing.is_configured():
+                            get_cuda_rng_tracker = deepspeed.checkpointing.get_cuda_rng_tracker
+                            checkpoint = deepspeed.checkpointing.checkpoint
+                except:
+                    pass
 
     def _transpose_for_scores(self, tensor):
         """Transpose a 3D tensor [b, s, np*hn] into a 4D tensor with

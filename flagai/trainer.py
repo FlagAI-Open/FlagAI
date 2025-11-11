@@ -3,23 +3,37 @@
 # Licensed under the Apache License, Version 2.0 (the "License")
 # Arguments for training
 try:
-    import deepspeed.utils
     import deepspeed
 except:
     pass
+
+# DeepSpeed utilities
+from flagai.deepspeed_utils import (
+        initialize_deepspeed,
+        configure_activation_checkpointing,
+        reset_activation_checkpointing,
+    get_checkpointing_functions,
+)
 try:
-    from flagai import mpu
+    from megatron.core import parallel_state as mpu
 except Exception:
-    pass
+    mpu = None
 
 try:
     import bmtrain as bmt
 except:
     pass
+
+try:
+    import wandb
+except ImportError:
+    wandb = None
+
 import torch
 import argparse
 import os
 import random
+import math
 import numpy as np
 import torch.distributed as dist
 from flagai.logger import log_dist
@@ -27,10 +41,12 @@ from torch.utils.tensorboard import SummaryWriter
 from flagai.utils import load_checkpoint, save_checkpoint, load_optim, load_rng
 from flagai.schedulers import AnnealingLR
 from flagai.optimizers import get_optimizer, get_optimizer_param_groups
+# FP16_Module not available in megatron.core, using flagai implementation
 from flagai.fp16 import FP16_Module
 from flagai.utils import Timers
 from flagai.launch import launch_dist
 from torch.nn.parallel import DistributedDataParallel as DDP
+# DynamicLossScaler not available in megatron.core.fp16, using flagai implementation
 from flagai.fp16 import DynamicLossScaler
 
 """
@@ -38,6 +54,18 @@ The Trainer class, to easily train a pytorh model on a new task.
 """
 def save_best(best_score, eval_dict):
     return best_score if best_score < eval_dict['loss'] else eval_dict['loss']
+
+def get_args_list(env_args):
+    not_need_to_launch_args = ["not_call_launch", "local_rank", "master_port", "master_ip", "hostfile", "num_gpus", "num_nodes", "node_rank"]
+    args_list = []
+    args = dir(env_args)
+    for arg in args:
+        if not arg.startswith("__") and not arg.startswith("_") and arg not in not_need_to_launch_args:
+            args_list.append(f"--{arg}")
+            args_list.append(str(getattr(env_args, arg)))
+
+    print(f"args list is {args_list}")
+    return args_list
 
 class Trainer():
     """
@@ -121,8 +149,11 @@ class Trainer():
         batch_size=1,  # 'Data Loader batch size'
         gradient_accumulation_steps=1,  # 'Data Loader batch size'
         weight_decay=0.1,  # 'weight decay coefficient for L2 regularization'
+        eps=1e-8,  # 'eps used in optim'
         lr=1e-3,
+        warmup_start_lr=0.0,
         warm_up=0.1,
+        warm_up_iters=0,
         epochs=0,  # 'Number of finetunning epochs. Zero results in evaluation only.'
         save_interval=1000,  # 'number of epochs between saves')
         eval_interval=100,
@@ -158,6 +189,16 @@ class Trainer():
         model_parallel_size=1,
         training_script="train.py",
         optimizer_type='adam',
+        wandb=False,
+        wandb_dir=None,
+        wandb_key='3e614eb678063929b16c9b9aec557e2949d5a814',
+        already_fp16=False,
+        resume_dataset=False,
+        shuffle_dataset=True,
+        bmt_cpu_offload=True,
+        bmt_lr_decay_style='cosine',
+        bmt_loss_scale=1024.,
+        bmt_loss_scale_steps=1024,
         extra_args=None,
     ):
 
@@ -174,12 +215,15 @@ class Trainer():
         self.batch_size = batch_size
         self.gradient_accumulation_steps = gradient_accumulation_steps
         self.lr = lr
+        self.warmup_start_lr = warmup_start_lr
         self.weight_decay = weight_decay
+        self.eps = eps
         self.epochs = epochs
         self.clip_grad = clip_grad
         self.seed = seed
         self.fp16 = fp16
         self.warm_up = warm_up
+        self.warm_up_iters = warm_up_iters
 
         self.log_interval = log_interval
         self.eval_interval = eval_interval
@@ -216,6 +260,22 @@ class Trainer():
         self.hostfile = hostfile
         self.training_script = training_script
 
+        # wandb
+        self.wandb = wandb
+        self.wandb_dir = wandb_dir
+        self.wandb_key = wandb_key
+
+        # if model already_fp16, OPT 1.3B
+        self.already_fp16 = already_fp16
+
+        self.resume_dataset = resume_dataset
+        self.shuffle_dataset = shuffle_dataset
+
+        self.bmt_cpu_offload = bmt_cpu_offload
+        self.bmt_lr_decay_style = bmt_lr_decay_style
+        self.bmt_loss_scale = bmt_loss_scale
+        self.bmt_loss_scale_steps = bmt_loss_scale_steps
+
         # TODO
         self.extra_args = extra_args
 
@@ -238,6 +298,11 @@ class Trainer():
                             training_paras=training_paras)
                 os._exit(1)
             self.initialize_distributed()
+
+        # wandb
+        if self.wandb and wandb is not None and hasattr(self, 'rank') and self.rank == 0:
+            wandb.login(key=self.wandb_key)
+            wandb.init(project=self.experiment_name, dir=self.wandb_dir)
 
     def get_dist_args(self):
         """
@@ -269,8 +334,10 @@ class Trainer():
             random.seed(seed)
             np.random.seed(seed)
             torch.manual_seed(seed)
-            if self.env_type == 'deepspeed+mpu':
-                mpu.model_parallel_cuda_manual_seed(seed)
+            if self.env_type == 'deepspeed+mpu' and mpu is not None:
+                # Use latest megatron-core API for model parallel seed
+                from megatron.core.tensor_parallel.random import model_parallel_cuda_manual_seed
+                model_parallel_cuda_manual_seed(seed)
 
     def initialize_distributed(self):
         """Initialize torch.distributed."""
@@ -308,15 +375,25 @@ class Trainer():
         if self.env_type == 'deepspeed+mpu':
             os.environ["MODEL_PARALLEL_SIZE"] = str(self.model_parallel_size)
             try:
-                mpu.initialize_model_parallel(self.model_parallel_size)
+                # Use latest megatron-core API: initialize_model_parallel(tensor_model_parallel_size, pipeline_model_parallel_size=1)
+                mpu.initialize_model_parallel(
+                    tensor_model_parallel_size=self.model_parallel_size,
+                    pipeline_model_parallel_size=1
+                )
                 if 'deepspeed' in self.env_type and self.deepspeed_activation_checkpointing:
-                    deepspeed.checkpointing.configure(
-                        mpu,
+                    configure_activation_checkpointing(
+                        mpu=mpu,
+                        checkpoint_activations=self.checkpoint_activations,
                         deepspeed_config=self.deepspeed_config,
-                        num_checkpoints=self.num_checkpoints)
-                    mpu.checkpoint = deepspeed.checkpointing.checkpoint
-                    mpu.get_cuda_rng_tracker = deepspeed.checkpointing.get_cuda_rng_tracker
-                    mpu.model_parallel_cuda_manual_seed = deepspeed.checkpointing.model_parallel_cuda_manual_seed
+                        num_checkpoints=getattr(self, 'num_checkpoints', None))
+                    # 获取检查点函数
+                    checkpoint, get_cuda_rng_tracker, model_parallel_cuda_manual_seed = get_checkpointing_functions()
+                    if checkpoint:
+                        mpu.checkpoint = checkpoint
+                    if get_cuda_rng_tracker:
+                        mpu.get_cuda_rng_tracker = get_cuda_rng_tracker
+                    if model_parallel_cuda_manual_seed:
+                        mpu.model_parallel_cuda_manual_seed = model_parallel_cuda_manual_seed
             except Exception as e:
                 log_dist(e)
                 log_dist("No mpu is installed! No model parallel is used")
@@ -339,6 +416,7 @@ class Trainer():
                                                shuffle=shuffle)
         else:
             if self.env_type == 'deepspeed+mpu':
+                # Use latest megatron-core API
                 data_rank = mpu.get_data_parallel_rank()
                 #log_dist("*"*80)
                 #log_dist(f"local rank {self.rank} src rank  {rank} data rank {data_rank}")
@@ -504,8 +582,8 @@ class Trainer():
         model.train()
 
         if 'deepspeed' in self.env_type:
-            # initialize the deepspeed
-            model, optimizer, _, lr_scheduler = deepspeed.initialize(
+            # initialize the deepspeed using compatibility layer
+            result = initialize_deepspeed(
                 model=model,
                 # if huggingface t5: param_groups[0]['params']
                 model_parameters=param_groups,
@@ -514,6 +592,14 @@ class Trainer():
                 mpu=mpu if self.env_type == 'deepspeed+mpu' else None,
                 config=self.deepspeed_config,
                 dist_init_required=True)
+            # 处理返回值
+            if isinstance(result, tuple):
+                model, optimizer, _, lr_scheduler = result
+            else:
+                # 新版本可能只返回 engine
+                model = result
+                optimizer = getattr(model, 'optimizer', optimizer)
+                lr_scheduler = getattr(model, 'lr_scheduler', lr_scheduler)
         if self.load_optim:
             load_optim(optimizer, lr_scheduler, sd)
         if self.load_rng:
@@ -940,7 +1026,8 @@ class Trainer():
         return output
 
     def _gather_all_mpu(self, input_):
-        group = mpu.get_model_parallel_group()
+        # Use latest megatron-core API: get_tensor_model_parallel_group()
+        group = mpu.get_tensor_model_parallel_group()
 
         # Bypass the function if we are using only 1 GPU.
         if torch.distributed.get_world_size(group=group) == 1:
@@ -1013,7 +1100,7 @@ class Trainer():
                 in the absence of backward pass the buffers should be reset after each
                 forward pass'''
                 if 'deepspeed' in self.env_type and self.deepspeed_activation_checkpointing:
-                    deepspeed.checkpointing.reset()
+                    reset_activation_checkpointing()
                 logits = step_output['logits']
                 lm_loss = step_output['loss']
                 
@@ -1075,21 +1162,60 @@ class Trainer():
             metric_name = self.metric_methods[i][0]
             metric_dct.update({metric_name: metrics[i]})
         metric_dct.update({"loss": all_losses})
+        # Calculate perplexity
+        all_ppls = []
+        for loss in all_losses:
+            try:
+                ppl = math.exp(loss)
+                all_ppls.append(ppl)
+            except:
+                all_ppls.append(0.0)
+        metric_dct.update({"perplexity": all_ppls})
         return metric_dct
 
     def report_iteration_metrics(self, optimizer, lr, loss, elapsed_time, step,
-                                 total_step):
+                                 total_step, optimizer_manager=None, grad_norm=0.0):
         log_string = ' iteration {:8d}/{:8d} |'.format(step, total_step)
         log_string += ' elapsed time per iteration (ms): {:.1f} |'.format(
             elapsed_time)
         log_string += ' learning rate {:.3E} |'.format(lr)
         log_string += ' loss {:.6E} |'.format(loss)
-        if self.fp16:
-            log_string += ' loss scale {:.1f} |'.format(
-                optimizer.cur_scale if 'deepspeed' in self.env_type else
-                hasattr(optimizer, 'loss_scale') and optimizer.loss_scale)
-        # log_string += ' gradient_accumulation {}/{}'.format(self.accumulate_count, self.gradient_accumulation_steps)
+        perplexity = math.exp(loss)
+        log_string += ' perplexity {:.6E} |'.format(perplexity)
+
+        loss_scale = 0.0
+        # when bmtrain, optimizer is optimizer_manager
+        if self.fp16 and 'bmtrain' in self.env_type:
+            loss_scale = optimizer_manager.loss_scale if optimizer_manager is not None else 0.0
+        elif self.fp16:
+            loss_scale = optimizer.cur_scale if 'deepspeed' in self.env_type \
+                else hasattr(optimizer, 'loss_scale') and optimizer.loss_scale
+        log_string += ' loss scale {:.1f} |'.format(loss_scale)
+
+        log_string += ' grad norm {:.6f} |'.format(grad_norm)
+
+        log_string += ' gradient_accumulation {}/{}'.format(getattr(self, 'accumulate_count', 0), self.gradient_accumulation_steps)
+
         log_dist(log_string, [0])
+
+        # wandb
+        if self.wandb and wandb is not None and hasattr(self, 'rank') and self.rank == 0:
+            metrics = dict()
+            metrics['total_step'] = total_step
+            metrics['elapsed_time'] = elapsed_time
+            metrics['learning rate'] = lr
+            metrics['loss'] = loss
+            metrics['loss_scale'] = loss_scale
+            metrics['perplexity'] = perplexity
+            metrics['grad_norm'] = grad_norm
+            try:
+                # billion per step
+                tokens_num = step * self.world_size * self.batch_size * 2048. / 1000 / 1000 / 1000
+                metrics['tokens_num'] = tokens_num
+            except:
+                pass
+
+            wandb.log(metrics, step=step)
 
     def report_evaluate_metrics(self, prefix, loss, ppl, gpt_loss, bert_loss,
                                 sent_loss, multi_loss, step):
@@ -1116,9 +1242,13 @@ class Trainer():
                                   data_loader=data_loader,
                                   model=model,
                                   verbose=verbose)
+        string = ''
         if eval_dict.get("loss", None) is not None:
             string = ' validation loss at {} | {:.4f}, '.format(
                 prefix, eval_dict["loss"])
+        if eval_dict.get("perplexity", None) is not None:
+            string += ' validation perplexity at {} | {:.4f}, '.format(
+                prefix, eval_dict["perplexity"])
         # with open("results.txt", "a") as myfile:
         #     myfile.write(string)
         if self.metric_methods is None:

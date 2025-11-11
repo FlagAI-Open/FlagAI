@@ -11,10 +11,12 @@ from flagai.model.utils import normal_init_method
 from flagai.model.base_model import BaseModel
 import torch.nn.functional as F
 if os.getenv('ENV_TYPE') == 'deepspeed+mpu':
-    from flagai.mpu.utils import divide
-    from flagai.mpu.random import checkpoint
-    from flagai.mpu import copy_to_model_parallel_region, gather_from_model_parallel_region, get_model_parallel_world_size, get_cuda_rng_tracker
-    from flagai.mpu.cross_entropy import vocab_parallel_cross_entropy
+    from megatron.core.utils import divide
+    from megatron.core.tensor_parallel.random import checkpoint
+    from megatron.core.tensor_parallel.mappings import copy_to_model_parallel_region, gather_from_model_parallel_region
+    from megatron.core.parallel_state import get_model_parallel_world_size
+    from megatron.core.tensor_parallel.random import get_cuda_rng_tracker
+    from megatron.core.tensor_parallel.cross_entropy import vocab_parallel_cross_entropy
 
 elif os.getenv('ENV_TYPE') == 'deepspeed':
     from deepspeed.runtime.activation_checkpointing.checkpointing import checkpoint

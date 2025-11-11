@@ -5,7 +5,10 @@
 import torch
 import os
 import argparse
-from flagai import mpu
+try:
+    from megatron.core import mpu
+except ImportError:
+    from flagai import mpu
 from flagai.auto_model.auto_loader import AutoLoader
 import random
 import numpy as np
