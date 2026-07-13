@@ -300,6 +300,9 @@ FlagAI飞智大部分项目基于 [Apache 2.0 license](https://www.apache.org/li
 <img src="./examples/Aquila/img/merged_platform.jpg" height = "100" align=center />
 </div>
 
+## Acknowledgements
+This work is supported by the National Science and Technology Major Project (No. 2022ZD0116300).
+本项目受新一代人工智能国家科技重大专项（No. 2022ZD0116300）支持。
 
 ## Misc
 
