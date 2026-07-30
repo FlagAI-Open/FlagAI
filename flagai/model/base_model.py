@@ -260,6 +260,7 @@ class BaseModel(Module):
             print("Model hub is not reachable!")
         # prepare the download path
         # downloading the files
+        print(f"Before model_id check: {locals()}") #added debugging print            
         if model_id and model_id != "null":
             model_files = eval(_get_model_files(model_name))
             print("model files:" + str(model_files))
