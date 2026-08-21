@@ -1,0 +1,31 @@
+{
+    "distillation": {
+        "ce_scale": 0,
+
+        "mse_hidn_scale": 0,
+        "mse_hidn_module": ["[post]encoder.output_layernorm:[post]encoder.output_layernorm", "[pre]encoder.layers.9.ffn.layernorm_before_ffn:[pre]encoder.layers.9.ffn.layernorm_before_ffn"],
+        "mse_hidn_proj": false
+    },
+
+    "pruning": {
+        "is_pruning": true,
+        "pruning_mask_path": "/mnt/data/user/tc_agi/user/zhaoweilin/gongbt/BMCook/example/t5-mask-m4n2.bin",
+        "pruned_module": ["ffn.ffn.w_in.w.weight", 
+                            "ffn.ffn.w_out.weight", 
+                            "self_attention.project_q.weight",
+                            "self_attention.project_k.weight", 
+                            "self_attention.project_v.weight", 
+                            "self_attention.attention_out.weight"],
+        "mask_method": "m4n2_1d",
+        "target_sparsity": 0.5
+    },
+
+    "quantization": {
+        "is_quant": false
+    },
+
+    "MoEfication": {
+        "is_moefy": false,
+        "first_FFN_module": ["ffn.layernorm_before_ffn"]
+    }
+}

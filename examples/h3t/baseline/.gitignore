@@ -1,0 +1,15 @@
+__pycache__
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# binaries
+*.so
+
+# tmp files
+*.swp
+
+# AML workspace config file
+*config.json

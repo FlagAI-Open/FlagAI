@@ -1,0 +1,29 @@
+# comments
+epochs: 3
+batch_size: 8
+gradient_accumulation_steps: 1
+# lr: 1.0e-7
+# lr: 1.0e-6
+lr: 2.0e-7
+warm_up: 0.01
+save_interval: 2000
+eps: 1.e-8
+bmt_lr_decay_style: "cosine"
+bmt_cpu_offload: False
+skip_iters: 0
+
+# sft
+bmt_pre_load: True
+
+fp16: True
+# flash
+enable_flashattn: True
+enable_flash_attn_models: True
+
+# dataset
+pretrain_data: True
+enable_pretrain_dataset_prefix: "./pretrain_data/opensource-sql-data-weighted-pretrain_add_sql_bw_add_chase-1turn-add-bw_text_document"
+
+# save_optim: True
+save_optim: True
+save_rng: True

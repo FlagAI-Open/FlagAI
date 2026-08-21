@@ -1,0 +1,52 @@
+{
+    "backbone_model": "gpt-j",
+    "dataset_config_name": [
+        "en"
+    ],
+    "datasets_load_from_disk": true,
+    "datasets_saved_path": "/mnt/sfs_turbo/hsd/huggingface_datasets/saved_to_disk/",
+    "delta_type": "lora",
+    "do_eval": true,
+    "do_test": true,
+    "do_train": true,
+    "eval_dataset_config_name": [
+        "en"
+    ],
+    "eval_dataset_name": "wikitext",
+    "eval_steps": 500,
+    "evaluation_strategy": "steps",
+    "gradient_accumulation_steps":4,
+    "greater_is_better": false,
+    "learning_rate": 0.00003,
+    "load_best_model_at_end": true,
+    "max_source_length": 512,
+    "metric_for_best_model": "average_metrics",
+    "model_name_or_path": "/mnt/sfs_turbo/hsd/plm_cache/gpt-j-6B",
+    "model_path_public": "gpt-j-6B",
+    "num_train_epochs": 2,
+    "output_dir": "outputs/lora/gpt-j-6B/wikitext",
+    "overwrite_output_dir": true,
+    "per_device_eval_batch_size": 2,
+    "per_device_train_batch_size": 2,
+    "predict_with_generate": true,
+    "push_to_dc": true,
+    "push_to_hf": false,
+    "save_steps": 500,
+    "save_strategy": "steps",
+    "save_total_limit": 1,
+    "seed": 42,
+    "split_validation_test": true,
+    "task_name": "wikitext",
+    "test_dataset_config_name": [
+        "en"
+    ],
+    "test_dataset_name": "wikitext",
+    "tokenizer_name": "/mnt/sfs_turbo/hsd/plm_cache/gpt-j-6B",
+    "unfrozen_modules": [
+        "deltas",
+        "layer_norm",
+        "final_layer_norm"
+    ],
+    "warmup_steps": 0,
+    "modified_modules":["20.attn.q_proj","21.attn.q_proj","22.attn.q_proj","23.attn.q_proj","24.attn.q_proj","25.attn.q_proj","26.attn.q_proj","27.attn.q_proj"]
+}

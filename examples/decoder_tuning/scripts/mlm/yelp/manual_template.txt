@@ -1,0 +1,4 @@
+{"placeholder": "text_a"} In summary, it was {"mask"}
+USER: {"placeholder": "text_a"} What is the sentiment of this sentence?\n ASSISTANT: {"mask"}
+{"placeholder": "text_a"} What is the sentiment of this sentence? {"mask"}
+What is the sentiment of this sentence?

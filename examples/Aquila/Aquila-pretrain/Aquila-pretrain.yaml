@@ -1,0 +1,10 @@
+batch_size: 10
+gradient_accumulation_steps: 1
+lr: 3.0e-4
+warm_up: 0.01
+save_interval: 1000
+log_interval: 10
+bmt_loss_scale: 131072
+save_optim: True
+save_rng: True
+eps: 1.e-8

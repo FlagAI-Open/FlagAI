@@ -1,0 +1,1 @@
+USER: {"placeholder": "text_a"} {"placeholder": "text_b"} What is the topic of this sentence?\n ASSISTANT: {"mask"}

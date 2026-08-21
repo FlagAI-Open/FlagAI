@@ -1,0 +1,51 @@
+{
+    "backbone_model": "deberta-v2-xlarge",
+    "dataset_config_name": [
+        "en"
+    ],
+    "datasets_load_from_disk": true,
+    "datasets_saved_path": "/mnt/sfs_turbo/hsd/huggingface_datasets/saved_to_disk/",
+    "delta_type": "compacter",
+    "do_eval": true,
+    "do_test": true,
+    "do_train": true,
+    "eval_dataset_config_name": [
+        "en"
+    ],
+    "eval_dataset_name": "mnli",
+    "eval_steps": 500,
+    "evaluation_strategy": "steps",
+    "greater_is_better": true,
+    "is_seq2seq": false,
+    "learning_rate": 0.0003,
+    "load_best_model_at_end": true,
+    "max_source_length": 256,
+    "metric_for_best_model": "average_metrics",
+    "model_name_or_path": "/mnt/sfs_turbo/hsd/plm_cache/deberta-v2-xlarge",
+    "num_train_epochs": 3,
+    "output_dir": "outputs/compacter/deberta-v2-xlarge/mnli",
+    "overwrite_output_dir": true,
+    "per_device_eval_batch_size": 32,
+    "per_device_train_batch_size": 32,
+    "predict_with_generate": false,
+    "push_to_dc": true,
+    "push_to_hub": false,
+    "save_steps": 500,
+    "save_strategy": "steps",
+    "save_total_limit": 1,
+    "seed": 42,
+    "split_validation_test": true,
+    "task_name": "mnli",
+    "test_dataset_config_name": [
+        "en"
+    ],
+    "test_dataset_name": "mnli",
+    "tokenizer_name": "/mnt/sfs_turbo/hsd/plm_cache/deberta-v2-xlarge",
+    "unfrozen_modules": [
+        "deltas",
+        "layer_norm",
+        "final_layer_norm"
+    ],
+    "warmup_steps": 0,
+    "modified_modules":["attention"]
+}

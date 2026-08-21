@@ -1,0 +1,1 @@
+USER: {"placeholder": "text_a"} What is the sentiment of this sentence?\n ASSISTANT: {"mask"}

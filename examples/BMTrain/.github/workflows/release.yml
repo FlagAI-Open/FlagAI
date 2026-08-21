@@ -1,0 +1,44 @@
+name: Publish release in Github
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+
+  build-archive-wheel:
+
+    uses: OpenBMB/BMTrain/.github/workflows/build_whl.yml@main
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+  publish:
+    needs: build-archive-wheel
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set Up the Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Download distribution files
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist
+
+    - name: Upload Distribution Files to Existing Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/*.tar.gz
+          dist/*.whl
+        tag_name: ${{ github.ref_name }}  # 使用当前触发工作流的 tag
+        token: ${{ secrets.RELEASE_TOKEN }}
+      env:
+        GITHUB_REPOSITORY: OpenBMB/BMTrain
