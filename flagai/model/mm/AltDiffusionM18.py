@@ -14,9 +14,16 @@ from flagai.model.mm.autoencoders import VQModelInterface, IdentityFirstStage, A
 from flagai.model.mm.utils import make_beta_schedule, extract_into_tensor, noise_like
 from flagai.model.mm.Sampler import DDIMSampler
 from flagai.model.base_model import BaseModel
-from torch.cuda.amp import autocast as autocast
+
+
+def _autocast(**kwargs):
+    """torch.amp.autocast("cuda") on torch >= 2.0, else torch.cuda.amp.autocast."""
+    if hasattr(torch, "amp"):
+        return torch.amp.autocast("cuda", **kwargs)
+    return torch.cuda.amp.autocast(**kwargs)
+
+
 import pytorch_lightning as pl
-from torch.cuda.amp import autocast as autocast
 
 
 __conditioning_keys__ = {
@@ -891,7 +898,7 @@ class LatentDiffusion(DDPM):
                 cond = [cond]
             key = 'c_concat' if self.model.conditioning_key == 'concat' else 'c_crossattn'
             cond = {key: cond}
-        with autocast():
+        with _autocast():
             x_recon = self.model(x_noisy, t, **cond)
 
         if isinstance(x_recon, tuple) and not return_ids:

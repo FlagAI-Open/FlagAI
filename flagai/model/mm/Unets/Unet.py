@@ -16,7 +16,14 @@ from flagai.model.mm.utils import (
     timestep_embedding,
 )
 from flagai.model.mm.attentions.attention import SpatialTransformer
-from torch.cuda.amp import autocast as autocast
+
+
+def _autocast(**kwargs):
+    """torch.amp.autocast("cuda") on torch >= 2.0, else torch.cuda.amp.autocast."""
+    if hasattr(th, "amp"):
+        return th.amp.autocast("cuda", **kwargs)
+    return th.cuda.amp.autocast(**kwargs)
+
 
 # dummy replace
 def convert_module_to_f16(x):
@@ -78,7 +85,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     def forward(self, x, emb, context=None):
         for layer in self:
             if isinstance(layer, TimestepBlock):
-                with autocast():
+                with _autocast():
                     x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
                 x = layer(x, context)

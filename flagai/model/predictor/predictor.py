@@ -18,7 +18,15 @@ from tqdm import trange, tqdm
 import time
 from contextlib import contextmanager, nullcontext
 from einops import rearrange
-from torch.cuda.amp import autocast as autocast
+
+
+def _autocast(**kwargs):
+    """torch.amp.autocast("cuda") on torch >= 2.0, else torch.cuda.amp.autocast."""
+    if hasattr(torch, "amp"):
+        return torch.amp.autocast("cuda", **kwargs)
+    return torch.cuda.amp.autocast(**kwargs)
+
+
 from .aquila import aquila_generate
 
 class Predictor:
@@ -456,7 +464,7 @@ class Predictor:
                             unconditional_conditioning=uc,
                             eta=ddim_eta,
                             x_T=start_code)
-                        with autocast():
+                        with _autocast():
                             x_samples_ddim = self.model.decode_first_stage(
                                 samples_ddim)
                         x_samples_ddim = torch.clamp(

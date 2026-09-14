@@ -17,6 +17,12 @@ from einops import repeat
 
 from flagai.model.mm.utils import instantiate_from_config
 
+def _autocast_ctx(**kwargs):
+    """torch.amp.autocast("cuda") on torch >= 2.0, else torch.cuda.amp.autocast."""
+    if hasattr(torch, "amp"):
+        return torch.amp.autocast("cuda", **kwargs)
+    return torch.cuda.amp.autocast(**kwargs)
+
 
 def make_beta_schedule(schedule, n_timestep, linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
     if schedule == "linear":
@@ -133,7 +139,7 @@ class CheckpointFunction(torch.autograd.Function):
     def backward(ctx, *output_grads):
         ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors]
         with torch.enable_grad(), \
-                torch.cuda.amp.autocast(**ctx.gpu_autocast_kwargs):
+                _autocast_ctx(**ctx.gpu_autocast_kwargs):
             # Fixes a bug where the first op in run_function modifies the
             # Tensor storage in place, which is not allowed for detach()'d
             # Tensors.

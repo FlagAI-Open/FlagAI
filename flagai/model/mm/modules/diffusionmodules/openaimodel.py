@@ -7,7 +7,14 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.init import normal_, xavier_normal_, xavier_uniform_, kaiming_normal_, kaiming_uniform_, zeros_
-from torch.cuda.amp import autocast as autocast
+
+
+def _autocast(**kwargs):
+    """torch.amp.autocast("cuda") on torch >= 2.0, else torch.cuda.amp.autocast."""
+    if hasattr(th, "amp"):
+        return th.amp.autocast("cuda", **kwargs)
+    return th.cuda.amp.autocast(**kwargs)
+
 
 from flagai.model.mm.modules.diffusionmodules.util import (
     checkpoint,
@@ -82,7 +89,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     def forward(self, x, emb, context=None, heypernetwork=None):
         for layer in self:
             if isinstance(layer, TimestepBlock):
-                with autocast():
+                with _autocast():
                     x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
                 x = layer(x, context)
